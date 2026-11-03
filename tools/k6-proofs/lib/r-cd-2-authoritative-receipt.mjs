@@ -5,6 +5,7 @@ import {
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
 import { canonicalJson } from './canonical-json.mjs';
+import { proofsServiceName } from './proofs-service-name.mjs';
 
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
@@ -18,6 +19,7 @@ export const R_CD_2_COLLECTOR_SCHEMA =
 
 const FAILURE_CATEGORIES = new Set([
   'missing-send-run-lifecycle',
+  'delegate-not-spawned',
   'send-run-mismatch',
   'provider-or-turn-failure',
   'delegate-replay-unsafe',
@@ -199,6 +201,7 @@ export function validateRcd2AcquisitionReceipt(
   signingKey,
   expectedIdentity,
   evidence,
+  { serviceNameOverride = typeof process === 'undefined' ? undefined : process.env.OPENCLAW_PROOFS_SERVICE_NAME } = {},
 ) {
   const query = receipt?.query;
   const nonce = receipt?.nonce;
@@ -212,7 +215,7 @@ export function validateRcd2AcquisitionReceipt(
   const delegate = receipt?.delegate;
   const rowBinding = receipt?.rowBinding;
   const expectedQuery = reason && expectedIdentity
-    ? `{ resource.service.name="${expectedIdentity.seat.split('-')[0]}-prince" && ` +
+    ? `{ resource.service.name="${proofsServiceName({ seat: expectedIdentity.seat, override: serviceNameOverride })}" && ` +
       `name="continuation.delegate.dispatch" && .reason.hash="${reason.hash}" && ` +
       `.reason.length=${reason.length} && .delegate.mode="silent-wake" }`
     : null;
@@ -435,7 +438,9 @@ function lifecycleChecks(evidence) {
       evidence?.typed_delegate_success_same_run === true,
     typedDelegateSuccessSameRun: evidence?.typed_delegate_success_same_run === true,
     typedDelegateFailureFree: evidence?.typed_delegate_failed_same_run !== true,
-    replaySafe: evidence?.replay_invalid_observed !== true &&
+    // Safe from replay = the runtime refused to replay the delegate-spawning
+    // send run (replayInvalid:true on its own lifecycle end).
+    replaySafe: evidence?.replay_refused_observed === true &&
       evidence?.failureCategory !== 'delegate-replay-unsafe',
     wakeLifecycle: evidence?.wake_lifecycle_observed === true,
     wakeSessionBound: evidence?.wake_session_bound === true,
@@ -541,7 +546,13 @@ export function rCd2AuthorityChecks(evidence, correlation, identity, signingKey)
 
 function categoryFor(evidence, correlation, diagnostics) {
   if (evidence?.channel_message_observed === true) return 'silent-channel-delivery';
-  if (evidence?.failureCategory === 'delegate-replay-unsafe') return 'delegate-replay-unsafe';
+  // Replay allowed is a defect only for a send run that actually spawned the
+  // delegate; without the spawn there is nothing to re-dispatch.
+  if (evidence?.typed_delegate_success_same_run === true &&
+      (evidence?.replay_refused_observed === false ||
+       evidence?.failureCategory === 'delegate-replay-unsafe')) {
+    return 'delegate-replay-unsafe';
+  }
   if (evidence?.typed_delegate_failed_same_run === true ||
       evidence?.failureCategory === 'typed-tool-failure') {
     return 'provider-or-turn-failure';
@@ -555,6 +566,18 @@ function categoryFor(evidence, correlation, diagnostics) {
     return 'missing-terminal-sentinel';
   }
   if (evidence?.dispatch_failure_observed) return 'provider-or-turn-failure';
+  // A proven non-attempt (same definition as the terminal-sentinel branch
+  // above): the accepted send run ended successfully but never attempted the
+  // delegate, i.e. the model skipped the tool. Name it rather than reporting a
+  // generic lifecycle gap. Non-conclusive, so PARTIAL. Unknown attempt state
+  // (e.g. the send never accepted) stays missing-send-run-lifecycle.
+  if (evidence?.send_accepted === true &&
+      evidence?.terminal_success_same_run === true &&
+      evidence?.typed_delegate_attempted_same_run === false &&
+      evidence?.typed_delegate_success_same_run !== true &&
+      evidence?.typed_delegate_failed_same_run !== true) {
+    return 'delegate-not-spawned';
+  }
   if (!diagnostics.lifecycleComplete) {
     const fingerprintsProveMismatch =
       hex(evidence?.send_run_fingerprint, 16) &&
@@ -611,7 +634,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
         quiet: evidence?.post_wake_quiet === true,
         wakeSessionBound: evidence?.wake_session_bound === true,
         failed: evidence?.dispatch_failure_observed === true,
-        replayDiagnostic: evidence?.replay_invalid_observed === true ||
+        replayDiagnostic: evidence?.replay_refused_observed !== true ||
           evidence?.failureCategory === 'delegate-replay-unsafe',
       }),
       topologyFingerprint: binding({
@@ -659,7 +682,7 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
       wakeLifecycleObserved: true,
       unboundSessionVerified: true,
       noChannelVerified: true,
-      replayDiagnosticObserved: evidence?.replay_invalid_observed === true ||
+      replayDiagnosticObserved: evidence?.replay_refused_observed !== true ||
         evidence?.failureCategory === 'delegate-replay-unsafe',
       traceFingerprint: fingerprint(correlation.traceId),
       acceptedSendTraceFingerprint: fingerprint(correlation.rowBinding.acceptedSendTraceId),
@@ -670,6 +693,24 @@ export function resolveRcd2AuthoritativeReceipt({ evidence, correlation, identit
       delegateFingerprint: fingerprint(`${correlation.dispatchSpanId}:${correlation.fireSpanId}`),
     },
   }, signingKey);
+}
+
+/**
+ * Whether a sealed R-CD-2 receipt holds the row's Tempo trace (#600).
+ *
+ * R-CD-2 withholds the raw trace and correlation receipt from its public run
+ * result; the resolver consumes them and seals what it saw into `diagnostics`.
+ * The trace counts as held only when that correlation carried a 32-hex trace
+ * id and was the collector's authenticated acquisition receipt. "Held" means
+ * bound by fingerprint at acquisition: the trace JSON itself is not published
+ * for R-CD-2. A receipt resolved without a correlation (a PARTIAL with no
+ * topology) holds none, so a consumer must keep the row's trace receipts
+ * pending.
+ * Call it only on a receipt that validateRcd2AuthoritativeReceipt accepted.
+ */
+export function rCd2ReceiptHoldsTrace(receipt) {
+  const topology = receipt?.diagnostics?.topology;
+  return topology?.traceId === true && topology?.authenticatedAcquisition === true;
 }
 
 export function validateRcd2AuthoritativeReceipt(receipt, signingKey, expectedIdentity) {
@@ -752,7 +793,7 @@ function failureDiagnosticsAgree(receipt) {
   ];
   if (leaves.every(Boolean)) return false;
   const lifecycleCategories = new Set([
-    'missing-send-run-lifecycle', 'send-run-mismatch',
+    'missing-send-run-lifecycle', 'delegate-not-spawned', 'send-run-mismatch',
     'provider-or-turn-failure', 'delegate-replay-unsafe',
     'silent-channel-delivery', 'missing-terminal-sentinel',
   ]);

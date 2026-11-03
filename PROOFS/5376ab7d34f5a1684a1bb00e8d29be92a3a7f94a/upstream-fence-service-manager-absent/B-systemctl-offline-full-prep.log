@@ -1,0 +1,239 @@
+== environment 2026-10-11T22:32:34Z
+head=5376ab7d34f5a1684a1bb00e8d29be92a3a7f94a upstream_main=00be4531663bd717033c54ef38d6f999f840a147 variant=systemd-installed-not-pid1
+uid=1000 pid1=bash node=v24.17.0 arch=aarch64
+systemctl=/usr/bin/systemctl
+offline
+XDG_RUNTIME_DIR=unset DBUS_SESSION_BUS_ADDRESS=unset
+Downloading the pnpm 12.9.0 binary for linux-arm64...
+pnpm=12.9.0
+
+== 1. unit: upstream main fence + main tests (control)
+-- fence src=main test=main src_sha256=0b5d479798bc58f3
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses through modeled Linux real-FS sibling bindings with literal inline profile metadata 24ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses through modeled Linux real-FS sibling bindings with spaced inline profile metadata 15ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses through modeled Linux real-FS sibling bindings with last assignment inline profile metadata 16ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses through modeled Linux real-FS sibling bindings with spaced reset inline profile metadata 24ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses through modeled Linux real-FS sibling bindings with section and case inline profile metadata 13ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > continues to a live sibling after a Startup file read exhausts its inspection budget 9ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > keeps distinct Startup file bindings when only the second holds dist (running=true) 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > keeps distinct Startup file bindings when only the second holds dist (running=false) 2ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses when only a system-scope sibling overlaps this checkout 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses a live system template instance while a separate user Gateway is installed 9ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts (41 tests) 300ms
+
+ Test Files  1 passed (1)
+      Tests  41 passed (41)
+   Start at  22:32:52
+   Duration  33.77s (transform 93%, import 4%, worker 3%, tests 1%)
+
+
+ Test Files  1 passed (1)
+      Tests  41 passed (41)
+   Start at  22:32:52
+   Duration  33.77s (transform 93%, import 4%, worker 3%, tests 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 1 Vitest shard in 35.79s
+exit=0
+ [38;5;240m  │[0m  ╰── module level directive may not be preserved
+ [38;5;240m  │[0m 
+ [38;5;240m  │[0m [38;5;115mHelp[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+[38;5;246m───╯[0m
+
+[vitest-workers] prepared 4513f93cf1a8 in 21746ms (12993 inputs, 19344 outputs)
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts > checks native absence before building: default=absent siblingOverlap=false 346ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts > checks native absence before building: default=unreadable siblingOverlap=false 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts > checks native absence before building: default=absent siblingOverlap=true 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts (3 tests) 354ms
+   ✓ checks native absence before building: default=absent siblingOverlap=false 346ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:33:28
+   Duration  25.15s (transform 95%, worker 2%, tests 1%, import 1%)
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:33:28
+   Duration  25.15s (transform 95%, worker 2%, tests 1%, import 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 1 Vitest shard in 27.21s
+exit=0
+
+== 2. unit: head fence + head tests (GREEN expected)
+-- fence src=head test=head src_sha256=78799b6ba2b5b496
+[sqlite-test-lifecycle] test/scripts/live-gateway-dist-fence.test.ts: retiring openclaw.stateSnapshotOwners
+
+stderr | retireSqliteTestSingleton (/w/test/sqlite-test-lifecycle.ts:230:13)
+[sqlite-test-lifecycle] test/scripts/live-gateway-dist-fence.test.ts: retiring openclaw.stateDatabaseLifecycle
+[sqlite-test-lifecycle] test/scripts/live-gateway-dist-fence.test.ts: retiring openclaw.stateSnapshotOwners
+
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after an unclassified error 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: inactive 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: failed 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: live 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts (50 tests) 206ms
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  22:33:56
+   Duration  27.16s (transform 95%, import 2%, worker 2%, tests 1%)
+
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  22:33:56
+   Duration  27.17s (transform 95%, import 2%, worker 2%, tests 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 1 Vitest shard in 29.43s
+exit=0
+ [38;5;240m   │[0m ─┬  
+ [38;5;240m   │[0m  ╰── module level directive may not be preserved
+ [38;5;240m   │[0m 
+ [38;5;240m   │[0m [38;5;115mHelp[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives
+[38;5;246m────╯[0m
+
+[vitest-workers] prepared 230bd5a5e222 in 23773ms (12993 inputs, 19344 outputs)
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts > checks native absence before building: default=absent siblingOverlap=false 288ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts > checks native absence before building: default=unreadable siblingOverlap=false 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts > checks native absence before building: default=absent siblingOverlap=true 4ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.absence.test.ts (3 tests) 297ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:34:26
+   Duration  26.76s (transform 96%, worker 2%, tests 1%, import 1%)
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:34:26
+   Duration  26.76s (transform 96%, worker 2%, tests 1%, import 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 1 Vitest shard in 28.70s
+exit=0
+
+== 3. unit: fix reverted (main fence) + head tests (RED expected)
+-- fence src=main test=head src_sha256=0b5d479798bc58f3
+
+Expected: "openclaw-gateway.service"
+Received: "[openclaw] Cannot verify that test preparation is separate from managed Gateway artifacts. Use the existing isolated test runner; no checkout artifacts were rebuilt."
+
+ ❯ test/scripts/live-gateway-dist-fence.test.ts:1074:34
+    1072|         if (result.refuse) {
+    1073|           expect(result.message).toContain("Cannot verify");
+    1074|           expect(result.message).toContain(unit);
+       |                                  ^
+    1075|         }
+    1076|       });
+ ❯ withTestDir src/test-helpers/temp-dir.ts:135:12
+ ❯ test/scripts/live-gateway-dist-fence.test.ts:1053:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 46 passed (50)
+   Start at  22:34:55
+   Duration  30.29s (transform 95%, import 3%, worker 1%, tests 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] failed 1 Vitest shard in 32.56s
+[test] FAILED (exit 1)
+exit=1
+
+== 4. unit: fix reapplied (GREEN expected)
+-- fence src=head test=head src_sha256=78799b6ba2b5b496
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence cross-profile overlap > refuses a live system template instance while a separate user Gateway is installed 8ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (a) proceeds when the service manager is proven absent and nothing is discovered 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (b) still refuses when the manager is proven absent but a service definition is discovered 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after systemd-user-bus-unavailable 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after systemd-inspection-deadline-exceeded 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after service-manager-access-denied 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after an unclassified error 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: inactive 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: failed 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: live 1ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts (50 tests) 222ms
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  22:35:29
+   Duration  27.33s (transform 95%, import 3%, worker 2%, tests 1%)
+
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  22:35:29
+   Duration  27.33s (transform 95%, import 3%, worker 2%, tests 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 1 Vitest shard in 29.59s
+exit=0
+
+== 5. real fence in this container: upstream main
+-- fence src=main test=head src_sha256=0b5d479798bc58f3
+FENCE_RESULT {"refuse":true,"message":"[openclaw] Cannot verify that test preparation is separate from managed Gateway artifacts. Use the existing isolated test runner; no checkout artifacts were rebuilt."}
+
+== 6. real fence in this container: head
+-- fence src=head test=head src_sha256=78799b6ba2b5b496
+FENCE_RESULT {"refuse":false}
+
+== 7. real test preparation at upstream main (refusal expected)
+-- fence src=main test=head src_sha256=0b5d479798bc58f3
+[openclaw] Cannot verify that test preparation is separate from managed Gateway artifacts. Use the existing isolated test runner; no checkout artifacts were rebuilt.
+exit=1
+no dist
+
+== 8. real test preparation at head (build expected)
+-- fence src=head test=head src_sha256=78799b6ba2b5b496
+[build-all] plugins:assets:copy
+[browser] copy: node scripts/copy-chrome-extension.mjs
+[canvas] copy: node scripts/copy-a2ui.mjs
+[workboard] copy: cd ../.. && node --import ./scripts/tsx.mjs scripts/build-plugin-control-ui.mts extensions/workboard --copy
+[x] copy: cd ../.. && node --import ./scripts/tsx.mjs scripts/build-plugin-control-ui.mts extensions/x --copy
+[build-all] plugins:assets:copy done in 2.37s
+[build-all] runtime-postbuild
+[plugin-control-plane-loads] verified 54 built modules with native require and checked doctor closures
+runtime-postbuild: 14 phases completed in 6338ms (slowest: previous release update compat chunks 2938ms)
+[build-all] runtime-postbuild done in 6.89s
+[build-all] build-stamp
+[build-all] build-stamp done in 9ms
+[build-all] runtime-postbuild-stamp
+[build-all] runtime-postbuild-stamp done in 6ms
+[build-all] phase timings: total 1m 6.2s; slowest tsdown 42.9s; check-cli-bootstrap-imports 7.42s; runtime-postbuild 6.89s; external-plugins:local-dist 3.58s; plugins:assets:build 3.02s; plugins:assets:copy 2.37s; build-stamp 9ms; runtime-postbuild-stamp 6ms
+exit=0
+dist entries: 8559
+
+== 9. a Vitest file after real preparation at head
+
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (a) proceeds when the service manager is proven absent and nothing is discovered 6ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (b) still refuses when the manager is proven absent but a service definition is discovered 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after systemd-user-bus-unavailable 4ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after systemd-inspection-deadline-exceeded 4ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after service-manager-access-denied 2ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (c) still refuses after an unclassified error 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: inactive 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: failed 3ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts > live-gateway-dist-fence verified test preparation (#1421) > (d) applies the liveness check to an unresolvable wrapper ExecStart: live 4ms
+ ✓ |tooling| test/scripts/live-gateway-dist-fence.test.ts (50 tests) 568ms
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  22:37:14
+   Duration  34.08s (transform 95%, import 2%, tests 2%, worker 1%)
+
+
+ Test Files  1 passed (1)
+      Tests  50 passed (50)
+   Start at  22:37:14
+   Duration  34.09s (transform 95%, import 2%, tests 2%, worker 1%)
+
+[vitest-workers] verifying completed generation before cleanup
+[test] passed 1 Vitest shard in 36.83s
+exit=0
+== done 2026-10-11T22:37:49Z

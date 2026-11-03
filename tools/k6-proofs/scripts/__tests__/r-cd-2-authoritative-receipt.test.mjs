@@ -63,6 +63,7 @@ function evidence(overrides = {}) {
     terminal_success_same_run: true, typed_delegate_success_same_run: true,
     wake_lifecycle_observed: true, wake_session_bound: true, post_wake_quiet: true,
     channel_message_observed: false, dispatch_failure_observed: false,
+    replay_refused_observed: true,
     send_run_fingerprint: run, terminal_run_fingerprint: run, wake_run_fingerprint: wakeRun,
     row_nonce_fingerprint: rowNonceFingerprint,
     reason_hash: createHash('sha256').update(reason).digest('hex').slice(0, 16),
@@ -618,7 +619,7 @@ test('R-CD-2 classifies every diagnostic failure by its owning group', () => {
       typed_delegate_failure_category: 'codex_dynamic_tool_error',
     }, 'provider-or-turn-failure'],
     ['replaySafe', {
-      replay_invalid_observed: true,
+      replay_refused_observed: false,
       failureCategory: 'delegate-replay-unsafe',
     }, 'delegate-replay-unsafe'],
     ['wakeLifecycle', { wake_lifecycle_observed: false }, 'missing-send-run-lifecycle'],
@@ -958,4 +959,94 @@ test('every production R-CD-2 receipt consumer binds or rejects complete run ide
       /R-CD-2 requires complete runner identity/,
     );
   }
+});
+
+test('R-CD-2 acquisition receipt from an isolated gateway validates under the same service-name override the collector used', () => {
+  // Live failure (isolated 14d31a81b1, docs 3915d027): the collector queried
+  // service "emeric-proof-rerun-14d31a81" (OPENCLAW_PROOFS_SERVICE_NAME, #560)
+  // while the validator hard-coded "<prince>-prince" -> invalid-shape:query-window.
+  const rowEvidence = evidence();
+  const query = `{ resource.service.name="ronan-proof-rerun-14d31a81" && name="continuation.delegate.dispatch" && .reason.hash="${rowEvidence.reason_hash}" && .reason.length=${rowEvidence.reason_length} && .delegate.mode="silent-wake" }`;
+  const isolated = correlation({ query, querySha256: createHash('sha256').update(query).digest('hex') });
+  const validate = (opts) => validateRcd2AcquisitionReceipt(isolated, signingKey, authorityIdentity, rowEvidence, opts).valid;
+  assert.equal(validate({ serviceNameOverride: 'ronan-proof-rerun-14d31a81' }), true);
+  assert.equal(validate({ serviceNameOverride: undefined }), false, 'default <prince>-prince must not accept an isolated query');
+  assert.equal(validate({ serviceNameOverride: 'ronan-proof-rerun-other' }), false, 'a different override must not accept it');
+  assert.equal(
+    validateRcd2AcquisitionReceipt(correlation(), signingKey, authorityIdentity, rowEvidence, { serviceNameOverride: undefined }).valid,
+    true,
+    'the default fleet receipt still validates',
+  );
+  assert.equal(
+    validateRcd2AcquisitionReceipt(correlation(), signingKey, authorityIdentity, rowEvidence, { serviceNameOverride: 'ronan-proof-rerun-14d31a81' }).valid,
+    false,
+    'a fleet receipt does not validate under an isolated override',
+  );
+});
+
+test('R-CD-2 replay contract: the delegate-spawning send run must end with replay refused (🩸, 2026-10-05)', () => {
+  // Current product: an accepted spawn marks the turn replayInvalid, because
+  // replaying it could dispatch the child again. That refusal is the safe signal.
+  const resolve = (overrides) => resolveRcd2AuthoritativeReceipt({
+    evidence: evidence(overrides), correlation: correlation(), signingKey,
+  });
+  const refused = resolve({ replay_refused_observed: true });
+  assert.equal(refused.diagnostics.lifecycle.replaySafe, true);
+  assert.equal(refused.verdict, 'PASS-candidate', JSON.stringify(refused.diagnostics));
+
+  // Fail closed: no refusal observed (field missing) is never replay-safe.
+  const unobserved = resolve({ replay_refused_observed: undefined });
+  assert.equal(unobserved.diagnostics.lifecycle.replaySafe, false);
+  assert.notEqual(unobserved.verdict, 'PASS-candidate');
+
+  // An end that would allow replay of a turn that DID spawn the delegate is the defect.
+  const allowed = resolve({ replay_refused_observed: false });
+  assert.equal(allowed.diagnostics.lifecycle.replaySafe, false);
+  assert.equal(allowed.verdict, 'FAIL-candidate');
+  assert.equal(allowed.failureCategory, 'delegate-replay-unsafe');
+
+  // No delegate spawned (model skipped the tool) and no replayInvalid: not a
+  // product replay defect (review 🍃 on #576). It stays non-PASS for its real reason.
+  const noDelegate = resolve({
+    replay_refused_observed: false,
+    typed_delegate_attempted_same_run: false,
+    typed_delegate_success_same_run: false,
+  });
+  assert.equal(noDelegate.failureCategory, 'delegate-not-spawned');
+  assert.equal(noDelegate.verdict, 'PARTIAL-candidate');
+  // Round trip (review 🍃 on #577): the resolver's own validator must accept
+  // what it emits; a no-delegate run has a complete topology.
+  assert.equal(validateRcd2AuthoritativeReceipt(noDelegate, signingKey).valid, true);
+
+  // 🍃's exact probe at 01a53c2f: no delegate, category already written.
+  const probed = resolve({
+    replay_refused_observed: false,
+    typed_delegate_attempted_same_run: false,
+    typed_delegate_success_same_run: false,
+    failureCategory: 'delegate-replay-unsafe',
+  });
+
+  // Unknown attempt state (attempt flag absent) is not a proven non-attempt.
+  const unknownAttempt = resolve({ typed_delegate_success_same_run: false });
+  assert.equal(unknownAttempt.failureCategory, 'missing-send-run-lifecycle');
+  assert.equal(probed.failureCategory, 'delegate-not-spawned');
+  assert.equal(probed.verdict, 'PARTIAL-candidate');
+  assert.equal(validateRcd2AuthoritativeReceipt(probed, signingKey).valid, true);
+  // Every receipt this contract test resolves must round-trip through validation.
+  for (const receipt of [refused, unobserved, allowed]) {
+    assert.equal(validateRcd2AuthoritativeReceipt(receipt, signingKey).valid, true, receipt.failureCategory);
+  }
+});
+
+test('R-CD-2 scenario reads replay refusal only from the accepted send run\'s own successful end', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
+  const success = src.indexOf('evidence.send_run_success_end_observed = true;');
+  const refused = src.indexOf("evidence.replay_refused_observed = eventData.data?.replayInvalid === true;");
+  const sameRunGate = src.lastIndexOf("if (phase === 'end' && eventRunId === acceptedRunId)", success);
+  assert.ok(sameRunGate > 0 && success > sameRunGate, 'success branch sits under the accepted-run end gate');
+  assert.ok(refused > success, 'refusal is recorded inside that success branch');
+  assert.equal(src.includes("evidence.failureCategory = 'delegate-replay-unsafe'"), false,
+    'the scenario records observation only; the receipt assigns the category');
+  assert.equal(src.includes('replay_invalid_observed'), false, 'the old inverted flag is gone');
 });

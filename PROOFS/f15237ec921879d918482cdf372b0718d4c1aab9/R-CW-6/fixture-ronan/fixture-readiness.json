@@ -1,0 +1,59 @@
+{
+  "schema": "openclaw.project81.r-cw-6.fixture-readiness.v1",
+  "candidateSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "sourceHeadMatchesCandidate": true,
+  "sourceTrackedCleanBefore": true,
+  "productionConfigTouched": false,
+  "productionStateTouched": false,
+  "gatewayStarted": false,
+  "fixtureKind": "disposable-exact-candidate-production-runtime-boundary-plus-dispatch-suite",
+  "dependencyTree": "candidate-worktree-pnpm-install-frozen-lockfile-prefer-offline-ignore-scripts; lockfile/tree/version-aligned; source-node_modules-ignored",
+  "hostToolchainHermetic": false,
+  "candidateLockfileSha256": "9a52fab551f1e06d56411f76a640ac877d34d5f2b0a2c405ff7a62f7c8e6d64c",
+  "candidateLockfileLayout": "env-and-lockfile-documents",
+  "candidateLockfileDocumentSha256": "6e39a64873b1d6037be086c6de4ed350845407714797c73403f0a98290d342ef",
+  "candidatePackageManagerDependencies": {
+    "pnpm": "12.15.0"
+  },
+  "installedLockfileSha256": "6e39a64873b1d6037be086c6de4ed350845407714797c73403f0a98290d342ef",
+  "lockfileMatchesCandidate": true,
+  "candidatePackageManager": "pnpm@12.15.0+sha512.b3951d6d6ff4a9f13dc7cf56cd28d2b8eb37dbcc9c68e52e1e1191873ea9f82a017287ab50baadc5ccc494f036c67c0e47eb13608c2fa36f47711b61ea128e61",
+  "candidatePackageManagerVersion": "12.15.0",
+  "executingPackageManagerVersion": "12.15.0",
+  "installedPackageManager": "pnpm@12.15.0",
+  "installedPackageManagerVersion": "12.15.0",
+  "virtualStoreDir": ".pnpm",
+  "virtualStoreContainedWithinCandidateNodeModules": true,
+  "installCommand": [
+    "pnpm",
+    "install",
+    "--frozen-lockfile",
+    "--prefer-offline",
+    "--ignore-scripts"
+  ],
+  "localExecutableContract": {
+    "tsx": {
+      "path": "node_modules/.bin/tsx",
+      "realpathWithinVerifiedDependencyTree": true
+    },
+    "vitest": {
+      "path": "node_modules/.bin/vitest",
+      "realpathWithinVerifiedDependencyTree": true
+    }
+  },
+  "worktreeIntegrity": {
+    "beforeInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterInstall": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    },
+    "afterProofSurfaces": {
+      "headMatchesCandidate": true,
+      "trackedClean": true
+    }
+  },
+  "maxChainLength": 3
+}

@@ -1,0 +1,18 @@
+{
+  "row": "R-CD-TOKEN",
+  "sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-30T01:42:47.077Z",
+  "verdict": "PARTIAL-candidate",
+  "metrics": {
+    "duration_ms": {
+      "med": 180283,
+      "max": 180283,
+      "p(90)": 180283,
+      "p(95)": 180283,
+      "avg": 180283,
+      "min": 180283
+    },
+    "failures": 1
+  }
+}

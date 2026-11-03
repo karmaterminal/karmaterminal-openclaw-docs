@@ -49,6 +49,12 @@ export async function buildHarnessCheckout(repoRoot, checkout, { beforeCommit = 
   await git('config', 'user.name', 'p81-harness-contract');
   await git('config', 'user.email', 'p81-harness-contract@example.invalid');
   await git('config', 'commit.gpgsign', 'false');
+  // No background maintenance in a throwaway repo: a detached `gc --auto`
+  // still writing .git/objects/pack raced the test's recursive cleanup
+  // (ENOTEMPTY rmdir .git/objects/pack), failing runner tests intermittently.
+  await git('config', 'gc.auto', '0');
+  await git('config', 'gc.autoDetach', 'false');
+  await git('config', 'maintenance.auto', 'false');
   await git('remote', 'add', 'origin', HARNESS_REMOTE);
   // Lets a test commit a genuine catalog defect, so the defect survives the
   // runner materializing every consumed tree from the approved ref.

@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+    "docsRef": "215235ed73a6926a0610d91814b02f25a4836ed1"
+  },
+  "harness": {
+    "docsRef": "215235ed73a6926a0610d91814b02f25a4836ed1",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+    "manifestSha256": "a89f4c2d259bb8d6ffb4d88ba963cc5773ff108a09a17fa93bb8800e3123270a",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cw-delegate-self-continuation.js",
+    "scenarioSha256": "73b5b3c629e592bc3432590816a64088459925810eeb2f45584a9407fb27fd70",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261030T014645Z-r-cw-delegate-self-continuation-44aa4c89",
+    "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "seat": "emeric-isolated-composite",
+    "scenario": "r-cw-delegate-self-continuation",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cw-delegate-self-continuation-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-5b7c61181ff4.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "docsRef": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19"
+  },
+  "harness": {
+    "docsRef": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cw-token.json",
+    "manifestSha256": "c3ae0c009b887552332c46f9e9fdb0aab841723205b0644c574fbe2eee6dc354",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cw-token-bracket.js",
+    "scenarioSha256": "c74e75c9115145160a97f54b7c6f980a73509d9f27a248d3f1823fb1e2373478",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261029T215228Z-r-cw-token-7ec4c1cf",
+    "rowId": "R-CW-TOKEN",
+    "seat": "emeric-isolated-composite",
+    "scenario": "r-cw-token-bracket",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cw-token-bracket-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-5a35d64ec415.json",
+    "correlationReceipt": "tool-trace-correlation.json"
+  }
+}

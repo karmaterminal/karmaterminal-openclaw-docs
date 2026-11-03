@@ -19,7 +19,8 @@
     "methods": [
       "sessions.create",
       "sessions.send",
-      "sessions.messages.subscribe"
+      "sessions.messages.subscribe",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cw-1-tool-schedule-wake.js"
@@ -27,7 +28,7 @@
   "invocation": {
     "tool": "continue_work",
     "delaySeconds": 5,
-    "reason": "k6-proof-R-CW-1-{{nonce}} -- on continuation wake reply exactly CW-WOKE {{nonce}}",
+    "reason": "k6-proof-R-CW-1-{{nonce}}",
     "idempotencyKeyPrefix": "R-CW-1"
   },
   "expectedReceipts": [
@@ -50,6 +51,16 @@
       "name": "trace-id",
       "required": true,
       "description": "Unique safe-fingerprint correlation to a public-safe Tempo projection containing same-trace continue_work tool, continuation.work, and continuation.work.fire spans"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_work tool → continuation.work → continuation.work.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash and length, holding one continuation.work span, its continuation.work.fire span(s), and the originating continue_work tool span on one trace and chain."
     }
   ],
   "artifactDestination": {
@@ -62,7 +73,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit."
+    "notes": "Tool-form continue_work. PASS-candidate requires dispatch accepted + observable scheduled tool result + wake event. Detector must ignore [k6-proof-harness] prompt echoes; do not require an event name that the seat does not emit. Expected PARTIAL cause (harness review N7, openclaw-bootstrap#1727): when the wake matures while another run is active in the session, the product folds it into that run as a [system:continuation-note] (src/auto-reply/continuation/work-dispatch.ts:614-640, work-dispatch-execution.ts:234-235) and writes no [continuation:wake] row; the transcript chain then fails closed with chain_reason naming the missing wake. Run in an idle or disposable session."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -231,7 +242,9 @@
       "tool-invoke-accepted",
       "continue-work-tool-result-scheduled",
       "work-woke-event",
-      "trace-id"
+      "trace-id",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Live continue_work schedule + wake row. Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore harness prompt echo; PASS requires explicit CW-SCHEDULED and CW-WOKE sentinels; the scenario embeds the CW-WOKE instruction in the continue_work reason so the wake turn has the required sentinel instruction."

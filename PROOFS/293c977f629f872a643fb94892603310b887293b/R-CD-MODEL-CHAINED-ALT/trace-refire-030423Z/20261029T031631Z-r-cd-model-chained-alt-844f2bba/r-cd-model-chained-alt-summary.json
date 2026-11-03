@@ -1,0 +1,25 @@
+{
+  "row": "R-CD-MODEL-CHAINED-ALT",
+  "sha": "293c977f629f872a643fb94892603310b887293b",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T03:18:05.233Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": null,
+  "servedModel": null,
+  "selectedModel": null,
+  "selectedModelSource": null,
+  "dispatchRefused": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "p(95)": 91100,
+      "avg": 91100,
+      "min": 91100,
+      "med": 91100,
+      "max": 91100,
+      "p(90)": 91100
+    },
+    "failures": 0
+  }
+}

@@ -43,7 +43,16 @@ export function connectFrame(token) {
       mode: __ENV.HARNESS_CLIENT_MODE || 'backend',
     },
     role: 'operator',
-    scopes: ['operator.read', 'operator.write', 'session.control'],
+    // Deliberately does NOT request 'session.control'. A gateway that will not grant it
+    // does not answer with a scope error -- it marks the connection's authority
+    // non-current, and then EVERY method on that socket, including 'health', fails with
+    // FORBIDDEN "Gateway requester authority changed". Measured on a live seat:
+    //   ['operator.read']                        -> sessions.list OK
+    //   ['operator.read','operator.write']       -> sessions.list OK, sessions.create validates
+    //   ['operator.read','session.control']      -> FORBIDDEN authority-changed on every method
+    //   ['session.control']                      -> "missing scope: operator.read" (the correct shape)
+    // sessions.create needs no session.control; it reaches parameter validation on read+write.
+    scopes: ['operator.read', 'operator.write'],
     caps: [],
     commands: [],
     permissions: {},

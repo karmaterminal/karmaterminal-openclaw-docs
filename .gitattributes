@@ -1,1 +1,2 @@
 PROOFS/**/artifacts/**/*.log -whitespace
+PROOFS/**/k6.log -whitespace

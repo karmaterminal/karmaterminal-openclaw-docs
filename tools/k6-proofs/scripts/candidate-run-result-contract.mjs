@@ -9,6 +9,7 @@ import {
   R_CD_2_VERDICT_SOURCE,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { traceReviewDebt } from '../lib/continuation-trace-requirement.mjs';
 
 export const CANDIDATE_RUN_RESULT_SCHEMA = 'openclaw.k6.candidate-run-result.v1';
 export const PROOF_ROW_MANIFEST_SCHEMA = 'openclaw.k6.proof-row-manifest.v1';
@@ -265,7 +266,12 @@ export function candidateEnvelopeMatchesSiblings({
   )) return false;
   if (!artifactReferencesMatchRunResult(envelope, runResult)) return false;
   if (manifest.rowId !== rowId || scenarioName(manifest) !== scenario) return false;
-  if (manifest.candidateSha && manifest.candidateSha !== candidateSha) return false;
+  // Committed manifests carry this one literal template. The runner freezes its
+  // unrendered bytes (and digest) before dispatch; metadata and the envelope
+  // bind the concrete SHA. Any other non-empty non-SHA value is invalid.
+  if (manifest.candidateSha &&
+      manifest.candidateSha !== '${OPENCLAW_CANDIDATE_SHA}' &&
+      manifest.candidateSha !== candidateSha) return false;
   if (envelope.candidate?.sha !== candidateSha || !SHA.test(envelope.candidate?.docsRef || '')) return false;
   if (!harnessIdentityMatches({ envelope, metadata, runDir })) return false;
   if (envelope.run?.id !== path.basename(runDir) || envelope.run?.rowId !== rowId || envelope.run?.seat !== seat || envelope.run?.scenario !== scenario) return false;
@@ -304,5 +310,14 @@ export function candidateEnvelopeMatchesSiblings({
   if (envelope.observability?.traceStatus !== rawObservability.traceStatus) return false;
   if (envelope.observability?.traceCaptured !== Boolean(rawObservability.traceId)) return false;
   if (envelope.observability?.correlationReceiptPresent !== Boolean(rawObservability.correlationReceipt)) return false;
+  // review.complete is never true for a trace-required row that does not hold
+  // its Tempo trace and correlation receipt (#600): both files in runDir, bound
+  // to the result's trace ID. The writer refuses such an envelope; a consumer
+  // must not accept one written by anything else, nor one whose receipts were
+  // deleted or replaced after it was written.
+  if (traceReviewDebt(manifest, rawObservability, {
+    runDir,
+    traceHeldByAuthority: rCd2Authority?.traceHeld === true,
+  }).length) return false;
   return true;
 }

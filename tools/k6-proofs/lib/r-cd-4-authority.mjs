@@ -1,4 +1,5 @@
 import { directChildSessionKeyForRow } from './row-child-correlation.mjs';
+import { heartbeatAckFromHistory, messageRunId, runExclusion } from './wake-turn-receipt.mjs';
 
 export const R_CD_4_OBSERVATION_WINDOW_MS = 90_000;
 export const R_CD_4_DURATION_THRESHOLD_MS = 110_000;
@@ -59,13 +60,21 @@ function hasExactSentinel(eventData, marker, nonce) {
  * receipt. Child identity is bound separately after a nonce-correlated spawn
  * event is observed.
  */
-export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, nonce }) {
+export function rCd4ReturnCandidate({ eventName, eventData, expectedSessionKey, nonce, excludeRunIds = null }) {
   if (eventName !== 'session.message') return null;
   if (!expectedSessionKey || !nonce) return null;
   const sessionKey = directSessionKey(eventData);
   if (sessionKey !== expectedSessionKey) return null;
   if (directMessageRole(eventData) !== 'assistant') return null;
   if (!hasExactSentinel(eventData, 'TARGET-ACK', nonce)) return null;
+  // openclaw-bootstrap#1727: the priming run can restate its own prompt, which
+  // names the ack. When runs are excluded, only a stamped later run counts, and
+  // an unstamped priming run (a missing run id in the list) binds nothing (review F5).
+  if (Array.isArray(excludeRunIds)) {
+    const excluded = runExclusion(excludeRunIds);
+    const runId = messageRunId(eventData.message, eventData);
+    if (!excluded || !runId || excluded.has(runId)) return null;
+  }
   return {
     eventName,
     sessionKey,
@@ -132,6 +141,7 @@ export function rCd4SessionMessageObservation({
   nonce,
   elapsedMs,
   wakeGateMs,
+  excludeTargetRunIds = null,
 }) {
   const elapsed = Number.isFinite(elapsedMs) ? elapsedMs : 0;
   const gate = Number.isFinite(wakeGateMs) ? wakeGateMs : 0;
@@ -141,6 +151,7 @@ export function rCd4SessionMessageObservation({
       eventData,
       expectedSessionKey: targetSessionKey,
       nonce,
+      excludeRunIds: excludeTargetRunIds,
     }),
     parentCandidate: rCd4ReturnCandidate({
       eventName,
@@ -150,6 +161,55 @@ export function rCd4SessionMessageObservation({
     }),
     genericWakeObserved: elapsed >= gate,
   };
+}
+
+/**
+ * Index and run of the target's priming reply (assistant TARGET-READY <nonce>)
+ * in a transcript page, or index -1. The woken turn must come after it and in
+ * another run: the return delivery row itself is hidden from readers
+ * (#567; chat-display-projection.history.ts:329-334, 366).
+ */
+export function rCd4PrimingAnchor(messages, { targetSessionKey, nonce }) {
+  const list = Array.isArray(messages) ? messages : [];
+  let anchor = { index: -1, runId: null };
+  list.forEach((message, index) => {
+    if (rCd4TargetReadyCandidate({
+      eventName: 'session.message',
+      eventData: { sessionKey: targetSessionKey, message },
+      targetSessionKey,
+      nonce,
+    })) {
+      anchor = { index, runId: messageRunId(message) };
+    }
+  });
+  return anchor;
+}
+
+/**
+ * Heartbeat-path acknowledgement (#567). A continuation return wakes the
+ * recipient as a heartbeat turn, answered through heartbeat_respond. For the
+ * target it counts only after the priming reply and outside the priming run;
+ * in the parent ANY nonce-bound heartbeat ack is a parent landing (the
+ * negative control stays at least as strict as before).
+ */
+export function rCd4HeartbeatHistoryObservation({ messages, sessionKey, targetSessionKey, parentSessionKey, nonce }) {
+  if (sessionKey === targetSessionKey) {
+    const anchor = rCd4PrimingAnchor(messages, { targetSessionKey, nonce });
+    if (anchor.index < 0) return { targetCandidate: null, parentCandidate: null };
+    return {
+      targetCandidate: heartbeatAckFromHistory(messages, {
+        sessionKey, marker: 'TARGET-ACK', nonce, afterIndex: anchor.index, excludeRunIds: [anchor.runId],
+      }),
+      parentCandidate: null,
+    };
+  }
+  if (sessionKey === parentSessionKey) {
+    return {
+      targetCandidate: null,
+      parentCandidate: heartbeatAckFromHistory(messages, { sessionKey, marker: 'TARGET-ACK', nonce }),
+    };
+  }
+  return { targetCandidate: null, parentCandidate: null };
 }
 
 export function rCd4HistoryObservation({
@@ -166,7 +226,15 @@ export function rCd4HistoryObservation({
     parentCandidate: null,
     genericWakeObserved: false,
   };
-  for (const message of Array.isArray(messages) ? messages : []) {
+  const heartbeat = rCd4HeartbeatHistoryObservation({ messages, sessionKey, targetSessionKey, parentSessionKey, nonce });
+  result.targetCandidate = heartbeat.targetCandidate;
+  result.parentCandidate = heartbeat.parentCandidate;
+  // In the target, an assistant-text ack counts only after the priming reply and
+  // outside the priming run, the same window the heartbeat path uses (#1727).
+  const list = Array.isArray(messages) ? messages : [];
+  const anchor = sessionKey === targetSessionKey ? rCd4PrimingAnchor(list, { targetSessionKey, nonce }) : null;
+  list.forEach((message, index) => {
+    if (anchor && index <= anchor.index) return;
     const observation = rCd4SessionMessageObservation({
       eventName: 'session.message',
       eventData: { sessionKey, message },
@@ -175,17 +243,20 @@ export function rCd4HistoryObservation({
       nonce,
       elapsedMs,
       wakeGateMs,
+      excludeTargetRunIds: anchor ? [anchor.runId] : null,
     });
-    result.targetCandidate ??= observation.targetCandidate;
+    if (!anchor || anchor.index >= 0) result.targetCandidate ??= observation.targetCandidate;
     result.parentCandidate ??= observation.parentCandidate;
     result.genericWakeObserved ||= observation.genericWakeObserved;
-  }
+  });
   return result;
 }
 
 /**
- * Treat tasks.list as child authority only when one structured task record
- * binds its real childSessionKey to this row nonce.
+ * Legacy record-shaped binding: one structured record binds its real
+ * childSessionKey to this row nonce. The scenario no longer polls the task
+ * ledger (tasks.list was removed upstream, #562); it binds through
+ * child-observer.mjs and maps 'completed' to the child row status 'done'.
  */
 export function rCd4TaskObservation(task, nonce) {
   const taskIdentityToken = rCd4TaskIdentityToken(nonce);

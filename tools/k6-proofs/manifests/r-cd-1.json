@@ -15,12 +15,13 @@
   },
   "scenario": {
     "name": "r-cd-1-typed-delegate",
-    "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes task ledger entry and parent return.",
+    "description": "Typed continue_delegate() schedule/spawn/return. Fires a delegate with a nonce-only child task, observes the row-bound child (child observer) and parent return.",
     "methods": [
       "sessions.create",
-      "sessions.send",
       "sessions.messages.subscribe",
-      "tasks.list"
+      "sessions.send",
+      "sessions.list",
+      "chat.history"
     ],
     "status": "runnable",
     "file": "r-cd-1-typed-delegate.js"
@@ -29,7 +30,7 @@
     "tool": "continue_delegate",
     "mode": "normal",
     "delaySeconds": 1,
-    "promptTemplate": "Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only after you arrive. Do not mutate files.",
+    "promptTemplate": "Proof nonce {{nonce}}: after you arrive, invent a fresh random token of exactly 12 lowercase letters and digits (make it up now; do not copy it from anywhere) and reply exactly CD1-DONE {{nonce}} TOKEN <your token>. Do not mutate files.",
     "idempotencyKeyPrefix": "R-CD-1"
   },
   "expectedReceipts": [
@@ -41,7 +42,7 @@
     {
       "name": "task-ledger-entry",
       "required": false,
-      "description": "Optional context only: generic task ledger row with nonce correlation (may be absent for continue_delegate)"
+      "description": "Optional context only. Re-derived (#562): the task ledger RPC was removed upstream; this receipt is the row-bound child from the child observer (own row spawnedBy = parent, own spawn task carries the nonce), evidence child_record_observed_optional"
     },
     {
       "name": "child-session-key",
@@ -51,18 +52,28 @@
     {
       "name": "delegate-scheduled-sentinel",
       "required": true,
-      "description": "Post-dispatch CD1-DELEGATE-SCHEDULED sentinel emitted after continue_delegate tool result reports scheduled"
+      "description": "The continue_delegate toolResult bound by toolCallId to the nonce-bound call reports scheduled, and CD1-DELEGATE-SCHEDULED is in the parent's own assistant text"
     },
     {
       "name": "parent-return-event",
       "required": true,
-      "description": "Post-dispatch CD1-DONE or delegate.return evidence observed on parent session",
+      "description": "The bound child's own transcript says CD1-DONE <nonce> TOKEN <12 chars> (a token minted there), and a parent run other than the dispatch run reproduces CD1-RETURN <nonce> TOKEN <that token>, not earlier than the token. Return text on the parent stream never counts: the old sentinel rode the parent's own call (openclaw-bootstrap#1727)",
       "pathHint": "gateway-events.ndjson"
     },
     {
       "name": "trace-id",
       "required": true,
       "description": "Trace ID from tool response or task metadata for Tempo fetch"
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON (tempo-trace-<id>.json) for the continue_delegate tool → continuation.delegate.dispatch → continuation.delegate.fire topology, collected by collect-continuation-trace.mjs. Required for every continuation row (#600)."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json: exactly one Tempo trace matched by the row’s reason hash, length, and delegate mode, holding one continuation.delegate.dispatch span, one continuation.delegate.fire span, and the originating continue_delegate tool span on one trace and chain."
     }
   ],
   "artifactDestination": {
@@ -75,7 +86,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "Typed tool path. PASS-candidate when dispatch is accepted, CD1-DELEGATE-SCHEDULED is emitted after the tool result, and CD1-DONE/delegate.return is observed post-dispatch. task-ledger-entry is optional context only because continue_delegate often uses pending-delegate/subagent surfaces rather than generic tasks.list."
+    "notes": "Typed tool path. PASS-candidate when dispatch is accepted, CD1-DELEGATE-SCHEDULED is emitted after the tool result, and CD1-DONE/delegate.return is observed post-dispatch. task-ledger-entry is optional context only; since #562 it is re-derived from the child observer because the task-ledger RPC (tasks.list) was removed upstream."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -234,7 +245,9 @@
       "tool-invoke-accepted",
       "delegate-scheduled-sentinel",
       "parent-return-event",
-      "trace-id"
+      "trace-id",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
     ],
     "foldRequiresReview": true,
     "notes": "Typed continue_delegate row (mode=normal). Prefer OPENCLAW_CREATE_DISPOSABLE_SESSION=true for repeatability. Serialize per session (sameSessionConcurrencySafe=false). Ignore [k6-proof-harness] prompt echo; require explicit CD1-DELEGATE-SCHEDULED and CD1-DONE/delegate.return evidence."

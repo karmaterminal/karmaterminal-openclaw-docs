@@ -1,0 +1,99 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "c3a54d3fba0d906d11ab24e1e16d3f2b",
+  "spans": [
+    {
+      "name": "openclaw.tool.execution",
+      "traceId": "c3a54d3fba0d906d11ab24e1e16d3f2b",
+      "spanId": "21b3ee8c59e6f209",
+      "parentSpanId": "03d00fe05a2902f0",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "openclaw.toolName",
+          "value": {
+            "stringValue": "continue_work"
+          }
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "value": {
+            "stringValue": "continue_work"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.work",
+      "traceId": "c3a54d3fba0d906d11ab24e1e16d3f2b",
+      "spanId": "087e8a0d2348912f",
+      "parentSpanId": "21b3ee8c59e6f209",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "991eab05-6cbe-4958-9fd1-7c70d54b44ce"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "139"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "95ed54fc78af8a9f"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.work.fire",
+      "traceId": "c3a54d3fba0d906d11ab24e1e16d3f2b",
+      "spanId": "a56be333b932018a",
+      "parentSpanId": "21b3ee8c59e6f209",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "991eab05-6cbe-4958-9fd1-7c70d54b44ce"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "139"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "95ed54fc78af8a9f"
+          }
+        }
+      ]
+    }
+  ]
+}

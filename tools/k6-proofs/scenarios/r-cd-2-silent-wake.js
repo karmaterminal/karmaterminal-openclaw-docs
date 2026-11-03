@@ -4,7 +4,8 @@
  * Verifies:
  *   1. Gateway accepts continue_delegate with mode=silent-wake
  *   2. Child task spawns and completes
- *   3. Parent session wakes (receives internal context)
+ *   3. Parent session wakes (receives internal context): a distinct lifecycle
+ *      run in the row session, bound by that run's own nonce-bound answer
  *   4. NO channel message is delivered (silent mode)
  *
  * The key differentiator from R-CD-1: the delegate return must NOT produce
@@ -23,9 +24,13 @@ import { Counter, Trend } from 'k6/metrics';
 import crypto from 'k6/crypto';
 import { connectFrame, nonce, RequestTracker, redactEvent } from '../lib/gateway-ws.js';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
-import { gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
-import { observesRcd2DispatchTerminalSentinel } from '../lib/r-cd-2-terminal-sentinel.js';
+import { createSilentWakeBinder, eventRunId, gatewayLifecycleRunId, gatewayLifecyclePhase, gatewayLifecycleSucceeded, gatewayWakeRunId } from '../lib/gateway-lifecycle.js';
+import { applySameRunDelegateOutcome, createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mjs';
+import { observesRcd2DispatchTerminalSentinel, observesRcd2WakeAck } from '../lib/r-cd-2-terminal-sentinel.js';
+import { createChildObserver, createPreflightGate, failClosedVerdict } from '../lib/child-observer.mjs';
+import { delegateReturnWindow } from '../lib/delegate-return-window.mjs';
 
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 export const options = {
   scenarios: {
     r_cd_2_silent_wake: {
@@ -95,6 +100,7 @@ export default function () {
   const seat = manifest && manifest.seat || __ENV.OPENCLAW_SEAT_NAME || DEFAULTS.seat;
   const rowNonce = nonce('R-CD-2');
   const dispatchTerminalSentinel = `RCD2-DELEGATE-SCHEDULED ${rowNonce}`;
+  const wakeAckSentinel = `RCD2-WAKE-ACK ${rowNonce}`;
 
   if (!token) {
     console.error('OPENCLAW_GATEWAY_TOKEN is required');
@@ -143,12 +149,22 @@ export default function () {
     // session.message transcript payload.
     wake_lifecycle_observed: false,
     wake_session_bound: false,
+    // wake_ack_observed: the exact wake acknowledgement arrived from a run
+    // other than the dispatch run. wake_receipt_source: which of the woken
+    // run's own receipts bound it, 'assistant-wake-ack' or
+    // 'heartbeat-completion-record' (createSilentWakeBinder).
+    wake_ack_observed: false,
+    wake_receipt_source: null,
     post_wake_quiet: false,
     post_wake_quiet_timer_started: false,
     dispatch_failure_observed: false,
     send_run_mismatch: false,
-    task_created: false,
+    // Optional child context (#562). child_created replaces the removed
+    // task-ledger task_created. The delegate return mode has no current
+    // gateway surface (session rows carry no mode), so task_mode stays null.
+    child_created: false,
     task_mode: null,
+    task_mode_unavailable_reason: 'no current gateway surface exposes the delegate return mode (tasks.list removed upstream in 6652f7eac8)',
     // Silent-wake specific
     agent_turn_observed: false,
     parent_wake_observed: false,
@@ -161,6 +177,7 @@ export default function () {
     wake_lifecycle_at_ms: null,
     post_wake_quiet_at_ms: null,
     wake_gate_ms: Number(__ENV.OPENCLAW_MIN_DELEGATE_DELAY_MS || 5000),
+    wake_before_legacy_gate: false,
     post_wake_quiet_ms: Number(__ENV.OPENCLAW_POST_WAKE_QUIET_MS || 5000),
     child_session: null,
     reason_hash: null,
@@ -168,12 +185,24 @@ export default function () {
     delegate_mode: null,
     trace_id: null,
     accepted_send_trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
+  const gate = createPreflightGate('R-CD-2');
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const started = Date.now();
   let acceptedRunId = null;
   let dispatchLifecycleActive = false;
+  let wakeBinder = null;
+  let sameRunDelegate = null;
+  // session.message events can arrive before the sessions.send response that
+  // carries the accepted run id; keep them (bounded) and replay them once the
+  // tracker exists, so an early toolCall is not missed (review 🍃 on #578).
+  const pendingDelegateEvents = [];
+  const applyDelegateOutcome = (outcome) => applySameRunDelegateOutcome(evidence, outcome);
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -187,6 +216,30 @@ export default function () {
       }
       evidence.terminal_success_same_run = true;
       evidence.terminal_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
+    }
+
+    function recordBoundWake(socket, bound) {
+      if (evidence.wake_lifecycle_observed) return;
+      if (bound.beforeLegacyGate) evidence.wake_before_legacy_gate = true;
+      evidence.parent_wake_observed = true;
+      evidence.wake_lifecycle_observed = true;
+      evidence.wake_session_bound = true;
+      evidence.wake_lifecycle_at_ms = bound.atMs;
+      // Kept name: true for either receipt form; wake_receipt_source says which.
+      evidence.wake_completion_record_bound = true;
+      evidence.wake_receipt_source = bound.receiptSource;
+      evidence.wake_run_fingerprint = crypto.sha256(String(bound.runId), 'hex').slice(0, 16);
+      if (!evidence.post_wake_quiet_timer_started) {
+        evidence.post_wake_quiet_timer_started = true;
+        socket.setTimeout(() => {
+          if (!evidence.channel_message_observed) {
+            evidence.post_wake_quiet = true;
+            evidence.post_wake_quiet_at_ms = Date.now();
+          }
+          socket.close();
+        }, k6TimeoutMs(evidence.post_wake_quiet_ms));
+      }
+      console.log(`✓ delayed parent wake run bound to its own ${bound.receiptSource}`);
     }
 
     function startProofFlow(socket) {
@@ -205,9 +258,10 @@ export default function () {
         evidence.reason_length = prompt.length;
         evidence.delegate_mode = inv.mode;
         const agentInstruction =
-          `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}. ` +
+          `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and args={task:"${prompt}", mode:"${inv.mode}", delaySeconds:${inv.delaySeconds}}. ` +
           `After the continue_delegate tool result reports scheduled, reply exactly RCD2-DELEGATE-SCHEDULED ${rowNonce}. ` +
-          'Do not call another tool or send any channel message.';
+          'After scheduling, do not call another tool or send any channel message. ' +
+          `On a later turn, only after the delegate result returns to this session, reply exactly ${wakeAckSentinel}.`;
         tracker.send(socket, 'sessions.send', {
           key: sessionKey,
           message: agentInstruction,
@@ -215,18 +269,16 @@ export default function () {
         });
       }, 500);
 
-      // Poll task ledger — check mode field.
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 5000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 15000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 30000);
+      // Optional child context (#562): row-bound child via the child observer.
+      for (const delayMs of [5000, 15000, 30000]) {
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
+      }
 
       // Extended wait for silent-wake (child must complete + parent must wake).
       socket.setTimeout(() => socket.close(), 90000);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
-
+    function afterHello(socket) {
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cd-2-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');
@@ -238,12 +290,40 @@ export default function () {
       } else {
         socket.setTimeout(() => startProofFlow(socket), 500);
       }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CD-2 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          if (!evidence.child_session) {
+            const bound = observer.boundChild(rowNonce);
+            if (bound.childSessionKey) {
+              evidence.child_created = true;
+              evidence.child_session = bound.childSessionKey;
+              console.log('✓ row-bound child observed (optional context)');
+            }
+          }
+        }
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -269,7 +349,7 @@ export default function () {
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'sessions.list') {
+        if (!observed && classified.kind === 'response' && classified.method === 'sessions.list') {
           const sessions = classified.payload?.sessions || classified.payload?.items || [];
           const created = sessions.find((session) => session?.key === sessionKey);
           const bound = Boolean(created?.channelId || created?.channel || created?.deliveryChannel);
@@ -291,6 +371,10 @@ export default function () {
             evidence.dispatch_accepted_at_ms = Date.now();
             acceptedRunId = lifecycleRunId(classified.payload);
             if (acceptedRunId) {
+              sameRunDelegate = createSameRunDelegateTracker({ acceptedRunId, nonce: rowNonce });
+              for (const pending of pendingDelegateEvents.splice(0)) applyDelegateOutcome(sameRunDelegate.observe(pending));
+            }
+            if (acceptedRunId) {
               evidence.send_run_captured = true;
               evidence.send_run_fingerprint = crypto.sha256(String(acceptedRunId), 'hex').slice(0, 16);
             } else {
@@ -306,22 +390,6 @@ export default function () {
             evidence.failureCategory = 'provider-or-turn-failure';
             console.error(`✗ sessions.send rejected: ${JSON.stringify(classified.error)}`);
             failures.add(1);
-          }
-        }
-
-        // Optional TaskFlow ledger context. Absence here is not a failure:
-        // continue_delegate uses pending-delegate/subagent surfaces.
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload && classified.payload.tasks || [];
-          for (const task of tasks) {
-            const taskStr = JSON.stringify(task);
-            if (taskStr.includes(rowNonce)) {
-              evidence.task_created = true;
-              evidence.child_session = task.sessionKey || task.childSessionKey || null;
-              evidence.task_mode = task.mode || task.returnMode || null;
-              if (task.traceId) evidence.trace_id = task.traceId;
-              console.log(`✓ Task found with nonce — mode: ${evidence.task_mode}`);
-            }
           }
         }
 
@@ -351,48 +419,79 @@ export default function () {
                 evidence.failureCategory = 'provider-or-turn-failure';
               } else {
                 evidence.send_run_success_end_observed = true;
-                if (eventData.data?.replayInvalid === true) {
-                  evidence.replay_invalid_observed = true;
-                  evidence.failureCategory = 'delegate-replay-unsafe';
-                }
+                // Product contract (🩸, 2026-10-05): a turn that spawned a delegate
+                // ends with replayInvalid:true, because replaying it could dispatch the
+                // child again, so the runtime refuses that replay. Refusal on the
+                // accepted send run is the expected, safe signal. An end without it
+                // means the runtime would allow re-dispatch: that is the defect.
+                // Record only what was observed. The receipt decides the category,
+                // and only when this run actually spawned the delegate: a run where
+                // the model never called the tool is not a product replay defect
+                // (review 🍃 on #576).
+                evidence.replay_refused_observed = eventData.data?.replayInvalid === true;
                 maybeRecordDispatchTerminalSuccess();
               }
             }
             // The deployed gateway gives agent lifecycle events a top-level
             // runId.  A later, distinct lifecycle start in this subscribed
             // parent session is the only authoritative silent-wake receipt.
-            const wakeRunId = evidence.silent_status_record_observed
-              ? gatewayWakeRunId(eventData, acceptedRunId, sessionKey)
-              : null;
-            const elapsed = evidence.dispatch_accepted_at_ms ? Date.now() - evidence.dispatch_accepted_at_ms : 0;
-            if (wakeRunId && elapsed >= evidence.wake_gate_ms) {
-              evidence.parent_wake_observed = true;
-              evidence.wake_lifecycle_observed = true;
-              evidence.wake_session_bound = true;
-              evidence.wake_lifecycle_at_ms = Date.now();
-              evidence.wake_run_fingerprint = crypto.sha256(String(wakeRunId), 'hex').slice(0, 16);
-              if (!evidence.post_wake_quiet_timer_started) {
-                evidence.post_wake_quiet_timer_started = true;
-                socket.setTimeout(() => {
-                  if (!evidence.channel_message_observed) {
-                    evidence.post_wake_quiet = true;
-                    evidence.post_wake_quiet_at_ms = Date.now();
-                  }
-                  socket.close();
-                }, evidence.post_wake_quiet_ms);
-              }
-              console.log('✓ delayed parent lifecycle wake observed');
+            // A distinct, session-bound run start inside the return window is a
+            // wake CANDIDATE; it binds only when that same run gives its own wake
+            // receipt (see createSilentWakeBinder).
+            const startRunId = gatewayWakeRunId(eventData, acceptedRunId, sessionKey);
+            // docs#564: a distinct wake run is counted from dispatch + delegate
+            // delay (the earliest the delegate can fire); the old fixed gate is
+            // diagnostic only.
+            const wakeWindow = delegateReturnWindow({
+              anchorAtMs: evidence.dispatch_accepted_at_ms,
+              delayMs: Number(invocationCfg().delaySeconds) * 1000,
+              legacyGateMs: evidence.wake_gate_ms,
+              nowMs: Date.now(),
+            });
+            if (startRunId && wakeWindow.open) {
+              if (!wakeBinder) wakeBinder = createSilentWakeBinder({ acceptedRunId });
+              const bound = wakeBinder.noteStart(startRunId, {
+                beforeLegacyGate: wakeWindow.beforeLegacyGate,
+                atMs: Date.now(),
+              });
+              if (bound) recordBoundWake(socket, bound);
             }
           }
 
           // session.message events immediately after sessions.send are the dispatching
           // agent turn, not the silent-wake return.  The delegate delay is clamped
           // by the gateway, so only count a parent wake after the minimum delay.
+          // Same-run delegate success comes from the send run's own
+          // continue_delegate call + "scheduled" result (the notify:false record
+          // is written by the wake run, docs #572). Runs before send_accepted too:
+          // early events are buffered until the accepted run id is known.
+          if (eventName === 'session.message') {
+            if (sameRunDelegate) {
+              applyDelegateOutcome(sameRunDelegate.observe(eventData));
+            } else if (pendingDelegateEvents.length < 200) {
+              pendingDelegateEvents.push(eventData);
+            }
+          }
+
           if (eventName === 'session.message' && evidence.send_accepted) {
-            // session.message carries transcript content but no documented
-            // lifecycle run identity. It is diagnostic only, never a wake
-            // receipt; otherwise a delayed unrelated message could certify.
+            // session.message is never a wake START receipt: only a lifecycle
+            // envelope can start a wake. Its row-level __openclaw.runId is used
+            // solely to tie the woken run's own receipt (the exact wake
+            // acknowledgement, or the notify:false/done completion record) to
+            // an observed lifecycle wake run (createSilentWakeBinder).
             evidence.agent_turn_observed = true;
+            // A session-event wake (openclaw 8baac2feb6) answers in assistant
+            // text: the exact acknowledgement the dispatch asked for, from a run
+            // other than the dispatch run, in this session.
+            const ackRunId = acceptedRunId && observesRcd2WakeAck(eventData, wakeAckSentinel, sessionKey)
+              ? eventRunId(eventData)
+              : null;
+            if (ackRunId && ackRunId !== acceptedRunId) {
+              evidence.wake_ack_observed = true;
+              if (!wakeBinder) wakeBinder = createSilentWakeBinder({ acceptedRunId });
+              const bound = wakeBinder.noteWakeReceipt(ackRunId, 'assistant-wake-ack');
+              if (bound) recordBoundWake(socket, bound);
+            }
             if (observesRcd2DispatchTerminalSentinel(
               eventData,
               dispatchTerminalSentinel,
@@ -417,30 +516,31 @@ export default function () {
           if (eventStr.includes(rowNonce) && eventStr.includes('"notify":false') &&
               eventStr.includes('"outcome":"done"')) {
             evidence.silent_status_record_observed = true;
-            if (acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
-              evidence.typed_delegate_attempted_same_run = true;
-              evidence.typed_delegate_success_same_run = true;
+            if (acceptedRunId) {
+              if (!wakeBinder) wakeBinder = createSilentWakeBinder({ acceptedRunId });
+              const bound = wakeBinder.noteCompletionRecord(eventRunId(eventData));
+              if (bound) recordBoundWake(socket, bound);
             }
+            // This record binds the wake's completion only. It never sets delegate
+            // success: that comes solely from the send run's nonce-bound
+            // continue_delegate call paired with its "scheduled" result
+            // (applySameRunDelegateOutcome; review 🌻 on #578).
             console.log('ℹ internal continue_status notify:false receipt observed');
           }
 
+          // Diagnostic only. The same-run delegate outcome has a single authority:
+          // the call/result tracker above (applyDelegateOutcome). This substring
+          // scan used to set dispatch_failure_observed and a conclusive
+          // provider-or-turn-failure on its own, so a scheduled call plus a
+          // rejected duplicate could FAIL with self-contradictory evidence
+          // (review 🍃 on #578). It no longer writes any outcome field.
           if (eventStr.includes(rowNonce) && eventStr.includes('continue_delegate') &&
               acceptedRunId && lifecycleRunId(eventData) === acceptedRunId) {
-            evidence.typed_delegate_attempted_same_run = true;
-            const failed = eventStr.includes('codex_dynamic_tool_error') ||
+            const failureText = eventStr.includes('codex_dynamic_tool_error') ||
               eventStr.includes('"outcome":"blocked"') ||
               eventStr.includes('"status":"error"') ||
               eventStr.includes('"status":"rejected"');
-            if (failed) {
-              evidence.typed_delegate_failed_same_run = true;
-              evidence.typed_delegate_failure_category = eventStr.includes('codex_dynamic_tool_error')
-                ? 'codex_dynamic_tool_error'
-                : eventStr.includes('"outcome":"blocked"')
-                  ? 'blocked'
-                  : 'provider-or-turn-failure';
-              evidence.dispatch_failure_observed = true;
-              evidence.failureCategory = 'provider-or-turn-failure';
-            }
+            if (failureText) evidence.delegate_failure_text_seen_same_run = true;
           }
 
           // Negative check: only an explicit outbound-delivery-shaped event counts.
@@ -479,6 +579,9 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
+  evidence.verdict_reason = failClosedVerdict('PARTIAL-candidate', { gate, observer }).reason;
   if (evidence.send_run_success_end_observed &&
       (!evidence.dispatch_terminal_sentinel_observed ||
        !evidence.dispatch_terminal_sentinel_same_run_window) &&
@@ -492,8 +595,8 @@ export default function () {
   // 1. Agent turn triggered (sessions.send accepted)
   // 2. Agent produced session.message events (turn ran)
   // 3. No channel delivery (silent mode verified)
-  // Note: task_created via tasks.list is OPTIONAL — continuation tasks
-  // use their own tracking surface, not the generic task ledger.
+  // Note: child_created is OPTIONAL context. A refused preflight or observer
+  // method is recorded in verdict_reason and counted as a failure.
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
   check(null, {
     'agent turn triggered (sessions.send accepted)': () => evidence.send_accepted,
@@ -511,6 +614,7 @@ export default function () {
       !evidence.parent_wake_observed) {
     failures.add(1);
   }
+  if (evidence.verdict_reason) failures.add(1);
   if (evidence.channel_message_observed) {
     failures.add(1);
     console.error('FAIL: silent-wake delegate produced channel output');

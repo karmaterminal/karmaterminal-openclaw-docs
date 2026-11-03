@@ -1,0 +1,60 @@
+{
+  "k6ExitCode": 0,
+  "postprocessExitCode": 0,
+  "effectiveExitCode": 0,
+  "endedAt": "2026-10-29T02:04:58Z",
+  "verdict": "PASS-candidate",
+  "verdictSource": "vu-log",
+  "summaryFileVerdict": "PASS-candidate",
+  "vuLogVerdict": "PASS-candidate",
+  "summaryFiles": [
+    "r-rc-1-summary.json"
+  ],
+  "evidence": {
+    "row": "R-RC-1",
+    "manifest_loaded": true,
+    "seat": "emeric-isolated-composite",
+    "session_created": true,
+    "candidateSha": "293c977f629f872a643fb94892603310b887293b",
+    "started": "2026-10-29T02:04:53.526Z",
+    "tool_inventory_checked": true,
+    "tool_registered": true,
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1793239494114,
+    "tool_name": "request_compaction",
+    "tool_invocation_observed": true,
+    "tool_result_observed": true,
+    "tool_call_id": "exec-7aa450d6-9bd0-4ffc-a019-99bb0ec5f262",
+    "tool_result_status": "rejected",
+    "tool_invoke_rejected": true,
+    "guard": "context_threshold",
+    "context_usage": null,
+    "threshold": null,
+    "no_compaction_side_effect": true,
+    "assistant_sentinel_observed": false,
+    "history_requested": true,
+    "history_attempts": 1,
+    "trace_id": null,
+    "ended": "2026-10-29T02:04:58.284Z",
+    "duration_ms": 4758
+  },
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "authoritativeReceipt": null,
+  "observability": {
+    "traceStatus": "present",
+    "traceId": "ec2504f61c76d17ad864b07e44b31543",
+    "tempoTraceJson": "tempo-trace-ec2504f61c76.json",
+    "correlationReceipt": "tool-trace-correlation.json",
+    "lifecycleReceipt": null,
+    "serviceLogStatus": "captured",
+    "serviceLog": "gateway-journal.log",
+    "serviceLogCapture": "gateway-journal-capture.json",
+    "serviceLogRedaction": "gateway-journal-redaction.json"
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+  }
+}

@@ -5,10 +5,16 @@
  * overlap/collection receipts for one silent and one silent-wake delegate return.
  * This is an offline artifact validator: it does not fire delegates, connect to a
  * gateway, mutate config, or claim isolated wake causality.
+ *
+ * Each marker binds to the session that wrote it and that session's own
+ * targeted-return line (lib/journal-return-binding.mjs). The check used to pass
+ * on one targeted-return line plus the markers anywhere, which a dispatcher
+ * line carrying the delegate task satisfies (openclaw-bootstrap#1727).
  */
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { markerReturn } from '../lib/journal-return-binding.mjs';
 
 export const options = {
   scenarios: { r_cd_return_overlap_static: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '15s' } },
@@ -43,6 +49,8 @@ export default function () {
 
   const flowText = JSON.stringify(flowRows);
   const taskText = JSON.stringify(taskRows);
+  const silentReturn = markerReturn(journal, silentMarker);
+  const wakingReturn = markerReturn(journal, wakingMarker);
   const evidence = {
     row: 'R-CD-RETURN-OVERLAP',
     manifest_loaded: !!manifest,
@@ -54,7 +62,9 @@ export default function () {
     silent_flow_present: flowText.includes('"silentWake":null') || evidenceMd.includes('mode=silent'),
     silent_wake_flow_present: flowText.includes('silentWake=true') || flowText.includes('"silentWake":true'),
     both_markers_in_tasks: (taskText.includes(silentMarker) && taskText.includes(wakingMarker)) || (evidenceMd.includes(silentMarker) && evidenceMd.includes(wakingMarker)),
-    both_targeted_returns_in_journal: journal.includes('[continuation:targeted-return]') && journal.includes(silentMarker) && journal.includes(wakingMarker),
+    both_targeted_returns_in_journal: silentReturn.bound && wakingReturn.bound && silentReturn.writer !== wakingReturn.writer,
+    silent_return_bound: silentReturn.bound,
+    waking_return_bound: wakingReturn.bound,
     no_duplicate_storm_claim_present: evidenceMd.includes('no duplicate wake storm') || evidenceMd.includes('no repeated child execution'),
     tempo_trace_present: jsonIncludes(tempo, '0d676f84623ebfe6499a324d039ee050') || jsonIncludes(tempo, 'continuation.delegate.dispatch') || jsonIncludes(tempo, 'continuation.queue'),
     source_files: {

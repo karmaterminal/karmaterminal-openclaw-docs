@@ -81,3 +81,110 @@ test('terminal lifecycle success does not fall back to a top-level status', asyn
     });
   }
 });
+
+test('the live runtime success terminal (no status, aborted:false) succeeds', () => {
+  // Captured from the isolated 14d31a81b1 gateway, 2026-10-05 (lifecycle-probe).
+  const live = {
+    runId: 'lifecycle-probe-1791177834970',
+    sessionKey: 'agent:main:proof-disposable',
+    stream: 'lifecycle',
+    data: {
+      phase: 'end', endedAt: 1791177843706, startedAt: 1791177835336, stopReason: 'stop',
+      aborted: false, livenessState: 'working', replayInvalid: false,
+      terminalReply: { disposition: 'visible', text: 'LIFECYCLE-PROBE' }, executionSettled: true,
+    },
+  };
+  assert.equal(gatewayLifecycleSucceeded(live), true);
+  for (const data of [
+    { ...live.data, aborted: true },
+    { ...live.data, aborted: undefined },
+    { ...live.data, error: 'provider failed' },
+    { ...live.data, status: 'timed_out', aborted: true, stopReason: 'timeout' },
+    { ...live.data, status: 'cancelled', aborted: true },
+    { ...live.data, status: 'future-terminal-status' },
+    { ...live.data, phase: 'error' },
+    { ...live.data, yielded: true, stopReason: 'end_turn', livenessState: 'paused' },
+  ]) {
+    assert.equal(gatewayLifecycleSucceeded({ ...live, data }), false, JSON.stringify(data));
+  }
+});
+
+test('R-CD-2 wake binds a session-bound start to the completion record of the SAME run, in live order', async () => {
+  const { createSilentWakeBinder, eventRunId } = await import('../../lib/gateway-lifecycle.js');
+  // Live order (isolated 14d31a81b1, preview run 2026-10-05): wake run 7db15a55
+  // starts at 05:33:18.061; its heartbeat_respond { notify:false, outcome:"done" }
+  // is written at 05:33:30.152, after the start.
+  const binder = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  assert.equal(binder.noteStart('7db15a55-wake', { atMs: 1 }), null);
+  assert.deepEqual(binder.noteCompletionRecord('7db15a55-wake'), {
+    runId: '7db15a55-wake',
+    atMs: 1,
+    receiptSource: 'heartbeat-completion-record',
+  });
+
+  const reversed = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  assert.equal(reversed.noteCompletionRecord('w'), null);
+  assert.equal(reversed.noteStart('w', {}).runId, 'w');
+
+  const negatives = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  negatives.noteStart('R-CD-2-send', {});
+  assert.equal(negatives.noteCompletionRecord('R-CD-2-send'), null, 'the dispatch run never binds');
+  negatives.noteStart('wake-a', {});
+  assert.equal(negatives.noteCompletionRecord('other-run'), null, 'a record from another run never binds');
+  assert.equal(negatives.noteCompletionRecord(null), null, 'a record without run identity never binds');
+  assert.equal(negatives.bound(), null);
+
+  assert.equal(eventRunId({ runId: 'env' }), 'env');
+  assert.equal(eventRunId({ message: { __openclaw: { runId: 'row' } } }), 'row');
+  assert.equal(eventRunId({ data: { runId: 'nested' } }), null);
+});
+
+test('R-CD-2 wake also binds the SAME run\'s assistant wake acknowledgement (session-event wake)', async () => {
+  const { createSilentWakeBinder } = await import('../../lib/gateway-lifecycle.js');
+  // openclaw 293c977f62 wakes a session-event turn (requestContinuationWake);
+  // it answers in assistant text, never through heartbeat_respond.
+  const binder = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  assert.equal(binder.noteStart('wake', { atMs: 7 }), null);
+  assert.deepEqual(binder.noteWakeReceipt('wake', 'assistant-wake-ack'), {
+    runId: 'wake',
+    atMs: 7,
+    receiptSource: 'assistant-wake-ack',
+  });
+  assert.equal(binder.noteCompletionRecord('wake'), null, 'binds once');
+
+  const reversed = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  assert.equal(reversed.noteWakeReceipt('w', 'assistant-wake-ack'), null);
+  assert.equal(reversed.noteStart('w', {}).receiptSource, 'assistant-wake-ack');
+
+  const first = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  first.noteCompletionRecord('w');
+  first.noteWakeReceipt('w', 'assistant-wake-ack');
+  assert.equal(first.noteStart('w', {}).receiptSource, 'heartbeat-completion-record', 'the first receipt names the source');
+
+  const negatives = createSilentWakeBinder({ acceptedRunId: 'R-CD-2-send' });
+  negatives.noteStart('R-CD-2-send', {});
+  assert.equal(negatives.noteWakeReceipt('R-CD-2-send', 'assistant-wake-ack'), null, 'the dispatch run never binds');
+  negatives.noteStart('wake-a', {});
+  assert.equal(negatives.noteWakeReceipt('other-run', 'assistant-wake-ack'), null, 'another run never binds');
+  assert.equal(negatives.noteWakeReceipt('wake-a', ''), null, 'a receipt needs a named source');
+  assert.equal(negatives.noteWakeReceipt(null, 'assistant-wake-ack'), null);
+  assert.equal(negatives.bound(), null);
+});
+
+test('R-CD-2 scenario no longer gates the wake start on an already-seen completion record', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
+  assert.equal(src.includes('const wakeRunId = evidence.silent_status_record_observed'), false);
+  assert.match(src, /noteCompletionRecord\(eventRunId\(eventData\)\)/);
+  assert.match(src, /noteStart\(startRunId/);
+});
+
+test('R-CD-2 scenario feeds the exact wake acknowledgement to the binder', async () => {
+  const fs = await import('node:fs');
+  const src = fs.readFileSync(new URL('../../scenarios/r-cd-2-silent-wake.js', import.meta.url), 'utf8');
+  assert.match(src, /const wakeAckSentinel = `RCD2-WAKE-ACK \$\{rowNonce\}`;/);
+  assert.match(src, /reply exactly \$\{wakeAckSentinel\}/);
+  assert.match(src, /observesRcd2WakeAck\(eventData, wakeAckSentinel, sessionKey\)/);
+  assert.match(src, /noteWakeReceipt\(ackRunId, 'assistant-wake-ack'\)/);
+  assert.match(src, /evidence\.wake_receipt_source = bound\.receiptSource;/);
+});

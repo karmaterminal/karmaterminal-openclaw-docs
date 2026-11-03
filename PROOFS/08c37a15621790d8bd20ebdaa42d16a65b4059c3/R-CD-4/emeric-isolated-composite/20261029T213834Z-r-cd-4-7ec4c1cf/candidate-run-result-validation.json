@@ -1,0 +1,65 @@
+{
+  "schema": "openclaw.k6.candidate-run-result.v1",
+  "candidateOnly": true,
+  "foldRequiresReview": true,
+  "canonicalFoldForbidden": true,
+  "candidate": {
+    "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "docsRef": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19"
+  },
+  "harness": {
+    "docsRef": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19",
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "manifestPath": "tools/k6-proofs/manifests/r-cd-4.json",
+    "manifestSha256": "e2e8a3a30abb1077377e039950834bd0d739712bc182081a3ee25df63dc74afe",
+    "scenarioPath": "tools/k6-proofs/scenarios/r-cd-4-target-session-key.js",
+    "scenarioSha256": "4ef8db2b4848d4a38b9edca18640bcfec4da18cfb07d20e0c885ef4d757b050b",
+    "manifestArtifact": "row-manifest.json",
+    "scenarioArtifact": "row-scenario.js"
+  },
+  "run": {
+    "id": "20261029T213834Z-r-cd-4-7ec4c1cf",
+    "rowId": "R-CD-4",
+    "seat": "emeric-isolated-composite",
+    "scenario": "r-cd-4-target-session-key",
+    "executionKind": "row-list-runner"
+  },
+  "result": {
+    "outcome": "PASS-candidate",
+    "outcomeSource": "vu-log",
+    "effectiveExitCode": 0,
+    "behaviorProof": false
+  },
+  "observability": {
+    "traceStatus": "present",
+    "traceCaptured": true,
+    "correlationReceiptPresent": true
+  },
+  "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "complete": true
+  },
+  "artifacts": {
+    "manifest": "row-manifest.json",
+    "scenario": "row-scenario.js",
+    "runnerMetadata": "runner-metadata.json",
+    "runResult": "run-result.json",
+    "files": [
+      "evidence-lines.log",
+      "evidence-redaction.json",
+      "evidence.jsonl",
+      "gateway-journal-capture.json",
+      "gateway-journal-redaction.json",
+      "gateway-journal.log",
+      "r-cd-4-summary.json",
+      "row-manifest.json",
+      "row-scenario.js",
+      "run-result.json",
+      "runner-metadata.json",
+      "seat-readiness.json"
+    ],
+    "tempoTraceJson": "tempo-trace-e5457fb914f3.json",
+    "correlationReceipt": "continuation-trace-correlation.json"
+  }
+}

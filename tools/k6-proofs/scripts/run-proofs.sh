@@ -51,11 +51,13 @@ bind_execution_roots() {
   SCRIPT_DIR="$PROOFS_DIR/scripts"
   EVIDENCE_EXTRACTOR="$SCRIPT_DIR/extract-k6-evidence.mjs"
   CONTINUATION_TRACE_COLLECTOR="$SCRIPT_DIR/collect-continuation-trace.mjs"
+  TRACE_REQUIREMENT_CLI="$SCRIPT_DIR/continuation-trace-requirement.mjs"
   R_CD_2_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-2-authoritative-receipt.mjs"
   ARTIFACT_SANITIZER="$SCRIPT_DIR/sanitize-k6-artifacts.mjs"
   CANDIDATE_RESULT_VALIDATOR="$SCRIPT_DIR/validate-candidate-run-result.mjs"
   INTERRUPTED_RESULT_WRITER="$SCRIPT_DIR/write-interrupted-run-result.mjs"
   R_CD_TOKEN_RECEIPT_RESOLVER="$SCRIPT_DIR/resolve-r-cd-token-authoritative-receipt.mjs"
+  R_CW_3_REVIEW_HELPER="$SCRIPT_DIR/review-r-cw-3-reason-telemetry.mjs"
 }
 bind_execution_roots
 PRIVATE_K6_LOG=""
@@ -978,6 +980,18 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # digest-bound to the approved docs ref.
     MANIFEST_FILE="$RUN_DIR/row-manifest.json"
     export OPENCLAW_ROW_MANIFEST="$MANIFEST_FILE"
+    # Whether this row owes a Tempo trace is structural (#600): a continuation
+    # tool or token surface, never a receipt spelling. Read it from the shared
+    # predicate before dispatch, so an unreadable requirement stops the row
+    # before it can fire instead of being guessed afterwards.
+    if ! TRACE_REQUIREMENT_JSON="$(node "$TRACE_REQUIREMENT_CLI" --manifest "$MANIFEST_FILE")"; then
+      fail_harness "harness-identity" "row $ROW_ID trace requirement could not be evaluated; refusing dispatch" \
+        "$(jq -n --arg row "$ROW_ID" '{check:"continuation-trace-requirement",row:$row}')"
+    fi
+    TRACE_REQUIRED="$(jq -r '.required' <<<"$TRACE_REQUIREMENT_JSON")"
+    TRACE_CONTINUATION="$(jq -r '.continuation' <<<"$TRACE_REQUIREMENT_JSON")"
+    TRACE_CORRELATION_RECEIPT="$(jq -r '.correlationReceipt // empty' <<<"$TRACE_REQUIREMENT_JSON")"
+    TRACE_PENDING_RECEIPTS="$(jq -c '.receipts' <<<"$TRACE_REQUIREMENT_JSON")"
     RUN_STARTED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
     jq -n \
       --arg row "$ROW_ID" \
@@ -1244,10 +1258,13 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           .request_compaction_receipt_status == "rejected" and
           .request_compaction_invocation_bound == true and
           .request_compaction_rejected_context_threshold == true and
+          .request_compaction_context_measured == true and
+          .child_yield_bound == true and
+          .child_wake_turn_bound == true and
           .guard == "context_threshold"
         )
       ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then
-        VERDICT_POLICY_REASON="R-RC-2 HONEST-LIMIT-candidate requires a nonce-bound request_compaction toolResult rejected by context_threshold; incomplete evidence is preserved as PARTIAL-candidate"
+        VERDICT_POLICY_REASON="R-RC-2 HONEST-LIMIT-candidate requires a nonce-bound, measured (contextUsage present) request_compaction toolResult rejected by context_threshold after the nonce-bound continue_work yield; incomplete evidence is preserved as PARTIAL-candidate"
       fi
       if [[ -n "$VERDICT_POLICY_REASON" ]]; then
         SUMMARY_VERDICT="PARTIAL-candidate"
@@ -1266,8 +1283,10 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
           .request_compaction_tool_result_observed == true and
           .request_compaction_receipt_role == "toolResult" and
           .request_compaction_receipt_tool_name == "request_compaction" and
-          .request_compaction_receipt_status == "accepted" and
+          .request_compaction_receipt_status == "compaction_requested" and
           .request_compaction_invocation_bound == true and
+          .child_yield_bound == true and
+          .child_wake_turn_bound == true and
           .request_compaction_accepted == true
         )
       ' "$PRIVATE_EVIDENCE_FILE" >/dev/null 2>&1; then
@@ -1314,16 +1333,33 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$GATEWAY_JOURNAL_STATUS" != "captured" ]]; then
       REVIEW_PENDING_RECEIPTS='["gateway-journal"]'
     fi
-    TRACE_REQUIRED="$(jq -r '((.liveRunSafety.requiredReceipts // []) | map(ascii_downcase) | any(. == "trace-id" or . == "tempo-trace-json"))' "$MANIFEST_FILE")"
-    MANIFEST_TOOL="$(jq -r '.invocation.tool // empty' "$MANIFEST_FILE")"
+    # R-CW-3 owns a manual reason-telemetry/redaction review receipt (#1727).
+    # The generic pending list only ever tracked acquisition debt, so a
+    # successful trace fetch used to leave this row with an empty list and a
+    # "ready-for-human-review" status that nobody had reviewed.  Seed the
+    # manifest-declared manual receipt here; nothing below removes it.
+    R_CW_3_REVIEW_REQUIRED=false
+    if [[ "$ROW_ID" == "R-CW-3" ]] &&
+       [[ "$(jq -r '((.liveRunSafety.requiredReceipts // []) | any(. == "reason-telemetry-redaction-review"))' "$MANIFEST_FILE")" == "true" ]]; then
+      R_CW_3_REVIEW_REQUIRED=true
+      REVIEW_PENDING_RECEIPTS="$(
+        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+          '$current + ["reason-telemetry-redaction-review"] | unique'
+      )"
+    fi
     if [[ -s "$PRIVATE_EVIDENCE_FILE" ]]; then
       if jq -e 'select(has("trace_id"))' "$PRIVATE_EVIDENCE_FILE" >/dev/null; then
         TRACE_ID="$(jq -r 'select((.trace_id // "") != "") | .trace_id' "$PRIVATE_EVIDENCE_FILE" | head -n 1)"
       fi
     fi
-    if [[ "$TRACE_REQUIRED" == "true" && -n "$MANIFEST_TOOL" ]]; then
+    # A continuation row always goes through the collector, and only a trace
+    # plus the correlation receipt the collector names for this tool counts as
+    # captured. Anything less leaves both receipts pending (#600), so the
+    # envelope writer cannot call the review complete.
+    if [[ "$TRACE_CONTINUATION" == "true" ]]; then
       COLLECTOR_RESULT="$RUN_DIR/continuation-trace-collector.json"
       COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
+      TRACE_COLLECTED=false
       if node "$CONTINUATION_TRACE_COLLECTOR" \
         --run-dir "$RUN_DIR" \
         --root "$OUT_ROOT" \
@@ -1333,10 +1369,21 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         --evidence "$PRIVATE_EVIDENCE_FILE" \
         --tempo-url "$OPENCLAW_PROOFS_TEMPO_BASE_URL" \
         > "$COLLECTOR_RESULT" 2> "$COLLECTOR_ERROR"; then
-        TRACE_ID="$(jq -r '.traceId' "$COLLECTOR_RESULT")"
-        TEMPO_TRACE_JSON="$(jq -r '.traceFile' "$COLLECTOR_RESULT")"
+        # Unparseable collector output is a missing trace for this row, not a
+        # reason to abort the matrix under set -e.
+        TRACE_ID="$(jq -r '.traceId // empty' "$COLLECTOR_RESULT" 2>/dev/null || true)"
+        TEMPO_TRACE_JSON="$(jq -r '.traceFile // empty' "$COLLECTOR_RESULT" 2>/dev/null || true)"
+        CORRELATION_RECEIPT="$(jq -r '.receiptFile // empty' "$COLLECTOR_RESULT" 2>/dev/null || true)"
+        if [[ "$TRACE_ID" =~ ^[0-9a-f]{32}$ &&
+              "$TEMPO_TRACE_JSON" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ && -s "$RUN_DIR/$TEMPO_TRACE_JSON" &&
+              "$CORRELATION_RECEIPT" == "$TRACE_CORRELATION_RECEIPT.json" && -s "$RUN_DIR/$CORRELATION_RECEIPT" ]]; then
+          TRACE_COLLECTED=true
+        else
+          echo "collector exited 0 without a trace id, trace JSON and $TRACE_CORRELATION_RECEIPT.json receipt" >> "$COLLECTOR_ERROR"
+        fi
+      fi
+      if [[ "$TRACE_COLLECTED" == "true" ]]; then
         TEMPO_TRACE_PATH="$RUN_DIR/$TEMPO_TRACE_JSON"
-        CORRELATION_RECEIPT="$(jq -r '.receiptFile' "$COLLECTOR_RESULT")"
         CORRELATION_RECEIPT_PATH="$RUN_DIR/$CORRELATION_RECEIPT"
         TRACE_STATUS="present"
         rm -f "$COLLECTOR_ERROR"
@@ -1345,19 +1392,14 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       else
         TRACE_STATUS="missing"
         TRACE_ID=""
-        if [[ "$MANIFEST_TOOL" == "continue_delegate" || "$MANIFEST_TOOL" == "continue_work" ]]; then
-          REVIEW_PENDING_RECEIPTS="$(
-            jq -cn \
-              --argjson current "$REVIEW_PENDING_RECEIPTS" \
-              '$current + ["tempo-trace-json","continuation-trace-correlation"] | unique'
-          )"
-        else
-          REVIEW_PENDING_RECEIPTS="$(
-            jq -cn \
-              --argjson current "$REVIEW_PENDING_RECEIPTS" \
-              '$current + ["tempo-trace-json","tool-trace-correlation"] | unique'
-          )"
-        fi
+        TEMPO_TRACE_JSON=""
+        CORRELATION_RECEIPT=""
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn \
+            --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            --argjson trace "$TRACE_PENDING_RECEIPTS" \
+            '$current + $trace | unique'
+        )"
         echo "[$ROW_ID] TRACE CORRELATION FAILED; see $COLLECTOR_ERROR" >&2
         if [[ "${OPENCLAW_PROOFS_K6_TEMPO_REQUIRED:-false}" == "true" ]]; then
           POSTPROCESS_RC=1
@@ -1373,8 +1415,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         TRACE_STATUS="missing"
         if [[ "$TRACE_REQUIRED" == "true" ]]; then
           REVIEW_PENDING_RECEIPTS="$(
-            jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
-              '$current + ["tempo-trace-json"] | unique'
+            jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" --argjson trace "$TRACE_PENDING_RECEIPTS" \
+              '$current + $trace | unique'
           )"
         fi
         echo "[$ROW_ID] TEMPO TRACE FETCH FAILED; see $RUN_DIR/tempo-trace-error.log" >&2
@@ -1385,8 +1427,8 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     elif [[ "$TRACE_REQUIRED" == "true" ]]; then
       TRACE_STATUS="missing"
       REVIEW_PENDING_RECEIPTS="$(
-        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
-          '$current + ["tempo-trace-json"] | unique'
+        jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" --argjson trace "$TRACE_PENDING_RECEIPTS" \
+          '$current + $trace | unique'
       )"
     fi
 
@@ -1471,6 +1513,60 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     else
       rm -f "$RUN_DIR/evidence-redaction.error.log"
     fi
+    # R-CW-3 row-scoped review join (#1727).  The helper reviews the public
+    # artifacts this run actually produced and binds its receipt to the exact
+    # candidate, matrix, run and collected trace; the correlation receipt
+    # supplies trace identity because public evidence leaves trace_id null.
+    # It runs after redaction so it reads the same public bytes a reviewer
+    # will.  Helper success records a bound receipt — it never discharges the
+    # manual review debt, never rewrites the VU verdict, and never implies
+    # coordinator acceptance.  A missing, failed or unbindable review stays
+    # explicit as its own pending receipt.
+    R_CW_3_REVIEW_RECEIPT=""
+    R_CW_3_REVIEW_SHA256=""
+    R_CW_3_REVIEW_VERDICT=""
+    R_CW_3_REVIEW_STATUS="not-applicable"
+    if [[ "$R_CW_3_REVIEW_REQUIRED" == "true" ]]; then
+      R_CW_3_REVIEW_RECEIPT="r-cw-3-reason-telemetry-review.json"
+      R_CW_3_REVIEW_STATUS="review-join-invalid"
+      R_CW_3_REVIEW_ARGS=(
+        --run-dir "$RUN_DIR"
+        --out "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT"
+        --metadata "$RUN_DIR/runner-metadata.json"
+        --expect-candidate-sha "$OPENCLAW_CANDIDATE_SHA"
+        --expect-run-id "$RUN_ID"
+        --expect-matrix-id "$MATRIX_ID"
+      )
+      if [[ -n "$TEMPO_TRACE_PATH" && -f "$TEMPO_TRACE_PATH" ]]; then
+        R_CW_3_REVIEW_ARGS+=(--tempo-trace "$TEMPO_TRACE_PATH")
+      fi
+      if [[ -n "$TRACE_ID" ]]; then
+        R_CW_3_REVIEW_ARGS+=(--expect-trace-id "$TRACE_ID")
+      fi
+      if [[ -n "$CORRELATION_RECEIPT_PATH" && -f "$CORRELATION_RECEIPT_PATH" ]]; then
+        R_CW_3_REVIEW_ARGS+=(--correlation "$CORRELATION_RECEIPT_PATH")
+      fi
+      if node "$R_CW_3_REVIEW_HELPER" "${R_CW_3_REVIEW_ARGS[@]}" \
+        > "$RUN_DIR/r-cw-3-review-join.json" 2> "$RUN_DIR/r-cw-3-review-join.error.log"; then
+        R_CW_3_REVIEW_STATUS="review-join-passed"
+        rm -f "$RUN_DIR/r-cw-3-review-join.error.log"
+        echo "[$ROW_ID] REASON TELEMETRY REVIEW JOIN: $RUN_DIR/$R_CW_3_REVIEW_RECEIPT"
+      else
+        echo "[$ROW_ID] REASON TELEMETRY REVIEW JOIN FAILED; see $RUN_DIR/r-cw-3-review-join.error.log" >&2
+        REVIEW_PENDING_RECEIPTS="$(
+          jq -cn --argjson current "$REVIEW_PENDING_RECEIPTS" \
+            '$current + ["reason-telemetry-redaction-review-join"] | unique'
+        )"
+      fi
+      if [[ -f "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT" ]]; then
+        R_CW_3_REVIEW_SHA256="$(sha256sum "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT" | cut -d' ' -f1)"
+        R_CW_3_REVIEW_VERDICT="$(jq -r '.verdict // ""' "$RUN_DIR/$R_CW_3_REVIEW_RECEIPT")"
+      else
+        R_CW_3_REVIEW_RECEIPT=""
+        R_CW_3_REVIEW_STATUS="review-join-missing"
+      fi
+      echo "[$ROW_ID] REASON TELEMETRY REVIEW: $R_CW_3_REVIEW_STATUS; manual reason-telemetry-redaction-review debt retained."
+    fi
     if [[ "$ROW_ID" == "R-CD-2" && -f "$RUN_DIR/$R_CD_2_RECEIPT" ]]; then
       # Provider/RPC/journal capture remains private for this row.  The signed,
       # allowlisted receipt is the sole public candidate evidence and the sole
@@ -1539,7 +1635,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       --argjson summaryFiles "$SUMMARY_FILES_JSON" \
       --argjson evidence "$EVIDENCE_JSON" \
       --argjson reviewPendingReceipts "$REVIEW_PENDING_RECEIPTS" \
-      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts}}' \
+      --arg rowReviewStatus "$R_CW_3_REVIEW_STATUS" \
+      --arg rowReviewReceipt "$R_CW_3_REVIEW_RECEIPT" \
+      --arg rowReviewSha256 "$R_CW_3_REVIEW_SHA256" \
+      --arg rowReviewVerdict "$R_CW_3_REVIEW_VERDICT" \
+      '{k6ExitCode:$rc, postprocessExitCode:$postprocessRc, effectiveExitCode:$effectiveRc, endedAt:$ended, verdict:(if $verdict == "unknown" then null else $verdict end), verdictSource:$verdictSource, summaryFileVerdict:(if $summaryFileVerdict == "unknown" then null else $summaryFileVerdict end), vuLogVerdict:(if $vuLogVerdict == "" then null else $vuLogVerdict end), summaryFiles:$summaryFiles, evidence:$evidence, candidateOnly:true, foldRequiresReview:true, authoritativeReceipt:(if $authoritativeReceiptSha256 == "" then null else {file:$authoritativeReceipt, sha256:$authoritativeReceiptSha256, validated:true, source:$authoritativeReceiptSource} end), observability:{traceStatus:$traceStatus, traceId:(if $traceId == "" then null else $traceId end), tempoTraceJson:(if $tempoTraceJson == "" then null else $tempoTraceJson end), correlationReceipt:(if $correlationReceipt == "" then null else $correlationReceipt end), lifecycleReceipt:(if $lifecycleReceipt == "" then null else $lifecycleReceipt end), serviceLogStatus:$serviceLogStatus, serviceLog:"gateway-journal.log", serviceLogCapture:"gateway-journal-capture.json", serviceLogRedaction:"gateway-journal-redaction.json"}, review:{status:(if ($reviewPendingReceipts|length)>0 then "review-pending" else "ready-for-human-review" end), pendingReceipts:$reviewPendingReceipts, rowReview:(if $rowReviewStatus == "not-applicable" then null else {receipt:(if $rowReviewReceipt == "" then null else $rowReviewReceipt end), sha256:(if $rowReviewSha256 == "" then null else $rowReviewSha256 end), verdict:(if $rowReviewVerdict == "" then null else $rowReviewVerdict end), status:$rowReviewStatus, source:"r-cw-3-row-scoped-review-join", manualAcceptanceRequired:true, coordinatorAccepted:false} end)}}' \
       > "$RUN_DIR/run-result.json"
     if [[ "$ROW_ID" == "R-CD-TOKEN" ]]; then
       jq \

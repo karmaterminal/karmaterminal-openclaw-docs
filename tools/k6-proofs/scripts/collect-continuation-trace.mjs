@@ -19,6 +19,8 @@ import {
   sealRcd2AcquisitionReceipt,
 } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
+import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
+import { escapeTraceqlString, proofsServiceName } from '../lib/proofs-service-name.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 const CORRELATION_WINDOW_PADDING_SECONDS = 60;
@@ -30,7 +32,7 @@ function usage() {
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
   [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000] \\
-  [--settle-ms <defaults-to-poll-ms>]`);
+  [--settle-ms <defaults-to-poll-ms>] [--service-name <otel service.name>]`);
 }
 
 function parseArgs(argv, env = process.env) {
@@ -45,10 +47,13 @@ function parseArgs(argv, env = process.env) {
     timeoutMs: 180000,
     pollMs: 2000,
     settleMs: null,
+    // Isolated proof gateways may export under their own service.name; the
+    // seat-name convention below only holds for a prince's live gateway.
+    serviceName: env.OPENCLAW_PROOFS_SERVICE_NAME || null,
   };
   for (let i = 2; i < argv.length; i += 1) {
     const arg = argv[i];
-    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id'].includes(arg)) {
+    if (!['--run-dir', '--manifest', '--seat', '--evidence', '--tempo-url', '--timeout-ms', '--poll-ms', '--settle-ms', '--root', '--matrix-id', '--service-name'].includes(arg)) {
       throw new Error(`unexpected argument: ${arg}`);
     }
     const value = argv[i + 1];
@@ -56,17 +61,23 @@ function parseArgs(argv, env = process.env) {
     out[arg.slice(2).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = value;
     i += 1;
   }
+  // One source of truth for the service name: the R-CD-2 acquisition-receipt
+  // validator reads OPENCLAW_PROOFS_SERVICE_NAME (lib/proofs-service-name.mjs).
+  // A --service-name that differs from it (including with the env unset) would
+  // produce a receipt the validator rejects as invalid-shape:query-window, so
+  // refuse it here rather than emit a receipt that can never validate.
+  if ((out.serviceName || null) !== (env.OPENCLAW_PROOFS_SERVICE_NAME || null)) {
+    throw new Error(
+      `--service-name ${out.serviceName} must equal OPENCLAW_PROOFS_SERVICE_NAME ` +
+      `(${env.OPENCLAW_PROOFS_SERVICE_NAME || 'unset'}); set the env var, which both the collector and the validator read`,
+    );
+  }
   out.timeoutMs = Number(out.timeoutMs);
   out.pollMs = Number(out.pollMs);
   out.settleMs = out.settleMs == null ? out.pollMs : Number(out.settleMs);
   return out;
 }
 
-function escapeTraceqlString(value) {
-  const text = String(value ?? '');
-  if (!/^[A-Za-z0-9._:/-]+$/.test(text)) throw new Error(`unsafe TraceQL value: ${text}`);
-  return text;
-}
 
 function safeHex(value, length, label) {
   const text = String(value ?? '').toLowerCase();
@@ -84,34 +95,51 @@ function idHex(value, bytes, label) {
   return safeHex(decoded.toString('hex'), bytes * 2, label);
 }
 
+function searchTraceId(candidate) {
+  // Tempo's search API renders trace IDs without leading zeros (a trace whose
+  // id starts 0x05… comes back 31 hex characters long), while /api/traces and
+  // the spans carry the full 32. Restore the fixed width before validating.
+  const raw = String(candidate?.traceID || candidate?.traceId || candidate?.trace_id || '');
+  const padded = /^[0-9a-f]{1,31}$/i.test(raw) ? raw.padStart(32, '0') : raw;
+  return safeHex(padded, 32, 'search trace id');
+}
+
 function attributes(span) {
   return new Map((span?.attributes || []).map((attribute) => [attribute.key, attributeValue(attribute)]));
 }
 
-async function readEvidence(evidencePath) {
+export async function readEvidence(evidencePath) {
   const text = await readFile(evidencePath, 'utf8');
   const records = text.split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line));
   if (records.length !== 1) throw new Error(`expected exactly one evidence record, found ${records.length}`);
   return records[0];
 }
 
-function traceContract(manifest, evidence) {
+// A manifest template is the dispatched reason only when the nonce alone
+// renders it, through the renderer the scenarios use. Scenario-owned
+// placeholders ({{marker}}, {{tag}}) and the ${VAR:-default} placeholders a
+// scenario resolves from its environment describe a reason's shape, not its
+// bytes, so the collector never hashes them.
+const NONCE_TEMPLATE_PLACEHOLDERS = new Set(['{{nonce}}', '{{nonceSuffix16}}']);
+
+function renderNonceTemplate(template, nonce) {
+  if (typeof template !== 'string' || !template || !nonce) return undefined;
+  const placeholders = template.match(/\{\{[^{}]*\}\}|\$\{[^}]*\}/gu) || [];
+  if (placeholders.some((placeholder) => !NONCE_TEMPLATE_PLACEHOLDERS.has(placeholder))) return undefined;
+  return renderRowTaskTemplate(template, String(nonce)) ?? undefined;
+}
+
+export function traceContract(manifest, evidence) {
   const tool = manifest?.invocation?.tool;
   const nonce = evidence?.nonce;
 
-  let reason;
+  let template;
   let mode;
   let acceptSpanName;
   let fireSpanName;
   let attribution;
   if (tool === 'continue_delegate') {
-    const template = manifest?.invocation?.promptTemplate;
-    if (!template) throw new Error('continue_delegate manifest promptTemplate is required');
-    if (nonce) {
-      reason = String(template)
-        .replaceAll('{{nonceSuffix16}}', String(nonce).slice(-16))
-        .replaceAll('{{nonce}}', String(nonce));
-    }
+    template = manifest.invocation.promptTemplate;
     const manifestMode = manifest.invocation.mode;
     const evidenceMode = evidence.delegate_mode;
     if (manifestMode && evidenceMode && manifestMode !== evidenceMode) {
@@ -126,9 +154,7 @@ function traceContract(manifest, evidence) {
       ? 'bracket-token-reason-hash-length-mode'
       : 'reason-hash-length-mode';
   } else if (tool === 'continue_work') {
-    const template = manifest?.invocation?.reason;
-    if (!template) throw new Error('continue_work manifest reason is required');
-    if (nonce) reason = String(template).replaceAll('{{nonce}}', String(nonce));
+    template = manifest.invocation.reason;
     acceptSpanName = 'continuation.work';
     fireSpanName = 'continuation.work.fire';
     attribution = 'reason-hash-length';
@@ -143,26 +169,37 @@ function traceContract(manifest, evidence) {
     throw new Error('manifest invocation.tool is required for trace collection');
   }
 
-  let hash;
-  let length;
-  let fingerprintSource;
-  if (reason !== undefined) {
-    hash = createHash('sha256').update(reason).digest('hex').slice(0, 16);
-    length = reason.length;
+  // One rule for every continuation row (#600): the trace is matched by the
+  // fingerprint the scenario recorded for the reason it dispatched. Only the
+  // scenario knows those bytes (a random child token, a bracket marker, a
+  // disposable session key, a hop's own task), so a row that records none fails
+  // closed here instead of searching Tempo for a reason nobody sent. The
+  // manifest template is a cross-check, never the source.
+  const hash = safeHex(evidence?.reason_hash, 16, 'evidence reason hash');
+  const length = Number(evidence?.reason_length);
+  if (!Number.isInteger(length) || length < 1) {
+    throw new Error('continuation evidence requires a positive integer reason_length');
+  }
+  let reason;
+  let fingerprintSource = nonce ? 'scenario-evidence' : 'public-evidence';
+  const rendered = renderNonceTemplate(template, nonce);
+  if (rendered !== undefined) {
+    const renderedHash = createHash('sha256').update(rendered).digest('hex').slice(0, 16);
+    if (renderedHash !== hash) {
+      throw new Error(`evidence reason_hash mismatch: expected ${renderedHash}, got ${hash}`);
+    }
+    if (rendered.length !== length) {
+      throw new Error(`evidence reason_length mismatch: expected ${rendered.length}, got ${length}`);
+    }
+    reason = rendered;
     fingerprintSource = 'manifest-nonce';
-    if (evidence.reason_hash !== undefined && evidence.reason_hash !== hash) {
-      throw new Error(`evidence reason_hash mismatch: expected ${hash}, got ${evidence.reason_hash}`);
-    }
-    if (evidence.reason_length !== undefined && Number(evidence.reason_length) !== length) {
-      throw new Error(`evidence reason_length mismatch: expected ${length}, got ${evidence.reason_length}`);
-    }
-  } else {
-    hash = safeHex(evidence.reason_hash, 16, 'evidence reason hash');
-    length = Number(evidence.reason_length);
-    if (!Number.isInteger(length) || length < 1) {
-      throw new Error('public evidence requires a positive integer reason_length');
-    }
-    fingerprintSource = 'public-evidence';
+  }
+  // A chain row (R-CW-4) declares how many sequential continue_work hops it
+  // drives; its later hops join hop 1's trace (see scopeContinueWorkChain).
+  const chainDepthTarget = manifest?.invocation?.chainDepthTarget;
+  if (chainDepthTarget !== undefined &&
+      (tool !== 'continue_work' || !Number.isInteger(chainDepthTarget) || chainDepthTarget < 1)) {
+    throw new Error('manifest invocation.chainDepthTarget must be a positive integer on a continue_work row');
   }
   return {
     kind: 'continuation',
@@ -176,6 +213,7 @@ function traceContract(manifest, evidence) {
     fireSpanName,
     attribution,
     originSurface: manifest?.invocation?.originSurface,
+    ...(chainDepthTarget > 1 ? { chainDepthTarget } : {}),
   };
 }
 
@@ -283,6 +321,111 @@ function scopeDelegateToolSpans(trace, tools, accept, fires) {
   };
 }
 
+// A chain row's later hops run on hop 1's trace: each wake turn runs under the
+// tool span that elected its work (openclaw work-dispatch-execution.ts
+// driveContinuationTurn -> runWithDiagnosticTraceparent(work.traceparent)), and
+// continuation.work is a child of its electing tool span (continue-work-tool.ts
+// captures the live span). The row is attributed to hop 1 alone: the tool span
+// that parents the fingerprint-matched continuation.work. Every other
+// continue_work tool span must prove it is a later hop of that chain, or the
+// trace is refused: it schedules exactly one continuation.work, OK, on the same
+// chain.id, and its nearest continue_work ancestor is the previous hop, so the
+// hops form one sequence from hop 1, no deeper than the row declares.
+function scopeContinueWorkChain(spans, tools, accept, chainId, chainDepthTarget) {
+  const toolIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
+  // allTempoSpans drops identical re-exports; a copy that differs is ambiguous.
+  const duplicate = toolIds.find((toolId, index) => toolIds.indexOf(toolId) !== index);
+  if (duplicate) {
+    throw new Error(`continue_work tool span ${duplicate} is exported more than once with different content`);
+  }
+  if (tools.length > chainDepthTarget) {
+    throw new Error(
+      `matched trace contains ${tools.length} continue_work tool spans, more than the row's declared chain depth ${chainDepthTarget}`,
+    );
+  }
+  const parentOf = new Map();
+  for (const span of spans) {
+    if (!span?.spanId) continue;
+    const spanId = idHex(span.spanId, 8, 'span id');
+    const parentSpanId = span.parentSpanId ? idHex(span.parentSpanId, 8, 'parent span id') : null;
+    if (parentOf.has(spanId) && parentOf.get(spanId) !== parentSpanId) {
+      throw new Error(`span ${spanId} is exported with conflicting parents; continue_work chain ancestry is ambiguous`);
+    }
+    parentOf.set(spanId, parentSpanId);
+  }
+  const toolIdSet = new Set(toolIds);
+  const hop1 = idHex(accept.parentSpanId, 8, 'work parent span id');
+  if (!toolIdSet.has(hop1)) {
+    throw new Error(
+      `matched trace contains ${tools.length} continue_work tool spans and none is the parent of the hop-1 continuation.work span`,
+    );
+  }
+
+  // The nearest continue_work tool ancestor of a tool span, and the spans
+  // between them (the wake turn that ran the later hop).
+  const previousHop = (toolId) => {
+    const path = [];
+    const seen = new Set([toolId]);
+    let current = parentOf.get(toolId);
+    while (current) {
+      if (seen.has(current)) throw new Error(`continue_work tool span ${toolId} has cyclic ancestry`);
+      seen.add(current);
+      if (toolIdSet.has(current)) return { previous: current, path };
+      if (!parentOf.has(current)) break;
+      path.push(current);
+      current = parentOf.get(current);
+    }
+    return { previous: null, path: [] };
+  };
+
+  const nextHop = new Map();
+  const hopFacts = new Map();
+  for (const toolId of toolIds) {
+    if (toolId === hop1) continue;
+    const works = spans.filter((span) =>
+      span.name === 'continuation.work' &&
+      span.parentSpanId &&
+      idHex(span.parentSpanId, 8, 'work parent span id') === toolId);
+    if (works.length !== 1 ||
+        attributes(works[0]).get('chain.id') !== chainId ||
+        publicStatusCode(works[0].status?.code) !== 'OK') {
+      throw new Error(
+        `continue_work tool span ${toolId} is not a later hop of the hop-1 chain: it must schedule exactly one OK continuation.work on chain ${chainId}`,
+      );
+    }
+    const { previous, path } = previousHop(toolId);
+    if (!previous) {
+      throw new Error(`continue_work tool span ${toolId} does not descend from the hop-1 chain's wake turns`);
+    }
+    if (nextHop.has(previous)) {
+      throw new Error(
+        `continue_work tool spans ${nextHop.get(previous)} and ${toolId} both follow ${previous}: the hops branch instead of running in sequence`,
+      );
+    }
+    nextHop.set(previous, toolId);
+    hopFacts.set(toolId, {
+      toolParentSpanId: parentOf.get(toolId),
+      workSpanId: idHex(works[0].spanId, 8, 'work span id'),
+      path,
+    });
+  }
+  const ordered = [];
+  for (let toolId = nextHop.get(hop1); toolId; toolId = nextHop.get(toolId)) ordered.push(toolId);
+  if (ordered.length !== toolIds.length - 1) {
+    throw new Error('continue_work tool spans do not form one sequential chain from hop 1');
+  }
+  return {
+    attribution: tools[toolIds.indexOf(hop1)],
+    chainHops: ordered.map((toolId, index) => ({
+      hop: index + 2,
+      toolSpanId: toolId,
+      toolParentSpanId: hopFacts.get(toolId).toolParentSpanId,
+      workSpanId: hopFacts.get(toolId).workSpanId,
+    })),
+    chainPathSpanIds: ordered.flatMap((toolId) => hopFacts.get(toolId).path),
+  };
+}
+
 function projectScopedContinuationTrace(trace, traceId, topology) {
   const projected = projectPublicTempoTrace(trace, traceId);
   const spanIds = new Set([
@@ -291,6 +434,10 @@ function projectScopedContinuationTrace(trace, traceId, topology) {
     ...topology.toolSpanIds,
     ...topology.fireSpanIds,
     ...topology.childSpans.map((span) => span.spanId),
+    // A chain row keeps the later hops and the wake-turn spans between them,
+    // so the public projection replays its own chain proof.
+    ...(topology.chainHops || []).flatMap((hop) => [hop.toolSpanId, hop.workSpanId]),
+    ...(topology.chainPathSpanIds || []),
   ].filter(Boolean));
   return {
     ...projected,
@@ -345,10 +492,14 @@ function validateTrace(trace, expected) {
     throw new Error('matched raw trace lacks complete causal timing for continue_delegate generation scope');
   }
   const tools = toolScope?.tools ?? matchingTools;
+  const chainRow = expected.tool === 'continue_work' && expected.chainDepthTarget > 1;
+  let chain = null;
   if (expected.originSurface === 'raw-final-text') {
     if (tools.length !== 0) {
       throw new Error(`bracket-token trace must not contain a typed ${expected.tool} tool span`);
     }
+  } else if (chainRow && tools.length > 1) {
+    chain = scopeContinueWorkChain(spans, tools, accept, chainId, expected.chainDepthTarget);
   } else if (tools.length !== 1) {
     throw new Error(
       tools.length === 0
@@ -361,8 +512,9 @@ function validateTrace(trace, expected) {
     const attrs = attributes(span);
     return !['UNSET', 'OK'].includes(status) || attrs.get('openclaw.outcome') === 'blocked';
   })) {
-    throw new Error(`originating ${expected.tool} tool span is error, blocked, or has unknown status`);
+    throw new Error(`${chain ? 'a chain hop' : 'originating'} ${expected.tool} tool span is error, blocked, or has unknown status`);
   }
+  const originTools = chain ? [chain.attribution] : tools;
 
   const traceId = idHex(accept.traceId, 16, 'trace id');
   const fireTraceIds = fires.map((span) => idHex(span.traceId, 16, 'fire trace id'));
@@ -375,9 +527,14 @@ function validateTrace(trace, expected) {
   const fireSpanIds = fires.map((span) => idHex(span.spanId, 8, 'fire span id'));
   const acceptParentSpanId = idHex(accept.parentSpanId, 8, 'dispatch parent span id');
   const fireParentSpanIds = fires.map((span) => idHex(span.parentSpanId, 8, 'fire parent span id'));
-  const toolParentSpanIds = tools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
-  const toolSpanIds = tools.map((span) => idHex(span.spanId, 8, 'tool span id'));
-  const lifecycleSpanIds = [acceptSpanId, ...fireSpanIds, ...toolSpanIds];
+  const toolParentSpanIds = originTools.map((span) => idHex(span.parentSpanId, 8, 'tool parent span id'));
+  const toolSpanIds = originTools.map((span) => idHex(span.spanId, 8, 'tool span id'));
+  const lifecycleSpanIds = [
+    acceptSpanId,
+    ...fireSpanIds,
+    ...toolSpanIds,
+    ...(chain?.chainHops || []).flatMap((hop) => [hop.toolSpanId, hop.workSpanId]),
+  ];
   if (new Set(lifecycleSpanIds).size !== lifecycleSpanIds.length) {
     throw new Error('tool/fire/accept span IDs are not distinct');
   }
@@ -399,6 +556,14 @@ function validateTrace(trace, expected) {
     fireParentSpanIds,
     fireAttemptCount: fireSpanIds.length,
     childSpans,
+    ...(chainRow
+      ? {
+          chainDepthTarget: expected.chainDepthTarget,
+          chainDepth: 1 + (chain?.chainHops.length || 0),
+          chainHops: chain?.chainHops || [],
+          chainPathSpanIds: chain?.chainPathSpanIds || [],
+        }
+      : {}),
   };
   if (expected.tool === 'continue_delegate') {
     return {
@@ -496,8 +661,7 @@ async function main() {
   }
 
   const contract = traceContract(manifest, evidence);
-  const prince = escapeTraceqlString(String(args.seat).split('-')[0]);
-  const serviceName = `${prince}-prince`;
+  const serviceName = proofsServiceName({ seat: args.seat, override: args.serviceName });
   const query = contract.kind === 'continuation'
     ? (() => {
         const modeClause = contract.mode === undefined
@@ -536,7 +700,7 @@ async function main() {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
     }
     if (candidates.length === 1) {
-      traceId = safeHex(candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id, 32, 'search trace id');
+      traceId = searchTraceId(candidates[0]);
       trace = await fetchTrace(args.tempoUrl, traceId);
       try {
         topology = contract.kind === 'continuation'
@@ -548,6 +712,7 @@ async function main() {
               acceptSpanName: contract.acceptSpanName,
               fireSpanName: contract.fireSpanName,
               originSurface: contract.originSurface,
+              chainDepthTarget: contract.chainDepthTarget,
             })
           : validateToolTrace(trace, { tool: contract.tool });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
@@ -583,11 +748,7 @@ async function main() {
           : 'trace correlation candidate set changed during stabilization: no traces matched',
       );
     }
-    const stableTraceId = safeHex(
-      candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
-      32,
-      'search trace id',
-    );
+    const stableTraceId = searchTraceId(candidates[0]);
     if (stableTraceId !== provisionalTraceId) {
       throw new Error('trace correlation candidate set changed during stabilization');
     }
@@ -602,11 +763,7 @@ async function main() {
         : 'final trace correlation query found no matching Tempo trace',
     );
   }
-  traceId = safeHex(
-    candidates[0].traceID || candidates[0].traceId || candidates[0].trace_id,
-    32,
-    'search trace id',
-  );
+  traceId = searchTraceId(candidates[0]);
   if (traceId !== provisionalTraceId) {
     throw new Error('trace correlation candidate set changed before finality');
   }
@@ -620,6 +777,7 @@ async function main() {
         acceptSpanName: contract.acceptSpanName,
         fireSpanName: contract.fireSpanName,
         originSurface: contract.originSurface,
+        chainDepthTarget: contract.chainDepthTarget,
       })
     : validateToolTrace(trace, { tool: contract.tool });
   if (topology.traceId !== traceId) {

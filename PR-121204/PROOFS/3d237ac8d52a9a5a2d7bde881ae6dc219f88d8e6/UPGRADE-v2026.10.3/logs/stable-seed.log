@@ -1,0 +1,6 @@
+### stable-seed / tree 59cb44796b0f1f0daa0e37af8b1495abb45d9bc1
+[seed] tree 59cb44796b0f1f0daa0e37af8b1495abb45d9bc1
+[seed] 500000000000000001: claimed, released with last_error (stable)
+[seed] 500000000000000002: claimed, failed (stable dead-letter)
+[seed] 500000000000000003: claimed and left held; this process now exits as a dead owner
+### exit=0

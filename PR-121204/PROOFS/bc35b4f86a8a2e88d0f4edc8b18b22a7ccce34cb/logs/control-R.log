@@ -1,0 +1,189 @@
+===== phase R1 (outage: admit backlog, drain not running) =====
++  5509ms [env] node v26.9.0 phase=R1
++  5509ms [env] tree=<scratch>/ctl-121204 sha=23bc4d7bfe8626594f4d986814ea15855097cb6b dirty=0
++  5509ms [env] tree has ingress-stale-policy.ts=false ingress-drain-pending-disposition.ts=false
++  5509ms [env] state=<scratch>/proof-121204/runs/control-R/state ambient=20
++  5509ms [clock] T=2026-10-03T03:59:43.201Z (admission clock; every backlog frame is admitted now)
++  8866ms [ingress] accept(amb-01) lane=channel:<gated> sentAt=T-60min -> admitted (drain not running)
++  8870ms [ingress] accept(amb-02) lane=channel:<gated> sentAt=T-58min -> admitted (drain not running)
++  8874ms [ingress] accept(amb-03) lane=channel:<gated> sentAt=T-56min -> admitted (drain not running)
++  8878ms [ingress] accept(amb-04) lane=channel:<gated> sentAt=T-54min -> admitted (drain not running)
++  8881ms [ingress] accept(amb-05) lane=channel:<gated> sentAt=T-52min -> admitted (drain not running)
++  8883ms [ingress] accept(amb-06) lane=channel:<gated> sentAt=T-50min -> admitted (drain not running)
++  8886ms [ingress] accept(amb-07) lane=channel:<gated> sentAt=T-48min -> admitted (drain not running)
++  8888ms [ingress] accept(amb-08) lane=channel:<gated> sentAt=T-46min -> admitted (drain not running)
++  8890ms [ingress] accept(amb-09) lane=channel:<gated> sentAt=T-44min -> admitted (drain not running)
++  8893ms [ingress] accept(amb-10) lane=channel:<gated> sentAt=T-42min -> admitted (drain not running)
++  8895ms [ingress] accept(old-mention) lane=channel:<gated> sentAt=T-41min mentions=bot -> admitted (drain not running)
++  8897ms [ingress] accept(amb-11) lane=channel:<gated> sentAt=T-40min -> admitted (drain not running)
++  8899ms [ingress] accept(amb-12) lane=channel:<gated> sentAt=T-38min -> admitted (drain not running)
++  8907ms [ingress] accept(amb-13) lane=channel:<gated> sentAt=T-36min -> admitted (drain not running)
++  8910ms [ingress] accept(amb-14) lane=channel:<gated> sentAt=T-34min -> admitted (drain not running)
++  8913ms [ingress] accept(amb-15) lane=channel:<gated> sentAt=T-32min -> admitted (drain not running)
++  8915ms [ingress] accept(open-request) lane=channel:<open> sentAt=T-31min -> admitted (drain not running)
++  8918ms [ingress] accept(amb-16) lane=channel:<gated> sentAt=T-30min -> admitted (drain not running)
++  8929ms [ingress] accept(amb-17) lane=channel:<gated> sentAt=T-28min -> admitted (drain not running)
++  8932ms [ingress] accept(amb-18) lane=channel:<gated> sentAt=T-26min -> admitted (drain not running)
++  8934ms [ingress] accept(amb-19) lane=channel:<gated> sentAt=T-24min -> admitted (drain not running)
++  8936ms [ingress] accept(amb-20) lane=channel:<gated> sentAt=T-22min -> admitted (drain not running)
++  8938ms [sqlite] end of R1 (outage): durable backlog, drain never ran: 22 rows, by status {"pending":22}
++  8938ms [sqlite]   {amb-01 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-02 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-03 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-04 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-05 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-06 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-07 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-08 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-09 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-10 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {old-mention lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-11 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-12 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-13 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-14 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-15 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {open-request lane=channel:<open> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-16 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-17 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-18 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-19 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8938ms [sqlite]   {amb-20 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8939ms [verdict] R1: 22 frames durably pending (20 ambient + old-mention + open-request); process exits without draining
+
+===== phase R2 (recovery: new process, same state dir) =====
++  5568ms [env] node v26.9.0 phase=R2
++  5569ms [env] tree=<scratch>/ctl-121204 sha=23bc4d7bfe8626594f4d986814ea15855097cb6b dirty=0
++  5569ms [env] tree has ingress-stale-policy.ts=false ingress-drain-pending-disposition.ts=false
++  5569ms [env] state=<scratch>/proof-121204/runs/control-R/state ambient=20
++  5569ms [clock] T=2026-10-03T04:00:11.260Z (recovery clock)
++  5571ms [sqlite] at recovery start (rows persisted by R1): 22 rows, by status {"pending":22}
++  5571ms [sqlite]   {amb-01 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-02 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-03 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-04 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-05 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-06 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-07 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-08 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-09 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-10 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {old-mention lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-11 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-12 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-13 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-14 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-15 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {open-request lane=channel:<open> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-16 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-17 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-18 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-19 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [sqlite]   {amb-20 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  5571ms [gateway] GatewayPlugin registered for account; getGatewayChannelInfo=undefined isGatewayChannelInventoryHydrating=undefined
++  5571ms [gateway] READY dispatched (1 guild announced) isConnected=true hydrating(guild)=undefined
++  5571ms [gateway] GUILD_CREATE dispatched (2 text channels) hydrating(guild)=undefined inventory[<gated>]=null inventory[<open>]=null
++  5573ms [policy] live policy read: isCurrent=true guildEntries={"100000000000000001":{"channels":{"200000000000000002":{"requireMention":false}}}} restFetchCalls=0
++  5573ms [policy] resolveDiscordShouldRequireMention: <gated>=true <open>=false
++  8947ms [ingress] accept(fresh-mention) lane=channel:<gated> sentAt=T-0 mentions=bot -> admitted
++  8948ms [sqlite] before drain start: 23 rows, by status {"pending":23}
++  8948ms [sqlite]   {amb-01 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-02 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-03 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-04 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-05 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-06 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-07 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-08 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-09 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-10 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {old-mention lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-11 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-12 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-13 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-14 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-15 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {open-request lane=channel:<open> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-16 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-17 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-18 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-19 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {amb-20 lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [sqlite]   {fresh-mention lane=channel:<gated> status=pending attempts=0 failed_reason=null last_error=null}
++  8948ms [drain] monitor started (production drain, pollIntervalMs=1000 as ingress.ts sets)
++  8956ms [dispatch] #1 amb-01 reached the dispatcher seam on channel:<gated>
++  8958ms [dispatch] #1 amb-01 adopted -> ingress claim completed
++  8959ms [dispatch] #2 open-request reached the dispatcher seam on channel:<open>
++  8960ms [dispatch] #2 open-request adopted -> ingress claim completed
++  8963ms [dispatch] #3 amb-02 reached the dispatcher seam on channel:<gated>
++  8964ms [dispatch] #3 amb-02 adopted -> ingress claim completed
++  8967ms [dispatch] #4 amb-03 reached the dispatcher seam on channel:<gated>
++  8968ms [dispatch] #4 amb-03 adopted -> ingress claim completed
++  8971ms [dispatch] #5 amb-04 reached the dispatcher seam on channel:<gated>
++  8971ms [dispatch] #5 amb-04 adopted -> ingress claim completed
++  8974ms [dispatch] #6 amb-05 reached the dispatcher seam on channel:<gated>
++  8975ms [dispatch] #6 amb-05 adopted -> ingress claim completed
++  8977ms [dispatch] #7 amb-06 reached the dispatcher seam on channel:<gated>
++  8978ms [dispatch] #7 amb-06 adopted -> ingress claim completed
++  8980ms [dispatch] #8 amb-07 reached the dispatcher seam on channel:<gated>
++  8981ms [dispatch] #8 amb-07 adopted -> ingress claim completed
++  8984ms [dispatch] #9 amb-08 reached the dispatcher seam on channel:<gated>
++  8985ms [dispatch] #9 amb-08 adopted -> ingress claim completed
++  8988ms [dispatch] #10 amb-09 reached the dispatcher seam on channel:<gated>
++  8988ms [dispatch] #10 amb-09 adopted -> ingress claim completed
++  8991ms [dispatch] #11 amb-10 reached the dispatcher seam on channel:<gated>
++  8992ms [dispatch] #11 amb-10 adopted -> ingress claim completed
++  8994ms [dispatch] #12 old-mention reached the dispatcher seam on channel:<gated>
++  8995ms [dispatch] #12 old-mention adopted -> ingress claim completed
++  8997ms [dispatch] #13 amb-11 reached the dispatcher seam on channel:<gated>
++  8997ms [dispatch] #13 amb-11 adopted -> ingress claim completed
++  8999ms [dispatch] #14 amb-12 reached the dispatcher seam on channel:<gated>
++  9000ms [dispatch] #14 amb-12 adopted -> ingress claim completed
++  9002ms [dispatch] #15 amb-13 reached the dispatcher seam on channel:<gated>
++  9003ms [dispatch] #15 amb-13 adopted -> ingress claim completed
++  9005ms [dispatch] #16 amb-14 reached the dispatcher seam on channel:<gated>
++  9006ms [dispatch] #16 amb-14 adopted -> ingress claim completed
++  9007ms [dispatch] #17 amb-15 reached the dispatcher seam on channel:<gated>
++  9008ms [dispatch] #17 amb-15 adopted -> ingress claim completed
++  9010ms [dispatch] #18 amb-16 reached the dispatcher seam on channel:<gated>
++  9011ms [dispatch] #18 amb-16 adopted -> ingress claim completed
++  9013ms [dispatch] #19 amb-17 reached the dispatcher seam on channel:<gated>
++  9014ms [dispatch] #19 amb-17 adopted -> ingress claim completed
++  9015ms [dispatch] #20 amb-18 reached the dispatcher seam on channel:<gated>
++  9016ms [dispatch] #20 amb-18 adopted -> ingress claim completed
++  9018ms [dispatch] #21 amb-19 reached the dispatcher seam on channel:<gated>
++  9019ms [dispatch] #21 amb-19 adopted -> ingress claim completed
++  9025ms [dispatch] #22 amb-20 reached the dispatcher seam on channel:<gated>
++  9026ms [dispatch] #22 amb-20 adopted -> ingress claim completed
++  9028ms [dispatch] #23 fresh-mention reached the dispatcher seam on channel:<gated>
++  9029ms [dispatch] #23 fresh-mention adopted -> ingress claim completed
++  9050ms [queue] pending=0 claims=0 failed=0 dispatched=23
++  9051ms [drain] monitor stopped after 3482ms
++  9052ms [sqlite] end of R2 (recovery): 23 rows, by status {"completed":23}
++  9052ms [sqlite]   {amb-01 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-02 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-03 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-04 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-05 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-06 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-07 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-08 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-09 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-10 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {old-mention lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-11 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-12 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-13 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-14 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-15 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {open-request lane=channel:<open> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-16 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-17 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-18 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-19 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {amb-20 lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [sqlite]   {fresh-mention lane=channel:<gated> status=completed attempts=0 failed_reason=null last_error=null}
++  9052ms [result] dispatch order: amb-01 -> open-request -> amb-02 -> amb-03 -> amb-04 -> amb-05 -> amb-06 -> amb-07 -> amb-08 -> amb-09 -> amb-10 -> old-mention -> amb-11 -> amb-12 -> amb-13 -> amb-14 -> amb-15 -> amb-16 -> amb-17 -> amb-18 -> amb-19 -> amb-20 -> fresh-mention
++  9052ms [result] ambient rows: 20 total, failed(stale-ambient-backlog)=0, dispatched=20
++  9052ms [result] old-mention=completed open-request=completed fresh-mention=completed restFetchCalls=0 pendingLeft=0
++  9052ms [verdict] R2: fresh-mention dispatched at position 23 of 23 (22 rows before it); ambient failed stale-ambient-backlog=0/20, ambient dispatched=20; old-mention=completed, open-request=completed, fresh-mention=completed

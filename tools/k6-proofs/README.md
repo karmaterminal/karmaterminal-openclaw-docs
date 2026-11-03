@@ -70,16 +70,21 @@ state, repeats rejection through `scheduleContinuationWork`, enters the real
 `runAgentAttempt` path and invokes the registered production `continue_work`
 tool executor, and runs the exact candidate's delegate
 dispatch boundary at the same selected maximum plus the candidate's committed
-regression suite. It does not infer chain behavior from the R-CW-5
+regression suite. Durable state is the candidate's real continuation custody
+store, so every Vitest surface runs in the candidate's database-worker
+(infra) lane. It does not infer chain behavior from the R-CW-5
 cost-cap fixture or mutate fleet config/state:
 
 Before proofs, the detached worktree must declare exact `pnpm@<semver>` in its
 committed `package.json` (an optional `+sha...` suffix is accepted). The runner
 checks `pnpm --version`, requires that exact semantic version, runs
 `pnpm install --frozen-lockfile --prefer-offline --ignore-scripts`, and then
-requires candidate-lock bytes, `.modules.yaml` package-manager metadata,
-candidate-contained virtual-store metadata, and local `tsx`/`vitest` realpaths
-to align. This is **not hermetic host-toolchain or cryptographic provenance
+requires the installed `.pnpm/lock.yaml` to byte-match the candidate's lockfile
+document, `.modules.yaml` package-manager metadata, candidate-contained
+virtual-store metadata, and local `tsx`/`vitest` realpaths to align. A pnpm 12
+`pnpm-lock.yaml` opens with an env document that pins pnpm itself; pnpm installs
+only the lockfile document after it, and every pin in that env document must
+equal the candidate pnpm version. This is **not hermetic host-toolchain or cryptographic provenance
 proof**: the host-resolved `pnpm` is version-checked and the resulting tree is
 verified for lockfile/tree/version alignment.
 
@@ -91,7 +96,9 @@ node tools/k6-proofs/scripts/run-max-chain-fixture.mjs \
   --max-chain-length 3 --json
 ```
 
-See
+A failed proof surface leaves its raw output in `<artifact-dir>.private`
+(`--private-dir` to change it), which must never be published, and a sanitized
+`failureDiagnostics` excerpt in its public receipt. See
 [`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
 The result is review-required and never an automatic canonical fold.
 
@@ -324,6 +331,36 @@ correlation failures are kept non-fatal by default and leave
 `tempo-trace-json` review-pending. Set `OPENCLAW_PROOFS_K6_TEMPO_REQUIRED=true`
 only when a missing trace JSON should fail the run.
 
+Which rows owe a trace is structural, not a receipt spelling (#600). A row that
+fires `continue_work`, `continue_delegate` or `request_compaction`, or whose
+`toolSurface` is `token`/`bracket-token`, always runs the trace collector and
+owes `tempo-trace-json` plus the correlation receipt the collector writes for
+its tool: `continuation-trace-correlation` for `continue_work` /
+`continue_delegate`, `tool-trace-correlation` otherwise. Unless the collector
+leaves a 32-hex trace id, the trace JSON and that receipt in the run directory,
+both receipts stay in `pendingReceipts`. A name in `run-result.json` is not a
+receipt. A row counts as holding its trace only when both receipts are regular
+files in its run directory (no symlink, no path outside it) that bind to its
+trace ID: the trace JSON must carry that ID, and the correlation receipt must
+name that ID and that trace JSON. Until then, none of these calls the row
+review-complete or its trace receipts present: the envelope writer, the
+`candidate-run-result.json` consumer contract, the review-debt summary, the run
+report and both metrics exporters. The check runs whenever one of them reads
+the run, so a receipt deleted or replaced after the runner finished, or a stale
+one left in a reused run directory, makes the row review-pending again. The
+writer's refusal and review-debt name why each receipt is not held (`missing`,
+`symlink`, `unsafe-name`, `not-json`, `not-public-trace-projection`,
+`trace-id-mismatch`, `trace-json-mismatch`, `wrong-receipt-name`, ...).
+R-CD-2 is the one deliberate exception: its
+public result withholds the trace JSON and correlation receipt, and it may
+complete review only when its signed authority receipt was resolved from the
+collector's authenticated acquisition receipt with a valid trace id. That
+receipt binds the trace by fingerprint (trace, chain, dispatch and fire); the
+trace JSON itself is not published for R-CD-2. The rule is
+owned by `lib/continuation-trace-requirement.mjs`; the VU or summary verdict is
+never changed by it. `check-proof-row-manifests.mjs` refuses a continuation
+manifest that does not require both receipts, and the bare alias `tempo-trace`.
+
 For trace-required `continue_delegate` rows, the runner does not trust a
 missing or first-match trace ID. It derives the public-safe runtime fingerprint
 from the committed prompt template and evidence nonce, searches Tempo by
@@ -353,20 +390,98 @@ node tools/k6-proofs/scripts/fetch-tempo-trace.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/<row>/<seat>/<run-id>
 ```
 
-For `R-CW-3`, automate the repeatable reason-telemetry/redaction review after
-fetching the trace:
+For `R-CW-3`, the row-list runner runs the repeatable reason-telemetry/redaction
+review itself, immediately after public-artifact redaction, and records the
+result in `run-result.json` under `review.rowReview`. The same helper can be
+re-run by hand against a preserved run directory. The four `--expect-*` anchors
+are **required**: they must come from the authorizing record of the run (the
+matrix receipt, the issue, the dispatch record), not be copied out of the run
+directory being reviewed. Without them the helper reports internal consistency
+only and the verdict stays `review-pending`.
 
 ```bash
 node tools/k6-proofs/scripts/review-r-cw-3-reason-telemetry.mjs \
   --run-dir /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id> \
-  --tempo-trace /tmp/k6-proof-runs/<sha>/R-CW-3/<seat>/<run-id>/tempo-trace-<trace>.json
+  --expect-candidate-sha <candidate sha> \
+  --expect-run-id <run id> \
+  --expect-matrix-id <matrix id> \
+  --expect-trace-id <collected trace id>
 ```
 
-The helper writes `r-cw-3-reason-telemetry-review.json`, passes only when the
-run saw dispatch/schedule/wake, Tempo contains safe `reason.present`,
-`reason.length`, and `reason.hash` attributes, and the raw `RAW-RCW3-*` reason
-sentinel / `k6-proof-R-CW-3-redaction` prefix are absent from the trace. It is a
-review artifact, not a Gateway action.
+The helper writes `r-cw-3-reason-telemetry-review.json`, and passes only when
+all of the following hold:
+
+- exactly one public evidence record exists, and it is already a fixed point of
+  `sanitize-k6-artifacts.mjs` — a surviving `nonce`, run id or session key means
+  the document was not sanitizer-produced and cannot be reviewed as public;
+- the run saw dispatch/schedule/wake;
+- the `RAW-RCW3-*` sentinel and the `k6-proof-R-CW-3-redaction` prefix are
+  absent from the fetched trace **and from the public bytes themselves** —
+  evidence, correlation receipt, runner metadata, summary, run result, and the
+  public `k6.log` / `evidence-lines.log` / `gateway-journal.log`. The run
+  directory's `row-manifest.json` and `row-scenario.js` copies are excluded by
+  name and the exclusion is recorded: they are the contract bytes and
+  necessarily carry the literal template. The producer's
+  `public_artifact_raw_reason_absent` boolean is recorded as a claim, never used
+  as the proof;
+- the manifest copy is the R-CW-3 `continue_work` contract with a nonce-bearing
+  reason template, and the correlation receipt records a `manifest-nonce`
+  fingerprint source;
+- Tempo carries safe `reason.present`, `reason.length` and `reason.hash`
+  attributes **whose values equal this run's own recorded reason digest and
+  length** — presence of the keys is not evidence;
+- the tool/work/fire span topology matches `continuation-trace-correlation.json`
+  exactly, under the collector's own rules: one trace, one chain, distinct
+  spans, exactly one originating `continue_work` tool span, work and fire both
+  parented to that same span, accept and fire status OK, and the tool span
+  neither errored nor blocked;
+- all four `--expect-*` anchors are supplied, well-typed and matching, the
+  runner metadata's matrix id / seat / run id are strings, and the runtime build
+  SHA equals the candidate SHA;
+- the `row-manifest.json` and `row-scenario.js` copies still hash to the digests
+  `runner-metadata.json` froze.
+
+Trace identity comes from the correlation receipt, because public evidence
+deliberately sanitizes `trace_id` to null.
+
+### What the offline review cannot prove
+
+The receipt carries a `limits` array naming each unavailable claim rather than
+presenting a satisfied check for it:
+
+- **Reason-fingerprint recomputation.** The producer collector derives the
+  fingerprint from the manifest template and this fire's nonce, but the
+  sanitizer drops every `nonce` key, so an offline review of public artifacts
+  cannot independently recompute `SHA256(reason)`. It binds the contract and
+  requires the recorded fingerprint to agree across evidence, correlation and
+  spans. Pass `--nonce <row nonce>` where one is available out of band to repeat
+  the collector derivation; the nonce is used only for that derivation and is
+  never written into the receipt.
+- **Digest authority.** Only `row-manifest.json` and `row-scenario.js` have
+  producer-frozen expected digests in `runner-metadata.json`. The other recorded
+  digests are **custody of the exact bytes this review read**, not a comparison
+  against a trusted prior value. `binding.digestAuthority` says which is which.
+- **Live execution.** It is offline inspection of preserved artifacts; no
+  gateway call, Tempo query or re-fire occurs.
+
+The receipt is itself a public artifact. Every outgoing string is scrubbed of
+raw reason material and of any supplied nonce before it is written, so a refused
+receipt built from poisoned run-directory bytes carries none of that material;
+`redactedOutgoingValues` reports how many values were dropped.
+
+`--out` cannot be aimed at an input or an immutable original: the helper refuses
+a symlink, a hard-linked target, a non-regular file, any path that resolves onto
+an existing run artifact, and any device+inode alias of one. It may replace a
+receipt it wrote itself, identified by schema rather than filename.
+
+A passing receipt is mechanical verification, not acceptance. `R-CW-3` keeps
+`reason-telemetry-redaction-review` in `review.pendingReceipts` for the life of
+the run, so the row stays `review-pending`, receives no candidate routing
+envelope, and keeps its `PARTIAL-candidate` verdict until a coordinator accepts
+the manual review. A missing, failed or unbindable join adds
+`reason-telemetry-redaction-review-join` as its own explicit pending receipt and
+still writes a receipt naming the unreviewable input. It is a review artifact,
+not a Gateway action.
 
 When reviewing an existing candidate-run bundle, summarize pending review receipts
 before attempting Tempo fetches:
@@ -482,21 +597,63 @@ The `RequestTracker` class maps request IDs to method names for reliable respons
 
 ### Continuation observability surfaces
 
-`continue_delegate` proof rows must not require a `tasks.list` row as the primary
-spawn receipt. The generic `tasks.list` method reads the TaskFlow / scheduled-task
-registry; `continue_delegate` uses the pending-delegate queue and then the
-subagent/session run surfaces. A delegate can fire successfully while never writing
-a nonce-correlated record to `tasks.list`.
+The task-ledger RPC `tasks.list` no longer exists: upstream openclaw `6652f7eac8`
+("remove Tasks and TaskFlow runtime", #159179) deleted it. On current builds an
+unknown method is authorized before handler lookup and defaults to
+`operator.admin`, so a read+write proof connection receives
+`FORBIDDEN missing scope: operator.admin`. Rows that polled it recorded "child not
+observed" whatever the product did (#562). No scenario calls it any more.
 
-For R-CD rows, prefer these public-safe receipts instead:
+Rows observe delegate children through `lib/child-observer.mjs`:
+
+- `sessions.list { spawnedBy: <requester> }` (operator.read) lists the requester's
+  children; each row carries `spawnedBy`, `status`, `endedAt`, `lastRunId`.
+- `chat.history { sessionKey: <child> }` (operator.read) returns the child's own
+  transcript. Offset 0 is the newest page, so the observer follows `nextOffset`
+  back to the page with `hasMore: false` (bounded; a hit cap, a non-advancing
+  cursor or a page without `hasMore` fails closed). The transcript's first user
+  message must carry `[Subagent Task]`; the task text after it is the binding
+  record. Reads that land before the spawn message is persisted are retried
+  (bounded, recorded in evidence).
+- A child binds to a row only when its own row names the expected requester in
+  `spawnedBy` **and** its own spawn task carries the row nonce or task token.
+  Ambiguity binds nothing. Completion is the bound row's `status: "done"`.
+  Nonce-bound child keys seen on subscribed events never bind on their own;
+  they cross-check the observer binding (`reconcileChildIdentity`), and any
+  disagreement or ambiguity is a child-identity conflict that makes the row
+  PARTIAL.
+- A `FORBIDDEN` or unknown-method answer to any observer call is recorded as
+  `observation_refused: {method, code, message}` and makes the row PARTIAL. It is
+  never read as "child not observed".
+- Preflight: before dispatch each row checks every method it calls
+  (`ROW_METHODS` in `lib/child-observer.mjs`, mirrored in the manifest
+  `scenario.methods`) against hello-ok `features.methods`. A missing method
+  refuses the row before anything is sent. `advertise:false` methods such as
+  `sessions.get` cannot pass this check, so rows read history via `chat.history`.
+
+For R-CD rows the public-safe receipts remain:
 
 - `sessions.send` or `tools.invoke` accepted the dispatch request.
 - `sessions.messages.subscribe` emitted `session.message` / agent events for the
   dispatching or target session.
 - Nonce-correlated parent/target return events appeared on the subscribed session
   stream.
-- `tasks.list` may be kept as optional extra context only; a missing task-ledger
-  row is not a delegate failure by itself.
+- The row-bound child from the child observer, where the row needs one.
+
+Wake-turn answers (#567): a continuation return woken in a recipient session runs
+as a heartbeat turn, and current builds answer it through the `heartbeat_respond`
+tool instead of assistant text. The wake's user row and the delivered return text
+are hidden from `chat.history` and `session.message`. R-CD-4 (target ack) and
+R-CD-CHAINED-DEPTH-2 (root ack) therefore also accept a `heartbeat_respond` call
+plus its accepted toolResult (same toolCallId, same run) whose `notificationText`
+or `summary` carries the exact sentinel, in the expected session, after the row's
+anchor (priming reply / dispatch) and outside the anchor run
+(`lib/wake-turn-receipt.mjs`). In the parent, any such ack is still a parent
+landing (negative control).
+
+For R-CD-1 and R-CD-2 the child is optional context: R-CD-2's verdict comes
+from the row-scoped resolver, which does not read the observer fields, and an
+observer refusal there is recorded in `verdict_reason` only.
 
 This avoids the false-negative filed in #134, where a live delegate fired but the
 scenario failed because it queried the wrong registry surface.
@@ -511,6 +668,146 @@ The bracket scanner fires only on scanned-final-text (terminal position). Seats 
 
 This is **declared in the manifest before the run**, not a post-hoc excuse. The `seatClassExpectation` block in `r-cd-token.json` states the expected outcome per seat class.
 
+### Return contract (R-CD-TOKEN, karmaterminal/openclaw-bootstrap#1727)
+
+**Outcome: only the direct announce binds. A targeted return is correlation evidence, and the
+row stays PARTIAL** with `partial_reasons: ["targeted-return correlated; no product-stamped
+delivery→run join observable"]`. This follows 🌊's ruling on docs#612 (CHANGES_REQUESTED at
+`8b44456d`): the visible legs show that the delegate answered and that the origin answered later.
+They do not tie that origin run to receipt of this delegate's result.
+
+**The route.** Since openclaw `2273ef64d5` (2026-09-12, "restore continuation substrate on
+current upstream"), `createDelegateRecord` binds every pending delegate to its requester as
+recipient. A token delegate's return to the origin child is therefore always a **targeted
+return** (`routeSubagentContinuationReturn`), never the direct announce. At `8ba08c76d8` (the live
+P' evidence) and at the integration candidate `9f1b83f9d0` (I1) the route works like this:
+
+- a durable `systemEvent` row (`continuationSourceRunId` = the delegate run) and a queued system
+  event for the origin child, then a `delegate-return` wake with `parentRunId` = the delegate run
+  (`auto-reply/continuation/targeting.ts:270-277`, `:366-373`). The journal logs
+  `[continuation:targeted-return] Delivered to <origin> from <delegate>`;
+- after a 250 ms coalesce, the wake runs an ordinary session-event turn on the origin child
+  (`continuation-wake.ts:186-202`). Its user message is the return text
+  (`[Internal task completion event]`, `session_key: <delegate child>`, the child result), with
+  provenance `internal_system` / `continuation` / `runId` = the delegate run
+  (`session-event-context.ts:180-192`) and `__openclaw.sessionDeliveryAckIds` naming the durable
+  row;
+- that text is runtime context (`internal-events.ts:241-255`). Display projection strips it and
+  hides the empty row (`chat-display-projection.history.ts:416-420`), so neither `session.message`
+  nor `chat.history` carries it. A subscriber sees only the woken run's lifecycle on the origin
+  key and that run's own assistant answer, stamped `__openclaw.runId`.
+
+**Direct-announce (bound, unchanged).** A user row on the origin headed `[Inter-session message]
+... sourceTool=subagent_announce` whose `sourceSession` is the delegate child. Its header is a
+product stamp naming the source on the row delivered to the target, so it binds (a) the origin
+as target, (b) the delegate as source, (c) the exact `RCDT-RETURN-<tag>` sentinel and (d) this
+row run. Older products published it; current ones hide it (`history.ts:413-415`), and a
+continuation delegate never takes that path.
+
+**Targeted-return (correlation only).** Both legs are still checked:
+
+- target leg: the woken run's assistant answer on the origin key carries the exact sentinel,
+  word-bounded and once, with no bracket or harness text. Its run started on the origin (a
+  lifecycle start), is not the origin's own bracket run (the first run the observer reports for
+  the origin), and started **at or after the delegate run ended** (the delegate row's `endedAt`).
+  Transcript recovery (`chat.history` after the bracket run) applies the same rules to a row
+  timestamp;
+- source leg: the delegate child's own transcript answers the same sentinel in an assistant row
+  stamped with the delegate's run (`lastRunId`). The delegate is spawned with the default cleanup
+  `keep`, so it is still readable after the return.
+
+A match is recorded as `targeted_return_correlated`, `targeted_return_run_id_hash`,
+`targeted_return_after_delegate_end_ms`, `origin_spawn_run_id_hash`, `source_return_observed`,
+`source_return_run_id_hash`, with receipt kinds `correlated-session-message-targeted-return` or
+`correlated-target-transcript-targeted-return`. It never sets `delegate_return_observed`,
+`return_route` or the return target/source hashes. Classification binds only the direct-announce
+route (`TOKEN_BOUND_RETURN_ROUTES`). The signed receipt fingerprints the correlation, and its
+validator rejects a PASS lifecycle that names any other route, even when it is correctly signed:
+neither the order nor a signature stands in for the join.
+
+**Why it cannot bind: the negative control.** The delegate completes and answers correctly. No
+targeted delivery reaches the origin. An unrelated session event (for example an exec completion)
+wakes the origin after the delegate ended, and that turn echoes the sentinel the origin already
+knows from its own task. Every byte the harness reads is the same as for a real targeted return,
+and so is the evidence. At `8b44456d` this control bound as PASS-candidate. It now stays unbound.
+
+**Product join map at I1 `9f1b83f9d0`** (source walk of a clean detached checkout; no exact
+GitNexus index exists for that SHA). No record available to the harness names all three of the
+delegate run, the recipient session and the woken run:
+
+| record | delegate run | recipient | woken run | read surface for an operator token |
+|---|---|---|---|---|
+| woken turn's user row (raw) | `provenance.runId` | its transcript | **no**: only assistant and tool rows are run-stamped (`sessions/transcript-events.ts:40-58`); a session-event input is keyed by its occurrence id (`get-reply-run-execute.ts:299-300`) | hidden from `session.message`/`chat.history`; raw only through `sessions.get` (`sessions-read-by-key.ts:209-312`), `operator.read` but unadvertised (`methods/core-descriptors.ts:374`) |
+| woken run's assistant row | no | yes | `__openclaw.runId` | `session.message`, `chat.history` |
+| woken run's lifecycle start | no: `{phase, startedAt}` only (`embedded-agent-subscribe.handlers.lifecycle.ts:293`) | `sessionKey` | `runId` | `agent` events |
+| pending-input receipt (`chat.history inputRunIds`) | no | yes | no: keyed by the occurrence id (`session-event-handoff.ts:531-533`) | `chat.history` (`chat-history-handler.ts:217-235`) |
+| durable delivery row | `continuationSourceRunId` | `sessionKey` | no: the ack records no run (`session-delivery-queue-storage.ts:583-603`) | none (state database only) |
+
+The transcript `parentId` link from the assistant row to its input row is not projected by any
+read surface (`session-transcript-entry-message.ts:37-60` attaches only `id`, `idempotencyKey`,
+`recordTimestampMs`, `transcriptPosition` and `seq`).
+
+**Product seam that would let it bind** (fork-owned; not made in this repo):
+
+1. Stamp the consuming run on the record that already names the delegate run and lives in the
+   recipient's transcript: when an `internalEventExecution` turn commits its input row, write the
+   run id as a protected operational field, for example `__openclaw.inputRunId`.
+   - Where the run id comes from: it is preallocated when the turn is admitted
+     (`reply-agent-turn-preparation.ts:437-441`). An `internalEventExecution` turn is a
+     `queued_followup` (`reply-turn-kind.ts:4`), so the id is `controllerInput.protocolRunId` or
+     a fresh UUID. `GetReplyOptions.runId` is ignored for that kind. The id then reaches
+     `executeAgentTurn` as `opts.runId` (`agent-runner-execution.ts:710`).
+   - Where the stamp goes: the input is staged earlier, at `prepareInput`
+     (`session-event-handoff.ts:527-540`), keyed by the occurrence id, so the staged message
+     predates the run id. The stamp has to be added when the admitted turn commits that staged
+     input to the transcript. Carry it in the persisted metadata
+     (`buildPersistedUserTurnMetadata`, `user-turn-transcript.metadata.ts:51-119`) and add it to
+     the hook-protected fields (`:201-236`, `:334-346`), so a before-message-write hook can
+     neither drop nor forge it.
+   - Do not widen `attachSessionTranscriptRunId`: user rows are deliberately not run-owned.
+2. Read it through `sessions.get`, which already returns raw rows with `provenance` and
+   `__openclaw` intact; no new method is needed. Advertise it (drop `advertise: false` at
+   `core-descriptors.ts:374`). The entry sits after the advertised block, so existing advertised
+   indices stay stable, and the row preflight requires every method in hello-ok
+   `features.methods`.
+3. Stamp per delivery, not per wake, in the general case. When returns coalesce, the wake keeps a
+   single `parentRunId`, and the last writer wins (`continuation-wake.ts:89-96`). Each durable
+   row keeps its own `continuationSourceRunId`. For this row (one delegate per origin) the
+   provenance runId is exact.
+
+With that seam, the row would bind PASS on one `sessions.get {key: <origin>}` row whose
+provenance is `continuation` with `runId` equal to the delegate's `lastRunId`, whose
+`inputRunId` is the run whose answer carries the sentinel, and whose content names the delegate
+child. The four bindings and the ordering would remain additional checks. The read must happen
+before the origin is deleted: `sessions.get` answers `{messages: []}` for a missing session
+(`sessions-read-by-key.ts:252-253`), so the alternative is to spawn the origin with cleanup
+`keep`.
+
+**Origin instruction.** Because the delivery is invisible, the origin child is told in its spawn
+task: *on a later turn, only after an internal task completion contains `RCDT-RETURN-<tag>`,
+reply exactly `RCDT-RETURN-<tag>`*. That answer is what the correlation reads. The instruction
+comes before the terminal bracket, and the bracket turn is excluded by run identity.
+
+Things that never even correlate (not an exhaustive list): a sentinel from another session,
+another run's nonce, the origin's bracket run, a run that never started on the origin, a run that
+started before the delegate ended, an unstamped row, or an answer with no delegate leg.
+
+`cleanup: "delete"` on the origin: the delegate's cleanup resumes the origin's held announce,
+which delivers to the parent and then deletes the origin. Nothing orders that delete after the
+wake. The live route is the primary correlation. Transcript recovery works only while the origin
+still exists. If the delete pre-empts the wake, nothing correlates.
+
+The offline fossil is `tests/r-cd-token-targeted-return.test.mjs`. It fires the real scenario
+against a gateway scripted on the targeted-return route, modeled on live run 20261029T133725Z.
+The scripted gateway keeps each wake's hidden input row (`state.originInputs`), so the negative
+control differs from a targeted return only in product state that the harness cannot read.
+
+Stale design text in openclaw (an openclaw change, not this repo's), still present at
+`9f1b83f9d0`: `docs/design/continue-work-signal-v2.md:211` says normal-mode delegates with no
+explicit target "keep the existing visible announce behavior", and `:513` says "the existing
+announce path delivers untargeted results back to the dispatching session". Both stopped being
+true at `2273ef64d5`.
+
 ## Row coverage
 
 `live-suite` currently resolves to 34 unattended rows. This table is generated from the manifest floor, but the outcome column is intentionally conservative: offline rows validate committed packets, and partial rows do not become accepted-path proofs just because they are runnable.
@@ -520,7 +817,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | preflight | `preflight` | websocket/read-only | PASS-candidate; readiness helper requiring row review |
 | R-CD-1 | `r-cd-1-typed-delegate` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-2 | `r-cd-2-silent-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PARTIAL-candidate until a real lifeboat return proves PASS |
+| R-CD-3 | `r-cd-3-post-compaction` | websocket/typed-tool | PASS-candidate only on the bound chain (measured fill, accepted request_compaction, released lifeboat, its minted token, the requester reproducing it); unknown or unmeasured rejection is PARTIAL |
 | R-CD-4 | `r-cd-4-target-session-key` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-CHAINED-DEPTH-2 | `r-cd-chained-depth-2` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-COLLECTION-ON-COLLAPSE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
@@ -528,6 +825,7 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CD-MODEL-DEFAULT | `r-cd-model-default` | websocket/mixed | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
+| R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -537,8 +835,8 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 | R-CW-2 | `r-cw-2-immediate-wake` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CW-3 | `r-cw-3-reason-telemetry` | websocket/typed-tool | PARTIAL-candidate until reason telemetry/redaction review closes |
 | R-CW-4 | `r-cw-4-chain-depth` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
-| R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate; exact-candidate fixture, review required before fold |
-| R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PASS-candidate component evidence; manual-only exact-candidate fixture, review required before fold |
+| R-CW-5 | `run-cost-cap-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate (`verdictCap`: the fixture's behavioral PASS-candidate does not lift it); exact-candidate fixture, review required before fold |
+| R-CW-6 | `run-max-chain-fixture.mjs` | process-local/typed-tool | PARTIAL-candidate (`verdictCap`: the fixture's behavioral PASS-candidate does not lift it); manual-only exact-candidate fixture, review required before fold |
 | R-CW-7 | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-CHILD-LIVE | `static-corpus-row-validator` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CW-DELEGATE-SELF-CONTINUATION | `r-cw-delegate-self-continuation` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
@@ -558,13 +856,216 @@ This is **declared in the manifest before the run**, not a post-hoc excuse. The 
 
 `R-CW-5` and `R-CW-6` are also excluded from `--live-suite`: they are process-local, fixture-gated cap rows rather than unattended WebSocket rows. `R-CW-5A` and `R-CW-6A` are their static source/harness boundary checks; they emit only `construct-only`, never runtime R-CW-5/6 PASS evidence.
 
+### R-CD-RETURN-COVENANT-AUTHORITY disposable restart control
+
+`tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs` restarts one disposable
+gateway for real and grades whether its return authority (the recipient session's
+`session_recipient_authority` epoch) survives. A generation counts as usable only while it
+serves (owns the listener, `/readyz` passes, hello-ok answers), and every receipt reports
+the restart's `outageInterval`. It runs outside the generic k6 runner and `--live-suite`,
+because the manifest is `orchestration-required`. The control owns the gateway's lifecycle:
+it starts the old generation, establishes the authority, plans the window and requests
+`gateway.restart.request`. It refuses, before starting anything, any target that is not a
+stopped `$HOME/proof-gw/comp-<sha8>` gateway set up by frond-scribe
+`scripts/proof-gw/composite-launcher.sh` on a free loopback port that is not the live
+gateway's.
+
+Because the control restarts a real gateway process, the manifest names it under
+`invocation.control` with `invocation.artifactClass: "disposable-real-process"`. It is not a
+process-local fixture, so the row declares no `verdictCap` and is not capped (see "The
+process-local cap" below).
+
+It has two row cases and two optional controls. 🌊's final scope ruling (Discord msg
+1565927316687691777) scopes the row's claim to the supervised branch the fleet runs:
+
+- `positive` and `negative-replacement-never-usable` run the control as the declared external
+  supervisor (`OPENCLAW_SUPERVISOR_MODE=external`). That is the supervised branch, the one
+  systemd-supervised fleet seats take. On it the control consumes the restart handoff and
+  starts the replacement. The row verdict is graded from `positive` and
+  `negative-replacement-never-usable` only.
+- `control-update-respawn-fallback` and `control-update-respawn-runtime-unavailable` (kind
+  `update-respawn-control`) set no supervisor hint and restart with reason `update.run`, which
+  takes the spawned branch. There the product spawns the child and, when it is unhealthy, falls
+  back in-process or refuses on a named branch. They are not evidence for the fleet restart
+  claim: their receipts sit beside the row verdict and never feed it, and they run only when
+  reviewers want the update-path evidence.
+- The plain in-process restart of an unmanaged gateway is a named limit, `in-process-restart`,
+  outside both.
+
+```bash
+node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs \
+  --proof-gw-dir ~/proof-gw/comp-<sha8> --stage-dir <stage-only build of the candidate> \
+  --candidate-sha <40-char-sha> --docs-sha <40-char-docs-sha> \
+  --case positive --artifact-dir <new directory> --observer-key-file <0600 key file>
+```
+
+Run `--case negative-replacement-never-usable` next, into a new directory. It must grade non-PASS
+with `negativeControl.holds: true`: the observed failure, the outage, the authority retained and
+`noFallback`. Then grade the row from the two signed receipts:
+
+```bash
+node tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs --observer-key-file <0600 key file> \
+  --grade-row <positive dir>/observer-receipt.json \
+  --grade-row <negative dir>/observer-receipt.json
+```
+
+The update-respawn controls, when wanted, run the same way with their own `--case`. Each must also
+grade non-PASS with `negativeControl.holds: true`. The fallback control's restored original process
+is old-process restoration, never fresh-successor proof. Raw process output stays in
+`<artifact-dir>.private`, which is never published. See
+[`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
+
+### Required preflights: R-CW-5A/6A gate R-CW-5/6
+
+Under 🌊's F″ method ruling (Discord 1565895695586558120, 2026-10-31;
+openclaw-bootstrap#1727), `R-CW-5A` and `R-CW-6A` are not proof rows of a new
+corpus. They are the required preflights of `R-CW-5` and `R-CW-6`. The live row's
+manifest names its preflight in `requiredPreflights`, and the preflight's
+manifest names its live row in `preflightAttachment` (with `proofRow: "retired"`);
+`check-proof-row-manifests.mjs` keeps the two in agreement. A passing preflight is
+necessary, not sufficient: it never lifts R-CW-5/6 above the cap their manifests
+declare (see "The process-local cap" below).
+
+1. **Run the preflight at the exact candidate.** For a preflight manifest,
+   `static-corpus-row-validator.js` reads `PROOFS/<candidate>/R-CW-5/cael-dgx/`
+   (or `R-CW-6/…`), never `INDEX.static_evidence_sha`, and fails without a
+   40-character `OPENCLAW_CANDIDATE_SHA`. Next to its summary it writes
+   `required-preflight-receipt.json` (`openclaw.k6.required-preflight-receipt.v1`),
+   whose `candidateSha` and `sourceEvidenceSha` are that candidate. The candidate's
+   static source/harness material therefore has to be committed under
+   `PROOFS/<candidate>/R-CW-5/cael-dgx/` first, and it must be bound to that
+   candidate. It needs a `source-sha.txt` (at its root, or under `source/`), whose
+   whole content is the 40-character candidate SHA. No provenance file in it
+   (`runtime-version.txt`, the first line of `source-git-status.txt` or
+   `source/source-commit.txt`) may name another commit. The static baseline's files
+   copied into place do not pass, and neither does a note in `EVIDENCE.md` that
+   merely mentions the candidate. This binding is a declaration, the same strength
+   as R-CW-7's `sourceSha` check, not cryptographic provenance: review still has
+   to confirm the material was captured at the candidate. Without bound material
+   the preflight fails, and the live row is capped, which is the intended result.
+   A receipt counts only if it carries `exactCandidateBinding`,
+   `materialNamesCandidate` and `nonLiveBoundary`, each `true`.
+
+   ```bash
+   cd "$PREFLIGHT_RUN_DIR"   # handleSummary writes its files here
+   OPENCLAW_ROW_MANIFEST="$REPO/tools/k6-proofs/manifests/r-cw-5a-static.json" \
+   OPENCLAW_CANDIDATE_SHA="<40-char-sha>" \
+     k6 run "$REPO/tools/k6-proofs/scenarios/static-corpus-row-validator.js"
+   ```
+
+2. **Grade the live row.** The fixture's `fixture-result.json` owns the
+   behavioral verdict. The row verdict is the minimum of that verdict, the row's
+   declared cap (`verdictCap.rowCap`, `PARTIAL-candidate` for R-CW-5/6) and the
+   preflight cap, which lowers a `PASS-candidate` to `PARTIAL-candidate` unless
+   every required preflight passed at the same candidate. A missing, failed,
+   malformed or other-SHA receipt never counts, a passing one never lifts the row
+   cap, and the grader never raises a verdict:
+
+   ```bash
+   node tools/k6-proofs/scripts/grade-preflight-gated-row.mjs \
+     --manifest tools/k6-proofs/manifests/r-cw-5.json \
+     --live-result <fixture-artifact-dir>/fixture-result.json \
+     --preflight-receipt "$PREFLIGHT_RUN_DIR/required-preflight-receipt.json" \
+     --out <fixture-artifact-dir>/preflight-gate.json --json
+   ```
+
+   It exits 0 only for a gated `PASS-candidate`, 1 for any other verdict, and 2
+   when it cannot bind the inputs, including a process-local manifest without a
+   well-formed `verdictCap` and a fixture verdict outside the known set (`PASS`,
+   `pass-candidate` and the like are refused, never passed through uncapped). R-CW-5/6 therefore never exit 0: at best they grade
+   `PARTIAL-candidate` with `cappedBy: ["row-cap"]`. Its `preflight-gate.json`
+   (`openclaw.k6.preflight-gated-row-verdict.v1`) records the behavioral and row
+   verdicts, the declared `rowCap`, `cappedBy` (`row-cap`, `required-preflight`,
+   each judged against the behavioral verdict on its own), and each preflight's
+   status (`passed`, `missing`, `failed`, `wrong-candidate` or `invalid`), the
+   receipt's basename and its sha256.
+
+3. **Fold it as an attachment.** An F″ corpus keeps `R-CW-5A`/`R-CW-6A` out of
+   `rows[]`, `required_rows` and every firing bucket. It records them in the
+   manifest's `preflight_attachments`, and `validate-corpus.mjs` gates the live rows
+   on them (see "Required preflight attachments" below).
+
+F′ (`f15237ec92`) and every older corpus keep R-CW-5A/6A as the rows they folded.
+Their historical MISSING verdicts and reports are unchanged; the 71 corpora folded
+before the ruling are listed by name in `scripts/pre-f2-ruling-corpora.json`.
+
+### The process-local cap: the preflight is necessary, not sufficient
+
+🌊's ruling on docs#616 (his CHANGES_REQUESTED review and issue comment, Discord
+1565925290008387728, 2026-10-31; openclaw-bootstrap#1727): R-CW-5 and R-CW-6 are
+capped at `PARTIAL-candidate` while their only producer is a process-local
+fixture, which is not an external gateway invocation. Each manifest declares the
+cap in `verdictCap` (`rowCap: "PARTIAL-candidate"`,
+`artifactClass: "process-local-fixture"`), and `check-proof-row-manifests.mjs`
+requires that declaration of every row whose `transport` is process-local
+(however spelled), whose runner is a process-local fixture, or
+that the ruling names (R-CW-5, R-CW-6, by id).
+A declared transport outside the schema's list is refused rather than read as
+"not process-local", and the grader also refuses a manifest with no transport. The cap is read from the declaration, never inferred from prose,
+and the rules live in `lib/row-verdict-cap.mjs`.
+
+A runner's artifact class is declared in `invocation.artifactClass`, never
+inferred from the key that names the runner:
+
+- A runner named with no class is a process-local fixture, so the row must
+  declare the cap. That covers `invocation.fixture`, as before, and
+  `invocation.control` without a class. So does
+  `invocation.artifactClass: "process-local-fixture"`. Either key counts
+  whatever its value: an empty, blank or non-string value is never read as "no
+  runner". A runner under any other key is not recognized, so these two keys are
+  the ones to use.
+- `"disposable-real-process"` is a runner that starts, restarts and stops a real
+  gateway process it set up for the run, never the live one. It names that runner
+  in `invocation.control` and needs no cap; a cap a reviewer adds names this class.
+  R-CD-RETURN-COVENANT-AUTHORITY's restart control is the one such row. The class
+  is refused on a process-local or missing transport, beside an
+  `invocation.fixture` key, without a non-blank `invocation.control`, and on
+  R-CW-5/6.
+- Any other class, a different spelling of a known one included, is refused.
+
+So dropping a process-local marker never un-caps R-CW-5/6, and reclassifying
+them doesn't either.
+
+- The row verdict is the minimum of the fixture's verdict, the declared cap and
+  the preflight cap. A fixture `PASS-candidate` is behavioral only.
+- The required preflight (R-CW-5A, R-CW-6A) is necessary, not sufficient. Without
+  it the row is capped at `PARTIAL-candidate`; with it the row stays at its cap.
+- Lifting the cap needs a superseding authority receipt from a different
+  artifact class, adopted by an explicit method change. None is adopted:
+  `verdictCap.supersedingAuthorities` must be empty, and adopting one widens the
+  schema and teaches the grader and `validate-corpus.mjs` to judge its receipt.
+- In a corpus folded after the ruling, `validate-corpus.mjs` refuses R-CW-5/6
+  `pass` (`rows-within-declared-cap`), a `superseding_authority` on the row
+  included, and so does any row bound to them by its `dir` or `manifest` under
+  another id.
+
+F′ recorded both rows as PASS without a superseding authority receipt. docs main
+`7e544c04` corrects them to partial (the fixture receipts are kept; rollup
+27/5/0/6), and F′ still validates 18/18. The 71 pre-ruling corpora are exempt from
+the new check by the same frozen list: 52 of them record R-CW-5/6 `pass`, and they
+validate exactly as before. The exemption also pins what each one's capped rows
+recorded at the cap ruling (`scripts/pre-cap-ruling-capped-row-states.json`, the
+R-CW-5/6 states at docs main `7e544c04`). A capped row in a frozen-named corpus
+that is new, changed or an alias is held to the cap; F′ with its correction
+reverted is an example. The corpus keeps its pre-ruling method for every other
+check. A new fold in a frozen directory is held to the cap unless its capped rows
+record exactly the pinned states. In the 52 corpora pinned at `pass`, a re-fold
+that keeps `pass` cannot be told from the historical record, and that residual is
+accepted. Changing a pin is a deliberate, reviewed act.
+
 ### R-CW-5 isolated cost-cap fixture
 
 `tools/k6-proofs/scripts/run-cost-cap-fixture.mjs` is the safe runnable
 component fixture for `R-CW-5`. It requires a clean exact-candidate source
 worktree and its committed `pnpm-lock.yaml`, then creates a disposable
 candidate worktree and runs `pnpm install --frozen-lockfile --prefer-offline`
-there. It never trusts or mutates source `node_modules`, and writes only to an explicit artifact directory. It evaluates the exact
+there. That pnpm is the candidate's `packageManager` release, npm-installed into
+a private toolchain and checked against the pin's sha512. The fixture runs the
+bin entry the package declares (pnpm 12's is a shell launcher for a native
+binary). Every other toolchain package must match the integrity recorded in
+the env document of the candidate's lockfile. The installed `.pnpm/lock.yaml`
+must byte-match the candidate's lockfile document. It never trusts or mutates
+source `node_modules`, and writes only to an explicit artifact directory. It evaluates the exact
 production `checkContinuationBudget` module at below/equal/over cap, then
 runs the production dispatcher boundary suite to prove the over-cap hop does
 not spawn and its flow is failed. Finally, it creates a short-lived detached
@@ -615,12 +1116,14 @@ and aligned installed dependency tree; it refuses tags/ranges, package-manager
 version mismatch, lockfile/tree/metadata mismatch, virtual-store escape,
 indirect source dependencies, reused or symlinked artifact paths, wrong SHAs,
 and dirty tracked source. The production predicate, durable scheduler, temporary session
-store recovery, typed `continue_work` registration/executor path, TaskFlow no-spawn check, and
+store recovery, typed `continue_work` registration/executor path, custody no-spawn check, and
 selected-max delegate dispatch boundary all run inside one detached disposable candidate
-worktree without a gateway or fleet mutation. The fixture first requires the
+worktree, in the candidate's database-worker Vitest lane, without a gateway or fleet mutation. The fixture first requires the
 candidate's committed `package.json` and `pnpm-lock.yaml`, runs `pnpm install
 --frozen-lockfile --prefer-offline --ignore-scripts` inside that detached worktree,
-checks the installed virtual-store lock bytes/SHA-256, `.modules.yaml`
+checks the installed virtual-store lock bytes/SHA-256 against the candidate
+lockfile document (the env document a pnpm 12 lockfile opens with must pin the
+candidate pnpm version), `.modules.yaml`
 package-manager and virtual-store metadata, and invokes
 only its absolute `node_modules/.bin/tsx` and `node_modules/.bin/vitest`
 binaries; source-tree `node_modules` is ignored. Before the final result is
@@ -634,10 +1137,13 @@ claim.
 
 At the default maximum `3`, the required receipt shape is attempted hop `2`:
 allow, attempted hop `3`: allow, attempted hop `4`: `chain-capped`. The
-rejected election must leave the durable flow count and chain count unchanged;
-the persisted count must reload as `3` and remain capped. The disposable
-worktree/state must be removed and `public-artifact-safety.json` must pass
-before `fixture-result.json` can say `PASS-candidate`. See
+rejected election must leave the durable work-record count and chain count
+unchanged; the persisted count must reload as `3` and remain capped. The
+disposable worktree/state must be removed and `public-artifact-safety.json`
+must pass before `fixture-result.json` can say `PASS-candidate`. A failed
+surface keeps its raw output only in the private diagnostics dir (default
+`<artifact-dir>.private`, never published) and a sanitized excerpt in its
+receipt. See
 [`docs/R-CW-6-ISOLATED-MAX-CHAIN.md`](docs/R-CW-6-ISOLATED-MAX-CHAIN.md).
 
 Future manifests may again be `scaffold`, `construct-only`, or `orchestration-required`. Such rows are tracked, but not workflow-runnable until a matching scenario exists and the manifest is promoted to `scenario.status="runnable"` plus `liveRunSafety.classification="k6-runnable"`.
@@ -703,6 +1209,88 @@ are the current-board gates and exit non-zero on failure. `--all` is archival by
 default: its JSON includes `archivalFailed` and `archivalSummary` for skipped,
 legacy-schema, and failed historical dirs, but it exits 0 unless `--strict` is
 supplied. The script never mutates corpus data.
+
+**Supplemental rows (docs#613).** A manifest that declares `required_rows` gets
+these checks too. Its required set is `required_rows`; its supplemental set is
+`dispatch_allocation.supplemental` (absent means empty).
+
+| check | requires |
+|---|---|
+| `row-sets-defined` | both lists are arrays of unique row ids; `supplemental_rows`, if present, lists the same rows as the bucket |
+| `row-sets-disjoint` | no row is both required and supplemental |
+| `rows-match-row-sets` | `rows[].row` is exactly required ∪ supplemental: no unknown, duplicate or absent row |
+| `supplemental-flags-agree` | every supplemental row has `"supplemental": true` (and `required`, if set, is `false`); no required row has `supplemental` other than `false` or `required` other than `true` |
+| `firing-buckets-cover-required` | every `dispatch_allocation` key except `supplemental` is a row list, and together they allocate each required row exactly once and nothing else (a per-row `[{row, …}]` allocation is checked the same way; not applicable without `dispatch_allocation`) |
+| `manifest-rollup-matches-required` | `rollup` carries every key and equals the required-row tally; `total_rows` also equals the length of `required_rows` |
+| `rollup-supplemental-matches` | `rollup_supplemental`, if present, equals the supplemental-row tally; it may omit a zero-count state but needs `total_rows` and no unknown key |
+
+`--index` / `--current` compare `INDEX.rollup` with the required-row tally, so
+an INDEX on a corpus with supplemental rows carries the required rollup. The
+evidence-doc and row-dir checks still cover every row. An unauthorized R-CD-2
+pass is left out of every tally and fails every rollup comparison. A manifest
+without `required_rows` gets exactly the checks above this paragraph. It fails
+`supplemental-requires-required-rows` only if it carries a supplemental marker:
+`dispatch_allocation.supplemental`, `supplemental_rows`, `rollup_supplemental`, or
+a row with `supplemental` other than `false` or `required` other than `true`.
+
+**Required preflight attachments (🌊's F″ method ruling).** An F″ corpus records
+each required preflight (the catalog's `requiredPreflights`) in
+`preflight_attachments`, not as a row:
+
+```json
+"preflight_attachments": [
+  {
+    "attachment": "R-CW-5A",
+    "attached_to": "R-CW-5",
+    "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+    "state": "pass",
+    "candidate_sha": "<capture_sha>",
+    "dir": "PROOFS/<capture_sha>/R-CW-5A/",
+    "evidence_doc": "PROOFS/<capture_sha>/R-CW-5A/EVIDENCE.md",
+    "receipt": "PROOFS/<capture_sha>/R-CW-5A/<run>/required-preflight-receipt.json"
+  }
+]
+```
+
+Because attachments are not in `rows[]` or `required_rows`, the required tally,
+`rollup` and `INDEX.rollup` leave them out.
+
+The corpora folded before the ruling are frozen by name in
+`scripts/pre-f2-ruling-corpora.json`: the 71 `PROOFS/<dir>` that carried a
+`proofs-manifest.json` at docs `f17d784d`, F′ included. They keep exactly the
+checks above. Every other corpus that declares `preflight_attachments`, carries a
+gated live row (R-CW-5, R-CW-6), or carries a preflight row gets two more checks,
+whatever its shape, `required_rows` or not:
+
+| check | requires |
+|---|---|
+| `preflight-attachments-valid` | no preflight is in any row set (`rows[]`, `required_rows`, the supplemental set), however its id is spelled. If `preflight_attachments` is declared: `required_rows` is declared too; each record names a catalog preflight, spelled canonically, and the live row the catalog attaches it to, which must be a row of this corpus; `state` is `pass`, `fail` or `missing`; `candidate_sha` is this corpus; `dir`, if given, is `PROOFS/<sha>/<attachment>/` on disk; the receipt is a plain path under that directory; and `state` agrees with the receipt, which is read and judged again at this corpus's SHA. A `pass` needs a passing receipt, a `fail` a failed one, and a `missing` no receipt. Declared attachment directories are not orphans. |
+| `live-rows-gated-by-preflights` | a live row the catalog gates is not `pass` unless every required preflight's receipt passed at this SHA and its record says `pass`. That is necessary, not sufficient: `rows-within-declared-cap` still applies. Row ids are compared canonically (case, dash variants, whitespace and invisible characters), and a gated row spelled any other way than canonically fails. Every row id in `rows[]`, `required_rows` and the supplemental sets must also be plain ASCII (`^[A-Z0-9]+(-[A-Z0-9]+)*$`), so no gated row can hide behind a look-alike letter or an invisible character. Any other state of the live row is reported as capped. |
+
+A corpus with no gated live rows, no preflights, no row id outside plain ASCII
+and no `preflight_attachments` gets neither check. The receipt rules and the canonical
+row id live in `lib/required-preflight.mjs`, shared with the scenario and the
+grader.
+
+**Declared row caps (🌊's ruling on docs#616).** Every corpus that is not exempt
+and carries a row bound to a catalog manifest that declares `verdictCap` (today
+R-CW-5 and R-CW-6) gets one more check. A row is bound by its id (compared
+canonically), any segment of its normalized `dir`, or its `manifest`. A row that
+names none of them (an alias in its own directory, with no `manifest`) is outside
+this check; requiring that a corpus name only catalog rows is the seed method's
+job, and `check-proof-row-manifests.mjs` already flags it for the INDEX corpus. In a corpus listed in
+`scripts/pre-f2-ruling-corpora.json`, a capped row is exempt while the rows under
+its own id still record exactly the states pinned in
+`scripts/pre-cap-ruling-capped-row-states.json`.
+
+| check | requires |
+|---|---|
+| `rows-within-declared-cap` | a row bound to a capped row by its `dir` or `manifest` carries that row's own id (an alias such as `R-CW-05` in `R-CW-5/` is refused), and the row is recorded in a known state at or below its declared cap: with `rowCap` `PARTIAL-candidate`, its `state` (trimmed, any case) is `partial`, `thin`, `fail`, `honest_limit` or `missing`, whatever its preflights say. `pass` is above the cap, and any other state is refused as not shown to lie within it. A `superseding_authority` on the row does not lift the cap, because the method adopts none (`verdictCap.supersedingAuthorities` is empty). If the catalog's cap declarations cannot be read or break the catalog rule, the check runs on every corpus that is not exempt, and fails; if the pins cannot be read, no frozen capped row is exempt. |
+
+The 71 pre-ruling corpora, as pinned, get no such check (52 of them record
+R-CW-5/6 `pass`).
+The rules live in `lib/row-verdict-cap.mjs`, shared with the grader and the
+catalog check.
 
 `check-manifest-scenarios.mjs` is the row-harness registry check: runnable
 manifests must point at an existing `tools/k6-proofs/scenarios/*.js`; rows with

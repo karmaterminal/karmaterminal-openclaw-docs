@@ -6,11 +6,36 @@
  * construct-only or scaffold, but they should still be explicit in the catalog so
  * the public executable-suite surface can explain the full 29-row corpus.
  *
+ * It also refuses a manifest whose trace receipts are not the ones the harness
+ * holds it to (#600): every receipt name must be canonical (`tempo-trace` is
+ * `tempo-trace-json`), and a row that fires a continuation tool or token must
+ * require `tempo-trace-json` plus its correlation receipt. The rule is owned by
+ * lib/continuation-trace-requirement.mjs.
+ *
+ * It also keeps required preflight attachments (🌊's F″ method ruling) in
+ * agreement in both directions: a live row's `requiredPreflights` entry names a
+ * catalog manifest whose `preflightAttachment.attachedTo` is that live row, and
+ * every attachment is required by the row it names. The rule is owned by
+ * lib/required-preflight.mjs.
+ *
+ * And it keeps declared verdict caps (🌊's ruling on docs#616) in place: a row
+ * whose transport is process-local (however spelled) or whose runner is a
+ * process-local fixture must declare `verdictCap` (rowCap PARTIAL-candidate, no
+ * adopted superseding authority), a declared transport outside the known list is refused,
+ * and no row's expected artifact class may lie above its cap. A runner's class
+ * is the one `invocation.artifactClass` declares, never inferred from the key
+ * that names it: a runner with no class is a process-local fixture, and
+ * `disposable-real-process` is refused wherever the row says process-local. The
+ * rule is owned by lib/row-verdict-cap.mjs.
+ *
  * The repository root comes from the shared repo-root contract, so running this
  * from the repository root and from tools/k6-proofs inspects the same files.
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { manifestTraceReceiptFailures } from '../lib/continuation-trace-requirement.mjs';
+import { catalogPreflightFailures } from '../lib/required-preflight.mjs';
+import { catalogVerdictCapFailures } from '../lib/row-verdict-cap.mjs';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 const { root } = resolveRepositoryRoot({ argv: process.argv.slice(2) });
@@ -49,12 +74,18 @@ if (!failures.length) {
 }
 
 const manifestRows = [];
+const traceReceiptFailures = [];
+const catalogEntries = [];
 if (!failures.length) {
   for (const file of readdirSync(manifestsDir).filter((name) => name.endsWith('.json')).sort()) {
     const manifest = JSON.parse(readFileSync(path.join(manifestsDir, file), 'utf8'));
+    catalogEntries.push({ file, manifest });
     if (manifest.rowId) manifestRows.push({ rowId: manifest.rowId, file });
+    for (const failure of manifestTraceReceiptFailures(manifest)) traceReceiptFailures.push(`${file}: ${failure}`);
   }
 }
+const preflightFailures = catalogPreflightFailures(catalogEntries);
+const verdictCapFailures = catalogVerdictCapFailures(catalogEntries);
 
 const proofRowUpperSet = new Set(proofRows.map((r) => r.toUpperCase()));
 const manifestByUpper = new Map(manifestRows.map((row) => [row.rowId.toUpperCase(), row]));
@@ -91,6 +122,9 @@ if (caseMismatches.length) {
 if (duplicateManifestRows.length) {
   failures.push(`duplicate manifest row IDs: ${duplicateManifestRows.join('; ')}`);
 }
+failures.push(...traceReceiptFailures);
+failures.push(...preflightFailures);
+failures.push(...verdictCapFailures);
 
 console.log(`Current corpus: PROOFS/${currentSha}`);
 console.log(`Proof rows: ${proofRows.length}`);
@@ -104,6 +138,9 @@ if (manifestOnly.length) {
 } else {
   console.log('Manifest-only rows: 0');
 }
+console.log(`Trace receipt rule failures: ${traceReceiptFailures.length}`);
+console.log(`Required preflight rule failures: ${preflightFailures.length}`);
+console.log(`Verdict cap rule failures: ${verdictCapFailures.length}`);
 
 if (failures.length) {
   console.error('\nProof row manifest coverage check failed:');

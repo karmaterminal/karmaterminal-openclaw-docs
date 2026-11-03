@@ -1,0 +1,11 @@
+# R-TRACE-REDACTION-1121 at `f15237ec92`: **pass**
+
+Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.
+
+- Candidate verdict: PASS-candidate
+- Review: reviewed: frond-scribe (single seat), 2026-10-30
+- Summary: PASS-candidate with complete receipts in matrix-012943Z.
+- owner: -
+- Canonical run (matrix-012943Z): `20261030T014939Z-r-trace-redaction-1121-44aa4c89` under `emeric-isolated-composite/`
+
+Runtime and candidate `f15237ec921879d918482cdf372b0718d4c1aab9` on emeric's isolated gateway `:18800` (state `~/proof-gw/comp-f15237ec`, sign-in moved by adopt-auth from comp-08c37a15), docs harness `215235ed73a6926a0610d91814b02f25a4836ed1`. Nothing is transposed from F, P' or the live composite.

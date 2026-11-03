@@ -1,0 +1,263 @@
+{
+  "schema": "openclaw.k6.r-cw-3-reason-telemetry-review.v2",
+  "generatedAt": "2026-10-30T01:46:03.204Z",
+  "runDir": "<private-run-root>/COMP-f15237ec-20261030T012943Z/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/emeric-isolated-composite/20261030T014534Z-r-cw-3-44aa4c89",
+  "tempoTraceJson": "<private-run-root>/COMP-f15237ec-20261030T012943Z/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/emeric-isolated-composite/20261030T014534Z-r-cw-3-44aa4c89/tempo-trace-218a5f43c0da.json",
+  "row": "R-CW-3",
+  "nonceSuppliedOutOfBand": false,
+  "traceId": "218a5f43c0dae16d7fbdc9409b638848",
+  "traceIdSource": "continuation-trace-correlation.json",
+  "verdict": "reason-telemetry-redaction-review-passed",
+  "binding": {
+    "candidateSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+    "runtimeBuildSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+    "runId": "20261030T014534Z-r-cw-3-44aa4c89",
+    "matrixId": "20261030T012949Z-215235ed73a6-44aa4c89",
+    "seat": "emeric-isolated-composite",
+    "docsRef": "215235ed73a6926a0610d91814b02f25a4836ed1",
+    "traceId": "218a5f43c0dae16d7fbdc9409b638848",
+    "chainId": "8b3e9643-b594-428e-b1a2-078ebba52017",
+    "expectations": {
+      "candidateSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+      "runId": "20261030T014534Z-r-cw-3-44aa4c89",
+      "matrixId": "20261030T012949Z-215235ed73a6-44aa4c89",
+      "traceId": "218a5f43c0dae16d7fbdc9409b638848"
+    },
+    "sources": {
+      "evidence.jsonl": "f6734eeb494f90ed70c0a1f7f94b2f5977eaa86cb2b3933e2ff005c8c192e6e5",
+      "tempo-trace-218a5f43c0da.json": "793ed49df496eeb9b2d23af4c0c4f398ca7294736e6838af801b018b1c52ba65",
+      "continuation-trace-correlation.json": "db499a0ad9a8f56befd932122eaa5ae721c1ba427577eda6103c5fc53bece478",
+      "runner-metadata.json": "4d6c8bb661699bce1c873de2407c2dec187d5e099798d296be1351ee6be5f1a7",
+      "row-manifest.json": "e5e9540fbfde2bc54997b2031d9ae0b0648f91cb4032c26016ee6abebb0f090b",
+      "row-scenario.js": "d456a4d7ccf7c5d9126aa278410ad0271a92064249bfc9912569b8f97f91a57a"
+    },
+    "digestAuthority": {
+      "row-manifest.json": "compared against runner-metadata.manifestSha256",
+      "row-scenario.js": "compared against runner-metadata.scenarioSha256",
+      "other": "recorded custody of the exact bytes this review read; no producer-frozen expected digest exists for them"
+    }
+  },
+  "checks": {
+    "row": {
+      "ok": true,
+      "evidence": "R-CW-3"
+    },
+    "dispatchAccepted": {
+      "ok": true,
+      "evidence": true
+    },
+    "scheduledSentinel": {
+      "ok": true,
+      "evidence": true
+    },
+    "wakeObserved": {
+      "ok": true,
+      "evidence": true
+    },
+    "publicArtifactRawReasonAbsentClaimed": {
+      "ok": true,
+      "evidence": {
+        "producerClaim": true,
+        "note": "producer claim only; rawReasonAbsentFromPublicArtifacts observes the bytes"
+      }
+    },
+    "tempoTraceJson": {
+      "ok": true,
+      "evidence": "tempo-trace-218a5f43c0da.json"
+    },
+    "safeReasonAttrsPresent": {
+      "ok": true,
+      "evidence": {
+        "reason.present": true,
+        "reason.length": true,
+        "reason.hash": true
+      }
+    },
+    "rawReasonAbsentFromTempo": {
+      "ok": true,
+      "evidence": {
+        "rawSentinelPrefixHits": 0,
+        "rawReasonPrefixHits": 0
+      }
+    },
+    "rawReasonAbsentFromPublicArtifacts": {
+      "ok": true,
+      "evidence": {
+        "scanned": {
+          "evidence.jsonl": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          },
+          "continuation-trace-correlation.json": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          },
+          "runner-metadata.json": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          },
+          "r-cw-3-reason-telemetry-summary.json": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          },
+          "evidence-lines.log": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          },
+          "k6.log": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          },
+          "gateway-journal.log": {
+            "rawSentinelPrefixHits": 0,
+            "rawReasonPrefixHits": 0
+          }
+        },
+        "excluded": [
+          "row-manifest.json",
+          "row-scenario.js"
+        ],
+        "excludedReason": "contract bytes: the manifest and scenario copies necessarily carry the literal reason template and are not executed reason telemetry",
+        "producerClaimOnly": "evidence.public_artifact_raw_reason_absent is recorded as a producer claim and is checked separately"
+      }
+    },
+    "publicEvidenceSanitized": {
+      "ok": true,
+      "evidence": {
+        "fixedPoint": true,
+        "error": null,
+        "droppedByResanitize": [],
+        "note": "public evidence must already be a fixed point of sanitize-k6-artifacts.mjs; a surviving nonce, run id or session key means the document is not sanitizer-produced"
+      }
+    },
+    "manifestContractBound": {
+      "ok": true,
+      "evidence": {
+        "manifestRowId": "R-CW-3",
+        "manifestTool": "continue_work",
+        "templateLength": 99,
+        "noncePlaceholders": 2,
+        "correlationFingerprintSource": "manifest-nonce",
+        "scope": "binds the reason contract and the collector-declared fingerprint source; it does not recompute the fingerprint",
+        "problems": []
+      }
+    },
+    "reasonTelemetryMatchesEvidence": {
+      "ok": true,
+      "evidence": {
+        "evidenceReasonHash": "8839fde373dc6165",
+        "evidenceReasonLength": 139,
+        "correlationReasonHash": "8839fde373dc6165",
+        "correlationReasonLength": 139,
+        "correlationRawPersisted": false,
+        "workSpans": 1,
+        "fireSpans": 1,
+        "mismatchedSpans": []
+      }
+    },
+    "traceTopologyBound": {
+      "ok": true,
+      "evidence": {
+        "traceId": "218a5f43c0dae16d7fbdc9409b638848",
+        "chainId": "8b3e9643-b594-428e-b1a2-078ebba52017",
+        "workSpanId": "e38869b216ff4bb5",
+        "workParentSpanId": "727c60df552e3559",
+        "fireSpanIds": [
+          "85b95f23e26b4b27"
+        ],
+        "fireParentSpanIds": [
+          "727c60df552e3559"
+        ],
+        "toolSpanIds": [
+          "727c60df552e3559"
+        ],
+        "workSpanStatus": "OK",
+        "fireSpanStatuses": [
+          "OK"
+        ],
+        "toolSpanStatuses": [
+          "UNSET"
+        ],
+        "problems": []
+      }
+    },
+    "externalAnchorsBound": {
+      "ok": true,
+      "evidence": {
+        "supplied": {
+          "candidateSha": true,
+          "runId": true,
+          "matrixId": true,
+          "traceId": true
+        },
+        "note": "anchors must come from the authorizing record of the run, not from the run directory under review",
+        "problems": []
+      }
+    },
+    "identityBound": {
+      "ok": true,
+      "evidence": {
+        "candidateSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+        "runtimeBuildSha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+        "runId": "20261030T014534Z-r-cw-3-44aa4c89",
+        "matrixId": "20261030T012949Z-215235ed73a6-44aa4c89",
+        "seat": "emeric-isolated-composite",
+        "problems": []
+      }
+    },
+    "sourceDigestsBound": {
+      "ok": true,
+      "evidence": {
+        "manifestSha256": "e5e9540fbfde2bc54997b2031d9ae0b0648f91cb4032c26016ee6abebb0f090b",
+        "scenarioSha256": "d456a4d7ccf7c5d9126aa278410ad0271a92064249bfc9912569b8f97f91a57a",
+        "declaredManifestSha256": "e5e9540fbfde2bc54997b2031d9ae0b0648f91cb4032c26016ee6abebb0f090b",
+        "declaredScenarioSha256": "d456a4d7ccf7c5d9126aa278410ad0271a92064249bfc9912569b8f97f91a57a",
+        "note": "only the manifest and scenario copies have producer-frozen expected digests; the other recorded digests are custody of the bytes reviewed, not an authority comparison",
+        "problems": []
+      }
+    }
+  },
+  "safeReasonAttributeKeys": [
+    "reason.hash",
+    "reason.hash",
+    "reason.length",
+    "reason.length",
+    "reason.present",
+    "reason.present"
+  ],
+  "limits": [
+    {
+      "claim": "reason-fingerprint-recomputation",
+      "available": false,
+      "reason": "public evidence is nonce-redacted by policy (sanitize-k6-artifacts.mjs drops every nonce key), so this offline review cannot independently recompute SHA256(manifest reason rendered with this fire's nonce). It checks that the manifest copy is the R-CW-3 continue_work contract, that the correlation receipt declares a manifest-nonce fingerprint, and that the recorded fingerprint agrees across evidence, correlation and spans. The producer collector performed the derivation at collection time; pass --nonce to repeat it here."
+    },
+    {
+      "claim": "source-digest-authority",
+      "available": "partial",
+      "reason": "only row-manifest.json and row-scenario.js have producer-frozen expected digests in runner-metadata.json. Every other recorded digest is custody of the exact bytes this review read, not a comparison against a trusted prior value."
+    },
+    {
+      "claim": "live-execution",
+      "available": false,
+      "reason": "offline inspection of preserved public artifacts; no gateway, Tempo query or re-fire occurred."
+    }
+  ],
+  "acceptance": {
+    "manualAcceptanceRequired": true,
+    "coordinatorAccepted": false,
+    "canonicalFoldForbidden": true,
+    "liveReRun": false,
+    "pendingReceipt": "reason-telemetry-redaction-review",
+    "note": "Mechanical offline verification of preserved public artifacts. Helper success is not coordinator acceptance, not a live re-run, and not a canonical PASS fold; the row keeps its reason-telemetry-redaction-review debt."
+  },
+  "reconciliation": {
+    "source": "review-r-cw-3-reason-telemetry.mjs",
+    "sourceKind": "offline-review-helper",
+    "historicalVerdict": "PARTIAL-candidate",
+    "historicalVerdictSource": "r-cw-3-reason-telemetry-summary.json",
+    "overwritesOriginalEvidence": false,
+    "note": "Original VU/summary evidence is read-only here; this receipt is an additional, named artifact beside it."
+  },
+  "publicSafe": true,
+  "redactedOutgoingValues": 0
+}

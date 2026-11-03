@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.proofs.manifest.v1",
+  "capture_sha": "b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a",
+  "ship_sha": "b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a",
+  "proof_source_sha": "b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a",
+  "previous_pr_head_sha": "38e9433da46b785a58f1d6a10161c348741af08e",
+  "execution_runtime_sha": "b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a",
+  "control_sha": "363b9d0ae746cde25d0846ce8a05e962bef4f26e",
+  "control_description": "first parent of the tested two-commit series = upstream main at execution; the hosted PR base is upstream main and moves",
+  "target_exact_execution": true,
+  "execution_runtime_provenance": {
+    "execution_runtime_sha": "b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a",
+    "exact_product_runtime": true,
+    "runtime_source": "clean detached git worktree at the PR head (dirty=0); control likewise at the series parent",
+    "dependency_bytes": "workspace node_modules from the repository lockfile, identical at head and control",
+    "materiality": "Only the PR's own bytes are credited; no fleet composite verdict is credited to this SHA."
+  },
+  "harness_path": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/harness/boundary-proof.mts",
+  "harness_sha256": "d433fe2787c514931d48462f06242160c111d4bfde6aedfe942191e49e261645",
+  "method": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/METHOD.md",
+  "qualification": "Production-module boundary harness (ingress monitor -> durable SQLite queue -> drain -> reply/followup queue), no gateway server or real transport; limits in METHOD.md.",
+  "required_rows": [
+    "A1-CANCELLATION-BUDGET-FREE",
+    "A2-REDELIVERY-AFTER-RESTART",
+    "B-GENUINE-ABANDONMENT-BOUNDED"
+  ],
+  "rollup": {
+    "total_rows": 3,
+    "pass": 3,
+    "partial": 0,
+    "thin": 0,
+    "fail": 0,
+    "honest_limit": 0,
+    "missing": 0
+  },
+  "rows": [
+    {
+      "row": "A1-CANCELLATION-BUDGET-FREE",
+      "title": "Intentional cancellation of a queued, unadopted turn (gateway restart-drain) leaves the ingress row's attempts unchanged",
+      "state": "pass",
+      "head": {
+        "verdict": "attempts=0, last_error=null, status=pending",
+        "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/head-A1.log"
+      },
+      "control": {
+        "verdict": "attempts>=1 (1 in these logs, 2 in an earlier run), last_error=turn-abandoned",
+        "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/control-A1.log"
+      }
+    },
+    {
+      "row": "A2-REDELIVERY-AFTER-RESTART",
+      "title": "A fresh process redelivers, adopts and completes the cancelled row",
+      "state": "pass",
+      "head": {
+        "verdict": "completed, attempts=0",
+        "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/head-A2.log"
+      },
+      "control": {
+        "verdict": "completed, carrying the charged attempts",
+        "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/control-A2.log"
+      }
+    },
+    {
+      "row": "B-GENUINE-ABANDONMENT-BOUNDED",
+      "title": "Repeated pre-adoption abandonment dead-letters at maxAttempts and the same-lane follower completes",
+      "state": "pass",
+      "head": {
+        "verdict": "msg-1 failed retry-limit-exceeded/turn-abandoned on its 3rd delivery (persisted attempts=2: terminal disposition does not increment); msg-2 completed",
+        "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/head-B.log"
+      },
+      "control": {
+        "verdict": "msg-1 still pending at attempts=6 (2x maxAttempts) when observation stopped, not dead-lettered within the window; msg-2 not dispatched within the window (lane blocked)",
+        "evidence_doc": "PR-124337/PROOFS/b2d5e48e5b59da6d1d29b2bfb7b2af51aee58f0a/logs/control-B.log"
+      }
+    }
+  ],
+  "generated_by": "frond-gloss (Claude Opus 5.5)",
+  "generated_at": "2026-10-03T03:30:19Z"
+}

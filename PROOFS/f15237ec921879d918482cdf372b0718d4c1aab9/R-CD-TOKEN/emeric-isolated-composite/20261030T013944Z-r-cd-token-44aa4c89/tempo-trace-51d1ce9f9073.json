@@ -1,0 +1,108 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "51d1ce9f9073df1aef2df8dddb7044c7",
+  "spans": [
+    {
+      "name": "continuation.delegate.fire",
+      "traceId": "51d1ce9f9073df1aef2df8dddb7044c7",
+      "spanId": "162fe54a29b5a837",
+      "parentSpanId": "5423647405124126",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "d41cf61c-afec-4bc7-952e-076d4791f4b9"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "normal"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "57"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "dd38d4bd8826fbb3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.delegate.dispatch",
+      "traceId": "51d1ce9f9073df1aef2df8dddb7044c7",
+      "spanId": "5423647405124126",
+      "parentSpanId": "4e2175415070f8a0",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": [
+        {
+          "key": "chain.id",
+          "value": {
+            "stringValue": "d41cf61c-afec-4bc7-952e-076d4791f4b9"
+          }
+        },
+        {
+          "key": "delegate.mode",
+          "value": {
+            "stringValue": "normal"
+          }
+        },
+        {
+          "key": "reason.present",
+          "value": {
+            "boolValue": true
+          }
+        },
+        {
+          "key": "reason.length",
+          "value": {
+            "intValue": "57"
+          }
+        },
+        {
+          "key": "reason.hash",
+          "value": {
+            "stringValue": "dd38d4bd8826fbb3"
+          }
+        }
+      ]
+    },
+    {
+      "name": "continuation.queue.drain",
+      "traceId": "51d1ce9f9073df1aef2df8dddb7044c7",
+      "spanId": "8d7eef20834c71b4",
+      "parentSpanId": "5423647405124126",
+      "status": {
+        "code": "OK"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.harness.run",
+      "traceId": "51d1ce9f9073df1aef2df8dddb7044c7",
+      "spanId": "f3b6ebc011a98f6f",
+      "parentSpanId": "5423647405124126",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    }
+  ]
+}

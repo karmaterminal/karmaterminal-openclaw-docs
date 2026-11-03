@@ -1,0 +1,654 @@
+{
+  "schema": "openclaw.k6.test-fossil.v1",
+  "source": {
+    "repository": "karmaterminal/karmaterminal-openclaw-docs",
+    "ref": "7ca3969a5d2abab8ab7a3b8b98ad4f6b9a15cdc1",
+    "issue": "karmaterminal/karmaterminal-openclaw-docs#600"
+  },
+  "projection": "schema, rowId, toolSurface, invocation.tool, expectedReceipts[].{name,required}, liveRunSafety.requiredReceipts",
+  "extraction": "git show 7ca3969a5d2abab8ab7a3b8b98ad4f6b9a15cdc1:tools/k6-proofs/manifests/<file> | jq <projection>",
+  "manifests": [
+    {
+      "file": "r-cw-token.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CW-TOKEN",
+        "toolSurface": "bracket-token",
+        "invocation": {
+          "tool": "sessions_spawn"
+        },
+        "expectedReceipts": [
+          {
+            "name": "parent-dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "subagent-spawn-requested",
+            "required": true
+          },
+          {
+            "name": "subagent-spawn-accepted",
+            "required": true
+          },
+          {
+            "name": "token-emitted-or-stripped",
+            "required": true
+          },
+          {
+            "name": "hop-2-executed",
+            "required": true
+          },
+          {
+            "name": "parent-return",
+            "required": true
+          },
+          {
+            "name": "journal-work-wake-hop-2",
+            "required": true
+          },
+          {
+            "name": "tempo-trace",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "parent-dispatch-accepted",
+            "subagent-spawn-requested",
+            "subagent-spawn-accepted",
+            "token-emitted-or-stripped",
+            "hop-2-executed",
+            "parent-return",
+            "journal-work-wake-hop-2",
+            "tempo-trace"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cw-delegate-self.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CW-DELEGATE-SELF-CONTINUATION",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "delegate-accepted",
+            "required": true
+          },
+          {
+            "name": "child-spawned",
+            "required": false
+          },
+          {
+            "name": "child-continue-work-accepted",
+            "required": true
+          },
+          {
+            "name": "child-hop-2-woke",
+            "required": true
+          },
+          {
+            "name": "parent-return",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "delegate-accepted",
+            "child-continue-work-accepted",
+            "child-hop-2-woke",
+            "parent-return"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cw-2.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CW-2",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_work"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "continue-work-tool-result-scheduled",
+            "required": true
+          },
+          {
+            "name": "immediate-wake-event",
+            "required": true
+          },
+          {
+            "name": "prompt-echo-filtered",
+            "required": true
+          },
+          {
+            "name": "trace-id",
+            "required": false
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "continue-work-tool-result-scheduled",
+            "immediate-wake-event",
+            "prompt-echo-filtered"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cw-4.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CW-4",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_work"
+        },
+        "expectedReceipts": [
+          {
+            "name": "hop-1-accepted",
+            "required": true
+          },
+          {
+            "name": "hop-2-accepted",
+            "required": true
+          },
+          {
+            "name": "hop-3-accepted",
+            "required": true
+          },
+          {
+            "name": "trace-ids",
+            "required": false
+          },
+          {
+            "name": "final-done",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "hop-1-accepted",
+            "hop-2-accepted",
+            "hop-3-accepted",
+            "final-done"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cw-5.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CW-5",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_work"
+        },
+        "expectedReceipts": [
+          {
+            "name": "fixture-readiness",
+            "required": true
+          },
+          {
+            "name": "boundary-matrix",
+            "required": true
+          },
+          {
+            "name": "typed-tool-surface",
+            "required": true
+          },
+          {
+            "name": "dispatch-boundary-suite",
+            "required": true
+          },
+          {
+            "name": "cleanup",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "fixture-readiness",
+            "boundary-matrix",
+            "typed-tool-surface",
+            "dispatch-boundary-suite",
+            "cleanup"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cw-6.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CW-6",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_work"
+        },
+        "expectedReceipts": [
+          {
+            "name": "fixture-readiness",
+            "required": true
+          },
+          {
+            "name": "boundary-matrix",
+            "required": true
+          },
+          {
+            "name": "runtime-boundary",
+            "required": true
+          },
+          {
+            "name": "durable-state-recovery",
+            "required": true
+          },
+          {
+            "name": "typed-tool-surface",
+            "required": true
+          },
+          {
+            "name": "dispatch-boundary-suite",
+            "required": true
+          },
+          {
+            "name": "cleanup",
+            "required": true
+          },
+          {
+            "name": "public-artifact-safety",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "fixture-readiness",
+            "boundary-matrix",
+            "runtime-boundary",
+            "durable-state-recovery",
+            "typed-tool-surface",
+            "dispatch-boundary-suite",
+            "cleanup",
+            "public-artifact-safety"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-3.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-3",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "delegate-staging-requested",
+            "required": true
+          },
+          {
+            "name": "compaction-requested",
+            "required": true
+          },
+          {
+            "name": "threshold-refusal-or-lifeboat",
+            "required": true
+          },
+          {
+            "name": "trace-id",
+            "required": false
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "dispatch-accepted",
+            "delegate-staging-requested",
+            "compaction-requested",
+            "threshold-refusal-or-lifeboat"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-silent.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-SILENT",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "delegate-scheduled-sentinel",
+            "required": true
+          },
+          {
+            "name": "child-completion-observed",
+            "required": true
+          },
+          {
+            "name": "followup-accepted",
+            "required": true
+          },
+          {
+            "name": "parent-internal-context-observed",
+            "required": true
+          },
+          {
+            "name": "no-channel-delivery",
+            "required": true
+          },
+          {
+            "name": "trace-id",
+            "required": false
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "delegate-scheduled-sentinel",
+            "child-completion-observed",
+            "followup-accepted",
+            "parent-internal-context-observed",
+            "no-channel-delivery"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-collection-on-collapse.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+        "toolSurface": "read-only",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "collection-collapse-artifacts",
+            "required": true
+          },
+          {
+            "name": "root-collection-after-intermediate-finalized",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "collection-collapse-artifacts",
+            "root-collection-after-intermediate-finalized"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-model-default.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-DEFAULT",
+        "toolSurface": "mixed",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "child-session-observed",
+            "required": true
+          },
+          {
+            "name": "child-model-byte",
+            "required": true
+          },
+          {
+            "name": "return-payload",
+            "required": true
+          },
+          {
+            "name": "trace-or-session-correlation",
+            "required": false
+          },
+          {
+            "name": "parent-model-byte",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "parent-model-byte"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-model-token.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-TOKEN",
+        "toolSurface": "bracket-token",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "child-session-observed",
+            "required": true
+          },
+          {
+            "name": "child-model-byte",
+            "required": true
+          },
+          {
+            "name": "return-payload",
+            "required": true
+          },
+          {
+            "name": "trace-or-session-correlation",
+            "required": false
+          },
+          {
+            "name": "bracket-parse-origin",
+            "required": true
+          },
+          {
+            "name": "bracket-model-modifier",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "bracket-parse-origin",
+            "bracket-model-modifier",
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-model-tool.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-TOOL",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "child-session-observed",
+            "required": true
+          },
+          {
+            "name": "child-model-byte",
+            "required": true
+          },
+          {
+            "name": "return-payload",
+            "required": true
+          },
+          {
+            "name": "trace-or-session-correlation",
+            "required": false
+          },
+          {
+            "name": "requested-model-byte",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "requested-model-byte",
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-cd-model-chained-alt.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-CHAINED-ALT",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate"
+        },
+        "expectedReceipts": [
+          {
+            "name": "dispatch-accepted",
+            "required": true
+          },
+          {
+            "name": "child-session-observed",
+            "required": true
+          },
+          {
+            "name": "child-model-byte",
+            "required": true
+          },
+          {
+            "name": "return-payload",
+            "required": true
+          },
+          {
+            "name": "trace-or-session-correlation",
+            "required": false
+          },
+          {
+            "name": "depth-1-child-observed",
+            "required": true
+          },
+          {
+            "name": "depth-2-child-observed",
+            "required": true
+          },
+          {
+            "name": "depth-2-model-byte",
+            "required": true
+          },
+          {
+            "name": "depth-1-scheduled-inner",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "depth-1-child-observed",
+            "depth-1-scheduled-inner",
+            "depth-2-child-observed",
+            "depth-2-model-byte",
+            "return-payload"
+          ]
+        }
+      }
+    },
+    {
+      "file": "r-rc-1.json",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-RC-1",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "request_compaction"
+        },
+        "expectedReceipts": [
+          {
+            "name": "tool-registered",
+            "required": true
+          },
+          {
+            "name": "tool-invoked",
+            "required": true
+          },
+          {
+            "name": "tool-invoke-rejected",
+            "required": true
+          }
+        ],
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "tool-registered",
+            "tool-invoked",
+            "tool-invoke-rejected"
+          ]
+        }
+      }
+    }
+  ]
+}

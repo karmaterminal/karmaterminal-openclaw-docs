@@ -1,0 +1,13 @@
++15100ms [env] node v26.9.0 tree=<scratch>/rp-124337 phase=A1
++15100ms [env] retryPolicy={"maxAttempts":3,"deadLetterMinAgeMs":0,"baseMs":0,"maxMs":0} queueSettings={"mode":"followup","debounceMs":0,"cap":10,"dropPolicy":"summarize"}
++23140ms [monitor] admit(msg-1) -> durable/accepted
++23144ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++23145ms [reply-queue] enqueueFollowupRun(msg-1) -> true (session busy, cap=10, dropPolicy=summarize)
++23256ms [queue] claims=msg-1 pending=[]
++23260ms [sqlite] before stop: {msg-1 status=claimed attempts=0 last_error=null failed_reason=null}
++23261ms [gateway] markGatewayRestartDraining("stop (proof)") -- gateway stop
+[admission] closed: stop (proof)
++23596ms [queue] claims= pending=[msg-1:attempts=0] failed=[]
++23599ms [sqlite] after stop: {msg-1 status=pending attempts=0 last_error=null failed_reason=null}
++23600ms [result] dispatched=["msg-1"] flushErrors=0
++23603ms [verdict] A1: cancellation was budget-free (attempts unchanged = 0, no lastError)

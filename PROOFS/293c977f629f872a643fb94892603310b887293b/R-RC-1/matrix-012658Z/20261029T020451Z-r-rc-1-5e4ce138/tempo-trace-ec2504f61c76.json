@@ -1,0 +1,79 @@
+{
+  "schema": "openclaw.k6.public-tempo-trace.v1",
+  "traceId": "ec2504f61c76d17ad864b07e44b31543",
+  "spans": [
+    {
+      "name": "openclaw.model.call",
+      "traceId": "ec2504f61c76d17ad864b07e44b31543",
+      "spanId": "e13880ed46c24c15",
+      "parentSpanId": "7247e59b931de283",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.run",
+      "traceId": "ec2504f61c76d17ad864b07e44b31543",
+      "spanId": "7247e59b931de283",
+      "parentSpanId": "5f77b6059e76493f",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.harness.run",
+      "traceId": "ec2504f61c76d17ad864b07e44b31543",
+      "spanId": "5f77b6059e76493f",
+      "parentSpanId": "9f29143b1a6d89f4",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.model.usage",
+      "traceId": "ec2504f61c76d17ad864b07e44b31543",
+      "spanId": "bc11f1d3cf97c5ae",
+      "parentSpanId": "5f77b6059e76493f",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.message.processed",
+      "traceId": "ec2504f61c76d17ad864b07e44b31543",
+      "spanId": "9f29143b1a6d89f4",
+      "parentSpanId": null,
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": []
+    },
+    {
+      "name": "openclaw.tool.execution",
+      "traceId": "ec2504f61c76d17ad864b07e44b31543",
+      "spanId": "e94bc7170069b9bc",
+      "parentSpanId": "7247e59b931de283",
+      "status": {
+        "code": "UNSET"
+      },
+      "attributes": [
+        {
+          "key": "openclaw.toolName",
+          "value": {
+            "stringValue": "request_compaction"
+          }
+        },
+        {
+          "key": "gen_ai.tool.name",
+          "value": {
+            "stringValue": "request_compaction"
+          }
+        }
+      ]
+    }
+  ]
+}

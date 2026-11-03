@@ -1,0 +1,223 @@
+{
+  "schema": "openclaw.k6.seat-readiness.v2",
+  "generatedAt": "2026-10-29T22:04:24.198Z",
+  "outcome": "PASS-candidate",
+  "policy": {
+    "name": "k6 PROOFS seat readiness policy",
+    "version": "2026-07-07",
+    "source": "tools/k6-proofs/seat-readiness.policy.json"
+  },
+  "expectedK6Version": "v2.0.0",
+  "k6": {
+    "ok": true,
+    "command": "k6",
+    "version": "v2.0.0",
+    "rawVersion": "k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/amd64)",
+    "checked": [
+      {
+        "command": "k6",
+        "exists": true,
+        "version": "v2.0.0",
+        "rawVersion": "k6 v2.0.0 (commit/8c3be52cc1, go1.26.3, linux/amd64)"
+      }
+    ],
+    "matchesExpected": true
+  },
+  "gateway": {
+    "mode": "authenticated-rpc",
+    "healthReachable": true
+  },
+  "target": {
+    "gatewayUrlFingerprint": "de6d6eb14c47f4828e4657b7a8ee0061d78fd008a451289d11ac90bc2e2b61a3",
+    "configuredMaxSpawnDepth": 5,
+    "effectiveMaxSpawnDepth": 5,
+    "requiredMaxSpawnDepth": 2,
+    "expectedMaxSpawnDepth": 5,
+    "continuation": {
+      "configured": {
+        "enabled": true,
+        "defaultsPresent": true
+      },
+      "effective": {
+        "enabled": true,
+        "defaultsPresent": true
+      }
+    },
+    "authentication": {
+      "scheme": "gateway-token",
+      "authenticated": true,
+      "request": {
+        "connectRequestId": "readiness-connect-3e290e1f-141a-4004-8d55-fc80e5b831f5",
+        "configRequestId": "readiness-config-3e09b74c-32dd-4d72-971a-bc7460cc490b",
+        "method": "config.get",
+        "client": {
+          "id": "cli",
+          "mode": "cli",
+          "version": "k6-proof-readiness-v2",
+          "platform": "node"
+        },
+        "role": "operator",
+        "scopes": [
+          "operator.read"
+        ],
+        "challengeHash": "687e7d0a2896de1642e98bbcb206cb2b59ecbabebfe0292d6e76b54df153bf0f"
+      },
+      "response": {
+        "protocol": 4,
+        "version": "2026.10.8",
+        "buildId": "2026.10.8-08c37a156217-2026-10-29T20-38-20.000Z",
+        "bootIdHash": "59bff7d77a5097fba1932171fbacf24e1e2c694d60b750e25db981d83a77cb64",
+        "connectionIdHash": "7436e777d095172bb2d5eb61f07dd701636508fff7a099a5c04f0ff8b2e59da3",
+        "authRole": "operator",
+        "authScopes": [
+          "operator.read"
+        ],
+        "connectResponseId": "readiness-connect-3e290e1f-141a-4004-8d55-fc80e5b831f5",
+        "configResponseId": "readiness-config-3e09b74c-32dd-4d72-971a-bc7460cc490b",
+        "configRevisionHash": "hmac-sha256:v1:AR6-Acnj-3xD7Va1I_YV-xUlgJ7g8DoTvyEieBkk1pw",
+        "appliedConfigHash": "hmac-sha256:v1:AR6-Acnj-3xD7Va1I_YV-xUlgJ7g8DoTvyEieBkk1pw"
+      }
+    }
+  },
+  "bindings": {
+    "candidateSha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "runtimeSha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "docsSha": "860bd4ec2a8aac2c0442fc3bcdea9aba087d3b19",
+    "gatewayUrlFingerprint": "de6d6eb14c47f4828e4657b7a8ee0061d78fd008a451289d11ac90bc2e2b61a3",
+    "seat": "emeric-isolated-composite",
+    "unit": "openclaw-proof-comp-08c37a15",
+    "selectedRows": [
+      "R-CD-MODEL-TOKEN"
+    ],
+    "requiredMaxSpawnDepth": 2,
+    "expectedMaxSpawnDepth": 5
+  },
+  "candidate": {
+    "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+    "valid40Hex": true
+  },
+  "seat": {
+    "name": "emeric-isolated-composite",
+    "class": "raw-final-text"
+  },
+  "session": {
+    "scope": "main-agent-session"
+  },
+  "env": [
+    {
+      "name": "OPENCLAW_GATEWAY_TOKEN",
+      "present": true,
+      "secret": true,
+      "required": true,
+      "purpose": "operator auth token; presence only is reported"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_WS",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "explicit target gateway websocket URL"
+    },
+    {
+      "name": "OPENCLAW_SESSION_KEY",
+      "present": true,
+      "secret": true,
+      "required": true,
+      "purpose": "target session key or coarse session class"
+    },
+    {
+      "name": "OPENCLAW_CANDIDATE_SHA",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "40-character OpenClaw deploy SHA under test"
+    },
+    {
+      "name": "OPENCLAW_RUNTIME_SHA",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "40-character deployed runtime SHA bound to the receipt"
+    },
+    {
+      "name": "OPENCLAW_DOCS_SHA",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "40-character docs harness SHA bound to the receipt"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_UNIT",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "isolated target gateway unit identity"
+    },
+    {
+      "name": "OPENCLAW_SELECTED_ROWS",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "canonical selected row set bound to the receipt"
+    },
+    {
+      "name": "OPENCLAW_REQUIRED_MAX_SPAWN_DEPTH",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "minimum effective depth required by the selected rows"
+    },
+    {
+      "name": "OPENCLAW_EXPECTED_MAX_SPAWN_DEPTH",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "assertion-only expected effective target depth"
+    },
+    {
+      "name": "OPENCLAW_SEAT_NAME",
+      "present": true,
+      "secret": false,
+      "required": true,
+      "purpose": "public seat identifier used in proof artifacts"
+    },
+    {
+      "name": "OPENCLAW_SEAT_CLASS",
+      "present": true,
+      "secret": false,
+      "required": false,
+      "purpose": "seat behavior class used by token/bracket rows"
+    },
+    {
+      "name": "OPENCLAW_ROW_MANIFEST",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "manifest path for a specific row run"
+    },
+    {
+      "name": "OPENCLAW_GATEWAY_RESTART_CMD",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "optional self-contained restart command for config-mutating proof fixtures; default is documented as openclaw gateway restart --safe --wait 10s"
+    },
+    {
+      "name": "OPENCLAW_K6_COST_CAP_TEST_VALUE",
+      "present": false,
+      "secret": false,
+      "required": false,
+      "purpose": "optional low costCapTokens value for cost-cap boundary rows; default must be row-local and restored"
+    }
+  ],
+  "concurrency": {
+    "safeToRunConcurrently": true,
+    "reason": "read-only seat readiness preflight; no continuation/delegate/compaction calls are fired"
+  },
+  "notes": [],
+  "bindingDigest": "394bbaf98a31150fed2f8d6012a6c1480fa943e547423d33b19e8e22c37fa146",
+  "integrity": {
+    "algorithm": "hmac-sha256-gateway-token-v1",
+    "signature": "2ca551b0811b96ab3246464a023432b56c63a4c01b1d58525feddb159fcb5091"
+  }
+}

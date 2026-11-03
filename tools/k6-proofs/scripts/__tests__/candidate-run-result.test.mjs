@@ -377,6 +377,31 @@ test('candidate envelope binds the approved docs ref and both harness source dig
     } finally { await rm(setup.root, { recursive: true, force: true }); }
   });
 
+  await t.test('committed candidate SHA template routes a bound envelope, not an arbitrary value', async () => {
+    const committed = JSON.parse(await readFile('tools/k6-proofs/manifests/r-cw-1.json', 'utf8'));
+    assert.equal(committed.candidateSha, '${OPENCLAW_CANDIDATE_SHA}');
+    const manifestValue = { ...manifest(), candidateSha: committed.candidateSha };
+    const setup = await fixture({ manifestValue });
+    try {
+      const envelope = JSON.parse((await invoke(setup)).stdout);
+      const metadata = JSON.parse(await readFile(path.join(setup.candidateDir, 'runner-metadata.json'), 'utf8'));
+      const siblings = (value = manifestValue) => candidateEnvelopeMatchesSiblings({
+        envelope, manifest: value, metadata, runResult: runResult(), runDir: setup.candidateDir,
+      });
+      assert.equal(siblings(), true, 'a frozen committed template must not suppress a valid envelope');
+      assert.equal(siblings({ ...manifestValue, candidateSha: 'wrong' }), false);
+      assert.equal(siblings({ ...manifestValue, candidateSha: 'b'.repeat(40) }), false);
+      const changedCopy = JSON.stringify({ ...manifestValue, candidateSha: 'wrong' }, null, 2) + '\n';
+      await writeFile(path.join(setup.candidateDir, 'row-manifest.json'), changedCopy);
+      assert.equal(siblings(), false, 'a changed copied manifest must fail digest custody');
+    } finally { await rm(setup.root, { recursive: true, force: true }); }
+
+    const invalid = await fixture({ manifestValue: { ...manifest(), candidateSha: 'wrong' } });
+    try {
+      await assert.rejects(invoke(invalid), /candidate SHA/);
+    } finally { await rm(invalid.root, { recursive: true, force: true }); }
+  });
+
   await t.test('a supplied manifest that is not the captured manifest is refused', async () => {
     const setup = await fixture();
     const otherManifest = path.join(setup.root, 'other-manifest.json');
@@ -765,4 +790,64 @@ test('R-CD-TOKEN requires the signed authoritative receipt and rejects tampering
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test('R-CD-2 identity reconciliation ignores a gateway runId inside a redacted event payload', async () => {
+  // Observed live 2026-10-05: gateway events carry their own agent runId
+  // ("R-CD-2-R-CD-2-<nonce>"), which differs from the harness run directory id.
+  const fixture = await writeRcd2Bundle(path.resolve('.'), {
+    evidenceOverrides: {
+      redacted_events: [
+        { ts: 1, kind: 'event', event: 'agent', data: { runId: 'R-CD-2-R-CD-2-1791174207176-2kqwmave', stream: 'lifecycle' } },
+      ],
+    },
+  });
+  try {
+    await invoke({
+      manifestPath: fixture.manifestPath,
+      candidateDir: fixture.runDir,
+      selectedDocsRef: RCD2_BASE.docsRef,
+      signingKey: RCD2_SIGNING_KEY,
+    });
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('R-CD-2 identity reconciliation still rejects an identity claim on the event entry itself', async () => {
+  await assert.rejects(
+    writeRcd2Bundle(path.resolve('.'), {
+      evidenceOverrides: { redacted_events: [{ ts: 1, kind: 'event', runId: 'forged-run-id' }] },
+    }).then(async (fixture) => {
+      try {
+        await invoke({
+          manifestPath: fixture.manifestPath,
+          candidateDir: fixture.runDir,
+          selectedDocsRef: RCD2_BASE.docsRef,
+          signingKey: RCD2_SIGNING_KEY,
+        });
+      } finally {
+        await fixture.cleanup();
+      }
+    }),
+    /R-CD-2 authority identity mismatch/,
+  );
+});
+
+test('R-CD-2 identity reconciliation still rejects a top-level evidence runId mismatch', async () => {
+  await assert.rejects(
+    writeRcd2Bundle(path.resolve('.'), { evidenceOverrides: { runId: 'forged-run-id' } }).then(async (fixture) => {
+      try {
+        await invoke({
+          manifestPath: fixture.manifestPath,
+          candidateDir: fixture.runDir,
+          selectedDocsRef: RCD2_BASE.docsRef,
+          signingKey: RCD2_SIGNING_KEY,
+        });
+      } finally {
+        await fixture.cleanup();
+      }
+    }),
+    /R-CD-2 authority identity mismatch/,
+  );
 });

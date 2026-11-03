@@ -1,0 +1,13 @@
+{
+  "schema": "frond-scribe.r-cd-2-keyed-authority-review.v1",
+  "row": "R-CD-2",
+  "candidate_sha": "293c977f629f872a643fb94892603310b887293b",
+  "reviewed_run": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/emeric-isolated-composite/20261029T050321Z-r-cd-2-843e883b",
+  "docs_ref": "1d7c6928",
+  "verifier": "tools/k6-proofs/lib/r-cd-2-authority-context.mjs consumeRcd2Authority",
+  "signing_key": "the isolated proof gateway's gateway.auth.token on emeric (~/proof-gw/comp-293c977f/openclaw.json); supplied via environment only, never printed or published",
+  "result": {"outcome": "PASS-candidate", "traceHeld": true, "complete": true},
+  "reviewer": "frond-scribe",
+  "reviewed_at": "2026-10-29T05:40Z",
+  "note": "validate-corpus without the signing key cannot verify this HMAC-signed authority; the canonical pass state awaits 🌊's method ruling on keyed verification."
+}

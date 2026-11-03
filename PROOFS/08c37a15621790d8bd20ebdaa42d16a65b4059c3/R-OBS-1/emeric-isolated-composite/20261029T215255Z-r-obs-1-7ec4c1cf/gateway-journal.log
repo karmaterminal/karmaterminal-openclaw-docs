@@ -1,0 +1,3 @@
+2026-10-29T14:52:55.438859-07:00 emeric node[218274]: 2026-10-29T14:52:55.438-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:52:55.439191-07:00 emeric node[218274]: 2026-10-29T14:52:55.439-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:52:55.451132-07:00 emeric node[218274]: 2026-10-29T14:52:55.451-07:00 [agents/agent-command] [agent] run announce:v1:<redacted-session-key> ended with stopReason=stop

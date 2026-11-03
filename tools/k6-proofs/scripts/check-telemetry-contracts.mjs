@@ -28,6 +28,11 @@
 import { readdirSync, readFileSync, realpathSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import {
+  CONTINUATION_TRACE_CORRELATION_RECEIPT,
+  TEMPO_TRACE_RECEIPT,
+  TOOL_TRACE_CORRELATION_RECEIPT,
+} from '../lib/continuation-trace-requirement.mjs';
 import { proofsToolPath, resolveRepositoryRoot } from '../lib/repo-root.mjs';
 
 export const TELEMETRY_CONTRACT_SCHEMA = 'openclaw.k6.row-telemetry-contract.v1';
@@ -36,11 +41,14 @@ export const TELEMETRY_CONTRACT_SCHEMA = 'openclaw.k6.row-telemetry-contract.v1'
  * Receipts whose evidence is telemetry. When one of these is a *required*
  * receipt the row's verdict rests on telemetry, so the row must state what it
  * expects the product to emit and what it does when the backend degrades.
+ * The three trace receipts are the ones the continuation trace requirement
+ * holds a row to (#600).
  */
 export const TELEMETRY_RECEIPTS = new Set([
   'trace-id',
-  'tempo-trace-json',
-  'continuation-trace-correlation',
+  TEMPO_TRACE_RECEIPT,
+  CONTINUATION_TRACE_CORRELATION_RECEIPT,
+  TOOL_TRACE_CORRELATION_RECEIPT,
   'trace-or-session-correlation',
   'reason-telemetry-redaction-review',
 ]);

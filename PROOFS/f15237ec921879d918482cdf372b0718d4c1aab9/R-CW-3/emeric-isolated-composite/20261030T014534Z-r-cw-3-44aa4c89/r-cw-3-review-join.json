@@ -1,0 +1,6 @@
+{
+  "out": "<private-run-root>/COMP-f15237ec-20261030T012943Z/f15237ec921879d918482cdf372b0718d4c1aab9/R-CW-3/emeric-isolated-composite/20261030T014534Z-r-cw-3-44aa4c89/r-cw-3-reason-telemetry-review.json",
+  "verdict": "reason-telemetry-redaction-review-passed",
+  "passed": true,
+  "redactedOutgoingValues": 0
+}

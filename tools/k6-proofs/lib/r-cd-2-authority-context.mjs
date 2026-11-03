@@ -9,6 +9,7 @@ import path from 'node:path';
 import { canonicalJson } from './canonical-json.mjs';
 import {
   rCd2AuthorityIdentity,
+  rCd2ReceiptHoldsTrace,
   resolveRcd2AuthoritativeReceipt,
   validateRcd2AcquisitionReceipt,
   validateRcd2AuthoritativeReceipt,
@@ -547,6 +548,8 @@ function reconcileFlatClaim(value, selected, label) {
   claim(value.scenarioSha256, selected.scenarioSha256, `${label} scenarioSha256`);
 }
 
+const GATEWAY_EVENT_ENTRY = Symbol('gateway event entry');
+
 function reconcileNestedClaims(value, selected, label, carrier = '', root = true) {
   if (!value || typeof value !== 'object') return;
   if (!Array.isArray(value)) {
@@ -582,7 +585,15 @@ function reconcileNestedClaims(value, selected, label, carrier = '', root = true
   }
   for (const [key, entry] of Object.entries(value)) {
     if (entry && typeof entry === 'object') {
-      reconcileNestedClaims(entry, selected, `${label}.${key}`, key, false);
+      // `redacted_events[i].data` is a redacted gateway event payload: product
+      // data, not a harness identity claim. Its `runId` is the gateway's agent
+      // run id (e.g. "R-CD-2-<nonce>"), which legitimately differs from the
+      // harness run directory id, so it must not be reconciled as one.
+      if (key === 'data' && carrier === GATEWAY_EVENT_ENTRY) continue;
+      const nextCarrier = carrier === 'redacted_events' && Array.isArray(value)
+        ? GATEWAY_EVENT_ENTRY
+        : key;
+      reconcileNestedClaims(entry, selected, `${label}.${key}`, nextCarrier, false);
     }
   }
 }
@@ -1020,6 +1031,9 @@ export function consumeRcd2Authority({
     same(rowResult.outcome, validation.verdict, 'normalized row result outcome');
   }
 
+  // R-CD-2 is a continuation row whose public result never carries its trace;
+  // only a receipt that holds the trace lets its review be complete (#600).
+  const traceHeld = rCd2ReceiptHoldsTrace(receipt);
   return {
     rowId: R_CD_2_ROW,
     outcome: validation.verdict,
@@ -1027,10 +1041,11 @@ export function consumeRcd2Authority({
     candidateOnly: true,
     foldRequiresReview: true,
     canonicalFoldForbidden: true,
+    traceHeld,
     review: {
       status: result?.review?.status || 'ready-for-human-review',
       pendingReceipts: result?.review?.pendingReceipts || [],
-      complete: (result?.review?.pendingReceipts || []).length === 0,
+      complete: (result?.review?.pendingReceipts || []).length === 0 && traceHeld,
     },
     authoritativeReceipt: {
       file: R_CD_2_RECEIPT_FILE,

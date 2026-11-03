@@ -1,0 +1,17 @@
+{
+  "schema": "frond-scribe.r-cd-2-keyed-authority-review.v1",
+  "row": "R-CD-2",
+  "candidate_sha": "f15237ec921879d918482cdf372b0718d4c1aab9",
+  "reviewed_run": "PROOFS/f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-2/emeric-isolated-composite/20261030T013026Z-r-cd-2-44aa4c89",
+  "docs_ref": "215235ed",
+  "verifier": "tools/k6-proofs/lib/r-cd-2-authority-context.mjs consumeRcd2Authority",
+  "signing_key": "the isolated proof gateway's gateway.auth.token on emeric (~/proof-gw/comp-f15237ec/openclaw.json); supplied via environment only, never printed or published",
+  "result": {
+    "outcome": "PASS-candidate",
+    "traceHeld": true,
+    "complete": true
+  },
+  "reviewer": "frond-scribe",
+  "reviewed_at": "2026-10-30T02:21:59Z",
+  "note": "Keyed consumeRcd2Authority at docs 215235ed, on the raw run (scan root = its COMP run directory), with the isolated proof gateway's token (comp-f15237ec, never printed). The row stays PARTIAL under 🌊's ruling (a): the authority is HMAC-signed by the proof-gateway token, and PASS would need the seat-attestation method change (option b)."
+}

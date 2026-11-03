@@ -18,6 +18,7 @@ import {
   isRcd2AuthorityRequired,
 } from '../lib/r-cd-2-authority-context.mjs';
 import { validateRcdTokenAuthoritativeReceipt } from '../lib/r-cd-token-authoritative-receipt.mjs';
+import { TEMPO_TRACE_RECEIPT, traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
 
 function usage() {
   console.error('Usage: node render-run-report.mjs --root <run-out-root> [--out report.html]');
@@ -95,7 +96,7 @@ function authoritativeReceiptContract(rowId) {
   return null;
 }
 
-function receiptSummary({ manifest, runResult, evidenceRows }) {
+function receiptSummary({ manifest, runResult, evidenceRows, traceFindings }) {
   const receipts = [];
   for (const name of manifest?.liveRunSafety?.requiredReceipts || []) {
     receipts.push({ name: safeText(name), required: true, status: 'unknown' });
@@ -119,6 +120,14 @@ function receiptSummary({ manifest, runResult, evidenceRows }) {
     if ((receipt.name === 'parent-wake-event' || receipt.name === 'parent-return-event') && (evidence.parent_wake_observed || evidence.parent_return)) receipt.status = 'present';
     if (receipt.name === 'no-channel-delivery' && evidence.channel_message_observed === false) receipt.status = 'present';
     if ((receipt.name === 'trace-id' || receipt.name === 'tempo-trace-json') && evidence.trace_id) receipt.status = 'present';
+  }
+  // A trace-required row's trace receipts are what its run directory holds
+  // (#600), not what its run result or evidence claims.
+  for (const { receipt: name, held } of traceFindings) {
+    const status = held ? 'present' : 'missing';
+    const existing = receipts.find((r) => r.name === name);
+    if (existing) existing.status = status;
+    else receipts.push({ name, required: true, status });
   }
   return receipts;
 }
@@ -164,6 +173,16 @@ async function rowFromRunResult(root, runResultPath) {
     });
     outcome = safeText(rCd2Authority.outcome);
   }
+  // The run result was written before anything could delete or replace its
+  // trace receipts, and the runner's own check reads only names and sizes. A
+  // trace-required row owing either receipt is review-pending, whatever the
+  // result says (#600).
+  const traceFindings = traceReceiptFindings(manifest, runResult.observability, {
+    runDir,
+    traceHeldByAuthority: rCd2Authority?.traceHeld === true,
+  });
+  const traceOwed = traceFindings.some((finding) => !finding.held);
+  const traceJsonOwed = traceFindings.some((finding) => finding.receipt === TEMPO_TRACE_RECEIPT && !finding.held);
   const authoritative = rCd2Required
     ? null
     : authoritativeReceiptContract(metadata?.row || manifest?.rowId);
@@ -196,6 +215,7 @@ async function rowFromRunResult(root, runResultPath) {
     scenario: safeText(rCd2Authority?.identity.scenario || metadata?.scenario || manifest?.scenario?.name || manifest?.scenario?.file),
     outcome,
     reviewStatus: safeText(
+      (traceOwed ? 'review-pending' : null) ||
       rCd2Authority?.review?.status ||
       runResult?.review?.status ||
       (runResult?.review?.pendingReceipts?.length
@@ -205,8 +225,8 @@ async function rowFromRunResult(root, runResultPath) {
     proofFailures,
     durationMs: numberFromDuration(summary?.metrics?.duration_ms),
     checksRate: summary?.metrics?.checks?.rate ?? summary?.metrics?.checksRate ?? null,
-    traceStatus: safeText(runResult?.observability?.traceStatus || 'unknown'),
-    receipts: receiptSummary({ manifest, runResult, evidenceRows }),
+    traceStatus: safeText(traceJsonOwed ? 'missing' : runResult?.observability?.traceStatus || 'unknown'),
+    receipts: receiptSummary({ manifest, runResult, evidenceRows, traceFindings }),
     rel,
   };
 }

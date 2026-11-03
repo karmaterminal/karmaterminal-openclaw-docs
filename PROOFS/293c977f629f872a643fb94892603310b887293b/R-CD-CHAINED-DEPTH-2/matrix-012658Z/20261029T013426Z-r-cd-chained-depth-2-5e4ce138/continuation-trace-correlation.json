@@ -1,0 +1,77 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-CHAINED-DEPTH-2",
+  "seat": "emeric-isolated-composite",
+  "attribution": "reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-293c977f\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"a49fc48c964bf1d5\" && .reason.length=441 && .delegate.mode=\"silent-wake\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793237610,
+    "endUnixSeconds": 1793237776,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-b3f5b3fe6c72.json",
+  "traceId": "b3f5b3fe6c72244a0069ed81735c1a42",
+  "chainId": "366a091c-cbd1-4604-9512-51c26cfe9272",
+  "toolSpanIds": [
+    "d9c51a27e436465a"
+  ],
+  "toolParentSpanIds": [
+    "5affda9e5610d3be"
+  ],
+  "fireSpanId": "e3e16b497ae957f4",
+  "fireParentSpanId": "10f8de3d667b0313",
+  "fireSpanIds": [
+    "e3e16b497ae957f4"
+  ],
+  "fireParentSpanIds": [
+    "10f8de3d667b0313"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "e3e16b497ae957f4"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "05241ef5b95ba74f"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "e91514b42f8cd1a9"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "17056f76e532b6e6"
+    }
+  ],
+  "dispatchSpanId": "10f8de3d667b0313",
+  "dispatchParentSpanId": "d9c51a27e436465a",
+  "reason": {
+    "hash": "a49fc48c964bf1d5",
+    "length": 441,
+    "source": "manifest-nonce",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "typed-tool",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "silent-wake"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

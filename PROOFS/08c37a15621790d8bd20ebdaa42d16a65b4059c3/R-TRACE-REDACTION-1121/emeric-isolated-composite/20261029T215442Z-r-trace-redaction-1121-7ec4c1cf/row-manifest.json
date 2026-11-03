@@ -1,0 +1,62 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-TRACE-REDACTION-1121",
+  "issue": 1121,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "offline",
+  "toolSurface": "read-only",
+  "mutates": false,
+  "timeoutSeconds": 10,
+  "scenario": {
+    "name": "r-trace-redaction-1121",
+    "description": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+    "methods": [
+      "manual-corpus-review",
+      "static-artifact-parse"
+    ],
+    "status": "runnable",
+    "file": "r-trace-redaction-1121.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "trace-redaction-contract",
+      "required": true,
+      "description": "Evidence records safe reason attrs and absence of raw reason.preview export"
+    },
+    {
+      "name": "trace-redaction-tests-passed",
+      "required": true,
+      "description": "Evidence records continuation-tracer redaction tests passing"
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-TRACE-REDACTION-1121",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Static artifact validator for source/unit proof row. It validates committed corpus receipts, not fresh source tests."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": false,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "trace-redaction-contract",
+      "trace-redaction-tests-passed"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Offline/static current-corpus validator; safe in broad suite because it does not connect to or mutate gateway state."
+  }
+}

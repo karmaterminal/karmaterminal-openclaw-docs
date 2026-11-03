@@ -8,6 +8,13 @@
 import { check } from 'k6';
 import { Counter, Trend } from 'k6/metrics';
 import { loadManifestFromEnv, validateManifest } from '../lib/manifest-loader.js';
+import { delegateDispatcherBefore, markerReturn, markerWriterInJournal } from '../lib/journal-return-binding.mjs';
+import {
+  buildRequiredPreflightReceipt,
+  isFullSha,
+  PREFLIGHT_EVIDENCE_BINDING,
+  REQUIRED_PREFLIGHT_RECEIPT_FILE,
+} from '../lib/required-preflight.mjs';
 
 export const options = {
   scenarios: { static_corpus_row_validator: { executor: 'shared-iterations', vus: 1, iterations: 1, maxDuration: '15s' } },
@@ -20,11 +27,18 @@ const manifest = loadManifestFromEnv();
 const index = JSON.parse(open('../../../PROOFS/INDEX.json'));
 const currentSha = index.current_sha;
 const carriedFrom = index.carried_from || currentSha;
-const sourceEvidenceSha = index.static_evidence_sha || currentSha;
+// A required preflight attachment (R-CW-5A/6A, 🌊's F″ method ruling) runs at
+// the exact candidate: it reads the candidate's own committed material and never
+// the INDEX's pinned static baseline, which other static rows keep reading.
+const preflightAttachment = manifest?.preflightAttachment || null;
+const preflightCandidateSha = preflightAttachment && isFullSha(__ENV.OPENCLAW_CANDIDATE_SHA)
+  ? __ENV.OPENCLAW_CANDIDATE_SHA
+  : null;
+const sourceEvidenceSha = preflightAttachment ? preflightCandidateSha : index.static_evidence_sha || currentSha;
 
 function includesAny(text, needles) { return needles.some((needle) => text.includes(needle)); }
 function allPresent(obj) { return Object.values(obj).every(Boolean); }
-function rowRoot(row) { return `../../../PROOFS/${sourceEvidenceSha}/${row}/cael-dgx`; }
+function rowRoot(row) { return `../../../PROOFS/${sourceEvidenceSha || 'no-exact-candidate'}/${row}/cael-dgx`; }
 function readMaybe(path) { try { return open(path); } catch (e) { return ''; } }
 function readJsonMaybe(path) { const raw = readMaybe(path); return raw ? JSON.parse(raw) : null; }
 
@@ -36,6 +50,10 @@ const sourceRow = selectedRow === 'R-CW-5A' ? 'R-CW-5'
   : selectedRow === 'R-CW-6A' ? 'R-CW-6'
     : selectedRow;
 const isStaticBoundaryVariant = sourceRow !== selectedRow;
+// The preflight binds only when the manifest names the live row this variant reads.
+const exactCandidateBinding = Boolean(
+  preflightCandidateSha && isStaticBoundaryVariant && preflightAttachment.attachedTo === sourceRow,
+);
 const roots = {
   rcw7: rowRoot('R-CW-7'),
   childLive: rowRoot('R-CW-DELEGATE-CHILD-LIVE'),
@@ -46,6 +64,33 @@ const roots = {
   rcw5: rowRoot('R-CW-5'),
   rcw6: rowRoot('R-CW-6'),
 };
+
+// The folder alone does not bind the material: the static baseline's files copied
+// under PROOFS/<candidate>/ would pass every content check. The material binds
+// only through a source-sha.txt (at its root, or under source/ as R-CW-6's
+// baseline keeps it) whose whole content is the candidate SHA, and no provenance
+// file in it may name another commit. A mention in EVIDENCE.md is not enough: an
+// honest note that the files were copied would name the candidate too.
+function shaTokens(text) { return text.match(/\b[0-9a-f]{7,40}\b/g) || []; }
+function firstLine(text) { return text.split('\n')[0]; }
+const preflightMaterial = preflightAttachment
+  ? {
+    sourceShaFiles: ['source-sha.txt', 'source/source-sha.txt']
+      .map((file) => readMaybe(`${rowRoot(sourceRow)}/${file}`))
+      .filter(Boolean),
+    commitNames: [
+      ...shaTokens(readMaybe(`${rowRoot(sourceRow)}/runtime-version.txt`)),
+      ...shaTokens(firstLine(readMaybe(`${rowRoot(sourceRow)}/source-git-status.txt`))),
+      ...shaTokens(firstLine(readMaybe(`${rowRoot(sourceRow)}/source/source-commit.txt`))),
+    ],
+  }
+  : null;
+const materialNamesCandidate = Boolean(
+  preflightCandidateSha &&
+    preflightMaterial.sourceShaFiles.length > 0 &&
+    preflightMaterial.sourceShaFiles.every((text) => text.trim() === preflightCandidateSha) &&
+    preflightMaterial.commitNames.every((name) => preflightCandidateSha.startsWith(name)),
+);
 
 const corpus = {};
 if (selectedRow === 'R-CW-7') {
@@ -193,15 +238,21 @@ function validateRcwMulti() {
 
 function validateCdCollectionOnCollapse() {
   const root = roots.cdCollection;
-  const { evidence, evaluation, flowRows, taskRows, rootReceipt, journal, traceSummary } = corpus.cdCollection;
+  const { evidence, evaluation, flowRows, taskRows, journal, traceSummary } = corpus.cdCollection;
   const cSentinel = 'RCD_COLLECTION_BCA2B0B_CAEL_20260704_1316_C_REACHED_AFTER_B_FINAL';
+  const cReturn = markerReturn(journal, cSentinel);
+  const cDispatcher = delegateDispatcherBefore(journal, markerWriterInJournal(journal, cSentinel).line);
   const checks = {
     verdictPass: evidence.includes('Verdict') && evidence.includes('PASS'),
     methodScope: evidence.includes('A→B→delayed-C') && evidence.includes('B finalized before C'),
     bTypedDelegate: evidence.includes('typed `continue_delegate`') && evidence.includes('delaySeconds') && evidence.includes('fanoutMode'),
     cAfterB: evidence.includes('B finalized before C was created') || evidence.includes('B finalized before C was due'),
-    cSentinelPresent: evidence.includes(cSentinel) && journal.includes(cSentinel),
-    rootCollection: rootReceipt.includes(cSentinel) || evidence.includes('root/main receives or can observe'),
+    // #1727: C's sentinel binds only where C wrote it; the root's collection only
+    // as a targeted return from C to a session other than its dispatcher B. The
+    // journal's C_SENTINEL_SCHEDULED= line and the root receipt's copies of the
+    // task text are outbound and never count.
+    cSentinelPresent: evidence.includes(cSentinel) && cReturn.writer !== null,
+    rootCollection: cReturn.returns.some((r) => r.targets.some((target) => target !== cDispatcher && target !== cReturn.writer)),
     durableRows: flowRows.includes('core/continuation-delegate') && taskRows.includes('status') && taskRows.includes('succeeded'),
     evaluationPass: evaluation.includes('PASS') || evaluation.includes('pass') || evidence.includes('PASS'),
     tracePresent: traceSummary.includes('ecda443e0038fb9a38fc33a8b98d7d02') || traceSummary.includes('continuation.delegate'),
@@ -267,17 +318,28 @@ const validators = {
   'R-CW-6A': validateRcw6,
 };
 
+/** The row's validator result, plus the boundary checks every static variant carries. */
+function runValidator() {
+  const validator = validators[manifest.rowId];
+  if (!validator) return null;
+  const result = validator();
+  if (isStaticBoundaryVariant) {
+    result.checks.nonLiveBoundary = true;
+  }
+  if (preflightAttachment) {
+    result.checks.exactCandidateBinding = exactCandidateBinding;
+    result.checks.materialNamesCandidate = materialNamesCandidate;
+  }
+  return result;
+}
+
 export default function () {
   const started = Date.now();
   if (!manifest?.rowId) { console.error('OPENCLAW_ROW_MANIFEST with rowId is required'); failures.add(1); return; }
   const errors = validateManifest(manifest);
   if (errors.length > 0) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
-  const validator = validators[manifest.rowId];
-  if (!validator) { console.error(`No static validator implemented for ${manifest.rowId}`); failures.add(1); return; }
-  const result = validator();
-  if (isStaticBoundaryVariant) {
-    result.checks.nonLiveBoundary = true;
-  }
+  const result = runValidator();
+  if (!result) { console.error(`No static validator implemented for ${manifest.rowId}`); failures.add(1); return; }
   const expectedArtifactClass = manifest?.liveRunSafety?.expectedArtifactClass || 'FAIL-candidate';
   const evidence = {
     row: manifest.rowId,
@@ -292,6 +354,10 @@ export default function () {
     checks: result.checks,
     source_files: result.source_files,
   };
+  if (preflightAttachment) {
+    evidence.evidenceBinding = PREFLIGHT_EVIDENCE_BINDING;
+    evidence.preflightFor = preflightAttachment.attachedTo;
+  }
   const ok = allPresent(result.checks);
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
@@ -308,5 +374,20 @@ export function handleSummary(data) {
   const failuresCount = data.metrics.proof_failures?.values?.count || 0;
   const row = manifest?.rowId || 'UNKNOWN';
   const expectedArtifactClass = manifest?.liveRunSafety?.expectedArtifactClass || 'FAIL-candidate';
-  return { 'static-corpus-row-summary.json': JSON.stringify({ row, sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', verdict: failuresCount === 0 ? expectedArtifactClass : 'FAIL-candidate', metrics: { failures: failuresCount, duration_ms: data.metrics.static_corpus_row_duration?.values || null } }, null, 2) };
+  const files = { 'static-corpus-row-summary.json': JSON.stringify({ row, sha: __ENV.OPENCLAW_CANDIDATE_SHA || 'unset', verdict: failuresCount === 0 ? expectedArtifactClass : 'FAIL-candidate', metrics: { failures: failuresCount, duration_ms: data.metrics.static_corpus_row_duration?.values || null } }, null, 2) };
+  if (preflightAttachment) {
+    // handleSummary runs outside the VU, so the checks are recomputed from the
+    // same init-time corpus; the receipt passes only with zero proof failures.
+    const result = runValidator();
+    files[REQUIRED_PREFLIGHT_RECEIPT_FILE] = JSON.stringify(buildRequiredPreflightReceipt({
+      preflightRow: row,
+      attachedTo: preflightAttachment.attachedTo,
+      candidateSha: preflightCandidateSha,
+      sourceEvidenceSha,
+      checks: result ? result.checks : {},
+      passVerdict: expectedArtifactClass,
+      failures: result ? failuresCount : failuresCount + 1,
+    }), null, 2);
+  }
+  return files;
 }

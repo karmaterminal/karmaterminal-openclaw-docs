@@ -1,0 +1,957 @@
+{
+ "schema": "openclaw.proofs.manifest.v1",
+ "sha": "293c977f629f872a643fb94892603310b887293b",
+ "sha_short": "293c977f62",
+ "capture_sha": "293c977f629f872a643fb94892603310b887293b",
+ "ship_sha": "293c977f629f872a643fb94892603310b887293b",
+ "proof_source_sha": "293c977f629f872a643fb94892603310b887293b",
+ "execution_runtime_sha": "293c977f629f872a643fb94892603310b887293b",
+ "execution_runtime_provenance": "isolated proof gateway on emeric, staged by deploy-gateway stage-only run 40795175253 (build-info == 293c977f629f872a643fb94892603310b887293b); the live fleet gateway is untouched",
+ "exact_target_execution": true,
+ "exact_target_mode_b": false,
+ "harness_sha": "180ebdc41b7729bd1e467da8bb44ff6127c9a7da",
+ "seat": "emeric",
+ "fire_type": "exact-pure-head isolated-gateway live-suite",
+ "execution_status": "folded-reviewed (candidate-reviewed, single seat); NOT acceptance-complete",
+ "required_rows": [
+  "R-CD-1",
+  "R-CD-2",
+  "R-CD-3",
+  "R-CD-4",
+  "R-CD-CHAINED-DEPTH-2",
+  "R-CD-COLLECTION-ON-COLLAPSE",
+  "R-CD-MODEL-CHAINED-ALT",
+  "R-CD-MODEL-DEFAULT",
+  "R-CD-MODEL-TOKEN",
+  "R-CD-MODEL-TOOL",
+  "R-CD-RETURN-OVERLAP",
+  "R-CD-RETURN-COVENANT-AUTHORITY",
+  "R-CD-SILENT",
+  "R-CD-TOKEN",
+  "R-CONFIG-DEFAULTS",
+  "R-CONFIG-INTERSESSION",
+  "R-CW-1",
+  "R-CW-2",
+  "R-CW-3",
+  "R-CW-4",
+  "R-CW-5",
+  "R-CW-5A",
+  "R-CW-6",
+  "R-CW-6A",
+  "R-CW-7",
+  "R-CW-DELEGATE-CHILD-LIVE",
+  "R-CW-DELEGATE-SELF-CONTINUATION",
+  "R-CW-DELEGATE-TOKEN",
+  "R-CW-MULTI",
+  "R-CW-MULTI-COLLAPSE",
+  "R-CW-TOKEN",
+  "R-OBS-1",
+  "R-OBS-2",
+  "R-OBS-STATUS",
+  "R-RC-1",
+  "R-RC-2",
+  "R-REGRESSION-TRAP-TESTS",
+  "R-TRACE-REDACTION-1121"
+ ],
+ "dispatch_allocation": {
+  "emeric": [
+   "R-CD-1",
+   "R-CD-2",
+   "R-CD-3",
+   "R-CD-4",
+   "R-CD-CHAINED-DEPTH-2",
+   "R-CD-MODEL-CHAINED-ALT",
+   "R-CD-MODEL-DEFAULT",
+   "R-CD-MODEL-TOKEN",
+   "R-CD-MODEL-TOOL",
+   "R-CD-RETURN-OVERLAP",
+   "R-CD-SILENT",
+   "R-CD-TOKEN",
+   "R-CONFIG-DEFAULTS",
+   "R-CONFIG-INTERSESSION",
+   "R-CW-1",
+   "R-CW-2",
+   "R-CW-3",
+   "R-CW-4",
+   "R-CW-DELEGATE-SELF-CONTINUATION",
+   "R-CW-TOKEN",
+   "R-OBS-1",
+   "R-OBS-2",
+   "R-OBS-STATUS",
+   "R-RC-1",
+   "R-RC-2",
+   "R-REGRESSION-TRAP-TESTS",
+   "R-TRACE-REDACTION-1121"
+  ],
+  "frond-scribe-static": [
+   "R-CD-COLLECTION-ON-COLLAPSE",
+   "R-CW-5A",
+   "R-CW-6A",
+   "R-CW-7",
+   "R-CW-DELEGATE-CHILD-LIVE",
+   "R-CW-DELEGATE-TOKEN",
+   "R-CW-MULTI",
+   "R-CW-MULTI-COLLAPSE"
+  ],
+  "unfired": [
+   "R-CD-RETURN-COVENANT-AUTHORITY",
+   "R-CW-5",
+   "R-CW-6"
+  ]
+ },
+ "rows": [
+  {
+   "row": "R-CD-1",
+   "title": "Typed continue_delegate() schedule/spawn/return.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-1/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-1/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-1.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T012707Z-r-cd-1-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-75a6eba9ee8d.json"
+   ]
+  },
+  {
+   "row": "R-CD-2",
+   "title": "continue_delegate(mode='silent-wake') full path.",
+   "owner": "emeric-exact-fire",
+   "state": "partial",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-2.json",
+   "candidate_verdict": "PASS-candidate (refire2 050313Z)",
+   "review_status": "reviewed: frond-scribe 2026-10-29; reviewed_run selected (R-CD-2 authority)",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in refire2 050313Z (#608 run-bound wake binding). Kept partial until the R-CD-2 authenticated authority is reviewed with the proof gateway's signing key; validate-corpus cannot verify it without that secret.",
+   "notes": "owner: R-CD-2 authority review: the authoritative receipt is HMAC-signed with the isolated proof gateway token, so the canonical pass needs a keyed review on the proof seat (key never published)",
+   "test_cases_executed": [
+    "20261029T012745Z-r-cd-2-5e4ce138",
+    "20261029T050321Z-r-cd-2-843e883b"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CD-3",
+   "title": "Stage continue_delegate(mode=post-compaction), then call request_compaction.",
+   "owner": "emeric-exact-fire",
+   "state": "partial",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-3/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-3/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-3.json",
+   "candidate_verdict": "PASS-candidate (trace pending)",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "Behavior PASS. Trace receipts unobtainable at this product: the post-compaction lifeboat release emits only continuation.compaction.released, no continuation.delegate.dispatch/.fire span with a reason fingerprint (collector fail-closed by design, docs#606). Window also overlapped the void smoke/duplicate runs.",
+   "notes": "owner: product karmaterminal/openclaw#1497",
+   "test_cases_executed": [
+    "20261029T012923Z-r-cd-3-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CD-4",
+   "title": "continue_delegate with targetSessionKey: a primed target session consumes the prompt-only delegate return and emits a nonce-bound acknowledgement; the dispatching session does not.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-4/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-4/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-4.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS with complete receipts. Its window (01:32:44-01:34:22Z) overlapped the void duplicate runner 013132Z; trace attribution is by the row's own reason fingerprint (nonce-unique), so the receipt stands, overlap noted.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T013244Z-r-cd-4-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-72f4b337e825.json"
+   ]
+  },
+  {
+   "row": "R-CD-CHAINED-DEPTH-2",
+   "title": "Depth-2 delegate chain: parent\u2192child\u2192grandchild\u2192return path.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-CHAINED-DEPTH-2/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-CHAINED-DEPTH-2/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-chained-depth-2.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T013426Z-r-cd-chained-depth-2-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-b3f5b3fe6c72.json"
+   ]
+  },
+  {
+   "row": "R-CD-COLLECTION-ON-COLLAPSE",
+   "title": "Static validator for committed A\u2192B\u2192delayed-C collection-on-collapse proof receipts.",
+   "owner": "frond-scribe-static",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-COLLECTION-ON-COLLAPSE/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-COLLECTION-ON-COLLAPSE/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CD-COLLECTION-ON-COLLAPSE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+   "row": "R-CD-MODEL-CHAINED-ALT",
+   "title": "Depth-1 delegate schedules a depth-2 continue_delegate with explicit alternate model; depth-2 reports observed model/provider.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-CHAINED-ALT/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-CHAINED-ALT/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "Behavior PASS in matrix-012658Z; trace receipts completed by the targeted trace refire 030423Z (docs#606 collector), PASS-candidate with no pending receipts.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T013522Z-r-cd-model-chained-alt-5e4ce138",
+    "20261029T031631Z-r-cd-model-chained-alt-844f2bba"
+   ],
+   "traces": [
+    "tempo-trace-25815fce6781.json"
+   ]
+  },
+  {
+   "row": "R-CD-MODEL-DEFAULT",
+   "title": "Default provider/model inheritance for continue_delegate tool and bracket/token forms when no override is supplied.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-DEFAULT/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-DEFAULT/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-model-default.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T013914Z-r-cd-model-default-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-5282b6c0cac6.json"
+   ]
+  },
+  {
+   "row": "R-CD-MODEL-TOKEN",
+   "title": "continue_delegate bracket/token form parses and forwards model=<provider/model> to the delegate child.",
+   "owner": "emeric-exact-fire",
+   "state": "partial",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-TOKEN/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-TOKEN/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-model-token.json",
+   "candidate_verdict": "PARTIAL-candidate (3 attempts)",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PRODUCT REGRESSION karmaterminal/openclaw#1499: same subagent bracket-delegate drop (bracket-parse delayMs=1000, never dispatched), 3/3 attempts. Last fired PASS corpus 3821eaef72 (09-20).",
+   "notes": "owner: product karmaterminal/openclaw#1499 (causal lane codeagent/1499-subagent-bracket-delegate)",
+   "test_cases_executed": [
+    "20261029T013950Z-r-cd-model-token-5e4ce138",
+    "20261029T031024Z-r-cd-model-token-844f2bba",
+    "20261029T050615Z-r-cd-model-token-843e883b"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CD-MODEL-TOOL",
+   "title": "continue_delegate typed tool form forwards an explicit model override to the delegate child.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-TOOL/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-MODEL-TOOL/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T014256Z-r-cd-model-tool-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-d81a4b592629.json"
+   ]
+  },
+  {
+   "row": "R-CD-RETURN-OVERLAP",
+   "title": "Offline/static validator for committed silent plus silent-wake delegate return overlap receipts in the current PROOFS corpus; proves collection/no-loss, not isolated wake causality.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-RETURN-OVERLAP/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-RETURN-OVERLAP/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-return-overlap.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T014325Z-r-cd-return-overlap-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CD-RETURN-COVENANT-AUTHORITY",
+   "title": "Return-covenant lifecycle authority matrix.",
+   "owner": "unfired",
+   "state": "missing",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-RETURN-COVENANT-AUTHORITY/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-RETURN-COVENANT-AUTHORITY/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-return-covenant-authority.json",
+   "candidate_verdict": null,
+   "review_status": "not-fired-yet",
+   "fired": false,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "seeded missing; awaiting a reviewed receipt",
+   "notes": ""
+  },
+  {
+   "row": "R-CD-SILENT",
+   "title": "Typed continue_delegate(mode='silent') proof.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-SILENT/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-SILENT/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-silent.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a). Matrix behavior PASS and refire-030423Z observation miss preserved.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
+   "test_cases_executed": [
+    "20261029T014330Z-r-cd-silent-5e4ce138",
+    "20261029T030430Z-r-cd-silent-844f2bba",
+    "20261029T050514Z-r-cd-silent-843e883b"
+   ],
+   "traces": [
+    "tempo-trace-db28db39c03d.json",
+    "tempo-trace-f84f778ca44f.json"
+   ]
+  },
+  {
+   "row": "R-CD-TOKEN",
+   "title": "Terminal [[CONTINUE_DELEGATE:...]] path from an explicitly agent-bound isolated raw-final-text parent; joins a runner-owned attempt to exactly one origin task, one token-scheduled delegate, completion, return, and Tempo topology.",
+   "owner": "emeric-exact-fire",
+   "state": "partial",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-TOKEN/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-TOKEN/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cd-token.json",
+   "candidate_verdict": "PARTIAL-candidate (3 attempts)",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PRODUCT REGRESSION karmaterminal/openclaw#1499: the light-context subagent's [[CONTINUE_DELEGATE]] bracket is parsed (bracket-parse kind=delegate, origin=bracket) but never consumed/dispatched, 3/3 attempts (012658Z, 030423Z, 050313Z). Last fired PASS corpus 3821eaef72 (09-20).",
+   "notes": "owner: product karmaterminal/openclaw#1499 (causal lane codeagent/1499-subagent-bracket-delegate)",
+   "test_cases_executed": [
+    "20261029T014357Z-r-cd-token-5e4ce138",
+    "20261029T032648Z-r-cd-token-844f2bba",
+    "20261029T051222Z-r-cd-token-843e883b"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CONFIG-DEFAULTS",
+   "title": "Read-only continuation config defaults via direct authenticated operator config.get RPC.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CONFIG-DEFAULTS/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CONFIG-DEFAULTS/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-config-defaults.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T015003Z-r-config-defaults-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CONFIG-INTERSESSION",
+   "title": "Read-only continuation cross-session targeting config receipt via direct authenticated operator config.get RPC.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CONFIG-INTERSESSION/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CONFIG-INTERSESSION/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-config-intersession.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T015009Z-r-config-intersession-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-CW-1",
+   "title": "Typed continue_work() tool-form schedule + wake.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-1/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-1/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-1.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T015014Z-r-cw-1-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-77038817eead.json"
+   ]
+  },
+  {
+   "row": "R-CW-2",
+   "title": "Typed continue_work(delaySeconds=0) immediate wake proof.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-2/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-2/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-2.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a). Matrix behavior PASS and refire-030423Z model non-dispatch preserved.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
+   "test_cases_executed": [
+    "20261029T015044Z-r-cw-2-5e4ce138",
+    "20261029T031810Z-r-cw-2-844f2bba",
+    "20261029T050544Z-r-cw-2-843e883b"
+   ],
+   "traces": [
+    "tempo-trace-ef682ed419b8.json"
+   ]
+  },
+  {
+   "row": "R-CW-3",
+   "title": "continue_work reason telemetry/redaction partial candidate.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-3/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-3/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-3.json",
+   "candidate_verdict": "PARTIAL-candidate (manual receipt pending)",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "Behavior and trace receipts complete; the one pending receipt was the manual reason-telemetry-redaction-review. frond-scribe reviewed the Tempo JSON: safe attributes reason.hash/reason.length/reason.present present; the raw sentinel (RAW-RCW3 / CW3-WOKE / k6-proof-R-CW-3-redaction) absent. Receipt satisfied.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T015359Z-r-cw-3-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-c3a54d3fba0d.json"
+   ]
+  },
+  {
+   "row": "R-CW-4",
+   "title": "Chain depth hop counter: fires continue_work 3\u00d7 in sequence, verifies hop increments from 1/200 \u2192 3/200 in traced responses.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-4/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-4/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-4.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS with complete receipts in refire2 050313Z (docs c65b9bb86a, #608 declared chain scoping, chainDepth 3). Earlier trace-pending receipts preserved.",
+   "notes": "refire authority: \ud83c\udf0a 1565229430878642217",
+   "test_cases_executed": [
+    "20261029T015426Z-r-cw-4-5e4ce138",
+    "20261029T032246Z-r-cw-4-844f2bba",
+    "20261029T050418Z-r-cw-4-843e883b"
+   ],
+   "traces": [
+    "tempo-trace-71a46ec5ee60.json"
+   ]
+  },
+  {
+   "row": "R-CW-5",
+   "title": "Cost-cap exhaustion uses a disposable exact-candidate typed-tool fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+   "owner": "unfired",
+   "state": "missing",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-5/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-5/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-5.json",
+   "candidate_verdict": null,
+   "review_status": "not-fired-yet",
+   "fired": false,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "seeded missing; awaiting a reviewed receipt",
+   "notes": ""
+  },
+  {
+   "row": "R-CW-5A",
+   "title": "Offline source/harness contract check for R-CW-5; cannot establish live cap exhaustion.",
+   "owner": "frond-scribe-static",
+   "state": "missing",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-5A/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-5A/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-5a-static.json",
+   "candidate_verdict": "construct-only (static boundary variant; by design never a fresh R-CW-5/6 cap receipt)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "The static boundary variant always emits construct-only by design (it validates the same committed source/harness material as R-CW-5/6 and must never pass as a fresh cap receipt). It cannot PASS under the current harness, so it needs a method decision (remove from required, or accept construct-only).",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
+  },
+  {
+   "row": "R-CW-6",
+   "title": "The max-chain boundary uses a disposable exact-candidate runtime fixture; continue_work is intentionally not externally invocable through the gateway loopback.",
+   "owner": "unfired",
+   "state": "missing",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-6/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-6/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-6.json",
+   "candidate_verdict": null,
+   "review_status": "not-fired-yet",
+   "fired": false,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "seeded missing; awaiting a reviewed receipt",
+   "notes": ""
+  },
+  {
+   "row": "R-CW-6A",
+   "title": "Offline source/harness contract check for R-CW-6; cannot establish the process-local runtime boundary receipt.",
+   "owner": "frond-scribe-static",
+   "state": "missing",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-6A/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-6A/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-6a-static.json",
+   "candidate_verdict": "construct-only (static boundary variant; by design never a fresh R-CW-5/6 cap receipt)",
+   "review_status": "reviewed: frond-scribe, 2026-10-29; needs method decision",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "The static boundary variant always emits construct-only by design (it validates the same committed source/harness material as R-CW-5/6 and must never pass as a fresh cap receipt). It cannot PASS under the current harness, so it needs a method decision (remove from required, or accept construct-only).",
+   "notes": "owner: method decision (\ud83c\udf0a/figs)",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ]
+  },
+  {
+   "row": "R-CW-7",
+   "title": "Static validator for committed runtime traceparent propagation source/test receipts.",
+   "owner": "frond-scribe-static",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-7/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-7/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-7.json",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-7/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+   "row": "R-CW-DELEGATE-CHILD-LIVE",
+   "title": "Static validator for committed delegate-child self-continuation hop1/hop2 receipts.",
+   "owner": "frond-scribe-static",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-CHILD-LIVE/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-CHILD-LIVE/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-delegate-child-live.json",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-CHILD-LIVE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+   "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+   "title": "Fires continue_delegate that internally calls continue_work \u2014 proves hop-2 woke inside a delegate child session.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-SELF-CONTINUATION/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-SELF-CONTINUATION/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-delegate-self.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020310Z-r-cw-delegate-self-continuation-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-3c7e75952774.json"
+   ]
+  },
+  {
+   "row": "R-CW-DELEGATE-TOKEN",
+   "title": "Static validator for committed delegate child bare-token continuation receipts.",
+   "owner": "frond-scribe-static",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-TOKEN/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-DELEGATE-TOKEN/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-delegate-token.json",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-DELEGATE-TOKEN/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+   "row": "R-CW-MULTI",
+   "title": "Static validator for committed same-turn multi continue_work fanout/collapse receipts.",
+   "owner": "frond-scribe-static",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-multi.json",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-MULTI/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+   "row": "R-CW-MULTI-COLLAPSE",
+   "title": "Static validator for committed synthetic stale/new continuation collapse proof receipts.",
+   "owner": "frond-scribe-static",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI-COLLAPSE/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-MULTI-COLLAPSE/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-multi-collapse.json",
+   "candidate_verdict": "PASS-candidate (static validator at this corpus, run static-validator-20261029T035307Z)",
+   "review_status": "carried as historical static evidence per \ud83c\udf0a ruling A (Discord 1565214416730066967)",
+   "fired": true,
+   "exact_target_execution": false,
+   "pending_receipts": [],
+   "summary": "Carried as HISTORICAL STATIC EVIDENCE: the live capture this row validates was taken at an older product SHA and is pinned at PROOFS/1cc8f4e3\u2026/R-CW-MULTI-COLLAPSE/cael-dgx (INDEX static_evidence_sha). It is NOT exact-293c977f62 live proof. Separate claim: the static-corpus-row-validator run at this corpus (k6 2.0.0) PASSes against that pinned evidence.",
+   "notes": "ruling: \ud83c\udf0a A, 2026-10-29T04:03Z",
+   "test_cases_executed": [
+    "static-validator-20261029T035307Z"
+   ],
+   "carried": true,
+   "carried_from": "1cc8f4e3d617ef6f173283ef83d7b739a4995734"
+  },
+  {
+   "row": "R-CW-TOKEN",
+   "title": "Bracket/token CONTINUE_WORK path: lightContext subagent emits bare CONTINUE_WORK token at end-of-turn, hop-2 drives.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-TOKEN/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-CW-TOKEN/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-cw-token.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020355Z-r-cw-token-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-3da487dd15cf.json"
+   ]
+  },
+  {
+   "row": "R-OBS-1",
+   "title": "Session-status-card observability via the session_status tool.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-OBS-1/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-OBS-1/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-obs-1.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020425Z-r-obs-1-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-OBS-2",
+   "title": "Offline/static validator for committed R-OBS-2 trace-tree/span-tree/span-count artifacts in the current PROOFS corpus.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-OBS-2/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-OBS-2/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-obs-2.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020440Z-r-obs-2-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-OBS-STATUS",
+   "title": "Exact-SHA #1172 source contract: active continuation renders a line while a clean all-zero session omits it.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-OBS-STATUS/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-OBS-STATUS/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-obs-status.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020445Z-r-obs-status-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-RC-1",
+   "title": "request_compaction below-threshold structured reject via disposable session/inventory-only path",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-RC-1/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-RC-1/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-rc-1.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020451Z-r-rc-1-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-ec2504f61c76.json"
+   ]
+  },
+  {
+   "row": "R-RC-2",
+   "title": "Parent fires continue_delegate to a child that calls request_compaction.",
+   "owner": "emeric-exact-fire",
+   "state": "honest_limit",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-RC-2/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-RC-2/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-rc-2.json",
+   "candidate_verdict": "HONEST-LIMIT-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "Exact R-RC-2 honest-limit contract met: nonce-bound structured toolResult request_compaction status=rejected guard=context_threshold (threshold 70, invocation_bound=true) plus the child's threshold report (delegate_child_report_observed, child_reported_context_threshold); trace receipts present. Summary-file PARTIAL is handleSummary outside VU state; the VU verdict owns classification (verdict-reconciliation.json).",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020515Z-r-rc-2-5e4ce138"
+   ],
+   "traces": [
+    "tempo-trace-5456efaf9da1.json"
+   ]
+  },
+  {
+   "row": "R-REGRESSION-TRAP-TESTS",
+   "title": "Offline/static validator for committed continuation sibling-surface regression-trap test receipts in the current PROOFS corpus.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-REGRESSION-TRAP-TESTS/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-REGRESSION-TRAP-TESTS/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-regression-trap-tests.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020612Z-r-regression-trap-tests-5e4ce138"
+   ],
+   "traces": []
+  },
+  {
+   "row": "R-TRACE-REDACTION-1121",
+   "title": "Offline/static validator for committed #1121 trace-redaction contract evidence in the current PROOFS corpus.",
+   "owner": "emeric-exact-fire",
+   "state": "pass",
+   "dir": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-TRACE-REDACTION-1121/",
+   "evidence_doc": "PROOFS/293c977f629f872a643fb94892603310b887293b/R-TRACE-REDACTION-1121/EVIDENCE.md",
+   "manifest": "tools/k6-proofs/manifests/r-trace-redaction-1121.json",
+   "candidate_verdict": "PASS-candidate",
+   "review_status": "reviewed: frond-scribe (single seat), 2026-10-29",
+   "fired": true,
+   "exact_target_execution": true,
+   "pending_receipts": [],
+   "summary": "PASS-candidate with complete receipts in matrix-012658Z.",
+   "notes": "owner: -",
+   "test_cases_executed": [
+    "20261029T020617Z-r-trace-redaction-1121-5e4ce138"
+   ],
+   "traces": []
+  }
+ ],
+ "rollup": {
+  "total_rows": 38,
+  "pass": 28,
+  "partial": 4,
+  "thin": 0,
+  "fail": 0,
+  "honest_limit": 1,
+  "missing": 5
+ },
+ "method": "PROOFS/293c977f629f872a643fb94892603310b887293b/METHOD.md",
+ "corpus": "PROOFS/293c977f629f872a643fb94892603310b887293b/",
+ "generated": "2026-10-29",
+ "refires": [
+  {
+   "run": "COMP-293c977f-20261029T030423Z",
+   "rows": [
+    "R-CD-SILENT",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-MODEL-CHAINED-ALT",
+    "R-CW-2",
+    "R-CW-4",
+    "R-CD-TOKEN"
+   ],
+   "authority": "\ud83c\udf0a Discord 1565199441013645316",
+   "reason": "trace receipts only; matrix behavior receipts preserved",
+   "docs": "313a70c6258f1740fcc754c7886d9f4ac66cceca"
+  },
+  {
+   "run": "COMP-293c977f-20261029T050313Z",
+   "rows": [
+    "R-CD-2",
+    "R-CW-4",
+    "R-CD-SILENT",
+    "R-CW-2",
+    "R-CD-MODEL-TOKEN",
+    "R-CD-TOKEN"
+   ],
+   "authority": "\ud83c\udf0a Discord 1565229430878642217",
+   "docs": "c65b9bb86a6127c403c494eb8b7a95c93d5ee3d0"
+  }
+ ],
+ "promotion": "none",
+ "build_string": "Pure continuation j9 head 293c977f62 (U9 8ea3ef8d86 absorbed), the qualified-j9 FF candidate for openclaw/openclaw#129388 from f4675cff (verified ancestor). Seeded before review: every row is missing.",
+ "notes": "Mode-B 40689895077 ran at 5e4093fdf1 with a bounded delta proof to this head (bootstrap#1727 c6481181043, c6484407865). The fleet serves the j8 composite 2915ea02dc; nothing here is transposed from it.",
+ "voided_runs": [
+  {
+   "run": "COMP-293c977f-20261029T013132Z",
+   "why": "duplicate concurrent matrix on :18797, stopped by frond-scribe ~01:33Z; rows void"
+  },
+  {
+   "run": "COMP-293c977f-20261029T012929Z",
+   "why": "ad-hoc one-row smoke during the canonical matrix; not folded"
+  },
+  {
+   "run": "J9-293c977f-20261028 (:18792)",
+   "why": "isolated gateway without model auth; every dispatch 401, infra-void"
+  }
+ ]
+}

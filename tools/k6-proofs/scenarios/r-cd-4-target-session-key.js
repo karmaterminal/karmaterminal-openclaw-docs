@@ -6,6 +6,11 @@
  * agent to call continue_delegate(..., targetSessionKey=<target>). The harness
  * subscribes to both sessions and verifies the delayed return/wake lands in the
  * target session and not the dispatching parent.
+ *
+ * The target's TARGET-ACK counts only from a stamped run other than the
+ * priming run, after the priming reply, on both the live and the transcript
+ * path (openclaw-bootstrap#1727): the priming prompt names the ack, so the
+ * priming run restating it used to satisfy the assistant-text path.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -24,10 +29,12 @@ import {
   rCd4ShouldScheduleEarlyClose,
   rCd4TargetReadyCandidate,
   rCd4TaskIdentityToken,
-  rCd4TaskObservation,
   rCd4TaskPrompt,
 } from '../lib/r-cd-4-authority.mjs';
 import { closeSocketAfterDelay } from '../lib/socket-close.js';
+import { createHeartbeatAckTracker, messageRunId } from '../lib/wake-turn-receipt.mjs';
+import { createChildObserver, createPreflightGate, failClosedVerdict, reconcileChildIdentity } from '../lib/child-observer.mjs';
+import { k6TimeoutMs } from '../lib/k6-timeout.mjs';
 
 export const options = {
   scenarios: {
@@ -116,6 +123,10 @@ export default function () {
     parent_session_created: false,
     target_session_created: false,
     target_primed: false,
+    target_priming_run_id: null,
+    target_return_unbound_reason: null,
+    target_return_source: null,
+    parent_return_source: null,
     created_parent_session_key: null,
     created_target_session_key: null,
     candidateSha: manifest?.candidateSha || __ENV.OPENCLAW_CANDIDATE_SHA || 'unset',
@@ -138,11 +149,22 @@ export default function () {
     reason_hash: null,
     reason_length: null,
     delegate_mode: null,
+    child_status: null,
+    event_child_candidates: [],
+    child_identity_reason: null,
+    return_history_requests: 0,
     trace_id: null,
+    preflight: null,
+    observation_refused: null,
+    verdict_reason: null,
     redacted_events: [],
   };
 
   const started = Date.now();
+  const gate = createPreflightGate('R-CD-4');
+  // The delegate child is spawned by the dispatching parent session, so its
+  // own row names the parent in spawnedBy.
+  const observer = createChildObserver({ rootSessionKey: () => sessionKey });
 
   const res = ws.connect(url, {}, (socket) => {
     const tracker = new RequestTracker();
@@ -151,6 +173,9 @@ export default function () {
     let returnHistoryPollScheduled = false;
     let returnHistoryPollInFlight = false;
     let returnHistoryPhase = null;
+    // Created once the parent and target keys are final (startProofFlow).
+    let heartbeatTarget = null;
+    let heartbeatParent = null;
     let parentDispatchStarted = false;
     let sendPhase = null;
 
@@ -196,11 +221,13 @@ export default function () {
     function applyReturnObservation(observation, source) {
       if (observation.targetCandidate) {
         evidence.target_return_candidate = observation.targetCandidate;
+        evidence.target_return_source = observation.targetCandidate.source || 'assistant-text';
         evidence.agent_turn_observed = true;
         console.log(`✓ nonce-bound TARGET-RECEIVED candidate landed in target session (${source})`);
       }
       if (observation.parentCandidate) {
         evidence.parent_return_candidate = observation.parentCandidate;
+        evidence.parent_return_source = observation.parentCandidate.source || 'assistant-text';
         console.warn(`✗ nonce-bound TARGET-RECEIVED candidate landed in parent session (${source})`);
       }
       finalizeReturnReceipts();
@@ -213,8 +240,10 @@ export default function () {
         returnHistoryPollScheduled = false;
         returnHistoryPollInFlight = true;
         returnHistoryPhase = 'target';
-        tracker.send(socket, 'sessions.get', { key: targetSessionKey, limit: 200 });
-      }, delayMs);
+        // Re-read until a receipt binds or the observation window closes.
+        evidence.return_history_requests += 1;
+        tracker.send(socket, 'chat.history', { sessionKey: targetSessionKey, limit: 200 });
+      }, k6TimeoutMs(delayMs));
     }
 
     function finishReturnHistoryPoll() {
@@ -251,19 +280,21 @@ export default function () {
       evidence.reason_hash = crypto.sha256(prompt, 'hex').slice(0, 16);
       evidence.reason_length = prompt.length;
       evidence.delegate_mode = inv.mode;
-      const agentInstruction = `[k6-proof-harness] Call continue_delegate with: task="${prompt}", mode="${inv.mode}", delaySeconds=${inv.delaySeconds}, targetSessionKey="${targetSessionKey}". This is a proof run — execute the tool call immediately, no other action needed.`;
+      const agentInstruction = `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and args={task:"${prompt}", mode:"${inv.mode}", delaySeconds:${inv.delaySeconds}, targetSessionKey:"${targetSessionKey}"}. This is a proof run — perform the discovery and call, then no other action.`;
       tracker.send(socket, 'sessions.send', {
         key: sessionKey,
         message: agentInstruction,
         idempotencyKey: `${inv.idempotencyKeyPrefix}-${rowNonce}`,
       });
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 8000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 25000);
-      socket.setTimeout(() => tracker.send(socket, 'tasks.list', { limit: 10 }), 50000);
-      socket.setTimeout(() => socket.close(), R_CD_4_OBSERVATION_WINDOW_MS);
+      for (const delayMs of [8000, 25000, 50000, 70000]) {
+        socket.setTimeout(() => observer.poll(), k6TimeoutMs(delayMs));
+      }
+      socket.setTimeout(() => socket.close(), k6TimeoutMs(R_CD_4_OBSERVATION_WINDOW_MS));
     }
 
     function startProofFlow(socket) {
+      heartbeatTarget = createHeartbeatAckTracker({ sessionKey: targetSessionKey, marker: 'TARGET-ACK', nonce: rowNonce });
+      heartbeatParent = createHeartbeatAckTracker({ sessionKey, marker: 'TARGET-ACK', nonce: rowNonce });
       tracker.send(socket, 'sessions.messages.subscribe', { key: sessionKey });
       tracker.send(socket, 'sessions.messages.subscribe', { key: targetSessionKey });
 
@@ -281,19 +312,69 @@ export default function () {
       }, 500);
     }
 
-    socket.on('open', () => {
-      socket.send(connectFrame(token));
+    function afterHello(socket) {
       if (createDisposableSessions) {
         socket.setTimeout(() => createParent(socket), 250);
       } else {
         socket.setTimeout(() => startProofFlow(socket), 500);
       }
+    }
+
+    // #563 item 2: only the observer binding (own spawnedBy + own spawn task)
+    // binds; nonce-bound event candidates cross-check it. Ambiguity or
+    // disagreement marks the identity ambiguous and binds nothing.
+    function observeBoundChild() {
+      const bound = observer.boundChild(rowNonce, taskIdentityToken ? [taskIdentityToken] : []);
+      const identity = reconcileChildIdentity({ observerBinding: bound, eventCandidates: evidence.event_child_candidates });
+      evidence.child_identity_reason = identity.reason;
+      if (identity.conflict) {
+        evidence.child_session_candidates = [...new Set([
+          ...evidence.child_session_candidates, ...bound.candidates, ...evidence.event_child_candidates,
+        ])];
+        evidence.child_session_ambiguous = true;
+        evidence.child_session = null;
+        evidence.child_completed = false;
+        finalizeReturnReceipts();
+        return;
+      }
+      for (const candidate of identity.childSessionKey ? [identity.childSessionKey] : []) {
+        if (!observeChildSessionKey(candidate)) continue;
+        evidence.child_status = observer.childStatus(candidate);
+        // Old ledger predicate: task status 'completed'. Current equivalent:
+        // the bound child's own row status 'done' (sessions-row.ts:28-36).
+        if (observer.childCompleted(candidate) && !evidence.child_completed) {
+          evidence.child_completed = true;
+          console.log('✓ Child run completed (session row status done)');
+          requestReturnHistories(0);
+        }
+      }
+    }
+
+    socket.on('open', () => {
+      socket.send(connectFrame(token));
+      observer.attach(
+        (method, params) => tracker.send(socket, method, params),
+        (delayMs, fn) => socket.setTimeout(fn, k6TimeoutMs(delayMs)),
+      );
+      socket.setTimeout(() => { if (gate.timeout(10000)) socket.close(); }, 10000);
     });
 
     socket.on('message', (raw) => {
       try {
         const msg = JSON.parse(raw);
+        const preflight = gate.observe(msg);
+        if (preflight === 'refused') {
+          console.error(`✗ R-CD-4 preflight refused before dispatch: ${gate.result.reason}`);
+          socket.close();
+          return;
+        }
+        if (preflight === 'ready') afterHello(socket);
+        const observed = observer.claim(msg);
         const classified = tracker.classify(msg);
+        if (observed) {
+          observer.handle(observed, classified);
+          observeBoundChild();
+        }
 
         evidence.redacted_events.push({
           ts: Date.now(),
@@ -347,24 +428,7 @@ export default function () {
           }
         }
 
-        if (classified.kind === 'response' && classified.method === 'tasks.list') {
-          const tasks = classified.payload?.tasks || [];
-          for (const task of tasks) {
-            const observation = rCd4TaskObservation(task, rowNonce);
-            const possibleChild = observation.childSessionKey;
-            if (!observeChildSessionKey(possibleChild)) {
-              continue;
-            }
-            if (observation.completed) {
-              evidence.child_completed = true;
-              console.log('✓ Child task completed');
-              requestReturnHistories(0);
-            }
-            if (observation.traceId) evidence.trace_id = observation.traceId;
-          }
-        }
-
-        if (classified.kind === 'response' && classified.method === 'sessions.get') {
+        if (!observed && classified.kind === 'response' && classified.method === 'chat.history') {
           const polledSessionKey = returnHistoryPhase === 'parent' ? sessionKey : targetSessionKey;
           if (classified.ok) {
             const messages = Array.isArray(classified.payload?.messages)
@@ -380,11 +444,11 @@ export default function () {
                 ? Date.now() - evidence.dispatch_accepted_at_ms
                 : 0,
               wakeGateMs: evidence.wake_gate_ms,
-            }), 'sessions.get');
+            }), 'chat.history');
           }
           if (returnHistoryPhase === 'target') {
             returnHistoryPhase = 'parent';
-            tracker.send(socket, 'sessions.get', { key: sessionKey, limit: 200 });
+            tracker.send(socket, 'chat.history', { sessionKey, limit: 200 });
           } else {
             finishReturnHistoryPoll();
           }
@@ -402,6 +466,11 @@ export default function () {
             });
             if (ready) {
               evidence.target_primed = true;
+              // The woken turn must be a different run than this priming turn.
+              evidence.target_priming_run_id = messageRunId(eventData.message, eventData);
+              // Review F5: an unstamped priming run cannot be excluded, so no target ack
+              // can bind (the authority helpers refuse a list with a missing run id).
+              if (!evidence.target_priming_run_id) evidence.target_return_unbound_reason = 'the target priming reply carries no run id; the priming run cannot be excluded, so no target ack can bind';
               console.log('✓ target session primed for continuation consumption acknowledgement');
               socket.setTimeout(() => dispatchParent(socket), 100);
             }
@@ -412,8 +481,9 @@ export default function () {
             taskIdentityToken ? [taskIdentityToken] : [],
           );
           for (const observedChild of observedChildren) {
-            observeChildSessionKey(observedChild);
+            if (!evidence.event_child_candidates.includes(observedChild)) evidence.event_child_candidates.push(observedChild);
           }
+          if (observedChildren.length) observeBoundChild();
 
           if (eventName === 'agent' && evidence.tool_accepted) {
             evidence.agent_turn_observed = true;
@@ -429,7 +499,20 @@ export default function () {
               nonce: rowNonce,
               elapsedMs: elapsed,
               wakeGateMs: evidence.wake_gate_ms,
+              // #1727: the priming run's own words never count as the woken ack.
+              excludeTargetRunIds: [evidence.target_priming_run_id],
             });
+            // #567: a continuation return wakes the target as a heartbeat turn,
+            // answered through heartbeat_respond. Bound to the target session,
+            // after priming and dispatch, outside the priming run; in the parent
+            // any nonce-bound heartbeat ack is a parent landing.
+            const targetHeartbeat = heartbeatTarget ? heartbeatTarget.observe(eventData, {
+              windowOpen: evidence.target_primed && evidence.tool_accepted,
+              excludeRunIds: [evidence.target_priming_run_id],
+            }) : null;
+            const parentHeartbeat = heartbeatParent ? heartbeatParent.observe(eventData, { windowOpen: evidence.tool_accepted }) : null;
+            if (targetHeartbeat && !observation.targetCandidate) observation.targetCandidate = targetHeartbeat;
+            if (parentHeartbeat && !observation.parentCandidate) observation.parentCandidate = parentHeartbeat;
             applyReturnObservation(observation, 'session.message');
 
             if (!observation.targetCandidate && !observation.parentCandidate) {
@@ -462,6 +545,8 @@ export default function () {
 
   evidence.ended = new Date().toISOString();
   evidence.duration_ms = Date.now() - started;
+  evidence.preflight = gate.result;
+  Object.assign(evidence, observer.summary());
   duration.add(evidence.duration_ms);
 
   check(res, { 'websocket connected': (r) => r && r.status === 101 });
@@ -474,6 +559,8 @@ export default function () {
     'nonce-bound child identity is not parent or target': () => !evidence.child_session_invalid,
     'nonce-bound target consumption ack observed': () => evidence.target_return_receipt !== null,
     'no nonce-bound parent return receipt': () => evidence.parent_return_receipt === null,
+    'preflight: every row method advertised': () => gate.result?.ok === true,
+    'child observer not refused': () => !evidence.observation_refused,
   });
 
   if (!evidence.target_primed || !evidence.tool_accepted || !evidence.agent_turn_observed || !evidence.child_session ||
@@ -487,12 +574,15 @@ export default function () {
     !evidence.child_session_invalid &&
     evidence.target_return_receipt !== null &&
     evidence.parent_return_receipt === null;
+  const finalVerdict = failClosedVerdict(passed ? 'PASS-candidate' : 'PARTIAL-candidate', { gate, observer });
+  evidence.verdict_reason = finalVerdict.reason;
+  if (finalVerdict.reason) failures.add(1);
 
   console.log(`R_CD_4_EVIDENCE ${JSON.stringify(evidence)}`);
   console.log(`\n--- R-CD-4 EVIDENCE SUMMARY ---`);
   console.log(JSON.stringify(evidence, null, 2));
   console.log(`--- END EVIDENCE ---`);
-  console.log(`\n[R-CD-4] VERDICT: ${passed ? 'PASS-candidate' : 'PARTIAL-candidate'}`);
+  console.log(`\n[R-CD-4] VERDICT: ${finalVerdict.verdict}`);
 }
 
 export function handleSummary(data) {

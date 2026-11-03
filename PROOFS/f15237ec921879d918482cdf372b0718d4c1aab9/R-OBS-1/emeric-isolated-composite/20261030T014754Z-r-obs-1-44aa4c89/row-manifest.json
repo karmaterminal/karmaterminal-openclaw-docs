@@ -1,0 +1,81 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-OBS-1",
+  "issue": 1135,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-main}",
+  "transport": "websocket",
+  "toolSurface": "typed-tool",
+  "mutates": false,
+  "timeoutSeconds": 90,
+  "scenario": {
+    "name": "r-obs-1",
+    "description": "Session-status-card observability via the session_status tool. Creates a disposable session, asks the agent to call session_status, and verifies build/context/continuation-chain/route visibility by nonce-correlated sentinel.",
+    "methods": [
+      "sessions.create",
+      "sessions.send",
+      "sessions.messages.subscribe",
+      "session_status"
+    ],
+    "status": "runnable",
+    "file": "r-obs-1.js"
+  },
+  "expectedReceipts": [
+    {
+      "name": "session-created",
+      "required": false,
+      "description": "Disposable proof session was created for the status-card read."
+    },
+    {
+      "name": "dispatch-accepted",
+      "required": true,
+      "description": "sessions.send accepted the agent turn that calls session_status."
+    },
+    {
+      "name": "status-card-sentinel",
+      "required": true,
+      "description": "Agent reply included OBS1-STATUS sentinel for the nonce."
+    },
+    {
+      "name": "build-context-chain-route-visible",
+      "required": true,
+      "description": "Sentinel confirms build/version, context usage, continuation chain/queue, and route/delivery context were visible in the status card."
+    },
+    {
+      "name": "trace-id",
+      "required": false,
+      "description": "Trace ID from sessions.send or event payload when available."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-OBS-1",
+    "seat": "${OPENCLAW_SEAT_NAME:-cael-dgx}",
+    "runDirPrefix": "manual-corpus"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "Read-only status-card observability row. PASS-candidate when dispatch is accepted and OBS1-STATUS sentinel reports build/context/chain/route visibility. Candidate artifacts require review before canonical fold."
+  },
+  "liveRunSafety": {
+    "classification": "k6-runnable",
+    "requiresLiveGatewayToken": true,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": false,
+    "sameSessionConcurrencySafe": true,
+    "expectedArtifactClass": "PASS-candidate",
+    "requiredReceipts": [
+      "seat-readiness",
+      "dispatch-accepted",
+      "status-card-sentinel",
+      "build-context-chain-route-visible"
+    ],
+    "foldRequiresReview": true,
+    "notes": "Read-only session_status observability row. Uses a disposable session by default and does not fire continuation tools, delegates, config mutation, restart, or compaction."
+  }
+}

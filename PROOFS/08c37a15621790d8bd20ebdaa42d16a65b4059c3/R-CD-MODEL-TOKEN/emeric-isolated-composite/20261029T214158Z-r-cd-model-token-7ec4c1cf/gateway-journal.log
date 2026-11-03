@@ -1,0 +1,11 @@
+2026-10-29T14:42:11.128018-07:00 emeric node[218274]: 2026-10-29T14:42:11.127-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:42:11.128261-07:00 emeric node[218274]: 2026-10-29T14:42:11.128-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:42:11.128429-07:00 emeric node[218274]: 2026-10-29T14:42:11.128-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=-1 [0]text=true session=<redacted-session-key>
+2026-10-29T14:42:11.128582-07:00 emeric node[218274]: 2026-10-29T14:42:11.128-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=none kind=none session=<redacted-session-key>
+2026-10-29T14:42:12.709017-07:00 emeric node[218274]: 2026-10-29T14:42:12.708-07:00 [continuation/signal] [continuation:trace] payload-scan: count=1 bracketIdx=0 [0]text=true session=<redacted-session-key>
+2026-10-29T14:42:12.709327-07:00 emeric node[218274]: 2026-10-29T14:42:12.709-07:00 [continuation/signal] [continuation:trace] bracket-parse: kind=delegate delayMs=1000 session=<redacted-session-key>
+2026-10-29T14:42:12.709437-07:00 emeric node[218274]: 2026-10-29T14:42:12.709-07:00 [continuation/signal] [continuation:trace] effective-signal: origin=bracket kind=delegate session=<redacted-session-key>
+2026-10-29T14:42:12.806577-07:00 emeric node[218274]: 2026-10-29T14:42:12.806-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-armed] fireIn=4976ms fireAt=1793310137782 session=<redacted-session-key>
+2026-10-29T14:42:17.784656-07:00 emeric node[218274]: 2026-10-29T14:42:17.784-07:00 [continuation/delegate-dispatch] [continuation:delegate-hedge-fired] session=<redacted-session-key>
+2026-10-29T14:42:17.790418-07:00 emeric node[218274]: 2026-10-29T14:42:17.790-07:00 [continuation/delegate-dispatch] [continue_delegate] Consuming 1 tool delegate(s) for session <redacted-session-key>
+2026-10-29T14:42:17.839872-07:00 emeric node[218274]: 2026-10-29T14:42:17.839-07:00 [continuation/delegate-dispatch] [continuation:delegate-spawned] hop=1/200 mode=normal session=<redacted-session-key> task=<redacted-payload>

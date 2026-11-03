@@ -1,0 +1,36 @@
+{
+  "schema": "openclaw.k6.tool-trace-correlation.v1",
+  "row": "R-CW-TOKEN",
+  "seat": "emeric-isolated-composite",
+  "attribution": "seat-tool-dispatch-window",
+  "query": "{ resource.service.name=\"emeric-proof-comp-293c977f\" && name=\"openclaw.tool.execution\" && .gen_ai.tool.name=\"sessions_spawn\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793239378,
+    "endUnixSeconds": 1793239520,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-3da487dd15cf.json",
+  "traceId": "3da487dd15cfb54d355b8936f9f5a3b4",
+  "toolSpanId": "be644372844f97f8",
+  "toolParentSpanId": "d16b0e51405fe98d",
+  "status": {
+    "code": "UNSET"
+  },
+  "tool": {
+    "name": "sessions_spawn",
+    "spanId": "be644372844f97f8",
+    "parentSpanId": "d16b0e51405fe98d",
+    "status": {
+      "code": "UNSET"
+    }
+  },
+  "uniqueTrace": true
+}

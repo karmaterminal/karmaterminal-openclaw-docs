@@ -1,0 +1,25 @@
+{
+  "row": "R-CD-MODEL-TOOL",
+  "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T21:45:34.345Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": "openai/gpt-5.6-sol",
+  "servedModel": null,
+  "selectedModel": null,
+  "selectedModelSource": null,
+  "dispatchRefused": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "avg": 25110,
+      "min": 25110,
+      "med": 25110,
+      "max": 25110,
+      "p(90)": 25110,
+      "p(95)": 25110
+    },
+    "failures": 0
+  }
+}

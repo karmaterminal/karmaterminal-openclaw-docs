@@ -1,0 +1,16 @@
+{
+  "schema": "openclaw.project81.r-cw-6.public-artifact-safety.v1",
+  "passed": true,
+  "checkedReceipts": [
+    "fixture-readiness.json",
+    "boundary-matrix.json",
+    "runtime-boundary.json",
+    "durable-state-recovery.json",
+    "typed-tool-surface.json",
+    "dispatch-boundary-suite.json",
+    "cleanup.json",
+    "fixture-result.json"
+  ],
+  "privateFilesystemPathsAbsent": true,
+  "prohibitedFieldsAbsent": true
+}

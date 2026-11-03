@@ -175,7 +175,8 @@ test('R-CD-4 recovers an authoritative target consumption ack from sessions.get 
   const observation = rCd4HistoryObservation({
     messages: [
       { role: 'user', content: `[k6-proof-harness] ask for TARGET-RECEIVED ${nonce}` },
-      { role: 'assistant', content: `TARGET-ACK ${nonce}` },
+      { role: 'assistant', content: `TARGET-READY ${nonce}`, __openclaw: { runId: 'run-prime' } },
+      { role: 'assistant', content: `TARGET-ACK ${nonce}`, __openclaw: { runId: 'run-wake' } },
     ],
     sessionKey: target,
     targetSessionKey: target,
@@ -357,4 +358,33 @@ test('R-CD-4 target priming accepts only an exact assistant ready marker', () =>
     targetSessionKey: target,
     nonce,
   }), null);
+});
+
+test('R-CD-4 history: an ack in the priming run, before the priming reply, or unstamped is not the woken target (#1727)', () => {
+  const opts = { sessionKey: target, targetSessionKey: target, parentSessionKey: parent, nonce, elapsedMs: 6_000, wakeGateMs: 5_000 };
+  const ready = { role: 'assistant', content: `TARGET-READY ${nonce}`, __openclaw: { runId: 'run-prime' } };
+  // The priming run restating its own prompt.
+  assert.equal(rCd4HistoryObservation({ ...opts, messages: [ready, { role: 'assistant', content: `TARGET-ACK ${nonce}`, __openclaw: { runId: 'run-prime' } }] }).targetCandidate, null);
+  // No priming reply to anchor the window.
+  assert.equal(rCd4HistoryObservation({ ...opts, messages: [{ role: 'assistant', content: `TARGET-ACK ${nonce}`, __openclaw: { runId: 'run-wake' } }] }).targetCandidate, null);
+  // An ack before the priming reply.
+  assert.equal(rCd4HistoryObservation({ ...opts, messages: [{ role: 'assistant', content: `TARGET-ACK ${nonce}`, __openclaw: { runId: 'run-wake' } }, ready] }).targetCandidate, null);
+  // An unstamped ack after the priming reply.
+  assert.equal(rCd4HistoryObservation({ ...opts, messages: [ready, { role: 'assistant', content: `TARGET-ACK ${nonce}` }] }).targetCandidate, null);
+});
+
+test('R-CD-4 live: with the priming run excluded, only a stamped later run\'s ack binds (#1727)', () => {
+  const ack = (runId) => rCd4SessionMessageObservation({
+    eventName: 'session.message',
+    eventData: { sessionKey: target, message: { role: 'assistant', content: `TARGET-ACK ${nonce}`, ...(runId ? { __openclaw: { runId } } : {}) } },
+    targetSessionKey: target,
+    parentSessionKey: parent,
+    nonce,
+    elapsedMs: 6_000,
+    wakeGateMs: 5_000,
+    excludeTargetRunIds: ['run-prime'],
+  }).targetCandidate;
+  assert.equal(ack('run-prime'), null);
+  assert.equal(ack(null), null);
+  assert.equal(ack('run-wake')?.sessionKey, target);
 });

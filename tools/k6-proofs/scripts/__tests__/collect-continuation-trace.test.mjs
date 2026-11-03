@@ -198,9 +198,9 @@ async function fixtureDir({
       : 'R-CD-1-example';
   const nonce = nonceOverride || generatedNonce;
   const template = isReasonPrefix
-    ? 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}; on continuation wake reply exactly CW3-WOKE {{nonce}}'
+    ? 'k6-proof-R-CW-3-redaction RAW-RCW3-{{nonce}}'
     : isWork
-      ? 'k6-proof-R-CW-1-{{nonce}} -- on continuation wake reply exactly CW-WOKE {{nonce}}'
+      ? 'k6-proof-R-CW-1-{{nonce}}'
     : 'Proof nonce {{nonce}}: reply exactly CD1-DONE {{nonce}} only.';
   const templatedReason = template.replaceAll('{{nonce}}', nonce);
   const reason = templatedReason;
@@ -945,6 +945,7 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       post_wake_quiet: true,
       channel_message_observed: false,
       dispatch_failure_observed: false,
+      replay_refused_observed: true,
       dispatch_accepted_at_ms: 100,
       dispatch_terminal_sentinel_at_ms: 200,
       dispatch_lifecycle_end_at_ms: 300,
@@ -1657,7 +1658,7 @@ test('correlates continue_work tool/accept/fire topology by safe reason fingerpr
     assert.equal(receipt.sameTrace, true);
     assert.equal(receipt.distinctSpans, true);
     assert.match(observedQuery, /name="continuation\.work"/);
-    assert.doesNotMatch(JSON.stringify(receipt), /CW-WOKE R-CW-1-example/);
+    assert.doesNotMatch(JSON.stringify(receipt), /k6-proof-R-CW-1-R-CW-1-example/);
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
@@ -1990,5 +1991,214 @@ test('bracket-token topology rejects a typed tool origin and duplicate dispatch 
         await rm(fixture.dir, { recursive: true, force: true });
       }
     });
+  }
+});
+
+test('searches an isolated gateway service.name when one is supplied, and fails closed without it', async (t) => {
+  const isolatedService = 'emeric-proof-41b8d69b';
+  const traceId = '33333333333333333333333333333333';
+  const run = async (extraArgs, extraEnv = {}) => {
+    const fixture = await fixtureDir({ includeNonce: false });
+    const queries = [];
+    const server = await listen((request, response) => {
+      const url = new URL(request.url, 'http://localhost');
+      response.setHeader('content-type', 'application/json');
+      if (url.pathname === '/api/search') {
+        const q = url.searchParams.get('q') || '';
+        queries.push(q);
+        // Only the isolated gateway's service holds the trace.
+        const hit = q.includes(`resource.service.name="${isolatedService}"`);
+        response.end(JSON.stringify({ traces: hit ? [{ traceID: traceId }] : [] }));
+        return;
+      }
+      response.end(JSON.stringify(traceFixture({
+        traceId,
+        reasonHash: fixture.reasonHash,
+        reasonLength: fixture.reasonLength,
+      })));
+    });
+    try {
+      const result = await execFileAsync(process.execPath, [
+        script,
+        '--run-dir', fixture.dir,
+        '--manifest', fixture.manifestPath,
+        '--seat', 'emeric-isolated-proof',
+        '--tempo-url', server.url,
+        '--timeout-ms', '60',
+        '--poll-ms', '10',
+        ...extraArgs,
+      ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: '', ...extraEnv } })
+        .then(({ stdout }) => ({ ok: true, out: JSON.parse(stdout) }))
+        .catch((error) => ({ ok: false, stderr: String(error.stderr || error.message) }));
+      let receipt = null;
+      if (result.ok) receipt = JSON.parse(await readFile(path.join(fixture.dir, result.out.receiptFile), 'utf8'));
+      return { ...result, receipt, queries };
+    } finally {
+      await server.close();
+      await rm(fixture.dir, { recursive: true, force: true });
+    }
+  };
+
+  await t.test('seat convention alone searches <prince>-prince and finds nothing', async () => {
+    const r = await run([]);
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /no Tempo trace matched/);
+    assert.ok(r.queries.length > 0);
+    assert.ok(r.queries.every((q) => q.includes('resource.service.name="emeric-prince"')));
+  });
+
+  await t.test('a CLI-only --service-name fails closed: the R-CD-2 validator reads only the env var', async () => {
+    // Review (🌻, #573): a flag-only override produced a receipt the validator
+    // rejects as invalid-shape:query-window. Refuse it before any query runs.
+    const r = await run(['--service-name', isolatedService]);
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /--service-name emeric-proof-41b8d69b must equal OPENCLAW_PROOFS_SERVICE_NAME \(unset\)/);
+    assert.equal(r.queries.length, 0);
+  });
+
+  await t.test('--service-name differing from OPENCLAW_PROOFS_SERVICE_NAME fails closed', async () => {
+    const r = await run(['--service-name', isolatedService], { OPENCLAW_PROOFS_SERVICE_NAME: 'emeric-proof-other' });
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /must equal OPENCLAW_PROOFS_SERVICE_NAME \(emeric-proof-other\)/);
+    assert.equal(r.queries.length, 0);
+  });
+
+  await t.test('--service-name equal to OPENCLAW_PROOFS_SERVICE_NAME targets the isolated service and records it', async () => {
+    const r = await run(['--service-name', isolatedService], { OPENCLAW_PROOFS_SERVICE_NAME: isolatedService });
+    assert.equal(r.ok, true, r.stderr);
+    assert.equal(r.out.traceId, traceId);
+    assert.ok(r.queries.every((q) => q.includes(`resource.service.name="${isolatedService}"`)));
+    assert.match(r.receipt.query, new RegExp(`resource\\.service\\.name="${isolatedService}"`));
+  });
+
+  await t.test('OPENCLAW_PROOFS_SERVICE_NAME is honoured the same way', async () => {
+    const r = await run([], { OPENCLAW_PROOFS_SERVICE_NAME: isolatedService });
+    assert.equal(r.ok, true, r.stderr);
+    assert.match(r.receipt.query, new RegExp(`resource\\.service\\.name="${isolatedService}"`));
+  });
+
+  await t.test('rejects an unsafe service name instead of interpolating it', async () => {
+    // Supplied through the env var too, so it passes the CLI/env equality check
+    // and reaches the TraceQL escape guard this case exists to prove.
+    const unsafe = 'x" || true || "';
+    const r = await run(['--service-name', unsafe], { OPENCLAW_PROOFS_SERVICE_NAME: unsafe });
+    assert.equal(r.ok, false);
+    assert.match(r.stderr, /unsafe TraceQL value/);
+    assert.equal(r.queries.length, 0);
+  });
+});
+
+test('accepts a Tempo search trace id rendered without its leading zero', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const fullId = '0516ee694eaee724a813fac7eae0b55d';
+  const searchRendered = fullId.replace(/^0+/, ''); // what Tempo /api/search returns
+  assert.equal(searchRendered.length, 31);
+  let fetchedPath = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      response.end(JSON.stringify({ traces: [{ traceID: searchRendered }] }));
+      return;
+    }
+    fetchedPath = url.pathname;
+    response.end(JSON.stringify(traceFixture({
+      traceId: fullId,
+      reasonHash: fixture.reasonHash,
+      reasonLength: fixture.reasonLength,
+    })));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', fixture.dir,
+      '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ]);
+    const result = JSON.parse(stdout);
+    assert.equal(result.traceId, fullId);
+    assert.equal(fetchedPath, `/api/traces/${fullId}`);
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('still rejects a search trace id that is not hex', async () => {
+  const fixture = await fixtureDir({ includeNonce: false });
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify({ traces: [{ traceID: 'not-a-trace-id' }] }));
+  });
+  try {
+    await assert.rejects(
+      execFileAsync(process.execPath, [
+        script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath, '--seat', 'cael-prince',
+        '--tempo-url', server.url, '--timeout-ms', '50', '--poll-ms', '10',
+      ]),
+      (error) => /search trace id/.test(String(error.stderr)),
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2 isolated-gateway receipt validates end to end: collector env name -> validator', async () => {
+  // Collector-to-validator path (review 🌻, #573): the receipt the collector
+  // writes under OPENCLAW_PROOFS_SERVICE_NAME must validate when the validator
+  // reads the same env, and must not validate under the fleet default.
+  const isolatedService = 'cael-proof-rerun-test';
+  const rowNonce = 'R-CD-2-isolated-e2e';
+  const traceId = '4'.repeat(32);
+  const runFingerprint = 'a'.repeat(16);
+  const nonceFingerprint = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
+  const fixture = await fixtureDir({
+    rowId: 'R-CD-2',
+    delegateMode: 'silent-wake',
+    nonceOverride: rowNonce,
+    extraEvidence: {
+      send_run_fingerprint: runFingerprint,
+      terminal_run_fingerprint: runFingerprint,
+      wake_run_fingerprint: 'f'.repeat(16),
+      row_nonce_fingerprint: nonceFingerprint,
+      accepted_send_trace_id: traceId,
+      dispatch_accepted_at_ms: 100,
+    },
+  });
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      const hit = (url.searchParams.get('q') || '').includes(`resource.service.name="${isolatedService}"`);
+      response.end(JSON.stringify({ traces: hit ? [{ traceID: traceId }] : [] }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength, mode: 'silent-wake' })));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '100', '--poll-ms', '10',
+    ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: isolatedService } });
+    const result = JSON.parse(stdout);
+    const correlation = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const evidence = JSON.parse(await readFile(path.join(fixture.dir, 'evidence.jsonl'), 'utf8'));
+    const identity = correlation.authorityIdentity;
+    assert.deepEqual(
+      validateRcd2AcquisitionReceipt(correlation, rCd2SigningKey, identity, evidence, { serviceNameOverride: isolatedService }),
+      { valid: true },
+    );
+    assert.equal(
+      validateRcd2AcquisitionReceipt(correlation, rCd2SigningKey, identity, evidence, { serviceNameOverride: undefined }).valid,
+      false,
+      'the fleet default must not accept an isolated-gateway receipt',
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
   }
 });

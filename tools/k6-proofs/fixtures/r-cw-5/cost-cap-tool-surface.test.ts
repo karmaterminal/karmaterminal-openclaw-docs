@@ -1,6 +1,10 @@
 // This file is copied into a disposable exact-candidate worktree by
 // run-cost-cap-fixture.mjs. It is deliberately not run in this docs checkout:
 // all imports resolve against the candidate's production runtime.
+//
+// For a candidate that records continuation work as TaskFlow flows, before
+// continuation custody (fork #1408) and before upstream 6652f7eac8 removed the
+// TaskFlow runtime. The runner executes it in the auto-reply shard.
 import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
@@ -51,41 +55,37 @@ const cfg = {
   },
 } as unknown as OpenClawConfig;
 
+type ContinuationRequest = { reason: string; delaySeconds: number };
+
+// One delay for every election, admitted or not: an hour, so admitted work
+// cannot fire during the test, and the over-cap and control elections differ
+// only in the chain's tokens.
+const ELECTION_DELAY_SECONDS = 3_600;
+
 describe("R-CW-5 disposable typed tool surface", () => {
   let root: string;
   let storePath: string;
   let sessionKey: string;
   let sessionEntry: SessionEntry;
 
-  beforeEach(async () => {
-    root = await fs.mkdtemp(path.join(os.tmpdir(), "rcw5-tool-surface-"));
-    storePath = path.join(root, "sessions.json");
-    sessionKey = `agent:main:subagent:rcw5:${crypto.randomUUID()}`;
+  async function seedSession(continuationChainTokens: number): Promise<void> {
     sessionEntry = {
       sessionId: "rcw5-disposable-session",
       updatedAt: Date.now(),
       continuationChainCount: 0,
       continuationChainStartedAt: Date.now(),
-      continuationChainTokens: __RCW5_OVER_CAP__,
+      continuationChainTokens,
     } as SessionEntry;
     await replaceSessionEntry({ sessionKey, storePath }, sessionEntry);
-    setRuntimeConfigSnapshot(cfg);
-    runEmbeddedAgentMock.mockReset();
-    runCliAgentMock.mockReset();
-  });
+  }
 
-  afterEach(async () => {
-    clearRuntimeConfigSnapshot();
-    resetSystemEventsForTest();
-    await fs.rm(root, { recursive: true, force: true });
-  });
-
-  it("rejects exhausted typed-tool elections without a durable continuation", async () => {
+  // The embedded-agent double elects through the real typed callback that the
+  // production attempt runner hands it.
+  async function electThroughAttempt(requests: ContinuationRequest[], runId: string): Promise<void> {
     runEmbeddedAgentMock.mockImplementationOnce(async (args: {
-      continueWorkOpts?: { requestContinuation: (request: { reason: string; delaySeconds: number }) => void };
+      continueWorkOpts?: { requestContinuation: (request: ContinuationRequest) => void };
     }) => {
-      args.continueWorkOpts?.requestContinuation({ reason: "R-CW-5 disposable first", delaySeconds: 1 });
-      args.continueWorkOpts?.requestContinuation({ reason: "R-CW-5 disposable second", delaySeconds: 1 });
+      for (const request of requests) args.continueWorkOpts?.requestContinuation(request);
       return {
         payloads: [{ text: "done" }],
         meta: {
@@ -106,12 +106,38 @@ describe("R-CW-5 disposable typed tool surface", () => {
       sessionEntry, sessionId: sessionEntry.sessionId, sessionKey, sessionAgentId: "main",
       lifecycleGeneration: "rcw5-fixture", sessionFile: path.join(root, "session.jsonl"),
       workspaceDir: root, body: "disposable fixture", isFallbackRetry: false, resolvedThinkLevel: "off",
-      timeoutMs: 1_000, runId: "rcw5-fixture-run", opts: {} as never, runContext: {} as never,
+      timeoutMs: 1_000, runId, opts: {} as never, runContext: {} as never,
       spawnedBy: undefined, messageChannel: undefined, skillsSnapshot: undefined,
       resolvedVerboseLevel: undefined, agentDir: root, onAgentEvent: vi.fn(),
       authProfileProvider: "anthropic", sessionStore: { [sessionKey]: sessionEntry }, storePath,
       sessionHasHistory: false,
     });
+  }
+
+  beforeEach(async () => {
+    root = await fs.mkdtemp(path.join(os.tmpdir(), "rcw5-tool-surface-"));
+    storePath = path.join(root, "sessions.json");
+    sessionKey = `agent:main:subagent:rcw5:${crypto.randomUUID()}`;
+    await seedSession(__RCW5_OVER_CAP__);
+    setRuntimeConfigSnapshot(cfg);
+    runEmbeddedAgentMock.mockReset();
+    runCliAgentMock.mockReset();
+  });
+
+  afterEach(async () => {
+    clearRuntimeConfigSnapshot();
+    resetSystemEventsForTest();
+    await fs.rm(root, { recursive: true, force: true });
+  });
+
+  it("rejects exhausted typed-tool elections without a durable continuation", async () => {
+    await electThroughAttempt(
+      [
+        { reason: "R-CW-5 disposable first", delaySeconds: ELECTION_DELAY_SECONDS },
+        { reason: "R-CW-5 disposable second", delaySeconds: ELECTION_DELAY_SECONDS },
+      ],
+      "rcw5-fixture-run",
+    );
 
     const { listTaskFlowsForOwnerKey } = await import("../../src/tasks/task-flow-registry.js");
     expect(listTaskFlowsForOwnerKey(sessionKey)).toHaveLength(0);
@@ -119,5 +145,22 @@ describe("R-CW-5 disposable typed tool surface", () => {
     expect(peekSystemEvents(sessionKey)).toContain(
       "[continuation] 2 of 2 continue_work elections were not scheduled (chain/cost/pending cap).",
     );
+  });
+
+  // Positive control: the same surface and observation do see durable work
+  // when the chain is under the cap, so "no record" above is not vacuous.
+  it("schedules a below-cap typed-tool election as one durable TaskFlow", async () => {
+    await seedSession(__RCW5_CAP__ - 1);
+    await electThroughAttempt(
+      [{ reason: "R-CW-5 disposable admitted", delaySeconds: ELECTION_DELAY_SECONDS }],
+      "rcw5-fixture-run-admitted",
+    );
+
+    const { listTaskFlowsForOwnerKey } = await import("../../src/tasks/task-flow-registry.js");
+    const flows = listTaskFlowsForOwnerKey(sessionKey);
+    expect(flows).toHaveLength(1);
+    expect(flows[0]).toMatchObject({ ownerKey: sessionKey });
+    expect(peekSystemEvents(sessionKey).join("\n")).not.toContain("were not scheduled");
+    expect(peekSystemEvents(sessionKey).join("\n")).not.toContain("was not scheduled");
   });
 });

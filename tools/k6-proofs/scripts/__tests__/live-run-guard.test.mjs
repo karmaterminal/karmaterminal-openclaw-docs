@@ -137,7 +137,10 @@ test('R-CW-6 stays process-local and fixture-gated while static variants cannot 
     assert.equal(manifest.scenario.status, 'scaffold');
     assert.equal(manifest.invocation.fixture, 'tools/k6-proofs/scripts/run-max-chain-fixture.mjs');
     assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
-    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
+    // Capped by its verdictCap while the process-local fixture is its only
+    // producer (🌊's ruling on docs#616); the fixture's PASS-candidate is behavioral.
+    assert.equal(manifest.liveRunSafety.expectedArtifactClass, 'PARTIAL-candidate');
+    assert.equal(manifest.verdictCap.rowCap, 'PARTIAL-candidate');
     assert.equal(manifest.liveRunSafety.requiresLiveGatewayToken, false);
     assert.equal(manifest.liveRunSafety.requiresExternalAgentOrToolInvocation, false);
     const run = runGuard(manifestPath);

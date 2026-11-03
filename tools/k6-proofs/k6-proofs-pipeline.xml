@@ -139,7 +139,7 @@
     <Row id="R-CD-3" owner="ronan" forms="tool" issue="119">
       <Behavior>continue_delegate(mode="post-compaction") event-triggered lifeboat</Behavior>
       <Evidence>Compaction event → delegate fires → return re-hydrates post-compaction session</Evidence>
-      <Constraint>Needs context >70% to trigger compaction (or lower threshold via caps-test)</Constraint>
+      <Constraint>Needs measured context at or above the fixed 70% threshold: the scenario fills its disposable session with real prior turns (no threshold or config change); an unknown or unmeasured rejection is PARTIAL, never PASS</Constraint>
     </Row>
     <Row id="R-CD-4" owner="ronan" forms="tool" issue="119">
       <Behavior>Cross-session targeted return via targetSessionKey</Behavior>
@@ -164,6 +164,14 @@
       <FireMethod>Intermediates MUST be mode=session (detached), NOT mode=run</FireMethod>
       <Evidence>Root(A) receives C sentinel across dead intermediate; negative-guard no-orphan</Evidence>
       <Constraint>Mode-conditional: default=one-level-up; fanoutMode="tree"=reaches-root</Constraint>
+    </Row>
+    <Row id="R-CD-RETURN-COVENANT-AUTHORITY" owner="proof-conductor" forms="restart-control" issue="bootstrap#1727" procedure="disposable-real-restart-control">
+      <Behavior>The recipient session's return authority (session_recipient_authority epoch) survives a real gateway restart: unchanged at every sample, including the outage where no process serves; usable means serving (owns the listener, /readyz passes, hello-ok answers); the outage interval is measured, not assumed away; failure text retained</Behavior>
+      <FireMethod>Run tools/k6-proofs/scripts/run-return-covenant-restart-control.mjs against a stopped proof-gw gateway at the exact candidate: positive and negative-replacement-never-usable as its external supervisor (the supervised branch systemd fleet seats take), then --grade-row over their signed receipts. Optional, only when reviewers want the update-path evidence: control-update-respawn-fallback and control-update-respawn-runtime-unavailable (kind update-respawn-control) with no supervisor hint and reason update.run (the spawned branch)</FireMethod>
+      <Evidence>Signed observer receipt per case: transition body and edge probe bodies, replacement stdout/stderr (or the product child's inherited output and the product's diagnostic lines), old/new PID, start ticks, socket inode and bootId, planned window plus observation matrix, outageInterval, fallback branch (none-on-supervised-branch on the row's cases; on the controls restored is old-process restoration; require-fresh-process, child-runtime-unavailable, foreground-closed, installation-replaced, resources-retained are limits; lock-reacquire-failed is a failure), cleanup</Evidence>
+      <Verdict>🌊's final scope ruling (Discord msg 1565927316687691777): the row verdict is graded from positive and negative-replacement-never-usable only; the supervised negative must show the observed failure, the outage, the retained authority, a non-PASS verdict and noFallback. The update-respawn controls are not evidence for the fleet restart claim and sit beside the row verdict without feeding it. The plain in-process restart is the named limit in-process-restart</Verdict>
+      <Constraint>Refuses any target that is not a stopped $HOME/proof-gw/comp-&lt;sha8&gt; gateway on a non-live loopback port; never touches a live gateway; review-required, no automatic fold</Constraint>
+      <Manifest>tools/k6-proofs/manifests/r-cd-return-covenant-authority.json</Manifest>
     </Row>
     <Row id="R-CD-MODEL-DEFAULT" owner="unclaimed" forms="tool+token" issue="140">
       <Behavior>continue_delegate with no model override inherits the parent provider/model</Behavior>
@@ -284,8 +292,16 @@
     <Mandate id="no-concurrent-rows">
       <Rule>Do not run multiple continuation rows against the same live session concurrently</Rule>
     </Mandate>
+    <Mandate id="continuation-trace-requirement">
+      <Rule>A row that fires continue_work, continue_delegate or request_compaction, or whose toolSurface is token or bracket-token, owes tempo-trace-json plus its correlation receipt (continuation-trace-correlation for continue_work/continue_delegate, tool-trace-correlation otherwise), in liveRunSafety.requiredReceipts and in expectedReceipts with required=true</Rule>
+      <Rule>The trace requirement is structural, never a receipt spelling; receipt names are canonical and the bare alias tempo-trace is refused</Rule>
+      <Rule>review.complete is never true while a trace-required row lacks its trace or correlation receipt; both stay in pendingReceipts. The VU or summary verdict is not changed by this rule</Rule>
+      <Validator>node tools/k6-proofs/scripts/check-proof-row-manifests.mjs</Validator>
+      <Doc>tools/k6-proofs/lib/continuation-trace-requirement.mjs</Doc>
+      <Reason>openclaw-bootstrap RUNBOOKS/PROOF-CORPUS-METHOD.md "Tempo trace requirement": a continuation-tool PASS without its Tempo trace JSON is INCOMPLETE (karmaterminal-openclaw-docs#600)</Reason>
+    </Mandate>
     <Mandate id="telemetry-rebind-contract">
-      <Rule>A row whose required receipts include a telemetry receipt (trace-id, tempo-trace-json, continuation-trace-correlation, trace-or-session-correlation, reason-telemetry-redaction-review) MUST declare a telemetryContract in its manifest</Rule>
+      <Rule>A row whose required receipts include a telemetry receipt (trace-id, tempo-trace-json, continuation-trace-correlation, tool-trace-correlation, trace-or-session-correlation, reason-telemetry-redaction-review) MUST declare a telemetryContract in its manifest</Rule>
       <Rule>A row may claim rebindable=true only when origin, session, turn, run identity AND the proof-run marker are all declared emittedByProduct=true; missing origin/session/turn/proof marker cannot become a telemetry-rebindable PASS</Rule>
       <Rule>backendUnavailable.treatZeroAsAbsence is always false: a degraded backend answering 200 with zero results is unavailable/partial evidence, never absence</Rule>
       <Validator>node tools/k6-proofs/scripts/check-telemetry-contracts.mjs</Validator>

@@ -1,0 +1,29 @@
+### control / B / tree 042db1e7064930a08c534c4487864d7bfb8c5287
++10435ms [env] node v26.9.0 tree=<scratch>/gate25-F phase=B
++10435ms [env] retryPolicy={"maxAttempts":3,"deadLetterMinAgeMs":0,"baseMs":150,"maxMs":150} queueSettings={"mode":"followup","debounceMs":0,"cap":1,"dropPolicy":"new"}
++10436ms [reply-queue] pre-filled session queue with blocker -> true (session busy)
++16354ms [monitor] admit(msg-1) -> durable/accepted lane=chat:lane-1
++16370ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++16372ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++16379ms [monitor] admit(msg-2) -> durable/accepted lane=chat:lane-1
++16537ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++16537ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++16538ms [queue] poll 1: pending=[msg-1:attempts=1,msg-2:attempts=0] failed=[] dispatched=2
++16691ms [queue] poll 2: pending=[msg-1:attempts=2,msg-2:attempts=0] failed=[] dispatched=2
++16735ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++16736ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++16845ms [queue] poll 3: pending=[msg-1:attempts=3,msg-2:attempts=0] failed=[] dispatched=3
++16935ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++16935ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++16999ms [queue] poll 4: pending=[msg-1:attempts=4,msg-2:attempts=0] failed=[] dispatched=4
++17136ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++17136ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++17152ms [queue] poll 5: pending=[msg-1:attempts=5,msg-2:attempts=0] failed=[] dispatched=5
++17335ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++17336ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++17460ms [queue] poll 7: pending=[msg-1:attempts=6,msg-2:attempts=0] failed=[] dispatched=6
++17460ms [queue] head msg-1 at attempts=6 (> maxAttempts=3); stopping observation
++17463ms [sqlite] end of scenario B: {msg-1 status=pending attempts=6 last_error=turn-abandoned failed_reason=null} {msg-2 status=pending attempts=0 last_error=null failed_reason=null}
++17466ms [result] dispatched=["msg-1","msg-1","msg-1","msg-1","msg-1","msg-1"] flushErrors=0
++17466ms [verdict] B: msg-1 NEVER dead-lettered (pending attempts=6); msg-2 NOT dispatched (lane blocked)
+### exit=0

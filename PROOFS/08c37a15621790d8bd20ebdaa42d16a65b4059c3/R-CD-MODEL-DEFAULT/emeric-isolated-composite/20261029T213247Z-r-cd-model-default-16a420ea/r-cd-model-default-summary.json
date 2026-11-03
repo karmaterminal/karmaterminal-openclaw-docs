@@ -1,0 +1,26 @@
+{
+  "row": "R-CD-MODEL-DEFAULT",
+  "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T21:33:16.884Z",
+  "verdict": "PARTIAL-candidate",
+  "parentServedModel": null,
+  "parentSelectedModel": null,
+  "childServedModel": null,
+  "childSelectedModel": null,
+  "modelSource": "served: chat.history run-window assistant message; selected: sessions.describe",
+  "expectedModelPin": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "med": 26389,
+      "max": 26389,
+      "p(90)": 26389,
+      "p(95)": 26389,
+      "avg": 26389,
+      "min": 26389
+    },
+    "failures": 0
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "schema": "openclaw.k6.continuation-trace-correlation.v1",
+  "row": "R-CD-TOKEN",
+  "seat": "emeric-isolated-composite",
+  "attribution": "bracket-token-reason-hash-length-mode",
+  "query": "{ resource.service.name=\"emeric-proof-comp-08c37a15\" && name=\"continuation.delegate.dispatch\" && .reason.hash=\"8bdeac0cfc24f31f\" && .reason.length=57 && .delegate.mode=\"normal\" }",
+  "searchWindow": {
+    "startUnixSeconds": 1793310328,
+    "endUnixSeconds": 1793310627,
+    "paddingSeconds": 60,
+    "source": "dispatch-and-evidence-ended"
+  },
+  "stabilization": {
+    "ingestionSettleMs": 2000,
+    "pollIntervalMs": 2000,
+    "searchQueryCount": 3,
+    "stabilizationQueryCount": 1,
+    "finalQueryCount": 1
+  },
+  "traceJson": "tempo-trace-3ebc367b40cd.json",
+  "traceId": "3ebc367b40cd78efcfc2f55b155018f4",
+  "chainId": "64b60784-0a8c-4c2c-a81e-c09b7f3557cf",
+  "toolSpanIds": [],
+  "toolParentSpanIds": [],
+  "fireSpanId": "9830ccfa5263a0e9",
+  "fireParentSpanId": "ddb44315b0ca1d7f",
+  "fireSpanIds": [
+    "9830ccfa5263a0e9"
+  ],
+  "fireParentSpanIds": [
+    "ddb44315b0ca1d7f"
+  ],
+  "fireAttemptCount": 1,
+  "childSpans": [
+    {
+      "name": "continuation.delegate.fire",
+      "spanId": "9830ccfa5263a0e9"
+    },
+    {
+      "name": "openclaw.harness.run",
+      "spanId": "5dfbed64d42a54c5"
+    },
+    {
+      "name": "continuation.queue.drain",
+      "spanId": "ef6377d16c04abcf"
+    }
+  ],
+  "dispatchSpanId": "ddb44315b0ca1d7f",
+  "dispatchParentSpanId": "0cf36df385bb5ef8",
+  "reason": {
+    "hash": "8bdeac0cfc24f31f",
+    "length": 57,
+    "source": "public-evidence",
+    "rawPersisted": false
+  },
+  "continuation": {
+    "tool": "continue_delegate",
+    "originSurface": "raw-final-text",
+    "acceptSpan": "continuation.delegate.dispatch",
+    "fireSpan": "continuation.delegate.fire"
+  },
+  "delegate": {
+    "mode": "normal"
+  },
+  "sameTrace": true,
+  "sameChain": true,
+  "distinctSpans": true,
+  "resultClass": "unique"
+}

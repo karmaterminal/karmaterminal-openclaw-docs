@@ -15,15 +15,47 @@ attempt:
    `costCapTokens=100` and a session entry whose accumulated tokens are `101`.
 3. Have the embedded-agent test double call the supplied
    `continueWorkOpts.requestContinuation` callback twice.
-4. Require both elections to be rejected, no TaskFlow row to exist, and the
-   cost-cap system event to name both dropped elections.
+4. Require both elections to be rejected, no durable continuation record to
+   exist, and the cost-cap system event to name both dropped elections.
 5. Remove the disposable worktree and temporary store regardless of outcome.
 
 This is not a synthetic copy of the policy: the fixture enters the production
 attempt runner, receives its real typed callback, persists/reserves through
-the real continuation scheduling path, and observes the real TaskFlow
-registry.  The companion production-module matrix and dispatcher suite cover
+the real continuation scheduling path, and observes the real durable store.
+The companion production-module matrix and dispatcher suite cover
 the below/equal/over boundary plus rejected-hop no-spawn/failed-flow behavior.
+
+The durable store depends on the candidate. The fixture picks the template by
+the store module the candidate's runtime writes through:
+
+- **Continuation custody** (fork #1408), when
+  `src/auto-reply/continuation/custody/custody-store.ts` exists.
+  `cost-cap-tool-surface.custody.test.ts` runs in a per-test custody state
+  directory through the real shared-state worker. It therefore runs as the
+  candidate's `infra` project, the config that hosts the database-worker-core
+  suites, which collects it from the `OPENCLAW_VITEST_INCLUDE_FILE` list the
+  candidate's scoped configs read.
+  The over-cap test requires no custody record for the session, and none at
+  all in its store. A positive control makes one below-cap election through
+  the same attempt runner and requires exactly one queued `work` record for
+  that session. A candidate whose custody runtime predates the custody test
+  support (`d71e6bcd3d`..`91aaf10f9f^`) fails closed on that missing import.
+  It is never judged by a TaskFlow registry that nothing writes.
+- **TaskFlow** (removed upstream by `6652f7eac8`), when only
+  `src/tasks/task-flow-registry.ts` exists. `cost-cap-tool-surface.test.ts`
+  requires no TaskFlow row for the session. Its positive control requires
+  exactly one TaskFlow for a below-cap election. It runs in the auto-reply
+  shard through `--dir test/r-cw-5-fixture`, with no file named on the
+  command line: the auto-reply config narrows its include list to
+  command-line files, and the template lies outside `src/auto-reply`.
+
+In both templates every election waits the same hour, so the over-cap and
+control elections differ only in the chain's tokens. Admitted work cannot fire
+during the test. "No record" over the cap counts only beside a passing
+positive control, so it cannot hold vacuously.
+
+A candidate with neither store fails the typed-tool receipt. Its result is
+judged from Vitest's JSON report, as for the dispatch suite below.
 
 ## Why the fixture is process-local
 
@@ -36,6 +68,27 @@ scheduling.  GitNexus on the exact `6ee7eca` index confirms that
 `dispatchToolDelegates`, and post-compaction dispatch; the R-CW-5 fixture
 exercises the first of those through the typed callback and separately runs
 the real delegate-dispatch boundary suite.
+
+## Required preflight: R-CW-5A
+
+`r-cw-5.json` declares `R-CW-5A` in `requiredPreflights` (🌊's F″ method
+ruling). The fixture's verdict is behavioral only. The row verdict is the minimum
+of that verdict, the row's declared cap and the preflight cap: `r-cw-5.json`
+declares `verdictCap.rowCap` `PARTIAL-candidate`, because this process-local
+fixture is the row's only producer (🌊's ruling on docs#616). A passing R-CW-5A
+is necessary, not sufficient: the row stays at `PARTIAL-candidate` even when the
+fixture reports `PASS-candidate` and the R-CW-5A static check, run at the same
+exact candidate, wrote a passing `required-preflight-receipt.json`. Lifting the
+cap needs a superseding authority receipt from a different artifact class,
+adopted by an explicit method change; none is adopted. That check reads
+`PROOFS/<candidate>/R-CW-5/cael-dgx/`, never INDEX `static_evidence_sha`, and that
+material must be bound to the candidate: a `source-sha.txt` that is exactly the
+candidate SHA, and no provenance file naming another commit.
+`grade-preflight-gated-row.mjs` joins `fixture-result.json` with the row cap and
+that receipt; a missing, failed, malformed or other-SHA receipt is a second
+reason for `PARTIAL-candidate`. In an F″ corpus `validate-corpus.mjs` refuses any
+R-CW-5 `pass`, with or without the receipt. See "Required preflights" and "The
+process-local cap" in `tools/k6-proofs/README.md`.
 
 ## Command and receipts
 
@@ -50,12 +103,49 @@ The command refuses a SHA/source mismatch, a missing or altered candidate
 lockfile, or any failure to create and remove its disposable worktree. It runs
 `pnpm install --frozen-lockfile --prefer-offline` only in that disposable
 worktree using the exact version and sha512 integrity pinned by the candidate.
+npm installs that pnpm release into a private toolchain. The fixture runs the
+bin entry the package declares through a trusted interpreter: `node` for a
+`#!...node` script, `/bin/sh` for pnpm 12's shebang-less launcher. It refuses a
+pnpm that changes its own toolchain during the `--version` probe. That probe
+picks the native binary in the same way the install then does. When the candidate lockfile
+opens with a pnpm env document, that document must pin the same pnpm version
+and tarball integrity. Every other toolchain package, such as pnpm 12's
+`@pnpm/exe.<target>` native binary, must match the integrity that document
+records. The installed `.pnpm/lock.yaml` must byte-match the candidate's
+lockfile document, the part after any env document.
+
+The candidate-local `tsx` and `vitest` run the same way. The fixture runs the
+JS entry each package's `package.json` `bin` declares under the trusted
+`node`. The `node_modules/.bin` link pnpm wrote must name that entry: a symlink
+up to pnpm 12.0, an sh cmd-shim's `# cmd-shim-target=` line from pnpm 12.3. Node
+cannot run a cmd-shim, and the shim itself would pick `node` from `PATH`.
+
+The dispatch boundary suite runs under whichever Vitest config owns it at the
+candidate. Candidate `311bc66fca` (fork #1408 L4) moved it onto real
+continuation custody, into the database-worker-core lane of
+`vitest.infra.config.ts`, which `vitest.auto-reply.config.ts` now excludes.
+The fixture asks the candidate's Vitest (`list --filesOnly`) which of those two
+configs collects the suite, and needs exactly one. It then reads Vitest's JSON
+report. The report must list exactly that file, every test in it must have
+passed, none may be skipped or todo, and at least one must have run.
+Each of the four contract tests must also have passed. The failed-record test
+counts under its custody name or its earlier TaskFlow name. The candidate's
+reporter redacts credential-looking spans of a test name, so it reports
+`rejects at exact boundary (accumulatedChainTokens === …)` with a
+`<redacted len=N>` marker. Such a title counts only when its visible text and
+marked length fit the expected name and the committed suite declares that name
+verbatim. A green exit, or names on stdout, is never enough. Candidate Vitest
+runs do not inherit the caller's `OPENCLAW_VITEST_*` variables. The candidate's
+scoped configs would let an inherited `OPENCLAW_VITEST_INCLUDE_FILE` replace
+the include list that the fixture selects by.
+
 It never trusts or mutates source `node_modules`, starts a gateway, writes
 OpenClaw config, or touches durable fleet state. It produces `boundary-matrix.json`,
 `dispatch-boundary-suite.json`, `typed-tool-surface.json`, and `cleanup.json`.
 Any missing or failed receipt is `FAIL-fixture`, never a PASS.
 
-The fixture is a reviewed `PASS-candidate`, not an automatic corpus promotion.
+The fixture's `PASS-candidate` is behavioral and review-required, not an automatic
+corpus promotion: the row stays capped at `PARTIAL-candidate`.
 The legacy k6 entry remains scaffolded and fail-closed because its shared
 config mutation is neither required nor a valid way to invoke this internal
 tool.

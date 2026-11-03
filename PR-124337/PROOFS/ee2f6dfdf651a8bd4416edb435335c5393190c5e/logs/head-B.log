@@ -1,0 +1,36 @@
+### head / B / tree ee2f6dfdf651a8bd4416edb435335c5393190c5e
++ 9881ms [env] node v26.9.0 tree=<home>/i_have_a_pet_human/scratch/gate25-F phase=B
++ 9881ms [env] retryPolicy={"maxAttempts":3,"deadLetterMinAgeMs":0,"baseMs":150,"maxMs":150} queueSettings={"mode":"followup","debounceMs":0,"cap":1,"dropPolicy":"new"}
++ 9881ms [reply-queue] pre-filled session queue with blocker -> true (session busy)
++15670ms [monitor] admit(msg-1) -> durable/accepted lane=chat:lane-1
++15679ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++15682ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++15686ms [drain-log] spooled update msg-1 failed; keeping for retry: turn-abandoned
++15690ms [monitor] admit(msg-2) -> durable/accepted lane=chat:lane-1
++15844ms [queue] poll 1: pending=[msg-1:attempts=1,msg-2:attempts=0] failed=[] dispatched=1
++15882ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++15883ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++15888ms [drain-log] spooled update msg-1 failed; keeping for retry: turn-abandoned
++15998ms [queue] poll 2: pending=[msg-1:attempts=2,msg-2:attempts=0] failed=[] dispatched=2
++16085ms [monitor] deliver(msg-1) claimed on lane chat:lane-1
++16086ms [reply-queue] enqueueFollowupRun(msg-1) -> false (session busy, cap=1, dropPolicy=new)
++16090ms [drain-log] spooled update msg-1 failed with non-retryable retry-limit-exceeded: turn-abandoned; dead-lettered
++16090ms [drain-log] spooled update msg-1 on lane chat:lane-1 reached retry limit after 3 attempts; dead-lettered
++16098ms [monitor] deliver(msg-2) claimed on lane chat:lane-1
++16099ms [reply-queue] enqueueFollowupRun(msg-2) -> false (session busy, cap=1, dropPolicy=new)
++16102ms [drain-log] spooled update msg-2 failed; keeping for retry: turn-abandoned
++16152ms [queue] poll 3: pending=[msg-2:attempts=1] failed=[msg-1:retry-limit-exceeded/turn-abandoned] dispatched=4
++16152ms [gateway] busy session finished -> scheduleFollowupDrain drains the blocker; session idle
++16153ms [agent] turn started for message blocker
++16153ms [agent] adopted blocker; ingress claim completed
++16153ms [agent] reply delivered for blocker
++16281ms [monitor] deliver(msg-2) claimed on lane chat:lane-1
++16281ms [reply-queue] enqueueFollowupRun(msg-2) -> true (session idle, cap=1, dropPolicy=new)
++16281ms [agent] turn started for message msg-2
++16283ms [agent] adopted msg-2; ingress claim completed
++16283ms [agent] reply delivered for msg-2
++16304ms [queue] poll 4: pending=[] failed=[msg-1:retry-limit-exceeded/turn-abandoned] dispatched=5
++16308ms [sqlite] end of scenario B: {msg-1 status=failed attempts=2 last_error=turn-abandoned failed_reason=retry-limit-exceeded} {msg-2 status=completed attempts=1 last_error=null failed_reason=null}
++16311ms [result] dispatched=["msg-1","msg-1","msg-1","msg-2","msg-2"] flushErrors=0
++16311ms [verdict] B: msg-1 dead-lettered reason=retry-limit-exceeded message=turn-abandoned attempts=2; msg-2 dispatched; msg-2 final=completed
+### exit=0

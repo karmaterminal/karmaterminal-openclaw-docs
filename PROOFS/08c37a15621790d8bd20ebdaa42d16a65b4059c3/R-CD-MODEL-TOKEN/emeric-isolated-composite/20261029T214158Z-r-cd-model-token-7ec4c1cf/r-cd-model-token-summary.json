@@ -1,0 +1,25 @@
+{
+  "row": "R-CD-MODEL-TOKEN",
+  "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+  "seat": "emeric-isolated-composite",
+  "timestamp": "2026-10-29T21:45:01.328Z",
+  "verdict": "PARTIAL-candidate",
+  "requestedModel": null,
+  "servedModel": null,
+  "selectedModel": null,
+  "selectedModelSource": null,
+  "dispatchRefused": null,
+  "auxiliarySelfReport": null,
+  "classificationReason": null,
+  "metrics": {
+    "duration_ms": {
+      "min": 180287,
+      "med": 180287,
+      "max": 180287,
+      "p(90)": 180287,
+      "p(95)": 180287,
+      "avg": 180287
+    },
+    "failures": 1
+  }
+}

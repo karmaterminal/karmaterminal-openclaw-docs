@@ -1,0 +1,16 @@
+{
+  "row": "R-OBS-1",
+  "sha": "08c37a15621790d8bd20ebdaa42d16a65b4059c3",
+  "verdict": "PASS-candidate",
+  "metrics": {
+    "failures": 0,
+    "duration_ms": {
+      "min": 9608,
+      "med": 9608,
+      "max": 9608,
+      "p(90)": 9608,
+      "p(95)": 9608,
+      "avg": 9608
+    }
+  }
+}

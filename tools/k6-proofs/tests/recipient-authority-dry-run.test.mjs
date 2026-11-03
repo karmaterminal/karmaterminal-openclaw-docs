@@ -1,17 +1,19 @@
 // R-CD-RECIPIENT-AUTHORITY dry run against the mock-gateway pattern (helpers/k6-node-runtime.mjs).
 //
 // The real case driver (scenarios/r-cd-recipient-authority.js) runs in Node against a scripted
-// gateway shaped like j12's public surface: hello-ok, sessions.*, session.visibility.set,
-// session.members.*, config.get/patch, chat.history with Tool Search dispatch_action rows. The
-// control's own assembleCaseRecord then joins the evidence with scripted gateway log lines and an
-// epoch timeline, and lib/recipient-authority-row.mjs grades it. No gateway, no model, no network.
+// gateway shaped like j12′'s public surface (e9dc1c31, INTERIM pin): hello-ok, sessions.*,
+// session.visibility.set, session.members.*, config.get/patch, chat.history with Tool Search
+// dispatch_action rows. The control's own assembleCaseRecord then joins the evidence with scripted
+// j12′ gateway log lines (the router's Delivered to line, the [continuation:return-refused] line at
+// each case's pinned stage) and an epoch timeline, and lib/recipient-authority-row.mjs grades it.
+// No gateway, no model, no network.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { assembleCaseRecord } from '../scripts/run-recipient-authority-row.mjs';
-import { RRA_CASES, RRA_CASE_IDS, RRA_J12, RRA_ROW, gradeRecipientAuthorityCase, scenarioMethodsFor } from '../lib/recipient-authority-row.mjs';
+import { RRA_CASES, RRA_CASE_IDS, RRA_J12, RRA_PINNED, RRA_ROW, gradeRecipientAuthorityCase, scenarioMethodsFor } from '../lib/recipient-authority-row.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,7 +30,7 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
 });
 
 /**
- * A scripted j12-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, noIdentity }.
+ * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, noIdentity }.
  * Allowed cases get the woken target's ack after their (last) priming; refused cases spawn a child
  * only when the delegate would have fired.
  */
@@ -52,7 +54,7 @@ function gatewayFor(world) {
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: ALL_METHODS } });
       case 'sessions.create': sessions[p.key] = { messages: [] }; return ok({ key: p.key });
-      // The sharing methods' params are closed objects keyed by sessionKey at j12
+      // The sharing methods' params are closed objects keyed by sessionKey at j12′ (unchanged from j12)
       // (packages/gateway-protocol/src/schema/sessions-sharing.ts:29-37, 62, 115-120).
       case 'session.members.list': case 'session.members.add': case 'session.members.remove': case 'session.visibility.set': {
         if (typeof p.sessionKey !== 'string' || 'key' in p) {
@@ -143,7 +145,7 @@ async function fire(caseId, world = {}, { phase = 'drive', state = null, env = {
         OPENCLAW_ROW_MANIFEST: path.join(root, 'manifests', 'r-cd-recipient-authority.json'),
         OPENCLAW_GATEWAY_TOKEN: 'disposable-gateway-token-0123456789',
         OPENCLAW_GATEWAY_WS: 'ws://127.0.0.1:1',
-        OPENCLAW_CANDIDATE_SHA: RRA_J12,
+        OPENCLAW_CANDIDATE_SHA: RRA_PINNED,
         OPENCLAW_RCD_RA_CASE: caseId,
         OPENCLAW_RCD_RA_RUN: RUN,
         OPENCLAW_RCD_RA_PHASE: phase,
@@ -161,8 +163,16 @@ async function fire(caseId, world = {}, { phase = 'drive', state = null, env = {
   }
 }
 
-/** What the control would have seen around the case: product log lines, epochs, generations. */
-function harnessFor(caseId, drive, { reason = true } = {}) {
+const DELIVERY_ID = '0f1e2d3c'.repeat(8);
+const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${message}`;
+
+/**
+ * What the control would have seen around the case at j12′: product log lines, epochs, generations.
+ * options: reason (emit the case's reason), stage (override the refused-return stage), j12Reason
+ * (emit j12's replay line instead of j12′'s), routedAfter (a Delivered to line naming the target
+ * after the transition), emptyListAfter (j12's empty-list Delivered to line from the child after it).
+ */
+function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false } = {}) {
   const spec = RRA_CASES[caseId];
   const { target, parent } = drive.keys;
   const transition = drive.transition || {};
@@ -172,13 +182,27 @@ function harnessFor(caseId, drive, { reason = true } = {}) {
   const restartedAtMs = spec.restart ? settledAt + 5 : null;
   const durable = spec.family === 'refusal' && spec.expectChild !== false;
   const logEntries = [];
-  if (spec.expectChild !== false) logEntries.push({ atMs: transitionAt - 1, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
+  // A parked or allowed return is routed while current: before the transition. A wake-mode
+  // refusal is refused by the router itself, which logs no Delivered to line.
+  if (spec.expectChild !== false && spec.timing !== 'before-return') {
+    logEntries.push({ atMs: transitionAt - 1, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
+  }
   if (reason && spec.reasonKind === 'dispatch-policy') {
     logEntries.push({ atMs: transitionAt + 3, text: `[continuation:delegate-rejected] policy.cross_session_targeting task=RCDRA session=${parent}`, generation: 0 });
   }
-  if (reason && spec.reasonKind === 'replay-authority-changed') {
-    logEntries.push({ atMs: (restartedAtMs ?? settledAt) + 3, text: `session event delivery skipped: recipient authority changed sessionKey=${target} queueId=q-1`, generation: spec.restart ? 1 : 0 });
+  if (reason && spec.reasonKind === 'return-refused') {
+    const refusedAt = stage ?? spec.refusedAt;
+    // Where j12′ refuses it: the probe's drain, the sweep after the transition, the router after
+    // it, or the replacement's boot replay.
+    const atMs = spec.restart ? restartedAtMs + 3 : refusedAt === 'prompt-drain' ? final.probe_sent_at_ms + 3 : settledAt + 3;
+    const deliveryId = spec.deliveryId || refusedAt !== 'enqueue' ? ` deliveryId=${DELIVERY_ID}` : '';
+    const text = j12Reason
+      ? `2026-11-03T08:00:00.000Z [gateway/restart-sentinel] session event delivery skipped: recipient authority changed sessionKey=${target} queueId=q-1`
+      : consoleLine('continuation/return-refused', `[continuation:return-refused] stage=${refusedAt} reason=recipient-authority-changed session=${target}${deliveryId}`);
+    logEntries.push({ atMs, text, generation: spec.restart ? 1 : 0 });
   }
+  if (routedAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
+  if (emptyListAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to  from ${CHILD}`, generation: 0 });
   const e1 = '11111111-1111-4111-8111-111111111111';
   const e2 = '22222222-2222-4222-8222-222222222222';
   const timeline = [
@@ -200,14 +224,15 @@ async function grade(caseId, world = {}, harnessOptions = {}) {
     assert.equal(drive.handoff?.ready_for_restart, true, 'the drive phase hands over for the restart');
     observe = (await fire(caseId, world, { phase: 'observe', state: drive, gateway })).evidence;
   }
+  const final = observe ?? drive;
   const record = assembleCaseRecord({
     caseId,
     runId: RUN,
     docsSha: 'd'.repeat(40),
-    gates: { candidatePinned: true, buildInfoCommit: RRA_J12, stateIsolated: true, modelSignIn: true, crossSessionTargetingEnabled: true, gatewayStartedByHarness: true },
+    gates: { candidatePinned: true, buildInfoCommit: RRA_PINNED, stateIsolated: true, modelSignIn: true, crossSessionTargetingEnabled: true, gatewayStartedByHarness: true },
     evidence: drive,
     observeEvidence: observe,
-    ...harnessFor(caseId, drive, harnessOptions),
+    ...harnessFor(caseId, drive, final, harnessOptions),
     cleanup: { gatewayStopped: true, residue: false },
     startedAtMs: 1,
   });
@@ -215,7 +240,7 @@ async function grade(caseId, world = {}, harnessOptions = {}) {
   return { drive, observe, record, graded: gradeRecipientAuthorityCase(record) };
 }
 
-test('dry run: every case drives its public surfaces and grades PASS-candidate against a j12-shaped gateway', async () => {
+test('dry run: every case drives its public surfaces and grades PASS-candidate against a j12′-shaped gateway', async () => {
   for (const caseId of RRA_CASE_IDS) {
     const { drive, graded } = await grade(caseId, { ack: 'wake' });
     assert.deepEqual(drive.refusals, [], `${caseId}: ${drive.refusals}`);
@@ -247,7 +272,7 @@ test('dry run: each case sends exactly its transition, never another case\'s', a
 });
 
 test('dry run: a refused return adopted into the probe turn is FAIL-candidate, with or without the model\'s ack', async () => {
-  for (const caseId of ['revoked-visibility', 'reassigned', 'replay-restart']) {
+  for (const caseId of ['revoked-visibility', 'reassigned', 'wake-revoked-visibility', 'replay-restart']) {
     for (const markerOnly of [false, true]) {
       const { graded } = await grade(caseId, { adoptOnProbe: true, markerOnly });
       assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} markerOnly=${markerOnly}`);
@@ -266,10 +291,51 @@ test('dry run: a policy patch the gateway rejected stops the case before dispatc
 });
 
 test('dry run: without the product reason line a refusal case stays MISSING-candidate', async () => {
-  for (const caseId of ['unauthorized-dispatch', 'revoked-owner', 'replay-restart']) {
+  for (const caseId of ['unauthorized-dispatch', 'revoked-owner', 'wake-reassigned', 'replay-restart']) {
     const { graded } = await grade(caseId, {}, { reason: false });
     assert.equal(graded.verdict, 'MISSING-candidate', caseId);
     assert.ok(graded.missing.includes('refusal-reason-not-observed') || graded.missing.includes('reason-not-from-replacement'), caseId);
+  }
+});
+
+const refusedReturnCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].reasonKind === 'return-refused');
+
+test('dry run: j12\'s reason line alone is no reason at j12′: every refused-return case stays MISSING', async () => {
+  for (const caseId of refusedReturnCases) {
+    const { graded } = await grade(caseId, {}, { j12Reason: true });
+    assert.equal(graded.verdict, 'MISSING-candidate', caseId);
+    assert.ok(graded.missing.includes('refusal-reason-not-observed') || graded.missing.includes('reason-not-from-replacement'), `${caseId}: ${graded.missing}`);
+  }
+});
+
+test('dry run: a refusal at any stage but the pinned one is never PASS', async () => {
+  for (const caseId of refusedReturnCases) {
+    const wrong = RRA_CASES[caseId].refusedAt === 'prompt-drain' ? 'replay' : 'prompt-drain';
+    const { graded } = await grade(caseId, {}, { stage: wrong });
+    assert.notEqual(graded.verdict, 'PASS-candidate', caseId);
+    assert.ok(graded.missing.includes('refusal-stage-mismatch'), `${caseId}: ${JSON.stringify(graded)}`);
+  }
+});
+
+test('dry run: a Delivered to line for a refused return after its transition is FAIL-candidate, j12\'s empty list included', async () => {
+  for (const caseId of refusedReturnCases) {
+    for (const options of [{ routedAfter: true }, { emptyListAfter: true }]) {
+      const { graded } = await grade(caseId, {}, options);
+      assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} ${JSON.stringify(options)}`);
+      assert.ok(graded.contradictions.includes('refused-return-routed'), caseId);
+    }
+  }
+});
+
+test('dry run: a wake-mode case transitions before its delegate fires and never parks a return', async () => {
+  for (const caseId of refusedReturnCases.filter((id) => RRA_CASES[id].timing === 'before-return')) {
+    const { drive, record } = await grade(caseId, { ack: 'wake' });
+    assert.equal(drive.delegate_mode, 'silent-wake', caseId);
+    assert.ok(drive.transition.settled_at_ms - drive.dispatch.observed_at_ms < drive.dispatch.result_delay_seconds * 1000, caseId);
+    assert.equal(record.park.deliveredToTargetAtMs, null, caseId);
+    assert.equal(record.reason.stage, 'enqueue', caseId);
+    assert.equal(record.reason.deliveryIdHash, null, caseId);
+    assert.equal(drive.probe_ran, true, caseId);
   }
 });
 

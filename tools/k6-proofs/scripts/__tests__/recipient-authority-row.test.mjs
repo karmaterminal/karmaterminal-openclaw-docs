@@ -1,7 +1,8 @@
-// R-CD-RECIPIENT-AUTHORITY: a live, isolated-gateway row at pinned j12 (🌊's ruling, room msg
-// 1567077062139838485; docs#536). Registration, the live-run guard's refusal, the verdict rules over
-// fixture receipts (each case, each missing observation is never PASS), the product reason
-// matchers, the control's refusals and its public-safe, signed case receipts.
+// R-CD-RECIPIENT-AUTHORITY: a live, isolated-gateway row (🌊's ruling, room msg
+// 1567077062139838485; docs#536), pinned to j12′ e9dc1c31 (INTERIM; msg 1567104742604406896).
+// Registration, the live-run guard's refusal, the verdict rules over fixture receipts (each case,
+// each missing observation is never PASS, each stage pinned), j12′'s refusal-line matcher (j12's
+// lines never count), the control's refusals and its public-safe, signed case receipts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -9,19 +10,25 @@ import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, w
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
 import {
   RRA_CASES,
   RRA_CASE_IDS,
   RRA_CASE_SCHEMA,
   RRA_J12,
+  RRA_J12P,
+  RRA_PINNED,
+  RRA_PIN_STATUS,
   RRA_ROW,
   countDelegateCalls,
   countParentAcks,
+  countRoutedAfter,
   evaluateContinuationConfig,
   evaluateModelSignIn,
   findDelegateDispatch,
   findOwnerAssignment,
   findReason,
+  findReturnRefusals,
   gradeRecipientAuthorityCase,
   gradeRecipientAuthorityRow,
   isAdmissionPolicyRefusal,
@@ -29,6 +36,8 @@ import {
   listenerOwnedBy,
   matchReasonLine,
   observeTargetTranscript,
+  parseReturnRefusedLine,
+  routedFromChild,
   routedToTarget,
   traceCorrelationMatches,
 } from '../../lib/recipient-authority-row.mjs';
@@ -48,6 +57,8 @@ const manifestPath = path.join(k6Root, 'manifests', 'r-cd-recipient-authority.js
 const RUN = 'rra-0123456789abcdef';
 const H = (c) => c.repeat(64);
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
+const COMP = `comp-${RRA_PINNED.slice(0, 8)}`;
+const sha256Hex = (value) => createHash('sha256').update(value).digest('hex');
 
 /* ------------------------------------------------------------------------------------ */
 /* Registration                                                                          */
@@ -61,7 +72,11 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.equal(manifest.invocation.tool, 'continue_delegate');
   assert.equal(manifest.invocation.control, 'tools/k6-proofs/scripts/run-recipient-authority-row.mjs');
   assert.equal(manifest.invocation.artifactClass, 'disposable-real-process');
-  assert.equal(manifest.invocation.pinnedCandidate, RRA_J12);
+  assert.equal(RRA_PINNED, RRA_J12P);
+  assert.equal(manifest.invocation.pinnedCandidate, RRA_J12P);
+  assert.equal(manifest.invocation.pinStatus, RRA_PIN_STATUS);
+  assert.equal(RRA_PIN_STATUS, 'interim');
+  assert.equal(manifest.invocation.baselineCandidate, RRA_J12, 'j12 is the named baseline, never the pin');
   assert.deepEqual(manifest.invocation.cases, RRA_CASE_IDS);
   assert.equal(Object.hasOwn(manifest, 'verdictCap'), false, 'a disposable real process needs no cap');
   assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
@@ -75,20 +90,28 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.ok(existsSync(path.join(repoRoot, manifest.invocation.control)));
   assert.ok(existsSync(path.join(k6Root, 'scenarios', manifest.scenario.file)));
   const docs = readFileSync(path.join(k6Root, 'docs', 'R-CD-RECIPIENT-AUTHORITY.md'), 'utf8');
-  assert.match(docs, new RegExp(RRA_J12));
+  assert.match(docs, new RegExp(RRA_J12P));
+  assert.match(docs, /INTERIM/);
   for (const caseId of RRA_CASE_IDS) assert.match(docs, new RegExp(`\`${caseId}\``), caseId);
+  // The case table pins one stage per refused return.
+  for (const caseId of RRA_CASE_IDS.filter((id) => RRA_CASES[id].reasonKind === 'return-refused')) {
+    assert.match(docs, new RegExp(`\\| \`${caseId}\` \\|[^\\n]*\`stage=${RRA_CASES[caseId].refusedAt}\``), caseId);
+  }
   assert.match(docs, /## Operator procedure/);
   assert.match(docs, /5442236054/);
   const readme = readFileSync(path.join(k6Root, 'README.md'), 'utf8');
-  assert.match(readme, /^\| R-CD-RECIPIENT-AUTHORITY \| `run-recipient-authority-row\.mjs` \|/m);
+  assert.match(readme, /^\| R-CD-RECIPIENT-AUTHORITY \| `run-recipient-authority-row\.mjs` \| [^|]*j12′/m);
   const pipeline = readFileSync(path.join(k6Root, 'k6-proofs-pipeline.xml'), 'utf8');
   assert.match(pipeline, /<Row id="R-CD-RECIPIENT-AUTHORITY" [^>]*issue="docs#536"/);
+  assert.match(pipeline, /e9dc1c318a2f/);
   assert.match(pipeline, /<Manifest>tools\/k6-proofs\/manifests\/r-cd-recipient-authority\.json<\/Manifest>/);
 });
 
-test('the scenario header cites the j12 product path at every boundary the verdict rests on', () => {
+test('the scenario header cites the j12′ product path at every boundary the verdict rests on', () => {
   const scenario = readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8');
-  assert.match(scenario, new RegExp(RRA_J12));
+  assert.match(scenario, new RegExp(RRA_J12P));
+  assert.match(scenario, /INTERIM/);
+  // Files j12′ did not change keep their j12 lines; the refusal path is j12′'s own.
   for (const anchor of [
     'src/config/sessions/session-recipient-authority-types.ts:87-92',
     'src/auto-reply/continuation/delegate-flow-store.ts:426-437',
@@ -98,20 +121,27 @@ test('the scenario header cites the j12 product path at every boundary the verdi
     'session-sharing-store.native.ts:150-195',
     'src/agents/tools/continue-delegate-tool.ts:353-362',
     'src/auto-reply/continuation/delegate-dispatch.ts:267-290',
-    'src/agents/subagent-announce.continuation-return.ts:104-212',
-    'src/auto-reply/continuation/targeting.ts:240-254',
-    'src/auto-reply/continuation/continuation-wake.ts:127-238',
-    'src/auto-reply/reply/session-system-events.ts:153-211',
-    'src/gateway/server-restart-sentinel-delivery.ts:226-243',
-    'src/infra/session-delivery-queue-recovery.ts:149-156',
+    'src/auto-reply/continuation/return-refusal.ts:15-29',
+    'src/agents/subagent-announce.continuation-return.ts:98-215',
+    'src/auto-reply/continuation/targeting.ts:249-411',
+    'src/auto-reply/continuation/continuation-wake.ts:127-256',
+    'src/auto-reply/reply/session-system-events.ts:192-207',
+    'src/gateway/server-restart-sentinel-delivery.ts:263-281',
+    'src/infra/session-delivery-queue-recovery.ts:152-215',
+    'src/infra/delivery-queue-sqlite.kernel.ts:397-429',
+    'src/auto-reply/reply/session-reset-cleanup.ts:146-196',
     'src/cli/gateway-cli/run-loop.ts:496-551',
   ]) {
     assert.ok(scenario.includes(anchor), anchor);
   }
+  // j12's anchors for the files j12′ changed are gone.
+  for (const stale of ['targeting.ts:240-254', 'continuation-wake.ts:127-238', 'server-restart-sentinel-delivery.ts:226-243', 'session event delivery skipped']) {
+    assert.ok(!scenario.includes(stale), stale);
+  }
 });
 
 test('live-run-guard refuses the row even with every live-run variable set', () => {
-  for (const env of [{}, { OPENCLAW_GATEWAY_TOKEN: 'x'.repeat(32), OPENCLAW_SESSION_KEY: 'agent:main:main', OPENCLAW_CANDIDATE_SHA: RRA_J12 }]) {
+  for (const env of [{}, { OPENCLAW_GATEWAY_TOKEN: 'x'.repeat(32), OPENCLAW_SESSION_KEY: 'agent:main:main', OPENCLAW_CANDIDATE_SHA: RRA_PINNED }]) {
     const result = spawnSync(process.execPath, [path.join(k6Root, 'scripts', 'live-run-guard.mjs'), '--manifest', manifestPath, '--json'], {
       encoding: 'utf8',
       env: { PATH: process.env.PATH, ...env },
@@ -136,11 +166,11 @@ function completeRecord(caseId) {
     row: RRA_ROW,
     case: caseId,
     runId: RUN,
-    candidateSha: RRA_J12,
+    candidateSha: RRA_PINNED,
     docsSha: 'd'.repeat(40),
     gates: {
       candidatePinned: true,
-      buildInfoCommit: RRA_J12,
+      buildInfoCommit: RRA_PINNED,
       stateIsolated: true,
       modelSignIn: true,
       crossSessionTargetingEnabled: true,
@@ -153,6 +183,7 @@ function completeRecord(caseId) {
     target: {
       primed: true,
       probeRan: refusal,
+      probeSentAtMs: refusal ? 59_000 : null,
       probeReplied: refusal,
       ackRuns: refusal ? 0 : 1,
       foreignRuns: refusal ? 0 : 1,
@@ -163,9 +194,11 @@ function completeRecord(caseId) {
     parent: { ackRows: 0 },
     preTransition: durable ? { ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 0 } : null,
     transition: { method: spec.transition, ok: spec.transition ? true : null, requestedAtMs: spec.transition ? 5000 : null, settledAtMs: spec.transition ? 5100 : null },
-    park: { deliveredToTargetAtMs: 4000 },
+    // A parked return was routed before its transition; a wake-mode one never was.
+    park: { deliveredToTargetAtMs: spec.timing === 'before-return' ? null : 4000 },
+    routing: durable ? { afterTransition: 0 } : null,
     epochs: { captured: H('a'), afterTransition: spec.transition ? (durable ? H('b') : H('a')) : null, final: durable ? H('b') : H('a') },
-    reason: durable ? { kind: 'replay-authority-changed', observedAtMs: 60000, generation: 0 } : null,
+    reason: durable ? refusedReason(spec, { observedAtMs: 60000, generation: 0 }) : null,
     config: null,
     trace: spec.expectChild === false ? null : { correlated: true },
     cleanup: { gatewayStopped: true, residue: false },
@@ -196,9 +229,24 @@ function completeRecord(caseId) {
       generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }, { index: 1, startedByHarness: true, ownedListenerThroughout: true }],
       restartedAtMs: 6000,
     };
-    record.reason = { kind: 'replay-authority-changed', observedAtMs: 9000, generation: 1 };
+    record.reason = refusedReason(spec, { observedAtMs: 9000, generation: 1 });
   }
   return record;
+}
+
+/** The control's reason for a refused return: its j12′ line at the case's pinned stage. */
+function refusedReason(spec, { observedAtMs, generation }) {
+  return {
+    kind: 'return-refused',
+    stage: spec.refusedAt,
+    stages: [spec.refusedAt],
+    reasonText: 'recipient-authority-changed',
+    observedAtMs,
+    generation,
+    deliveryIdHash: spec.deliveryId ? H('e') : null,
+    distinctDeliveryIds: spec.deliveryId ? 1 : 0,
+    lines: 1,
+  };
 }
 
 const mutate = (record, fn) => {
@@ -209,11 +257,14 @@ const mutate = (record, fn) => {
 const refusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'refusal');
 const allowedCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'allowed');
 const durableCases = refusalCases.filter((caseId) => RRA_CASES[caseId].expectChild !== false);
+const parkedCases = durableCases.filter((caseId) => RRA_CASES[caseId].timing === 'parked');
+const wakeModeCases = durableCases.filter((caseId) => RRA_CASES[caseId].timing === 'before-return');
 
 test('every case with its complete receipt chain grades PASS-candidate', () => {
   assert.deepEqual(RRA_CASE_IDS, [
     'allowed', 'allowed-across-reset', 'allowed-silent', 'unauthorized-admission', 'unauthorized-dispatch',
-    'revoked-visibility', 'revoked-membership', 'revoked-owner', 'reassigned', 'replay-restart',
+    'revoked-visibility', 'revoked-membership', 'revoked-owner', 'reassigned', 'wake-revoked-visibility',
+    'wake-reassigned', 'replay-restart',
   ]);
   for (const caseId of RRA_CASE_IDS) {
     const graded = gradeRecipientAuthorityCase(completeRecord(caseId));
@@ -273,12 +324,14 @@ test('any adoption, ack, wake or landing of a refused return is FAIL-candidate',
 });
 
 test('a revoked, reassigned or replay case must park the return before the transition and advance the epoch', () => {
-  for (const caseId of durableCases) {
+  for (const caseId of parkedCases) {
     const late = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.park.deliveredToTargetAtMs = 5000; }));
     assert.ok(late.missing.includes('return-not-parked-before-transition'), caseId);
     assert.equal(late.verdict, 'MISSING-candidate');
     const unrouted = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.park.deliveredToTargetAtMs = null; }));
     assert.equal(unrouted.verdict, 'MISSING-candidate', caseId);
+  }
+  for (const caseId of durableCases) {
     const unmoved = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.epochs.afterTransition = r.epochs.captured; }));
     assert.ok(unmoved.missing.includes('transition-did-not-advance-epoch'), caseId);
     const unread = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.epochs.captured = null; }));
@@ -303,6 +356,110 @@ test('replay-restart credits only a reason from the replacement generation, afte
   ]) {
     const graded = gradeRecipientAuthorityCase(mutate(base, fn));
     assert.equal(graded.verdict, 'MISSING-candidate', JSON.stringify(graded));
+  }
+});
+
+test('each refused return pins one stage from the j12′ bytes, and a row only where that stage writes one', () => {
+  assert.deepEqual(
+    Object.fromEntries(durableCases.map((caseId) => [caseId, [RRA_CASES[caseId].refusedAt, RRA_CASES[caseId].deliveryId, RRA_CASES[caseId].timing, RRA_CASES[caseId].mode]])),
+    {
+      'revoked-visibility': ['prompt-drain', true, 'parked', 'silent'],
+      'revoked-membership': ['prompt-drain', true, 'parked', 'silent'],
+      'revoked-owner': ['prompt-drain', true, 'parked', 'silent'],
+      reassigned: ['replay', true, 'parked', 'silent'],
+      'wake-revoked-visibility': ['enqueue', false, 'before-return', 'silent-wake'],
+      'wake-reassigned': ['enqueue', false, 'before-return', 'silent-wake'],
+      'replay-restart': ['replay', true, 'parked', 'silent'],
+    },
+  );
+  for (const caseId of durableCases) {
+    const spec = RRA_CASES[caseId];
+    assert.match(spec.refusedAtBytes, /\.ts:\d+/u, caseId);
+    // Any other stage is never PASS: the case's claim is the pinned boundary.
+    for (const stage of ['enqueue', 'replay', 'wake', 'prompt-drain'].filter((value) => value !== spec.refusedAt)) {
+      const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stage = stage; r.reason.stages = [stage]; }));
+      assert.equal(graded.verdict, 'MISSING-candidate', `${caseId} at ${stage}`);
+      assert.ok(graded.missing.includes('refusal-stage-mismatch'), `${caseId} at ${stage}`);
+    }
+    const mixed = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stages = [spec.refusedAt, 'wake']; r.reason.lines = 2; }));
+    assert.ok(mixed.missing.includes('refusal-stage-mismatch'), caseId);
+    // A row named where the stage writes none, or none named where it does.
+    const flipped = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      r.reason.deliveryIdHash = spec.deliveryId ? null : H('e');
+      r.reason.distinctDeliveryIds = spec.deliveryId ? 0 : 1;
+    }));
+    assert.equal(flipped.verdict, 'MISSING-candidate', caseId);
+    assert.ok(flipped.missing.includes('refusal-delivery-id-mismatch'), caseId);
+    // The disposable target receives one return: two refused rows are not this case's alone.
+    const twoRows = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.distinctDeliveryIds = 2; }));
+    assert.ok(twoRows.missing.includes('reason-delivery-id-ambiguous'), caseId);
+    const unreadIds = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.distinctDeliveryIds = undefined; }));
+    assert.ok(unreadIds.missing.includes('reason-delivery-id-ambiguous'), caseId);
+    // j12's reason kind is not j12′'s.
+    const j12Kind = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.kind = 'replay-authority-changed'; }));
+    assert.ok(j12Kind.missing.includes('refusal-reason-not-observed'), caseId);
+    // A Delivered to line for the return after its transition is FAIL; an unread router log is MISSING.
+    const routed = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.routing.afterTransition = 1; }));
+    assert.equal(routed.verdict, 'FAIL-candidate', caseId);
+    assert.ok(routed.contradictions.includes('refused-return-routed'), caseId);
+    for (const routing of [null, { afterTransition: null }, {}]) {
+      const unread = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.routing = routing; }));
+      assert.equal(unread.verdict, 'MISSING-candidate', `${caseId} ${JSON.stringify(routing)}`);
+      assert.ok(unread.missing.includes('routing-unread'), caseId);
+    }
+  }
+  // Only the prompt-drain cases bind the reason to the probe turn's drain.
+  for (const caseId of durableCases) {
+    const early = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeSentAtMs = 61_000; }));
+    if (RRA_CASES[caseId].refusedAt === 'prompt-drain') {
+      assert.equal(early.verdict, 'MISSING-candidate', caseId);
+      assert.ok(early.missing.includes('reason-not-from-probe-drain'), caseId);
+    } else {
+      assert.equal(early.verdict, 'PASS-candidate', caseId);
+    }
+    if (RRA_CASES[caseId].refusedAt === 'prompt-drain') {
+      const unsent = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeSentAtMs = null; }));
+      assert.ok(unsent.missing.includes('reason-not-from-probe-drain'), caseId);
+    }
+  }
+});
+
+test('a wake-mode refusal: transitioned before the fire, never routed, refused at enqueue with no row', () => {
+  for (const caseId of wakeModeCases) {
+    // The transition must settle before the delegate could fire, or the return may have been current.
+    for (const fn of [
+      (r) => { r.transition.settledAtMs = 31_500; },
+      (r) => { r.dispatch.resultDelaySeconds = 2; },
+      (r) => { r.dispatch.resultDelaySeconds = null; },
+      (r) => { r.transition.settledAtMs = null; },
+    ]) {
+      const late = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { fn(r); r.target.ackRuns = 1; r.target.foreignRuns = 1; }));
+      assert.equal(late.verdict, 'MISSING-candidate', caseId);
+      assert.ok(late.missing.includes('transition-not-before-fire'), `${caseId}: ${late.missing}`);
+      assert.deepEqual(late.contradictions, [], `${caseId}: a return current at its routing may be adopted`);
+    }
+    // Routed before the transition: it was delivered while current, so its adoption proves nothing.
+    const beat = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      r.park.deliveredToTargetAtMs = 4_000;
+      r.target.ackRuns = 1;
+      r.target.foreignRuns = 1;
+    }));
+    assert.equal(beat.verdict, 'MISSING-candidate', caseId);
+    assert.ok(beat.missing.includes('return-routed-before-transition'));
+    assert.deepEqual(beat.contradictions, []);
+    // Routed after it: the router delivered a return whose authority had already advanced.
+    const routed = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+      r.park.deliveredToTargetAtMs = 40_000;
+      r.routing.afterTransition = 1;
+    }));
+    assert.equal(routed.verdict, 'FAIL-candidate', caseId);
+    assert.ok(routed.contradictions.includes('refused-return-routed'));
+    // A wake turn on the target is FAIL, as for every refusal.
+    const woken = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.foreignRuns = 1; }));
+    assert.equal(woken.verdict, 'FAIL-candidate', caseId);
+    assert.ok(woken.contradictions.includes('target-woken'));
+    // A parked case keeps requiring its park; a wake-mode case never needs one.
+    assert.equal(gradeRecipientAuthorityCase(completeRecord(caseId)).missing.includes('return-not-parked-before-transition'), false);
   }
 });
 
@@ -365,11 +522,13 @@ test('the allowed cases: adopted exactly once in the target, never the parent, e
   assert.ok(advanced.contradictions.includes('epoch-advanced-by-non-edge-transition'));
 });
 
-test('a record not about j12 on a harness-owned gateway is MISSING whatever else it shows', () => {
+test('a record not about j12′ on a harness-owned gateway is MISSING whatever else it shows', () => {
   const adoptedRefusal = (r) => { r.target.ackRuns = 1; };
   for (const [label, fn] of Object.entries({
-    'candidate-not-j12': (r) => { r.candidateSha = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
+    'candidate-not-pinned': (r) => { r.candidateSha = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
+    'candidate-not-pinned (the j12 baseline)': (r) => { r.candidateSha = RRA_J12; },
     'gate:buildInfoCommit': (r) => { r.gates.buildInfoCommit = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
+    'gate:buildInfoCommit (a j12 stage)': (r) => { r.gates.buildInfoCommit = RRA_J12; },
     'gateway-not-harness-owned': (r) => { r.gateway.generations[0].ownedListenerThroughout = false; },
     'gateway-not-harness-owned (none)': (r) => { r.gateway.generations = []; },
     'scenario-not-bound-to-run': (r) => { r.scenario.controlRunId = 'rra-ffffffffffffffff'; },
@@ -378,6 +537,7 @@ test('a record not about j12 on a harness-owned gateway is MISSING whatever else
   })) {
     const graded = gradeRecipientAuthorityCase(mutate(completeRecord('revoked-visibility'), (r) => { fn(r); adoptedRefusal(r); }));
     assert.equal(graded.verdict, 'MISSING-candidate', label);
+    assert.ok(graded.missing.includes(label.replace(/ \(.*\)$/u, '')), `${label}: ${graded.missing}`);
     assert.deepEqual(graded.contradictions, [], `${label}: not judged`);
   }
   for (const record of [null, {}, { ...completeRecord('allowed'), schema: 'other' }, { ...completeRecord('allowed'), case: 'stale' }]) {
@@ -498,24 +658,82 @@ test('the row stays MISSING until every case has a verified receipt, and moves o
 /* Product reason and transcript matchers                                                */
 /* ------------------------------------------------------------------------------------ */
 
-test('a reason line counts only as product text naming this case\'s own session key', () => {
+const DELIVERY_ID = 'a1b2c3d4'.repeat(8);
+/** j12′'s refused-return line as the console prints it (src/logging/subsystem.ts:158-194). */
+const refusedConsole = (stage, key, deliveryId = DELIVERY_ID) =>
+  `08:00:00.000 [continuation/return-refused] [continuation:return-refused] stage=${stage} reason=recipient-authority-changed session=${key}${deliveryId ? ` deliveryId=${deliveryId}` : ''}`;
+/** The same line in the structured file log: tslog's [name, meta, message] (src/logging/subsystem.ts:317-330). */
+const refusedFile = (stage, key, deliveryId = DELIVERY_ID, meta = {}) => {
+  const message = `[continuation:return-refused] stage=${stage} reason=recipient-authority-changed session=${key}${deliveryId ? ` deliveryId=${deliveryId}` : ''}`;
+  return JSON.stringify({
+    0: JSON.stringify({ subsystem: 'continuation/return-refused' }),
+    1: { stage, reason: 'recipient-authority-changed', sessionKey: key, ...(deliveryId ? { deliveryId } : {}), ...meta },
+    2: message,
+    _meta: { logLevelName: 'WARN', name: JSON.stringify({ subsystem: 'continuation/return-refused' }) },
+    time: '2026-11-03T08:00:00.000Z',
+  });
+};
+/** j12's replay warn, which j12′ removed. */
+const j12ReplayLine = (key) => `2026-11-03T08:00:00.000Z [gateway/restart-sentinel] session event delivery skipped: recipient authority changed sessionKey=${key} queueId=q-1`;
+
+test('j12′\'s refused-return line is read from the console or the structured file log; j12\'s lines never count', () => {
   const target = 'agent:main:r-cd-ra-revoked-visibility-target-abc';
+  for (const stage of ['enqueue', 'replay', 'wake', 'prompt-drain']) {
+    for (const line of [refusedConsole(stage, target), refusedFile(stage, target), `\u001b[90m08:00:00\u001b[39m \u001b[35m[continuation/return-refused]\u001b[39m \u001b[33m[continuation:return-refused] stage=${stage} reason=recipient-authority-changed session=${target} deliveryId=${DELIVERY_ID}\u001b[39m`]) {
+      assert.deepEqual(parseReturnRefusedLine(line), { stage, reason: 'recipient-authority-changed', session: target, deliveryId: DELIVERY_ID }, line);
+      assert.equal(matchReasonLine(line, 'return-refused', { targetKey: target }), true, line);
+    }
+  }
+  // The router's first read refuses before any row: no deliveryId.
+  assert.deepEqual(parseReturnRefusedLine(refusedConsole('enqueue', target, null)), { stage: 'enqueue', reason: 'recipient-authority-changed', session: target, deliveryId: null });
+  assert.deepEqual(parseReturnRefusedLine(refusedFile('enqueue', target, null)), { stage: 'enqueue', reason: 'recipient-authority-changed', session: target, deliveryId: null });
+  // A JSON console line (style json) carries the subsystem and message as fields.
+  const jsonConsole = JSON.stringify({ time: '2026-11-03T08:00:00.000Z', level: 'warn', subsystem: 'continuation/return-refused', message: `[continuation:return-refused] stage=replay reason=recipient-authority-changed session=${target} deliveryId=${DELIVERY_ID}`, stage: 'replay', sessionKey: target, deliveryId: DELIVERY_ID });
+  assert.equal(parseReturnRefusedLine(jsonConsole)?.stage, 'replay');
+  // j12's lines, in either form, are not j12′'s reason.
+  const j12Wake = `session event delivery wake skipped: recipient authority changed sessionKey=${target} queueId=q-1`;
+  const j12File = JSON.stringify({ 0: '{"subsystem":"gateway/restart-sentinel"}', 1: { sessionKey: target, queueId: 'q-1' }, 2: 'session event delivery skipped: recipient authority changed' });
+  for (const line of [j12ReplayLine(target), j12Wake, j12File]) {
+    assert.equal(parseReturnRefusedLine(line), null, line);
+    assert.equal(matchReasonLine(line, 'return-refused', { targetKey: target }), false, line);
+  }
+  // Only the product's own text: another subsystem, a trailing remainder, a disagreeing field, an
+  // assistant quoting it, another reason or another session do not count.
+  const message = `[continuation:return-refused] stage=replay reason=recipient-authority-changed session=${target} deliveryId=${DELIVERY_ID}`;
+  for (const line of [
+    `[agent/embedded] ${message}`,
+    `assistant said: ${message}`,
+    `${refusedConsole('replay', target)} extra`,
+    refusedFile('replay', target, DELIVERY_ID, { stage: 'wake' }),
+    refusedFile('replay', target, DELIVERY_ID, { sessionKey: `${target}2` }),
+    JSON.stringify({ 0: '{"subsystem":"agent/embedded"}', 2: message }),
+    '{not json [continuation:return-refused]',
+  ]) {
+    assert.equal(parseReturnRefusedLine(line), null, line);
+  }
+  assert.equal(matchReasonLine(refusedConsole('replay', target).replace('recipient-authority-changed', 'other-reason'), 'return-refused', { targetKey: target }), false);
+  assert.equal(matchReasonLine(refusedConsole('replay', `${target}2`), 'return-refused', { targetKey: target }), false, 'a longer key is another session');
+  assert.equal(matchReasonLine(refusedConsole('replay', target), 'return-refused', { targetKey: `${target}x` }), false);
+  assert.equal(matchReasonLine(refusedConsole('replay', target), 'return-refused', {}), false, 'no target, no match');
+  // findReturnRefusals keeps every line for the target from afterMs on, in order, with stage and id.
+  const entries = [
+    { atMs: 10, text: refusedConsole('replay', target) },
+    { atMs: 20, text: refusedConsole('prompt-drain', 'agent:main:other') },
+    { atMs: 30, text: refusedFile('prompt-drain', target), generation: 1 },
+    { atMs: 40, text: j12ReplayLine(target) },
+  ];
+  assert.deepEqual(findReturnRefusals(entries, target, 20).map(({ atMs, stage, generation }) => [atMs, stage, generation]), [[30, 'prompt-drain', 1]]);
+  assert.equal(findReturnRefusals(entries, target).length, 2);
+  // The cross-session policy reasons are unchanged at j12′.
   const parent = 'agent:main:r-cd-ra-unauthorized-dispatch-parent-abc';
-  const consoleLine = `2026-11-03T08:00:00.000Z [gateway/restart-sentinel] session event delivery skipped: recipient authority changed sessionKey=${target} queueId=q-1`;
-  const wakeLine = `session event delivery wake skipped: recipient authority changed sessionKey=${target} queueId=q-1`;
-  const fileLine = JSON.stringify({ 0: '{"subsystem":"gateway/restart-sentinel"}', 1: { sessionKey: target, queueId: 'q-1' }, 2: 'session event delivery skipped: recipient authority changed' });
-  for (const line of [consoleLine, wakeLine, fileLine]) assert.equal(matchReasonLine(line, 'replay-authority-changed', { targetKey: target }), true, line);
-  assert.equal(matchReasonLine(consoleLine, 'replay-authority-changed', { targetKey: `${target}x` }), false);
-  assert.equal(matchReasonLine(consoleLine.replace(target, `${target}2`), 'replay-authority-changed', { targetKey: target }), false);
-  assert.equal(matchReasonLine(`assistant said: recipient authority changed ${target}`, 'replay-authority-changed', { targetKey: target }), false);
   const rejected = `[continuation:delegate-rejected] policy.cross_session_targeting task=RCDRA:x session=${parent}`;
   assert.equal(matchReasonLine(rejected, 'dispatch-policy', { parentKey: parent }), true);
   assert.equal(matchReasonLine(rejected, 'dispatch-policy', { parentKey: target }), false);
   assert.equal(matchReasonLine(rejected, 'admission-policy', { parentKey: parent }), false, 'admission reasons come from the toolResult');
   assert.equal(lineNamesKey(`a=${target} b`, target), true);
   assert.equal(lineNamesKey(`a=${target}:child b`, target), false);
-  assert.equal(findReason([{ atMs: 10, text: consoleLine }, { atMs: 30, text: wakeLine, generation: 1 }], 'replay-authority-changed', { targetKey: target }, 20).generation, 1);
-  assert.equal(findReason([{ atMs: 10, text: consoleLine }], 'replay-authority-changed', { targetKey: target }, 20), null);
+  assert.equal(findReason([{ atMs: 10, text: rejected }, { atMs: 30, text: rejected, generation: 1 }], 'dispatch-policy', { parentKey: parent }, 20).generation, 1);
+  assert.equal(findReason([{ atMs: 10, text: rejected }], 'dispatch-policy', { parentKey: parent }, 20), null);
   assert.equal(isAdmissionPolicyRefusal('cross-session continuation targeting is disabled by agents.defaults.continuation.crossSessionTargeting.'), true);
   assert.equal(isAdmissionPolicyRefusal('task must be a non-empty string'), false);
 });
@@ -527,6 +745,21 @@ test('the router line binds the return to the target only when the target is a l
   assert.equal(routedToTarget('[continuation:targeted-return] Delivered to  from agent:main:subagent:c', target), false, 'an empty list is every recipient refused');
   assert.equal(routedToTarget(`[continuation:targeted-return] Delivered to ${target}2 from agent:main:subagent:c`, target), false);
   assert.equal(routedToTarget(`[continuation:targeted-return] Held for retry to ${target} from c`, target), false);
+  // j12 logged an empty list when every recipient was refused; j12′ logs nothing. Either way the
+  // line is bound to the return by its child.
+  const child = 'agent:main:subagent:c';
+  assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to  from ${child}`, child), true);
+  assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to ${target} from ${child}`, child), true);
+  assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to ${target} from ${child}2`, child), false);
+  assert.equal(routedFromChild(`[continuation:targeted-return] Delivered to ${target} from ${child}`, null), false);
+  const lines = [
+    { atMs: 10, text: `[continuation:targeted-return] Delivered to ${target} from ${child}` },
+    { atMs: 30, text: `[continuation:targeted-return] Delivered to  from ${child}` },
+    { atMs: 40, text: `[continuation:targeted-return] Delivered to agent:main:x from agent:main:subagent:other` },
+  ];
+  assert.equal(countRoutedAfter(lines, { targetKey: target, childKey: child }, 20), 1);
+  assert.equal(countRoutedAfter(lines, { targetKey: target, childKey: null }, 0), 1);
+  assert.equal(countRoutedAfter(lines, { targetKey: target, childKey: child }, 0), 2);
 });
 
 const say = (text, runId) => ({ role: 'assistant', content: [{ type: 'text', text }], ...(runId ? { __openclaw: { runId } } : {}) });
@@ -585,7 +818,7 @@ test('dispatch binding: the case\'s own continue_delegate call, through Tool Sea
 /* ------------------------------------------------------------------------------------ */
 
 test('gates: model sign-in, cross-session policy and listener ownership fail closed', () => {
-  const stateDir = '/home/u/proof-gw/comp-352f5602/state';
+  const stateDir = `/home/u/proof-gw/${COMP}/state`;
   const good = { auth: { storePath: `${stateDir}/agents/main/agent/auth.json`, missingProvidersInUse: [], providers: [{ provider: 'openai', profiles: { count: 1 } }] } };
   const sign = (status) => evaluateModelSignIn(status, { stateDir, primaryModel: 'openai/gpt-5.6', pathApi: path });
   assert.equal(sign(good).ok, true);
@@ -609,9 +842,9 @@ test('gates: model sign-in, cross-session policy and listener ownership fail clo
   assert.equal(listenerOwnedBy(null, { pid: 10, startTicks: 5 }), false);
 });
 
-function proofGwFixture({ buildCommit = RRA_J12, crossSession = 'enabled', stateLink = false } = {}) {
+function proofGwFixture({ buildCommit = RRA_PINNED, crossSession = 'enabled', stateLink = false } = {}) {
   const home = mkdtempSync(path.join(os.tmpdir(), 'rra-home-'));
-  const dir = path.join(home, 'proof-gw', 'comp-352f5602');
+  const dir = path.join(home, 'proof-gw', COMP);
   const stage = path.join(home, 'stage');
   mkdirSync(path.join(dir, 'receipts'), { recursive: true });
   mkdirSync(path.join(home, '.openclaw'), { recursive: true });
@@ -620,7 +853,7 @@ function proofGwFixture({ buildCommit = RRA_J12, crossSession = 'enabled', state
   mkdirSync(path.join(stage, 'dist'), { recursive: true });
   writeFileSync(path.join(stage, 'dist', 'build-info.json'), JSON.stringify({ commit: buildCommit, buildId: 'b' }));
   writeFileSync(path.join(stage, 'dist', 'index.js'), '');
-  writeFileSync(path.join(dir, 'receipts', 'identity.json'), JSON.stringify({ pure_candidate_P: RRA_J12, composite_runtime_C: RRA_J12, unit: 'openclaw-proof-comp-352f5602', port: 18899 }));
+  writeFileSync(path.join(dir, 'receipts', 'identity.json'), JSON.stringify({ pure_candidate_P: RRA_PINNED, composite_runtime_C: RRA_PINNED, unit: `openclaw-proof-${COMP}`, port: 18899 }));
   writeFileSync(path.join(dir, 'openclaw.json'), JSON.stringify({
     gateway: { port: 18899, bind: 'loopback', auth: { mode: 'token', token: 't'.repeat(32) } },
     agents: { defaults: { model: { primary: 'openai/gpt-5.6' }, continuation: { enabled: true, crossSessionTargeting: crossSession } } },
@@ -668,7 +901,7 @@ function controlOptions(fixture, extra = {}) {
     ...parseArgs(['node', 'x']),
     proofGwDir: fixture.dir,
     stageDir: fixture.stage,
-    candidateSha: RRA_J12,
+    candidateSha: RRA_PINNED,
     docsSha: 'd'.repeat(40),
     artifactDir: path.join(fixture.home, 'artifacts'),
     observerKeyFile: fixture.keyFile,
@@ -676,14 +909,14 @@ function controlOptions(fixture, extra = {}) {
   };
 }
 
-test('the control accepts a stopped j12 proof-gw target and checks its sign-in against the isolated state only', () => {
+test('the control accepts a stopped j12′ proof-gw target and checks its sign-in against the isolated state only', () => {
   const fixture = proofGwFixture();
   try {
     const { platform, calls } = fakePlatform(fixture);
     const evaluated = evaluateRecipientAuthorityTarget(controlOptions(fixture), platform);
     assert.equal(evaluated.ok, true, JSON.stringify(evaluated.refusals));
     assert.deepEqual({ ...evaluated.gates }, {
-      candidatePinned: true, buildInfoCommit: RRA_J12, stateIsolated: true, modelSignIn: true, crossSessionTargetingEnabled: true, gatewayStartedByHarness: false,
+      candidatePinned: true, buildInfoCommit: RRA_PINNED, stateIsolated: true, modelSignIn: true, crossSessionTargetingEnabled: true, gatewayStartedByHarness: false,
     });
     assert.equal(calls.runCli.length, 1);
     const env = calls.runCli[0].env;
@@ -696,10 +929,13 @@ test('the control accepts a stopped j12 proof-gw target and checks its sign-in a
   }
 });
 
-test('the control refuses: another candidate, a non-j12 build, a live-overlapping state, no sign-in, disabled policy, a gateway it did not start', () => {
+test('the control refuses: another candidate, a non-j12′ build, a live-overlapping state, no sign-in, disabled policy, a gateway it did not start', () => {
   const cases = [
     ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: 'f15237ec921879d918482cdf372b0718d4c1aab9' }), {}],
+    // j12 is the named baseline: neither its SHA nor its stage runs this row.
+    ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: RRA_J12 }), {}],
     ['stage-build-mismatch', { buildCommit: 'f15237ec921879d918482cdf372b0718d4c1aab9' }, (o) => o, {}],
+    ['stage-build-mismatch', { buildCommit: RRA_J12 }, (o) => o, {}],
     ['state-dir-overlaps-live', { stateLink: true }, (o) => o, {}],
     ['config-cross-session-disabled', { crossSession: 'disabled' }, (o) => o, {}],
     ['port-in-use', {}, (o) => o, { portListening: () => true }],
@@ -776,7 +1012,7 @@ test('the control never asks a gateway it does not own to restart', async () => 
       runK6: async ({ env }) => {
         // The drive phase hands over for the restart; meanwhile another process took the port.
         owner = { pid: 5151, startTicks: 99 };
-        const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase: env.OPENCLAW_RCD_RA_PHASE, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_J12, keys: { parent: 'p', target: 't' }, handoff: { ready_for_restart: true }, refusals: [] };
+        const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase: env.OPENCLAW_RCD_RA_PHASE, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_PINNED, keys: { parent: 'p', target: 't' }, handoff: { ready_for_restart: true }, refusals: [] };
         return { code: 0, log: `R_CD_RECIPIENT_AUTHORITY_EVIDENCE ${JSON.stringify(evidence)}\n` };
       },
     });
@@ -801,7 +1037,7 @@ function revokedEvidence() {
     case: 'revoked-visibility',
     phase: 'drive',
     control_run_id: RUN,
-    candidate_sha: RRA_J12,
+    candidate_sha: RRA_PINNED,
     keys: { parent: 'agent:main:r-cd-ra-revoked-visibility-parent-abc', target: 'agent:main:r-cd-ra-revoked-visibility-target-abc', ops: null },
     reason_hash: 'abcdef0123456789',
     reason_length: 120,
@@ -810,9 +1046,10 @@ function revokedEvidence() {
     dispatch: { status: 'scheduled', accepted: true, result_mode: 'silent', result_delay_seconds: 30, observed_at_ms: 1_000 },
     other_delegate_calls: 0,
     pre_transition_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
-    child: { spawned: true, bound: true, done: true },
+    child: { spawned: true, bound: true, done: true, key: CHILD_KEY },
     transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
     probe_ran: true,
+    probe_sent_at_ms: 59_000,
     target_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
     parent_ack_rows: 0,
     refusals: [],
@@ -820,13 +1057,16 @@ function revokedEvidence() {
   };
 }
 
+const CHILD_KEY = 'agent:main:subagent:continuation-rra-c';
+
+/** revoked-visibility at j12′: parked at 3 s, transition at 5 s, refused by the probe's drain at 60 s. */
 function revokedHarness(evidence) {
   const { target, parent } = evidence.keys;
   return {
     logEntries: [
-      { atMs: 3_000, text: `[continuation:targeted-return] Delivered to ${target} from agent:main:subagent:c`, generation: 0 },
-      { atMs: 4_000, text: `session event delivery skipped: recipient authority changed sessionKey=${parent} queueId=q-0`, generation: 0 },
-      { atMs: 60_000, text: `session event delivery skipped: recipient authority changed sessionKey=${target} queueId=q-1`, generation: 0 },
+      { atMs: 3_000, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD_KEY}`, generation: 0 },
+      { atMs: 6_000, text: refusedConsole('prompt-drain', parent, 'f'.repeat(64)), generation: 0 },
+      { atMs: 60_000, text: refusedConsole('prompt-drain', target), generation: 0 },
     ],
     timeline: [
       { atMs: 900, state: 'read', rows: [] },
@@ -853,16 +1093,54 @@ test('the control assembles a case record from scenario evidence, product log li
     startedAtMs: 500,
   });
   assert.equal(record.park.deliveredToTargetAtMs, 3_000);
-  assert.deepEqual(record.reason, { kind: 'replay-authority-changed', observedAtMs: 60_000, generation: 0 }, 'the parent\'s line is another session');
+  assert.deepEqual(record.routing, { afterTransition: 0 }, 'the park line precedes the transition');
+  assert.equal(record.target.probeSentAtMs, 59_000);
+  assert.deepEqual(record.reason, {
+    kind: 'return-refused',
+    stage: 'prompt-drain',
+    stages: ['prompt-drain'],
+    reasonText: 'recipient-authority-changed',
+    observedAtMs: 60_000,
+    generation: 0,
+    deliveryIdHash: sha256Hex(DELIVERY_ID),
+    distinctDeliveryIds: 1,
+    lines: 1,
+  }, 'the parent\'s line is another session');
   assert.notEqual(record.epochs.captured, record.epochs.afterTransition, 'the captured epoch is read before the transition');
   assert.equal(gradeRecipientAuthorityCase({ ...record, trace: { correlated: true } }).verdict, 'PASS-candidate');
   const publicText = JSON.stringify(record);
-  for (const secret of [evidence.keys.target, evidence.keys.parent, '11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222']) {
+  for (const secret of [evidence.keys.target, evidence.keys.parent, CHILD_KEY, DELIVERY_ID, '11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222']) {
     assert.ok(!publicText.includes(secret), `public record leaks ${secret}`);
   }
-  const noReason = assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence, logEntries: harness.logEntries.slice(0, 2), timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
+  const assemble = (logEntries, extra = {}) => assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: { ...evidence, ...extra }, logEntries, timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
+  const grade = (logEntries, extra) => gradeRecipientAuthorityCase({ ...assemble(logEntries, extra), trace: { correlated: true } });
+  const noReason = assemble(harness.logEntries.slice(0, 2));
   assert.equal(noReason.reason, null);
   assert.equal(gradeRecipientAuthorityCase({ ...noReason, trace: { correlated: true } }).verdict, 'MISSING-candidate');
+  // j12's replay line is not j12′'s reason: the case has none.
+  const j12Only = grade([...harness.logEntries.slice(0, 2), { atMs: 60_000, text: j12ReplayLine(evidence.keys.target), generation: 0 }]);
+  assert.equal(j12Only.verdict, 'MISSING-candidate');
+  assert.ok(j12Only.missing.includes('refusal-reason-not-observed'));
+  // A refusal at another stage than the pinned one is never PASS.
+  const wrongStage = grade([...harness.logEntries.slice(0, 2), { atMs: 60_000, text: refusedConsole('replay', evidence.keys.target), generation: 0 }]);
+  assert.equal(wrongStage.verdict, 'MISSING-candidate');
+  assert.ok(wrongStage.missing.includes('refusal-stage-mismatch'));
+  // A later line at another stage for the same return is never PASS either.
+  const twoStages = grade([...harness.logEntries, { atMs: 70_000, text: refusedConsole('replay', evidence.keys.target), generation: 0 }]);
+  assert.ok(twoStages.missing.includes('refusal-stage-mismatch'), JSON.stringify(twoStages));
+  // A prompt-drain line from before the probe was sent is not the probe's drain.
+  const beforeProbe = grade(harness.logEntries, { probe_sent_at_ms: 61_000 });
+  assert.ok(beforeProbe.missing.includes('reason-not-from-probe-drain'));
+  // A Delivered to line naming the refused target after its transition contradicts the refusal.
+  const routedAgain = grade([...harness.logEntries, { atMs: 61_000, text: `[continuation:targeted-return] Delivered to ${evidence.keys.target} from ${CHILD_KEY}`, generation: 0 }]);
+  assert.equal(routedAgain.verdict, 'FAIL-candidate');
+  assert.ok(routedAgain.contradictions.includes('refused-return-routed'));
+  // So does j12's empty-list line from the case's child.
+  const emptyList = grade([...harness.logEntries, { atMs: 61_000, text: `[continuation:targeted-return] Delivered to  from ${CHILD_KEY}`, generation: 0 }]);
+  assert.equal(emptyList.verdict, 'FAIL-candidate');
+  assert.ok(emptyList.contradictions.includes('refused-return-routed'));
+  // Another session's router line after the transition is not this return's.
+  assert.equal(grade([...harness.logEntries, { atMs: 61_000, text: '[continuation:targeted-return] Delivered to agent:main:x from agent:main:subagent:other', generation: 0 }]).verdict, 'PASS-candidate');
 });
 
 test('a sample taken after the transition is never read as the captured epoch', () => {

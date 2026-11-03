@@ -67,6 +67,11 @@ It does not prove:
   RPC cannot be landed inside that window on purpose. The wake-mode cases revoke while the delegate
   waits to fire, so the router refuses them first, at enqueue. A case that raced the window would
   sometimes be refused at enqueue and sometimes adopted while still current, and could pin no stage.
+  **Covered instead, deterministically and not live,** by the product's own pin:
+  `src/auto-reply/continuation/continuation-wake.test.ts:654` asserts
+  `[continuation:return-refused] stage=wake reason=recipient-authority-changed …`. It is revert-proven at
+  `e9dc1c31` against j12 `352f5602` (`oc-focused --revert-proof`: 19 pass, 1 RED reverted). That is test
+  proof of the wake-stage refusal, **not live proof** (🌊, room msg 1567201185243332681).
 - **An enqueue refusal that names a row.** Same reason: `targeting.ts:343-347` and `:369-374`
   refuse a row only when the epoch advances between the router's reads, a window of the same kind.
   The wake-mode cases pin the first read (`:277-280`), which refuses before any row.

@@ -1,6 +1,7 @@
 /**
- * R-CD-RECIPIENT-AUTHORITY: a live, isolated-gateway row at pinned j12 (🌊's ruling, room msg
- * 1567077062139838485, 2026-11-03; bound issue karmaterminal/karmaterminal-openclaw-docs#536).
+ * R-CD-RECIPIENT-AUTHORITY: a live, isolated-gateway row (🌊's ruling, room msg
+ * 1567077062139838485, 2026-11-03; bound issue karmaterminal/karmaterminal-openclaw-docs#536),
+ * re-anchored to j12′, the explicit-refusal successor (🌊's ruling, room msg 1567104742604406896).
  *
  * One disposable gateway, started by run-recipient-authority-row.mjs, runs each case as its own
  * receipt. A case drives a real continue_delegate with targetSessionKey from a model turn (the
@@ -11,27 +12,43 @@
  * (scenarios/r-cd-recipient-authority.js), the control (scripts/run-recipient-authority-row.mjs)
  * and the tests share it. Plain ESM with no Node or k6 imports, so k6 can load it.
  *
- * The product path at j12 (karmaterminal/openclaw 352f56029dc95c60149ab4aaa127226a861d0b3d), with
- * path:line anchors, is in the scenario header and in docs/R-CD-RECIPIENT-AUTHORITY.md. What the
- * rules below rest on:
+ * The product path at j12′ (karmaterminal/openclaw e9dc1c318a2f73fd01755fc4682fa3349e8a0e94, an
+ * INTERIM pin: the reviewed refused chain, before keeps-queued-2 and the continue_work authority
+ * binding merge into j12′), with path:line anchors, is in the scenario header and in
+ * docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below rest on:
  * - The binding is captured when the continue_delegate tool call is accepted, before its
- *   "scheduled" result (continue-delegate-tool.ts:434 -> delegate-flow-store.ts:426-437). A
+ *   "scheduled" result (continue-delegate-tool.ts:424-449 -> delegate-flow-store.ts:426-437). A
  *   transition after that toolResult is a change between dispatch and return.
- * - A stale return refused at enqueue, at the wake handoff or at the prompt drain leaves no reason
- *   (targeting.ts:240-254, 278-346; continuation-wake.ts:163-171, 229-238;
- *   session-system-events.ts:193-210). Only the durable replay logs one
- *   (server-restart-sentinel-delivery.ts:234-243, 271-290). So a revoked or reassigned case parks
- *   a silent return first and is refused at replay; a wake-mode refusal could never be PASS.
- * - Settlement is "recovered" for an adopted and a refused row alike
- *   (session-delivery-queue-recovery.ts:152-156; session-delivery-queue-storage.ts:601-622), so
- *   "settled as refused" is read from the reason and the absence of adoption, never from the row.
+ * - Every refused return logs one line, `[continuation:return-refused] stage=<stage>
+ *   reason=recipient-authority-changed session=<key>[ deliveryId=<id>]`
+ *   (src/auto-reply/continuation/return-refusal.ts:15-29), at whichever boundary sees it first:
+ *   enqueue (targeting.ts:261-280, 343-347, 369-373), replay
+ *   (server-restart-sentinel-delivery.ts:50-76), wake (continuation-wake.ts:233-243) or prompt
+ *   drain (session-system-events.ts:193-207). Which boundary that is depends on where the return
+ *   is when its epoch advances, so each case pins one stage (RRA_CASES, refusedAt).
+ * - The router logs `Delivered to <keys>` only for recipients it delivered, and nothing at all
+ *   when every recipient was refused (subagent-announce.continuation-return.ts:189-203).
+ * - A refused row settles as a bounded `failed` receipt, not `recovered`
+ *   (return-refusal.ts:36-49; session-delivery-queue-recovery.ts:161-180), but no public surface
+ *   reads it: the gateway health's failed count leaves it out on purpose
+ *   (delivery-queue-sqlite.kernel.ts:397-429). So "settled as refused" is still read from the
+ *   reason and the absence of adoption, never from the row.
  */
 import { toolCallTarget } from './tool-call-identity.mjs';
 import { hasExactSentinelText, heartbeatAckFromHistory, messageRunId } from './wake-turn-receipt.mjs';
 
 export const RRA_ROW = 'R-CD-RECIPIENT-AUTHORITY';
-/** j12: the presentation product this row is pinned to. */
+/**
+ * j12′: the product this row is pinned to. INTERIM: the reviewed refused chain. The merged j12′
+ * (this chain, keeps-queued-2 and the continue_work authority binding) replaces it, and the reset
+ * and continue_work cites are re-walked there.
+ */
+export const RRA_J12P = 'e9dc1c318a2f73fd01755fc4682fa3349e8a0e94';
+export const RRA_PIN_STATUS = 'interim';
+/** j12: the presentation product the row was first written to. The named baseline, never a pin. */
 export const RRA_J12 = '352f56029dc95c60149ab4aaa127226a861d0b3d';
+/** The candidate every case record must name. */
+export const RRA_PINNED = RRA_J12P;
 export const RRA_CASE_SCHEMA = 'openclaw.k6.recipient-authority-case.v1';
 export const RRA_ROW_VERDICT_SCHEMA = 'openclaw.k6.recipient-authority-row-verdict.v1';
 export const RRA_EVIDENCE_PREFIX = 'R_CD_RECIPIENT_AUTHORITY_EVIDENCE';
@@ -44,11 +61,21 @@ export const RRA_PROBE_MARKER = 'PROBE-OK';
 
 const SHA40 = /^[0-9a-f]{40}$/u;
 
+/** The boundaries j12′ names in a refused return's line (return-refusal.ts:16). */
+export const RRA_REFUSAL_STAGES = Object.freeze(['enqueue', 'replay', 'wake', 'prompt-drain']);
+export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
+
 /**
  * The cases. `family` is what the return must do: `allowed` is adopted and acknowledged by the
  * primed target; `refusal` is refused with a product reason and leaves no adoption, ack, wake or
- * final effect. `boundary` is where j12 refuses it and therefore which reason it leaves.
- * `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment 5442236054) it answers.
+ * final effect. `refusedAt` is where j12′ refuses it, and so which reason it leaves: `admission`
+ * and `dispatch` are the cross-session policy; every other value is the one `stage=` its
+ * `[continuation:return-refused]` line must carry, and `refusedAtBytes` names the bytes that put
+ * it there. `timing` says when the transition lands: `parked` after the return was routed and
+ * parked un-adopted (mode silent), `before-return` after the scheduled result and before the
+ * delegate fires. `deliveryId` says whether that line names the refused row (`true`) or no row
+ * was written (`false`). `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment
+ * 5442236054) it answers.
  */
 export const RRA_CASES = Object.freeze({
   allowed: Object.freeze({
@@ -63,7 +90,7 @@ export const RRA_CASES = Object.freeze({
     transition: 'sessions.reset',
     // The reset replaces the target's head; the new head is primed before the return arrives.
     reprime: true,
-    clawSweeper: 'P1: accepted-child survival, reset (the epoch is not advanced by reset at j12)',
+    clawSweeper: 'P1: accepted-child survival, reset (the epoch is not advanced by reset at j12′)',
   }),
   'allowed-silent': Object.freeze({
     family: 'allowed',
@@ -76,7 +103,7 @@ export const RRA_CASES = Object.freeze({
   }),
   'unauthorized-admission': Object.freeze({
     family: 'refusal',
-    boundary: 'admission',
+    refusedAt: 'admission',
     mode: 'silent-wake',
     transition: 'config.patch',
     reasonKind: 'admission-policy',
@@ -85,56 +112,104 @@ export const RRA_CASES = Object.freeze({
   }),
   'unauthorized-dispatch': Object.freeze({
     family: 'refusal',
-    boundary: 'dispatch',
+    refusedAt: 'dispatch',
     mode: 'silent-wake',
     transition: 'config.patch',
     reasonKind: 'dispatch-policy',
     expectChild: false,
     clawSweeper: 'P1: durable returns outliving admission; rejection unproven at ... wake, delivery',
   }),
+  // A parked silent return keeps its queued copy in memory, so the pending sweep defers to it
+  // (refuseStaleAuthorityReplay, server-restart-sentinel-delivery.ts:61-65) and the probe turn's
+  // prompt drain is the first boundary to see it stale.
   'revoked-visibility': Object.freeze({
     family: 'refusal',
-    boundary: 'durable-replay',
+    refusedAt: 'prompt-drain',
+    refusedAtBytes: 'session-system-events.ts:193-202 -> session-system-event-adoption.ts:118-146; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
+    timing: 'parked',
+    deliveryId: true,
     mode: 'silent',
     transition: 'session.visibility.set',
-    reasonKind: 'replay-authority-changed',
+    reasonKind: 'return-refused',
     expectChild: true,
     clawSweeper: 'revoked recipient refused through prompt adoption, wake ... final effects',
   }),
   'revoked-membership': Object.freeze({
     family: 'refusal',
-    boundary: 'durable-replay',
+    refusedAt: 'prompt-drain',
+    refusedAtBytes: 'session-system-events.ts:193-202 -> session-system-event-adoption.ts:118-146; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
+    timing: 'parked',
+    deliveryId: true,
     mode: 'silent',
     transition: 'session.members.remove',
-    reasonKind: 'replay-authority-changed',
+    reasonKind: 'return-refused',
     expectChild: true,
     clawSweeper: 'revoked recipient refused through prompt adoption, wake ... final effects',
   }),
   'revoked-owner': Object.freeze({
     family: 'refusal',
-    boundary: 'durable-replay',
+    refusedAt: 'prompt-drain',
+    refusedAtBytes: 'session-system-events.ts:193-202 -> session-system-event-adoption.ts:118-146; the sweep defers at server-restart-sentinel-delivery.ts:61-65',
+    timing: 'parked',
+    deliveryId: true,
     mode: 'silent',
     transition: 'sessions.assignOwner',
-    reasonKind: 'replay-authority-changed',
+    reasonKind: 'return-refused',
     expectChild: true,
     clawSweeper: 'reassigned recipient (owner) refused before final effects',
   }),
+  // sessions.delete consumes the target's queued events (session-reset-cleanup.ts:194-196), so
+  // the parked row has no copy left in memory and the pending sweep refuses it.
   reassigned: Object.freeze({
     family: 'refusal',
-    boundary: 'durable-replay',
+    refusedAt: 'replay',
+    refusedAtBytes: 'sessions-delete.ts:454 -> session-reset-cleanup.ts:194-196 drops the queued copy; the sweep (session-delivery-queue-runtime.ts:59-66) -> server-restart-sentinel-delivery.ts:271-281 -> 66-71',
+    timing: 'parked',
+    deliveryId: true,
     mode: 'silent',
     transition: 'sessions.delete+sessions.create',
-    reasonKind: 'replay-authority-changed',
+    reasonKind: 'return-refused',
     expectChild: true,
     clawSweeper: 'reassigned recipient (key deleted and recreated) refused before final effects',
   }),
+  // Wake mode: the epoch advances while the delegate waits to fire, so the router's first
+  // authority read refuses the return before any row is written, and nothing is woken.
+  'wake-revoked-visibility': Object.freeze({
+    family: 'refusal',
+    refusedAt: 'enqueue',
+    refusedAtBytes: 'targeting.ts:277-280 (refuseStaleRecipient with no row, 261-276); no Delivered to line (subagent-announce.continuation-return.ts:199-203)',
+    timing: 'before-return',
+    deliveryId: false,
+    mode: 'silent-wake',
+    transition: 'session.visibility.set',
+    reasonKind: 'return-refused',
+    expectChild: true,
+    clawSweeper: 'revoked recipient refused before the wake (wake-mode refusal with a reason)',
+  }),
+  'wake-reassigned': Object.freeze({
+    family: 'refusal',
+    refusedAt: 'enqueue',
+    refusedAtBytes: 'targeting.ts:277-280 (refuseStaleRecipient with no row, 261-276); no Delivered to line (subagent-announce.continuation-return.ts:199-203)',
+    timing: 'before-return',
+    deliveryId: false,
+    mode: 'silent-wake',
+    transition: 'sessions.delete+sessions.create',
+    reasonKind: 'return-refused',
+    expectChild: true,
+    clawSweeper: 'reassigned recipient refused before the wake (wake-mode refusal with a reason)',
+  }),
+  // After a supervised restart there is no copy in memory: the replacement's boot recovery
+  // replays the parked row and refuses it.
   'replay-restart': Object.freeze({
     family: 'refusal',
-    boundary: 'boot-replay',
+    refusedAt: 'replay',
+    refusedAtBytes: 'boot recovery (server-restart-sentinel.ts:138-153) -> server-restart-sentinel-delivery.ts:271-281 -> 66-71, on the replacement generation',
+    timing: 'parked',
+    deliveryId: true,
     mode: 'silent',
     transition: 'session.visibility.set',
     restart: true,
-    reasonKind: 'replay-authority-changed',
+    reasonKind: 'return-refused',
     expectChild: true,
     clawSweeper: 'Security/P1: rejection ... through restart replay',
   }),
@@ -143,7 +218,7 @@ export const RRA_CASE_IDS = Object.freeze(Object.keys(RRA_CASES));
 /** Every case is required: the row verdict is the minimum over all of them. */
 export const RRA_REQUIRED_CASES = RRA_CASE_IDS;
 
-/** The gates the control records; each must be exactly true, or the case is not about j12. */
+/** The gates the control records; each must be exactly true, or the case is not about the pin. */
 export const RRA_GATE_KEYS = Object.freeze([
   'candidatePinned',
   'stateIsolated',
@@ -168,28 +243,84 @@ export function lowerVerdict(a, b) {
 /* ------------------------------------------------------------------------------------ */
 
 /**
- * The product-emitted refusal reasons at j12, by kind. Each is product text the agent cannot
- * author; a gateway log line counts only when it also names the case's own disposable session key
- * as a whole token.
- * - admission-policy: the continue_delegate toolResult error (continue-delegate-tool.ts:357-362).
+ * The product-emitted refusal reasons at j12′, by kind. Each is product text the agent cannot
+ * author; a gateway log line counts only when it also names the case's own disposable session key.
+ * - admission-policy: the continue_delegate toolResult error (continue-delegate-tool.ts:353-362).
  * - dispatch-policy: `[continuation:delegate-rejected] policy.cross_session_targeting ...
  *   session=<parent>` (delegate-dispatch.ts:267-277).
- * - replay-authority-changed: the durable replay's warn, with sessionKey=<target>
- *   (server-restart-sentinel-delivery.ts:238-241 and 285-288).
+ * - return-refused: a refused return's line (return-refusal.ts:20-29), read by
+ *   parseReturnRefusedLine. j12's `session event delivery skipped: recipient authority changed`
+ *   is gone at j12′ and never counts.
  */
 export const RRA_REASON_TEXT = Object.freeze({
   'admission-policy': Object.freeze(['cross-session continuation targeting is disabled']),
   'dispatch-policy': Object.freeze(['[continuation:delegate-rejected] policy.cross_session_targeting']),
-  'replay-authority-changed': Object.freeze([
-    'session event delivery skipped: recipient authority changed',
-    'session event delivery wake skipped: recipient authority changed',
-  ]),
+  'return-refused': Object.freeze(['[continuation:return-refused]']),
 });
-/** The router's line for a return it admitted: `Delivered to <keys> from <child>` (subagent-announce.continuation-return.ts:194-201). */
+/** The router's line for a return it delivered: `Delivered to <keys> from <child>` (subagent-announce.continuation-return.ts:199-203). */
 export const RRA_ROUTED_TEXT = '[continuation:targeted-return] Delivered to ';
+
+/** The subsystem that logs a refused return (return-refusal.ts:18). */
+export const RRA_REFUSED_SUBSYSTEM = 'continuation/return-refused';
+const REFUSED_MESSAGE = /^\[continuation:return-refused\] stage=(\S+) reason=(\S+) session=(\S+?)(?: deliveryId=(\S+))?$/u;
+// The console prints `[<subsystem>] <message>`, behind an optional timestamp
+// (src/logging/subsystem.ts:158-194); the message is the line's last text.
+const REFUSED_CONSOLE = /(?:^|\s)\[continuation\/return-refused\] (\[continuation:return-refused\] .*)$/u;
+const ANSI = /\u001b\[[0-9;]*m/gu;
 
 function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function refusalFromMessage(message) {
+  const match = typeof message === 'string' ? REFUSED_MESSAGE.exec(message.trim()) : null;
+  if (!match) return null;
+  return { stage: match[1], reason: match[2], session: match[3], deliveryId: match[4] ?? null };
+}
+
+/**
+ * A j12′ refused-return line, from the gateway console or from its structured file log, as
+ * { stage, reason, session, deliveryId } (deliveryId null when the line names no row), else null.
+ * - console: `[continuation/return-refused] [continuation:return-refused] stage=<stage>
+ *   reason=<reason> session=<key>[ deliveryId=<id>]`, the subsystem tag the product's own
+ *   (return-refusal.ts:18, 26-28);
+ * - file log or JSON console: one JSON object from that subsystem whose message is the same text,
+ *   and whose structured fields, when present, agree with it.
+ * Any other text, including j12's `session event delivery skipped: recipient authority changed`,
+ * is not a refusal line.
+ */
+export function parseReturnRefusedLine(line) {
+  if (typeof line !== 'string' || !line.includes(RRA_REASON_TEXT['return-refused'][0])) return null;
+  const text = line.replace(ANSI, '').trim();
+  if (text.startsWith('{')) {
+    let record;
+    try {
+      record = JSON.parse(text);
+    } catch {
+      return null;
+    }
+    if (!record || typeof record !== 'object' || Array.isArray(record)) return null;
+    const subsystemTag = JSON.stringify({ subsystem: RRA_REFUSED_SUBSYSTEM });
+    const values = Object.values(record);
+    const fromSubsystem =
+      record.subsystem === RRA_REFUSED_SUBSYSTEM ||
+      record._meta?.name === subsystemTag ||
+      values.some((value) => value === subsystemTag);
+    if (!fromSubsystem) return null;
+    const messages = [record.message, ...values].filter((value) => typeof value === 'string');
+    const parsed = messages.map(refusalFromMessage).find(Boolean);
+    if (!parsed) return null;
+    // The file log keeps the fields structured beside the message (return-refusal.ts:28).
+    const fields = values.find((value) => value && typeof value === 'object' && !Array.isArray(value) && 'stage' in value) ?? record;
+    const disagrees =
+      (fields.stage !== undefined && fields.stage !== parsed.stage) ||
+      (fields.reason !== undefined && fields.reason !== parsed.reason) ||
+      (fields.sessionKey !== undefined && fields.sessionKey !== parsed.session) ||
+      (fields.deliveryId !== undefined && fields.deliveryId !== parsed.deliveryId);
+    return disagrees ? null : parsed;
+  }
+  const match = REFUSED_CONSOLE.exec(text);
+  return match ? refusalFromMessage(match[1]) : null;
 }
 
 /**
@@ -201,24 +332,49 @@ export function lineNamesKey(line, key) {
   return new RegExp(`(?:^|[\\s="',])${escapeRegex(key)}(?=$|[\\s"',])`, 'u').test(line);
 }
 
-/** Whether a gateway log line is the product reason of `kind` for this case's session key. */
+/**
+ * Whether a gateway log line is the product reason of `kind` for this case's session key. A
+ * return-refused line must name exactly the target as its session and carry the j12′ reason; its
+ * stage and delivery id are judged by the grade, from findReturnRefusals.
+ */
 export function matchReasonLine(line, kind, { targetKey, parentKey } = {}) {
   const texts = RRA_REASON_TEXT[kind];
   if (!texts || kind === 'admission-policy' || typeof line !== 'string') return false;
+  if (kind === 'return-refused') {
+    const refusal = parseReturnRefusedLine(line);
+    return Boolean(refusal && typeof targetKey === 'string' && targetKey && refusal.session === targetKey && refusal.reason === RRA_REFUSAL_REASON);
+  }
   if (!texts.some((text) => line.includes(text))) return false;
-  if (kind === 'dispatch-policy') return lineNamesKey(line, parentKey);
-  return lineNamesKey(line, targetKey);
+  return lineNamesKey(line, parentKey);
+}
+
+function routedRecipientsAndSource(line) {
+  if (typeof line !== 'string') return null;
+  const start = line.indexOf(RRA_ROUTED_TEXT);
+  if (start < 0) return null;
+  const rest = line.slice(start + RRA_ROUTED_TEXT.length);
+  const end = rest.indexOf(' from ');
+  if (end < 0) return null;
+  return {
+    recipients: rest.slice(0, end).split(',').map((key) => key.trim()).filter(Boolean),
+    source: rest.slice(end + ' from '.length).trim().split(/\s/u)[0] ?? '',
+  };
 }
 
 /** Whether a router line delivered to `targetKey` (exactly one of its comma-separated recipients). */
 export function routedToTarget(line, targetKey) {
-  if (typeof line !== 'string' || !targetKey) return false;
-  const start = line.indexOf(RRA_ROUTED_TEXT);
-  if (start < 0) return false;
-  const rest = line.slice(start + RRA_ROUTED_TEXT.length);
-  const end = rest.indexOf(' from ');
-  if (end < 0) return false;
-  return rest.slice(0, end).split(',').map((key) => key.trim()).includes(targetKey);
+  if (!targetKey) return false;
+  return routedRecipientsAndSource(line)?.recipients.includes(targetKey) === true;
+}
+
+/**
+ * Whether a router `Delivered to` line came from `childKey`, whatever it lists. j12 printed one
+ * with an empty list when every recipient was refused; j12′ prints none
+ * (subagent-announce.continuation-return.ts:199-203).
+ */
+export function routedFromChild(line, childKey) {
+  if (typeof childKey !== 'string' || !childKey) return false;
+  return routedRecipientsAndSource(line)?.source === childKey;
 }
 
 /**
@@ -233,12 +389,41 @@ export function findReason(entries, kind, keys, afterMs = 0) {
   return null;
 }
 
+/**
+ * Every refused-return line naming `targetKey` at or after `afterMs`, in log order, as
+ * { atMs, generation, stage, reason, deliveryId }. The target is a disposable session that only
+ * this case's return ever reaches, so every line here is about that one return.
+ */
+export function findReturnRefusals(entries, targetKey, afterMs = 0) {
+  const found = [];
+  if (typeof targetKey !== 'string' || !targetKey) return found;
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (typeof entry?.atMs !== 'number' || entry.atMs < afterMs) continue;
+    const refusal = parseReturnRefusedLine(entry.text);
+    if (refusal && refusal.session === targetKey) found.push({ atMs: entry.atMs, generation: entry.generation ?? 0, ...refusal });
+  }
+  return found;
+}
+
 /** The first router line that delivered this case's return to its target. */
 export function findRouted(entries, targetKey) {
   for (const entry of Array.isArray(entries) ? entries : []) {
     if (typeof entry?.atMs === 'number' && routedToTarget(entry.text, targetKey)) return entry.atMs;
   }
   return null;
+}
+
+/**
+ * Router `Delivered to` lines at or after `afterMs` that name the target or come from the case's
+ * child: after the transition, a refused return must leave none.
+ */
+export function countRoutedAfter(entries, { targetKey, childKey }, afterMs) {
+  let count = 0;
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (typeof entry?.atMs !== 'number' || entry.atMs < afterMs) continue;
+    if (routedToTarget(entry.text, targetKey) || routedFromChild(entry.text, childKey)) count += 1;
+  }
+  return count;
 }
 
 /** Whether a continue_delegate toolResult text is the admission policy refusal. */
@@ -278,7 +463,7 @@ function roleOf(message) {
  * - returnMarkerRows: assistant rows that repeat the child's return marker.
  * - probeReplied: the probe run answered `PROBE-OK <probeNonce>`.
  * - adoptedDeliveryRows: rows carrying the product's adoption marker,
- *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:49-79 at j12). chat.history
+ *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:53-71 at j12′). chat.history
  *   keeps it on a visible row (chat-display-projection.sanitize.ts:442-475 strips only named private
  *   keys), so a parked return adopted into the probe turn shows here even if the model never acks.
  */
@@ -460,14 +645,17 @@ function isHash(value) {
 /**
  * Grade one case record (the control's public receipt body). Returns
  * { verdict, missing, contradictions, partial }. Every rule fails closed:
- * - not this row's record, an unknown case, a candidate other than j12, a gate not exactly true,
- *   a gateway the harness did not start and own throughout, or k6 evidence not bound to this run
- *   is MISSING, and nothing else about it is judged (it is not evidence about j12);
+ * - not this row's record, an unknown case, a candidate other than the pin (j12′), a gate not
+ *   exactly true, a gateway the harness did not start and own throughout, or k6 evidence not bound
+ *   to this run is MISSING, and nothing else about it is judged (it is not evidence about j12′);
  * - a contradiction of the case's claim is FAIL;
  * - an observation that is absent or not of its type is MISSING;
  * - a residual condition (config not restored, cleanup incomplete) is PARTIAL;
  * - otherwise PASS-candidate. A refusal case is PASS only with BOTH the product reason and the
- *   observed absence of adoption, ack, wake and final effect.
+ *   observed absence of adoption, ack, wake and final effect. A refused return's reason is its
+ *   j12′ line naming the target, at the case's pinned stage, naming a row exactly when that stage
+ *   writes one; another stage, a j12-only line or two rows is MISSING, and a `Delivered to` line
+ *   for the return after its transition is FAIL.
  */
 export function gradeRecipientAuthorityCase(record) {
   const missing = [];
@@ -483,10 +671,10 @@ export function gradeRecipientAuthorityCase(record) {
     missing.push('unknown-case');
     return result('MISSING-candidate');
   }
-  if (record.candidateSha !== RRA_J12) missing.push('candidate-not-j12');
+  if (record.candidateSha !== RRA_PINNED) missing.push('candidate-not-pinned');
   const gates = record.gates ?? {};
   for (const key of RRA_GATE_KEYS) if (gates[key] !== true) missing.push(`gate:${key}`);
-  if (gates.buildInfoCommit !== RRA_J12) missing.push('gate:buildInfoCommit');
+  if (gates.buildInfoCommit !== RRA_PINNED) missing.push('gate:buildInfoCommit');
   const generations = Array.isArray(record.gateway?.generations) ? record.gateway.generations : [];
   if (generations.length === 0 || !generations.every((g) => g?.startedByHarness === true && g?.ownedListenerThroughout === true)) {
     missing.push('gateway-not-harness-owned');
@@ -538,14 +726,29 @@ export function gradeRecipientAuthorityCase(record) {
     premise = false;
   }
   // At admission any acceptance, whatever its shape, is the product failing to refuse.
-  if (spec.boundary !== 'admission' && dispatch.accepted === true && dispatch.resultMode !== spec.mode) {
+  if (spec.refusedAt !== 'admission' && dispatch.accepted === true && dispatch.resultMode !== spec.mode) {
     missing.push('delegate-shape-mismatch');
     premise = false;
   }
-  if (spec.boundary === 'dispatch' && dispatch.accepted === true) {
+  if (spec.refusedAt === 'dispatch' && dispatch.accepted === true) {
     const fireAfter = Number(dispatch.resultDelaySeconds) * 1000;
     if (!(isTime(transition.requestedAtMs) && isTime(dispatch.capturedAtMs) && fireAfter > transition.requestedAtMs - dispatch.capturedAtMs)) {
       missing.push('policy-change-not-before-fire');
+      premise = false;
+    }
+  }
+  // A wake-mode case revokes the target while the delegate waits to fire: the transition must have
+  // settled before the fire, and the return must not have been routed before it, or the return was
+  // current when the router read its authority and adopting it would be correct.
+  if (spec.timing === 'before-return' && dispatch.accepted === true) {
+    const fireAfter = Number(dispatch.resultDelaySeconds) * 1000;
+    if (!(isTime(transition.settledAtMs) && isTime(dispatch.capturedAtMs) && fireAfter > transition.settledAtMs - dispatch.capturedAtMs)) {
+      missing.push('transition-not-before-fire');
+      premise = false;
+    }
+    const routedAt = record.park?.deliveredToTargetAtMs;
+    if (isTime(routedAt) && isTime(transition.requestedAtMs) && routedAt < transition.requestedAtMs) {
+      missing.push('return-routed-before-transition');
       premise = false;
     }
   }
@@ -612,13 +815,13 @@ export function gradeRecipientAuthorityCase(record) {
       }
     }
   } else {
-    if (spec.boundary === 'admission') {
+    if (spec.refusedAt === 'admission') {
       need(dispatch.accepted === false && dispatch.status === 'error', 'admission-not-refused');
       if (dispatch.accepted === true) contradict('unauthorized-dispatch-accepted');
     } else {
       need(dispatch.accepted === true && dispatch.status === 'scheduled' && isTime(dispatch.capturedAtMs), 'dispatch-not-accepted');
     }
-    if (spec.boundary === 'dispatch' && isTime(transition.requestedAtMs) && isTime(dispatch.capturedAtMs)) {
+    if (spec.refusedAt === 'dispatch' && isTime(transition.requestedAtMs) && isTime(dispatch.capturedAtMs)) {
       need(transition.requestedAtMs > dispatch.capturedAtMs, 'policy-not-changed-after-capture');
     }
     if (spec.expectChild === false) {
@@ -626,8 +829,15 @@ export function gradeRecipientAuthorityCase(record) {
       else need(child.spawned === false, 'child-spawn-unobserved');
     } else {
       need(child.bound === true && child.done === true, 'child-not-bound');
-      const park = record.park?.deliveredToTargetAtMs;
-      need(isTime(park) && isTime(transition.requestedAtMs) && park < transition.requestedAtMs, 'return-not-parked-before-transition');
+      if (spec.timing === 'parked') {
+        const park = record.park?.deliveredToTargetAtMs;
+        need(isTime(park) && isTime(transition.requestedAtMs) && park < transition.requestedAtMs, 'return-not-parked-before-transition');
+      }
+      // j12′ logs `Delivered to` only for recipients it delivered, and nothing when every recipient
+      // was refused: after the transition this return may leave no router line naming the target
+      // or coming from its child, j12's empty-list line included.
+      const routedAfter = record.routing?.afterTransition;
+      if (need(isCount(routedAfter), 'routing-unread') && routedAfter > 0) contradict('refused-return-routed');
     }
     if (spec.restart) {
       const restarted = record.gateway?.restartedAtMs;
@@ -638,11 +848,24 @@ export function gradeRecipientAuthorityCase(record) {
       );
       need(generations.length >= 2, 'replacement-generation-unobserved');
     }
-    const reasonAfter = spec.boundary === 'admission' ? 0 : transition.requestedAtMs;
-    need(
-      reason !== null && reason.kind === spec.reasonKind && (spec.boundary === 'admission' || (isTime(reason.observedAtMs) && reason.observedAtMs > reasonAfter)),
+    const reasonAfter = spec.refusedAt === 'admission' ? 0 : transition.requestedAtMs;
+    const reasonSeen = need(
+      reason !== null && reason.kind === spec.reasonKind && (spec.refusedAt === 'admission' || (isTime(reason.observedAtMs) && reason.observedAtMs > reasonAfter)),
       'refusal-reason-not-observed',
     );
+    if (reasonSeen && spec.reasonKind === 'return-refused') {
+      // One stage per case, from the j12′ bytes (RRA_CASES, refusedAtBytes): every line for this
+      // return carries it.
+      const stages = Array.isArray(reason.stages) ? reason.stages : [reason.stage];
+      need(reason.stage === spec.refusedAt && stages.every((stage) => stage === spec.refusedAt), 'refusal-stage-mismatch');
+      // A boundary that retires a written row names it; the router's first read refuses before any row.
+      need(isHash(reason.deliveryIdHash) === spec.deliveryId, 'refusal-delivery-id-mismatch');
+      // The disposable target receives only this case's return: one row at most.
+      need(isCount(reason.distinctDeliveryIds) && reason.distinctDeliveryIds <= 1, 'reason-delivery-id-ambiguous');
+      if (spec.refusedAt === 'prompt-drain') {
+        need(isTime(target.probeSentAtMs) && reason.observedAtMs > target.probeSentAtMs, 'reason-not-from-probe-drain');
+      }
+    }
     need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
     if (counted) {
       if (target.ackRuns > 0 || target.adoptedDeliveryRows > 0) contradict('refused-return-adopted');
@@ -689,7 +912,7 @@ export function traceCorrelationMatches(record, correlation) {
  * Grade the row from case receipts: entries [{ record, verified }]. Only verified receipts count.
  * The row starts at PASS-candidate and only moves down:
  * - a required case with no verified receipt is MISSING-candidate (so the row with no receipts is
- *   MISSING, as it must stay until an owner runs it at j12);
+ *   MISSING, as it must stay until an owner runs it at j12′);
  * - receipts from different runs (other gateways) are MISSING: the cases share one gateway;
  * - an unverified receipt, or two receipts of one case that disagree, cap it at PARTIAL-candidate;
  * - each case contributes its own verdict.
@@ -725,7 +948,7 @@ export function gradeRecipientAuthorityRow(entries = []) {
     cases[caseId] = { verdict: caseVerdict, receipts: graded.length };
     if (caseVerdict !== 'PASS-candidate') lower(caseVerdict, `${caseId}:${caseVerdict}`);
   }
-  return { schema: RRA_ROW_VERDICT_SCHEMA, row: RRA_ROW, candidateSha: RRA_J12, verdict, cases, notes };
+  return { schema: RRA_ROW_VERDICT_SCHEMA, row: RRA_ROW, candidateSha: RRA_PINNED, pinStatus: RRA_PIN_STATUS, verdict, cases, notes };
 }
 
 /* ------------------------------------------------------------------------------------ */
@@ -734,7 +957,7 @@ export function gradeRecipientAuthorityRow(entries = []) {
 
 /**
  * The model sign-in gate over `openclaw models status --json` run against the isolated state
- * (src/commands/models/list.status-command.ts:1081-1122 at j12): the auth store must live under the
+ * (src/commands/models/list.status-command.ts:1081-1122 at j12′): the auth store must live under the
  * isolated state, no provider in use may lack auth, and the primary model's provider must hold a
  * profile. Returns { ok, refusals }.
  */

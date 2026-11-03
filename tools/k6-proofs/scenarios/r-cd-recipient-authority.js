@@ -1,10 +1,12 @@
 /**
- * Scenario: R-CD-RECIPIENT-AUTHORITY, one case of the live isolated-gateway row at pinned j12.
+ * Scenario: R-CD-RECIPIENT-AUTHORITY, one case of the live isolated-gateway row, pinned to j12′.
  *
- * Ruling: 🌊, room msg 1567077062139838485 (2026-11-03): a live, isolated-gateway row at pinned j12,
- * separate from the supervised-restart row; every case MISSING until an owner runs it; observe the
- * refusal reason AND the absence of target adoption, ack and final effect, including replay. Bound
- * issue: karmaterminal/karmaterminal-openclaw-docs#536.
+ * Rulings: 🌊, room msg 1567077062139838485 (2026-11-03): a live, isolated-gateway row, separate
+ * from the supervised-restart row; every case MISSING until an owner runs it; observe the refusal
+ * reason AND the absence of target adoption, ack and final effect, including replay. 🌊, room msg
+ * 1567104742604406896: fix before presenting; j12′ carries a reason at enqueue, replay/wake and
+ * prompt drain and no "Delivered to" for an empty set; a silent park or the sweep is not wake
+ * proof. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536.
  *
  * Only the control runs this: tools/k6-proofs/scripts/run-recipient-authority-row.mjs starts the
  * disposable gateway, runs this scenario once per case (twice for replay-restart: drive, then
@@ -12,8 +14,10 @@
  * refuses from setup() and from default(). It never decides a verdict: it prints evidence, and
  * lib/recipient-authority-row.mjs grades the control's case record.
  *
- * Product path at j12, karmaterminal/openclaw 352f56029dc95c60149ab4aaa127226a861d0b3d (byte-read
- * with git show / git grep at that commit).
+ * Product path at j12′, karmaterminal/openclaw e9dc1c318a2f73fd01755fc4682fa3349e8a0e94 (INTERIM:
+ * the reviewed refused chain; the merged j12′ replaces it), byte-read with git show / git grep at
+ * that commit. j12 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only. Sections 1-4
+ * and 6 read files j12′ did not change; section 5 is j12′'s own.
  *
  * 1. Authority. One UUID epoch per logical session key in session_recipient_authority (per-agent
  *    database). A binding is current only while the stored epoch equals the captured one
@@ -65,37 +69,54 @@
  *    span (src/auto-reply/continuation/delegate-dispatch.ts:267-290). The policy is read at each
  *    decision (config.ts:84-92), and agents.defaults.continuation.* reloads hot
  *    (src/gateway/config-reload.prepared-model-runtime.test.ts:74-96), so config.patch
- *    (src/gateway/server-methods/config.ts:798-850) changes it without a restart. j12 has no per-target
+ *    (src/gateway/server-methods/config.ts:798-850) changes it without a restart. j12′ has no per-target
  *    addressability check.
  *
- * 5. Checked, enqueued, woken, adopted, and what a refusal leaves:
- *    - return routing: src/agents/subagent-announce.continuation-return.ts:104-212. It logs
- *      `[continuation:targeted-return] Delivered to <keys> from <child>` (:194-201), with an EMPTY
- *      list when every recipient was refused;
- *    - enqueue: src/auto-reply/continuation/targeting.ts:240-254 refuses a stale recipient before any
- *      row (silent), :278-319 acks a row gone stale after its write (silent), :329-346 removes the
- *      queued event and acks (silent); a current return queues an adoption-scoped event and wakes the
- *      recipient unless the mode is silent (:366-374; wakeRecipients, continuation-return.ts:175);
- *    - wake handoff: src/auto-reply/continuation/continuation-wake.ts:127-238 re-checks under writer
- *      admission; a stale event is retired by settleStaleSystemEventAuthority (silent,
- *      src/auto-reply/reply/session-system-event-adoption.ts:113-134);
- *    - prompt drain: src/auto-reply/reply/session-system-events.ts:153-211 settles stale events
- *      (silent) before formatting;
+ * 5. Checked, enqueued, woken, adopted, and what a refusal leaves (all at j12′):
+ *    - every refusal logs `[continuation:return-refused] stage=<enqueue|replay|wake|prompt-drain>
+ *      reason=recipient-authority-changed session=<key>[ deliveryId=<id>]` from the subsystem
+ *      continuation/return-refused (src/auto-reply/continuation/return-refusal.ts:15-29), and a
+ *      written row is retired as a bounded `failed` receipt, never acked (:36-49);
+ *    - return routing: src/agents/subagent-announce.continuation-return.ts:98-215. It logs
+ *      `[continuation:targeted-return] Delivered to <keys> from <child>` only for the recipients it
+ *      delivered, and nothing at all when every recipient was refused (:189-203); it wakes them
+ *      unless the mode is silent (:175);
+ *    - enqueue: src/auto-reply/continuation/targeting.ts:249-411. Its first authority read refuses a
+ *      stale recipient before any row, with no deliveryId (:277-280, through refuseStaleRecipient
+ *      :261-276); a row gone stale after its write (:313-347) or after its queueing (:358-374) is
+ *      refused with its deliveryId; a current return queues an adoption-scoped event and requests
+ *      a wake (:395-403);
+ *    - wake handoff: src/auto-reply/continuation/continuation-wake.ts:127-256, 250 ms after the
+ *      request (:41, :106). It re-reads authority (:163-171) and refuses a stale event with
+ *      stage=wake (:233-243 -> src/auto-reply/reply/session-system-event-adoption.ts:118-147). No
+ *      public RPC can land a transition inside those 250 ms on purpose, so no case pins stage=wake;
+ *    - prompt drain: src/auto-reply/reply/session-system-events.ts:192-207 refuses stale events with
+ *      stage=prompt-drain before formatting, and final adoption re-checks under writer admission
+ *      (session-system-event-adoption.ts:191-211, 248-270);
  *    - durable replay (the 45-75 s pending sweep, src/infra/session-delivery-queue-runtime.ts:52-66,
  *      143-149, and the boot recovery, src/gateway/server-restart-sentinel.ts:80-97, 138-153):
- *      src/gateway/server-restart-sentinel-delivery.ts:226-243 logs
- *      `session event delivery skipped: recipient authority changed` (sessionKey, queueId) and :271-290
- *      `session event delivery wake skipped: recipient authority changed`. This is the only refusal
- *      at return time that names a reason;
- *    - settlement: an adopted and a refused row both settle "recovered"
- *      (src/infra/session-delivery-queue-recovery.ts:149-156; ackSessionDelivery,
- *      src/infra/session-delivery-queue-storage.ts:601-622), so no record says "refused";
+ *      src/gateway/server-restart-sentinel-delivery.ts:263-281 and 307-329 call
+ *      refuseStaleAuthorityReplay (:50-76), which DEFERS while the row still has a queued copy in
+ *      memory (:61-65) and otherwise logs stage=replay with deliveryId=<row id> (:66-71);
+ *    - settlement: a refused row moves to `failed` with its receipt kept, an adopted one is
+ *      `recovered` (src/infra/session-delivery-queue-recovery.ts:152-215). No public surface reads
+ *      the receipt: the gateway health's failed count leaves it out on purpose
+ *      (src/infra/delivery-queue-sqlite.kernel.ts:397-429; src/gateway/health/collector.ts:640-654);
  *    - adoption: the adopting transcript row carries __openclaw.sessionDeliveryAckIds
- *      (session-system-event-adoption.ts:49-79); chat.history hides the wake's own rows (see
- *      lib/wake-turn-receipt.mjs), so adoption is read from the primed target's TARGET-ACK.
- *    So revoked, reassigned and replay cases dispatch mode silent: the return is routed while
- *    current and parks un-adopted, the transition advances the epoch, and the replay refuses it with
- *    the reason. The probe turn then forces a prompt drain to show the parked event is never adopted.
+ *      (src/auto-reply/reply/managed-delivery-turn-lifecycle.ts:107-111; read back at
+ *      session-system-event-adoption.ts:53-71); chat.history hides the wake's own rows (see
+ *      lib/wake-turn-receipt.mjs), so a wake's adoption is read from the primed target's TARGET-ACK;
+ *    - sessions.delete (and sessions.reset) consume the session's queued events
+ *      (src/gateway/server-methods/sessions-delete.ts:454-470 -> src/gateway/session-lifecycle-cleanup.ts:74-92
+ *      -> src/gateway/session-reset-runtime-cleanup.ts:77-93 -> src/gateway/session-reset-runtime-state.ts:11-51
+ *      -> src/auto-reply/reply/session-reset-cleanup.ts:146-196, consumed at :194-196).
+ *    So each case's stage (RRA_CASES, refusedAt): revoked-visibility, revoked-membership and
+ *    revoked-owner park a silent return whose queued copy survives the transition, so the sweep
+ *    defers and the probe turn's prompt drain refuses it (stage=prompt-drain); reassigned deletes the
+ *    target, which drops the copy, so the sweep refuses it (stage=replay); wake-revoked-visibility
+ *    and wake-reassigned (silent-wake) transition while the delegate waits to fire, so the router's
+ *    first read refuses it with no row and no Delivered to line (stage=enqueue); replay-restart
+ *    restarts before any prompt, so the replacement's boot replay refuses it (stage=replay).
  *
  * 6. Restart (replay-restart). The control is the declared external supervisor
  *    (OPENCLAW_SUPERVISOR_MODE=external, src/infra/gateway-supervision.ts:5-12): gateway.restart.request
@@ -119,7 +140,7 @@ import {
   RRA_ACK_MARKER,
   RRA_CASES,
   RRA_EVIDENCE_PREFIX,
-  RRA_J12,
+  RRA_PINNED,
   RRA_PROBE_MARKER,
   RRA_READY_MARKER,
   RRA_RETURN_MARKER,
@@ -159,7 +180,7 @@ const DEFAULT_TASK_TEMPLATE =
   'RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.';
 
 const REFUSAL =
-  'R-CD-RECIPIENT-AUTHORITY runs only under tools/k6-proofs/scripts/run-recipient-authority-row.mjs, which starts the disposable gateway at j12 and passes its run id, case and phase.';
+  'R-CD-RECIPIENT-AUTHORITY runs only under tools/k6-proofs/scripts/run-recipient-authority-row.mjs, which starts the disposable gateway at j12′ and passes its run id, case and phase.';
 
 function controlEnv() {
   const caseId = __ENV.OPENCLAW_RCD_RA_CASE || '';
@@ -170,7 +191,7 @@ function controlEnv() {
   if (!RRA_CASES[caseId]) problems.push('unknown case');
   if (phase !== 'drive' && phase !== 'observe') problems.push('unknown phase');
   if (phase === 'observe' && !RRA_CASES[caseId]?.restart) problems.push('only replay-restart has an observe phase');
-  if ((__ENV.OPENCLAW_CANDIDATE_SHA || '') !== RRA_J12) problems.push('candidate is not j12');
+  if ((__ENV.OPENCLAW_CANDIDATE_SHA || '') !== RRA_PINNED) problems.push('candidate is not j12′');
   if (!__ENV.OPENCLAW_GATEWAY_TOKEN || !__ENV.OPENCLAW_GATEWAY_WS) problems.push('the control passes the disposable gateway');
   return { caseId, phase, runId, problems };
 }
@@ -273,6 +294,7 @@ export default function () {
     config: { patched_at_ms: null, restored: spec.transition === 'config.patch' ? false : null },
     transition: prior?.transition || { method: spec.transition, ok: spec.transition ? null : true, requested_at_ms: null, settled_at_ms: null, error: null },
     probe_run_id: null,
+    probe_sent_at_ms: null,
     probe_ran: false,
     pre_transition_obs: prior?.pre_transition_obs ?? null,
     other_delegate_calls: null,
@@ -466,7 +488,12 @@ export default function () {
         if (spec.probeAdopts) return waitForChild(() => later(parkMs, probeThenFinal));
         return waitForAck();
       }
-      // durable-replay and boot-replay: let the silent return route and park, then transition.
+      // Wake mode: change the target's authority while the delegate waits to fire (the control
+      // samples the captured epoch first), then let the child return: the router refuses it.
+      if (spec.timing === 'before-return') {
+        return later(numberEnv('OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 2000), () => transition((ok) => (ok ? waitForChild(() => later(parkMs, probeThenFinal)) : finalReads())));
+      }
+      // Parked: let the silent return route and park, then transition.
       waitForChild(() => later(parkMs, () => transition(afterTransition)));
     }
 
@@ -573,6 +600,8 @@ export default function () {
         evidence.handoff = { ready_for_restart: true };
         return finalReads();
       }
+      // At least one pending sweep sees the stale row first: it defers to the queued copy, which the
+      // probe turn's prompt drain then refuses, or, with no copy left (reassigned), refuses it.
       later(sweepWaitMs, probeThenFinal);
     }
 
@@ -588,6 +617,8 @@ export default function () {
 
     function probeThenFinal() {
       const instruction = `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
+      // A prompt-drain refusal must come from this turn's drain, so it is timed against the send.
+      evidence.probe_sent_at_ms = Date.now();
       send(keys.target, instruction, `${RRA_ROW}-PROBE-${probeNonce}`, (r) => {
         evidence.probe_run_id = r.payload?.runId || null;
         evidence.probe_ran = Boolean(r.ok && evidence.probe_run_id);

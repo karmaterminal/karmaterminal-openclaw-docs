@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
  * run-recipient-authority-row.mjs: the control for R-CD-RECIPIENT-AUTHORITY, the live isolated-gateway
- * row at pinned j12 (🌊's ruling, room msg 1567077062139838485; docs#536).
+ * row (🌊's ruling, room msg 1567077062139838485; docs#536), pinned to j12′
+ * e9dc1c318a2f73fd01755fc4682fa3349e8a0e94 (INTERIM; 🌊's ruling, room msg 1567104742604406896).
  *
  * It owns one disposable gateway that frond-scribe scripts/proof-gw/composite-launcher.sh set up,
  * signed in (login) and stopped:
  *
- *   1. refuse, before anything starts: a candidate other than j12; anything that is not a stopped
+ *   1. refuse, before anything starts: a candidate other than j12′; anything that is not a stopped
  *      $HOME/proof-gw/comp-<sha8> gateway on a free, non-live loopback port with its own token and no
- *      channels, whose stage dist/build-info.json commit is j12 and whose state is not under the live
+ *      channels, whose stage dist/build-info.json commit is j12′ and whose state is not under the live
  *      ~/.openclaw (evaluateDisposableTarget); continuation or cross-session targeting disabled in its
  *      config; no isolated model sign-in (openclaw models status --json against the isolated state);
  *      an observer key that is missing, loose or inside the target;
@@ -17,7 +18,9 @@
  *      takes the supervised branch, and a run marker), and refuse to go on unless the listener is
  *      that process: PID and kernel start ticks, before and after every case;
  *   3. run scenarios/r-cd-recipient-authority.js once per case against it, while capturing the
- *      gateway's own output and sampling the session_recipient_authority table read-only;
+ *      gateway's own console output (where j12′'s `[continuation:return-refused]` line and the
+ *      router's `Delivered to` line land) and sampling the session_recipient_authority table
+ *      read-only;
  *   4. for replay-restart, after the drive phase: gateway.restart.request, wait for the old process to
  *      exit 0, consume its restart handoff (`gateway restart-handoff consume --expected-pid`), start
  *      the replacement and run the observe phase;
@@ -31,7 +34,8 @@
  *
  * It never reads OPENCLAW_GATEWAY_TOKEN or OPENCLAW_GATEWAY_WS from its own environment, never
  * touches ~/.openclaw, never runs systemctl except the read-only `is-active` check, and never signals
- * a process it did not start. The product path at j12 is in the scenario header.
+ * a process it did not start. It never reads the delivery queue: no public surface reads a refused
+ * row's `failed` receipt at j12′. The product path at j12′ is in the scenario header.
  */
 import { spawn, spawnSync } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
@@ -58,17 +62,20 @@ import {
   RRA_CASES,
   RRA_CASE_IDS,
   RRA_CASE_SCHEMA,
-  RRA_J12,
+  RRA_PINNED,
   RRA_ROW,
+  countRoutedAfter,
   evaluateContinuationConfig,
   evaluateModelSignIn,
   findReason,
+  findReturnRefusals,
   findRouted,
   gradeRecipientAuthorityCase,
   gradeRecipientAuthorityRow,
   isAdmissionPolicyRefusal,
   isSha40,
   listenerOwnedBy,
+  parseReturnRefusedLine,
   traceCorrelationMatches,
 } from '../lib/recipient-authority-row.mjs';
 import { extractEvidence } from './extract-k6-evidence.mjs';
@@ -414,7 +421,7 @@ export function evaluateRecipientAuthorityTarget(options, platform = defaultPlat
   const refusals = [];
   const refuse = (code, detail) => refusals.push({ code, detail });
   const gates = {
-    candidatePinned: options.candidateSha === RRA_J12,
+    candidatePinned: options.candidateSha === RRA_PINNED,
     buildInfoCommit: null,
     stateIsolated: false,
     modelSignIn: false,
@@ -422,13 +429,13 @@ export function evaluateRecipientAuthorityTarget(options, platform = defaultPlat
     // Becomes true only once the control's own process owns the listener.
     gatewayStartedByHarness: false,
   };
-  if (!gates.candidatePinned) refuse('candidate-not-pinned', `the candidate must be j12 ${RRA_J12}`);
+  if (!gates.candidatePinned) refuse('candidate-not-pinned', `the candidate must be j12′ ${RRA_PINNED} (interim pin)`);
   if (!isSha40(options.docsSha)) refuse('docs-sha-invalid', '--docs-sha must be the 40-hex docs harness commit');
   if (typeof options.artifactDir !== 'string' || !path.isAbsolute(options.artifactDir)) refuse('artifact-dir-invalid', '--artifact-dir must be absolute');
   const disposable = evaluateDisposableTarget({
     proofGwDir: options.proofGwDir,
     stageDir: options.stageDir,
-    candidateSha: RRA_J12,
+    candidateSha: RRA_PINNED,
     home: platform.home(),
     fsApi: { existsSync, readFileSync, realpathSync, lstatSync },
     pathApi: path,
@@ -499,9 +506,33 @@ function epochIn(timeline, key, fromMs, toMs = Infinity, { last = false } = {}) 
 }
 
 /**
+ * A refused return's reason from its j12′ lines naming the target at or after `afterMs`: the first
+ * line's stage and time, every stage seen, and the delivery id as SHA-256 (it is itself a hash of
+ * private session keys). null when no line names the target.
+ */
+function returnRefusalReason(logEntries, targetKey, afterMs) {
+  const lines = findReturnRefusals(logEntries, targetKey, afterMs);
+  if (lines.length === 0) return null;
+  const first = lines[0];
+  const ids = new Set(lines.map((line) => line.deliveryId).filter(Boolean));
+  return {
+    kind: 'return-refused',
+    stage: first.stage,
+    stages: [...new Set(lines.map((line) => line.stage))],
+    reasonText: first.reason,
+    observedAtMs: first.atMs,
+    generation: first.generation,
+    deliveryIdHash: first.deliveryId ? sha256(first.deliveryId) : null,
+    distinctDeliveryIds: ids.size,
+    lines: lines.length,
+  };
+}
+
+/**
  * Assemble one case's public record from the scenario's evidence, the gateway's own log, the epoch
- * timeline and the generations the control started. Pure: no I/O. Session keys and epochs leave
- * only as SHA-256; log lines leave only as a reason kind, a time and a generation.
+ * timeline and the generations the control started. Pure: no I/O. Session keys, delivery ids and
+ * epochs leave only as SHA-256; log lines leave only as a reason kind and stage, a time and a
+ * generation.
  */
 export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, observeEvidence = null, logEntries, timeline, generations, restartedAtMs = null, cleanup, startedAtMs }) {
   const spec = RRA_CASES[caseId];
@@ -517,11 +548,13 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     if (evidence?.dispatch?.status === 'error' && isAdmissionPolicyRefusal(evidence.dispatch.error_text)) {
       reason = { kind: 'admission-policy', observedAtMs: evidence.dispatch.observed_at_ms ?? null, generation: 0 };
     }
-  } else if (spec.reasonKind) {
+  } else if (spec.reasonKind === 'return-refused') {
     // A restart case's reason must come from the replacement's boot replay, so it is searched
-    // only after the restart; an earlier sweep refusal on the old generation leaves none to find.
+    // only after the restart; an earlier refusal on the old generation leaves none to find.
     const after = spec.restart ? (restartedAtMs ?? Infinity) : (transition.requested_at_ms ?? startedAtMs);
-    reason = findReason(logEntries, spec.reasonKind, { targetKey: keys.target, parentKey: keys.parent }, after);
+    reason = returnRefusalReason(logEntries, keys.target, after);
+  } else if (spec.reasonKind) {
+    reason = findReason(logEntries, spec.reasonKind, { targetKey: keys.target, parentKey: keys.parent }, transition.requested_at_ms ?? startedAtMs);
   }
   const target = final.target_obs ?? {};
   return {
@@ -566,6 +599,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     target: {
       primed: evidence?.target_primed === true,
       probeRan: final.probe_ran === true,
+      probeSentAtMs: final.probe_sent_at_ms ?? null,
       probeReplied: target.probeReplied === true,
       ackRuns: target.ackRuns ?? null,
       foreignRuns: target.foreignRuns ?? null,
@@ -588,6 +622,15 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       settledAtMs: transition.settled_at_ms ?? null,
     },
     park: { deliveredToTargetAtMs: findRouted(logEntries, keys.target) },
+    // Router lines for this return after its transition: the target named, or its child as the
+    // source (the child key stays private). A refused return must leave none at j12′.
+    routing: spec.family === 'refusal' && spec.expectChild !== false
+      ? {
+          afterTransition: Number.isFinite(transition.requested_at_ms)
+            ? countRoutedAfter(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition.requested_at_ms)
+            : null,
+        }
+      : null,
     epochs: {
       captured: Number.isFinite(capturedAt) ? epochIn(timeline, keys.target, capturedAt, capturedUntil) : null,
       afterTransition: Number.isFinite(transition.settled_at_ms) ? epochIn(timeline, keys.target, transition.settled_at_ms) : null,
@@ -700,7 +743,7 @@ async function runScenario({ caseId, phase, state, runId, target, options, priva
     OPENCLAW_ROW_MANIFEST: MANIFEST,
     OPENCLAW_GATEWAY_WS: `ws://127.0.0.1:${target.port}`,
     OPENCLAW_GATEWAY_TOKEN: target.token,
-    OPENCLAW_CANDIDATE_SHA: RRA_J12,
+    OPENCLAW_CANDIDATE_SHA: RRA_PINNED,
     OPENCLAW_SEAT_NAME: options.seat || 'isolated-proof-gateway',
     OPENCLAW_RCD_RA_CASE: caseId,
     OPENCLAW_RCD_RA_RUN: runId,
@@ -806,7 +849,7 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
         runId,
         docsSha: options.docsSha,
         gates: caseGates,
-        evidence: evidence ?? { candidate_sha: RRA_J12, control_run_id: null },
+        evidence: evidence ?? { candidate_sha: RRA_PINNED, control_run_id: null },
         observeEvidence,
         logEntries: logEntries.filter((line) => line.atMs >= caseStart),
         timeline: timeline.filter((sample) => sample.atMs >= caseStart),
@@ -817,6 +860,12 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       });
       receipts.push(record);
       for (const value of Object.values(evidence?.keys ?? {})) secrets.push(value);
+      // The child's key and every refused row's id stay private too: the record carries hashes only.
+      secrets.push(evidence?.child?.key, observeEvidence?.child?.key);
+      for (const line of logEntries) {
+        const refusal = line.atMs >= caseStart ? parseReturnRefusedLine(line.text) : null;
+        if (refusal?.deliveryId) secrets.push(refusal.deliveryId);
+      }
     }
   } finally {
     sampling = false;

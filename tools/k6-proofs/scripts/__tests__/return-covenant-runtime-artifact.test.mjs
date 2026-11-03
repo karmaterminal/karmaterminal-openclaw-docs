@@ -30,7 +30,7 @@ import {
 } from '../../lib/return-covenant-runtime-artifact.mjs';
 
 const RUN_ID = 'rcv-0123456789abcdef0123456789abcdef';
-const ROW_ID = 'R-CD-RETURN-COVENANT-AUTHORITY';
+const ROW_ID = 'R-CD-RECIPIENT-AUTHORITY-MATRIX';
 
 function sha256(value) {
   return createHash('sha256').update(value).digest('hex');

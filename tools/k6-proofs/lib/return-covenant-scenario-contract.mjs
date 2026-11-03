@@ -3,7 +3,7 @@ import {
   validateReturnCovenantRuntimeMountObservation,
 } from './return-covenant-runtime-artifact-contract.mjs';
 
-export const RETURN_COVENANT_ROW_ID = 'R-CD-RETURN-COVENANT-AUTHORITY';
+export const RETURN_COVENANT_ROW_ID = 'R-CD-RECIPIENT-AUTHORITY-MATRIX';
 export const RETURN_COVENANT_PLAN_SCHEMA =
   'openclaw.k6.return-covenant-fixture-input.v1';
 export const RETURN_COVENANT_DRIVER_SCHEMA =
@@ -13,9 +13,9 @@ export const RETURN_COVENANT_RUNTIME_CONFIG_RELATIVE_PATH =
 export const RETURN_COVENANT_DRIVER_ATTESTATION_SCHEMA =
   'openclaw.k6.return-covenant-driver-attestation.v1';
 export const RETURN_COVENANT_EVIDENCE_PREFIX =
-  'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE ';
+  'R_CD_RECIPIENT_AUTHORITY_MATRIX_EVIDENCE ';
 export const RETURN_COVENANT_TEARDOWN_PREFIX =
-  'R_CD_RETURN_COVENANT_AUTHORITY_TEARDOWN ';
+  'R_CD_RECIPIENT_AUTHORITY_MATRIX_TEARDOWN ';
 export const RETURN_COVENANT_RETENTION_OBSERVATION_SCHEMA =
   'openclaw.k6.return-covenant-retention-observation.v1';
 export const RETURN_COVENANT_RETENTION_REQUEST_SCHEMA =

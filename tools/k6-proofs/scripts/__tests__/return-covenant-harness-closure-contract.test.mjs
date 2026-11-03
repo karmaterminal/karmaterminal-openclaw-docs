@@ -7,7 +7,7 @@ const root = path.resolve(import.meta.dirname, '../..');
 const repoRoot = path.resolve(root, '../..');
 const read = (relative) => readFile(path.join(root, relative), 'utf8');
 
-test('return covenant harness is complete, registered in the current corpus, and bound to the exact P89 seam', async () => {
+test('return covenant harness is complete and bound to the exact P89 seam', async () => {
   const [
     documentation,
     scenario,
@@ -31,7 +31,6 @@ test('return covenant harness is complete, registered in the current corpus, and
     runtimeConfigRaw,
     workflow,
     pipeline,
-    indexRaw,
   ] = await Promise.all([
     read('docs/RETURN-COVENANT-AUTHORITY-HARNESS.md'),
     read('contracts/return-covenant-authority/scenario.js'),
@@ -55,7 +54,6 @@ test('return covenant harness is complete, registered in the current corpus, and
     read('tests/fixtures/return-covenant-authority/runtime-config.valid.json'),
     readFile(path.join(repoRoot, '.github/workflows/k6-proof.yml'), 'utf8'),
     read('k6-proofs-pipeline.xml'),
-    readFile(path.join(repoRoot, 'PROOFS/INDEX.json'), 'utf8'),
   ]);
   const inputSchema = JSON.parse(inputSchemaRaw);
   const observerSchema = JSON.parse(observerSchemaRaw);
@@ -63,14 +61,10 @@ test('return covenant harness is complete, registered in the current corpus, and
   const retentionSchema = JSON.parse(retentionSchemaRaw);
   const runtimeArtifactSchema = JSON.parse(runtimeArtifactSchemaRaw);
   const runtimeConfig = JSON.parse(runtimeConfigRaw);
-  const index = JSON.parse(indexRaw);
-  const currentManifest = JSON.parse(
-    await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
-  );
 
   assert.match(
     documentation,
-    /runtime artifact attested; product fixture seam present at the exact P89 head; row registered in the current corpus/i,
+    /runtime artifact attested; product fixture seam present at the exact P89 head `3821eaef` and absent at j12 `352f5602`; row `R-CD-RECIPIENT-AUTHORITY-MATRIX` catalogued with its own manifest, not in the current corpus/i,
   );
   assert.match(documentation, /R-CD-2[\s\S]*current corpus state `partial`/);
   // The seam the ten-item requirement asked for now exists on the frozen P89
@@ -99,43 +93,28 @@ test('return covenant harness is complete, registered in the current corpus, and
   assert.match(documentation, /delivery_queue_entries/);
   assert.match(documentation, /session_nodes\.entry_json/);
   assert.match(documentation, /0ed59cb64f31971e8659b417fe3fd2ba6a1730c3/);
-  assert.doesNotMatch(workflow, /r-cd-return-covenant-authority/);
-  assert.doesNotMatch(pipeline, /R-CD-RETURN-COVENANT-AUTHORITY/);
+  // The matrix is its own row, R-CD-RECIPIENT-AUTHORITY-MATRIX (docs#549 after docs#615
+  // made R-CD-RETURN-COVENANT-AUTHORITY the supervised restart control). Its pipeline entry
+  // is the reviewed registration; the k6 workflow still does not offer it, its scenario is not
+  // promoted into scenarios/, and no generic resolver script stands in for the launcher.
+  assert.doesNotMatch(workflow, /r-cd-recipient-authority-matrix|r-cd-return-covenant-authority/);
+  const matrixRowStart = pipeline.indexOf('<Row id="R-CD-RECIPIENT-AUTHORITY-MATRIX"');
+  assert.ok(matrixRowStart >= 0, 'the matrix row must be registered in the pipeline');
+  const matrixRow = pipeline.slice(matrixRowStart, pipeline.indexOf('</Row>', matrixRowStart));
+  assert.match(matrixRow, /orchestration-required/);
+  assert.match(matrixRow, /PARTIAL-candidate/);
+  assert.match(matrixRow, /manifests\/r-cd-recipient-authority-matrix\.json/);
   await assert.rejects(
-    access(path.join(root, 'scenarios/r-cd-return-covenant-authority.js')),
+    access(path.join(root, 'scenarios/r-cd-recipient-authority-matrix.js')),
     (error) => error?.code === 'ENOENT',
   );
   await assert.rejects(
     access(path.join(root, 'scripts/resolve-return-covenant-authority-receipt.mjs')),
     (error) => error?.code === 'ENOENT',
   );
-  // The row is registered in the current corpus. It is deliberately still absent
-  // from the k6 workflow and pipeline above: manifest registration and pipeline
-  // promotion are separate reviewed steps, and the assertions above keep an
-  // unreviewed pipeline registration fail-closed.
-  const authorityRow = currentManifest.rows.find(
-    (row) => row.row === 'R-CD-RETURN-COVENANT-AUTHORITY',
-  );
-  assert.ok(authorityRow, 'the authority row must be registered in the current manifest');
-  assert.equal(authorityRow.manifest, 'tools/k6-proofs/manifests/r-cd-return-covenant-authority.json');
-  assert.equal(
-    authorityRow.supporting_docs?.some((entry) =>
-      entry.startsWith('tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@'),
-    ),
-    true,
-  );
-  await access(path.join(root, 'manifests/r-cd-return-covenant-authority.json'));
+  await access(path.join(root, 'manifests/r-cd-recipient-authority-matrix.json'));
   await access(path.join(root, 'docs/RETURN-COVENANT-AUTHORITY-HARNESS.md'));
-  assert.equal(currentManifest.exact_target_execution, true);
-  assert.equal(currentManifest.exact_target_mode_b, false);
-  assert.equal(
-    currentManifest.rows.find((row) => row.row === 'R-CD-2')?.state,
-    'fail',
-  );
-  assert.equal(
-    currentManifest.rows.find((row) => row.row === 'R-CD-4')?.state,
-    'pass',
-  );
+  await access(path.join(root, 'docs/R-CD-RECIPIENT-AUTHORITY-MATRIX.md'));
 
   const dispatch = scenario.indexOf("const dispatched = postPhase('dispatch'");
   const transition = scenario.indexOf("const transitioned = postPhase('transition'");
@@ -371,6 +350,42 @@ test('return covenant harness is complete, registered in the current corpus, and
     access(path.join(root, 'tests/fixtures/return-covenant-authority/forbidden-pass.json')),
     access(path.join(root, 'tests/fixtures/return-covenant-authority/cleanup-failure.json')),
   ]);
+});
+
+test('the matrix row is registered in the current corpus', async () => {
+  // Fails until a coordinator folds a reviewed exact-SHA fire of this row into the corpus
+  // INDEX.json names. The matrix has never fired at a corpus SHA, and at the presented product
+  // j12 352f5602 its product seam is absent (docs#536 authorizes no live fire yet). Folding is a
+  // coordinator step, never this row's PR, so the failure is the row's real state.
+  const index = JSON.parse(await readFile(path.join(repoRoot, 'PROOFS/INDEX.json'), 'utf8'));
+  const currentManifest = JSON.parse(
+    await readFile(path.join(repoRoot, index.manifest_path), 'utf8'),
+  );
+  const authorityRow = currentManifest.rows.find(
+    (row) => row.row === 'R-CD-RECIPIENT-AUTHORITY-MATRIX',
+  );
+  assert.ok(
+    authorityRow,
+    `R-CD-RECIPIENT-AUTHORITY-MATRIX is not registered in the current corpus (${index.manifest_path}): ` +
+      'no reviewed exact-SHA fire of the matrix has been folded',
+  );
+  assert.equal(authorityRow.manifest, 'tools/k6-proofs/manifests/r-cd-recipient-authority-matrix.json');
+  assert.equal(
+    authorityRow.supporting_docs?.some((entry) =>
+      entry.startsWith('tools/k6-proofs/docs/RETURN-COVENANT-AUTHORITY-HARNESS.md@'),
+    ),
+    true,
+  );
+  assert.equal(currentManifest.exact_target_execution, true);
+  assert.equal(currentManifest.exact_target_mode_b, false);
+  assert.equal(
+    currentManifest.rows.find((row) => row.row === 'R-CD-2')?.state,
+    'fail',
+  );
+  assert.equal(
+    currentManifest.rows.find((row) => row.row === 'R-CD-4')?.state,
+    'pass',
+  );
 });
 
 test('existing signed authorities use the shared sealing primitive', async () => {

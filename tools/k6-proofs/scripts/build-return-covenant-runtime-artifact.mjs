@@ -70,7 +70,7 @@ async function main() {
     outputDir: args['output-dir'],
     runId: args['run-id'],
     rowId:
-      args['row-id'] || 'R-CD-RETURN-COVENANT-AUTHORITY',
+      args['row-id'] || 'R-CD-RECIPIENT-AUTHORITY-MATRIX',
     docsHarnessSha: args['docs-harness-sha'],
     packageManagerCommand,
   });

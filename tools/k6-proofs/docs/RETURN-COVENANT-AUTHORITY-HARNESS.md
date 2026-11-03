@@ -1,6 +1,10 @@
 # Return-covenant authority proof harness
 
-Status: **runtime artifact attested; product fixture seam present at the exact P89 head; row registered in the current corpus**.
+Status: **runtime artifact attested; product fixture seam present at the exact P89 head `3821eaef` and absent at j12 `352f5602`; row `R-CD-RECIPIENT-AUTHORITY-MATRIX` catalogued with its own manifest, not in the current corpus**.
+
+This is the harness contract. The row itself (its relation to the restart control, the per-case
+j12 status, the mapping to ClawSweeper's ask and what the matrix still does not cover) is
+[`R-CD-RECIPIENT-AUTHORITY-MATRIX.md`](R-CD-RECIPIENT-AUTHORITY-MATRIX.md).
 
 This document defines the reusable k6 and signed-observer contract requested by
 the ClawSweeper review on openclaw/openclaw#129388. It does not claim the
@@ -37,8 +41,14 @@ Protected corpus bytes at lane start:
 
 ## Row disposition
 
-The honest proposal is one new indivisible matrix row:
-`R-CD-RETURN-COVENANT-AUTHORITY`.
+The matrix is one new indivisible row: `R-CD-RECIPIENT-AUTHORITY-MATRIX`.
+
+It was first proposed under the id `R-CD-RETURN-COVENANT-AUTHORITY`. docs#615 has since made that
+id the supervised disposable real-restart control
+([`R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](R-CD-RETURN-COVENANT-RESTART-CONTROL.md)), and under
+🌊's ruling (2026-10-31) the matrix is its own row beside it, never folded into that row's
+verdict. The matrix's `allowed-gateway-restart-replay` edge is not evidence for the restart
+control's supervised-restart claim.
 
 It must not silently enrich an existing row:
 
@@ -55,44 +65,15 @@ independent row authorities would allow acceptance from one run to be spliced
 with absence counters from another. One signed matrix receipt keeps the chain
 indivisible while each case/form remains independently rerunnable.
 
-No row manifest or pipeline entry is added in this lane. The eventual initial
-manifest should be orchestration-gated:
-
-```json
-{
-  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
-  "scenario": {
-    "status": "runnable",
-    "file": "r-cd-return-covenant-authority.js"
-  },
-  "liveRunSafety": {
-    "classification": "orchestration-required",
-    "requiresCandidateSha": true,
-    "requiresExternalAgentOrToolInvocation": true,
-    "sameSessionConcurrencySafe": false,
-    "expectedArtifactClass": "PARTIAL-candidate",
-    "requiredReceipts": [
-      "exact-product-build-identity",
-      "product-owned-schema-fixture",
-      "accepted-held-dispatch",
-      "recipient-generation-diagnostic",
-      "lifecycle-transition",
-      "queue-admission-disposition",
-      "prompt-wake-channel-effect-counts",
-      "bounded-transcript-and-system-event-scan",
-      "signed-authoritative-receipt",
-      "cleanup"
-    ],
-    "foldRequiresReview": true
-  }
-}
-```
-
-Promotion to `k6-runnable` and workflow registration is a later reviewed change,
-after the product-owned command exists. Promotion also moves the reviewed
-scenario from `contracts/return-covenant-authority/scenario.js` into
-`scenarios/r-cd-return-covenant-authority.js`. Merely adding an endpoint name,
-moving the file, or changing the current manifest would not close the seam.
+The row's manifest is `tools/k6-proofs/manifests/r-cd-recipient-authority-matrix.json`. It is
+`orchestration-required`, so the live-run guard refuses it. Its transport is `process-local` and
+its runner is this launcher (`invocation.fixture`), so it declares `verdictCap` with `rowCap:
+PARTIAL-candidate` (🌊's ruling on docs#616). It owes the Tempo trace receipts every continuation
+row owes (#600); the sandbox exports no spans, so they stay pending. The scenario stays at
+`contracts/return-covenant-authority/scenario.js` with `scenario.status: scaffold`. Promotion to
+`k6-runnable` and workflow registration remain a later reviewed change, after a product-owned
+command exists at the candidate that will be presented. Merely adding an endpoint name, moving the
+file, or changing the manifest would not close the seam.
 
 ## Matrix contract
 
@@ -138,7 +119,13 @@ frozen refs; test fixture values are never evidence.
 
 ## Owning composition boundary
 
-At checkpoint `7c100aed`, the product's internal boundary is:
+At checkpoint `7c100aed`, the product's internal boundary was the one below. At j12
+`352f5602` the same boundary holds with two changes: the epoch read runs in the session
+sharing worker under the writer admission (openclaw#1432), and the wake is the continuation
+wake handoff that replaced upstream's retired `requestHeartbeatNow`. The `path:line` anchors
+at j12 are in the header of `contracts/return-covenant-authority/scenario.js`.
+
+At `7c100aed`:
 
 1. `captureSessionRecipientAuthority()` creates or reads one UUID epoch for the
    canonical logical session key.
@@ -638,7 +625,7 @@ node tools/k6-proofs/scripts/launch-return-covenant-driver.mjs \
   --runtime-config tools/k6-proofs/tests/fixtures/return-covenant-authority/runtime-config.valid.json \
   --runtime-artifact /private/input/runtime-artifact \
   --control-dir /private/control \
-  --artifact-dir /candidate/R-CD-RETURN-COVENANT-AUTHORITY \
+  --artifact-dir /candidate/R-CD-RECIPIENT-AUTHORITY-MATRIX \
   > /private/launcher.log
 ```
 
@@ -678,7 +665,7 @@ Expected private artifacts:
 Expected public candidate artifacts after sanitization and review:
 
 ```text
-R-CD-RETURN-COVENANT-AUTHORITY/<seat>/<run-id>/
+R-CD-RECIPIENT-AUTHORITY-MATRIX/<seat>/<run-id>/
   scenario-manifest.json
   product-build-identity.json
   observer-receipt.json
@@ -788,6 +775,17 @@ consumes exactly the launcher's inherited authority values:
 The command loads `dist/test-runtime/return-covenant-fixture-driver.js`, so matrix
 execution requires a built runtime at the candidate SHA.
 
+## j12 re-anchor
+
+The product that will be presented is j12, karmaterminal/openclaw
+`352f56029dc95c60149ab4aaa127226a861d0b3d`. openclaw `2a8566340d` ("move the return-covenant
+fixture harness to fork-only", 2026-10-02) removed the fixture command above, its module and
+the gateway extra-handler seam it ran in, so the seam binding in the previous section does not
+hold at j12. A plan bound to j12 is refused by the launcher's tracked-command check before any
+process starts. The per-case j12 anchors, the gaps between what the P89 driver reached and the
+j12 product path, and what executing the matrix again needs are in
+[`R-CD-RECIPIENT-AUTHORITY-MATRIX.md`](R-CD-RECIPIENT-AUTHORITY-MATRIX.md).
+
 ## Current completion boundary
 
 - The exact-head plan validates and is executable: `validateReturnCovenantPlan`
@@ -802,6 +800,8 @@ execution requires a built runtime at the candidate SHA.
 - No `PROOFS/INDEX.json`, existing `PROOFS/<sha>/`, row verdict, rollup,
   `exact_target_execution`, or `exact_target_mode_b` value changed.
 - No PR body, label, comment, or presentation branch changed.
+- At j12 `352f5602` the product seam is absent, so no case can execute against the product
+  that will be presented.
 - The ClawSweeper requirement remains unsatisfied until a reviewed final product
   SHA executes this matrix and its signed receipt is reviewed and folded by a
   separate authority.

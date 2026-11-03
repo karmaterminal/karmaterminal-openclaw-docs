@@ -16,9 +16,9 @@ import {
   RETURN_COVENANT_RUNTIME_MOUNT_OBSERVATION_SCHEMA,
 } from '../lib/return-covenant-runtime-artifact-contract.mjs';
 
-const EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
+const EXIT_PREFIX = 'R_CD_RECIPIENT_AUTHORITY_MATRIX_EXIT ';
 const RUNTIME_MOUNT_PREFIX =
-  'R_CD_RETURN_COVENANT_AUTHORITY_RUNTIME_MOUNTS ';
+  'R_CD_RECIPIENT_AUTHORITY_MATRIX_RUNTIME_MOUNTS ';
 
 function parseArgs(argv) {
   const values = {};

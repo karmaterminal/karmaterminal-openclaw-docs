@@ -44,7 +44,7 @@
   ],
   "properties": {
     "schema": { "const": "openclaw.k6.return-covenant-cleanup.v1" },
-    "rowId": { "const": "R-CD-RETURN-COVENANT-AUTHORITY" },
+    "rowId": { "const": "R-CD-RECIPIENT-AUTHORITY-MATRIX" },
     "runId": {
       "type": "string",
       "pattern": "^rcv-[0-9a-f]{32}$"

@@ -1,0 +1,323 @@
+{
+  "schema": "openclaw.k6.proof-row-manifest.v1",
+  "rowId": "R-CD-RECIPIENT-AUTHORITY-MATRIX",
+  "issue": 536,
+  "candidateSha": "${OPENCLAW_CANDIDATE_SHA}",
+  "seat": "${OPENCLAW_SEAT_NAME:-frond-scribe}",
+  "sessionKey": "${OPENCLAW_SESSION_KEY:-process-local}",
+  "transport": "process-local",
+  "toolSurface": "mixed",
+  "mutates": false,
+  "timeoutSeconds": 900,
+  "scenario": {
+    "name": "r-cd-recipient-authority-matrix",
+    "description": "One indivisible recipient-authority matrix: 12 lifecycle cases (7 allowed edges, 5 forbidden edges), each fired as a typed continue_delegate call and then as a bracket [[CONTINUE_DELEGATE: ...]] token, 24 observations under one signed receipt. Each accepted delegate result is held across the case's lifecycle edge, then released; allowed cases must reach prompt adoption, wake and channel delivery exactly as their return mode configures, and forbidden cases must be refused, their durable row acknowledged and removed, with zero prompt adoption, wake and channel delivery.",
+    "methods": [
+      "build-return-covenant-runtime-artifact.mjs",
+      "launch-return-covenant-driver.mjs",
+      "contracts/return-covenant-authority/scenario.js"
+    ],
+    "status": "scaffold",
+    "expectedFile": "r-cd-recipient-authority-matrix.js",
+    "registryNotes": "Not k6-runnable through run-proof.sh: the accepted path is the trusted process-local launcher (launch-return-covenant-driver.mjs) driving the contract scenario contracts/return-covenant-authority/scenario.js against a product-owned fixture driver. The 24 observations cannot be split or spliced. At the presentation product j12 (karmaterminal/openclaw 352f56029dc95c60149ab4aaa127226a861d0b3d) that driver does not exist: openclaw 2a8566340d moved scripts/return-covenant-fixture-driver.mjs and the whole return-covenant fixture module to fork-only, so no case executes at j12 (the per-case j12 anchors are in the scenario header). The last product carrying the seam is P89 3821eaef. This row is the matrix only. R-CD-RETURN-COVENANT-AUTHORITY is docs#615's supervised restart control, and the matrix never feeds that row's verdict (🌊's ruling, 2026-10-31)."
+  },
+  "invocation": {
+    "tool": "continue_delegate",
+    "mode": "normal",
+    "modes": [
+      "normal",
+      "silent",
+      "silent-wake",
+      "post-compaction"
+    ],
+    "modeNote": "The plan assigns each case its return mode, so the matrix fires all four delegate modes. invocation.mode is the trace collector's attribution key and is nominal here: the sandbox exports no spans, so the trace receipts stay pending whatever mode is named, and an authorized live trace collection would need a per-case collector.",
+    "forms": [
+      "typed-tool",
+      "bracket-token"
+    ],
+    "fixture": "tools/k6-proofs/scripts/launch-return-covenant-driver.mjs",
+    "artifactClass": "process-local-fixture",
+    "caseCount": 12,
+    "observationCount": 24,
+    "fixtureState": "exact clean product checkout, attested read-only runtime artifact, isolated home/state/config in an unshared-network bubblewrap sandbox, and a product-owned fixture driver tracked at the candidate",
+    "productSeam": {
+      "command": "scripts/return-covenant-fixture-driver.mjs",
+      "lastPresentAt": "3821eaef72677c78f450ae9956cb582a22ba4cba",
+      "removedBy": "2a8566340ddf8572dd974fc6a510fed0907dfe8a",
+      "presentAtJ12": false,
+      "note": "git grep at j12 352f56029dc95c60149ab4aaa127226a861d0b3d finds no return-covenant bytes. The launcher refuses a plan whose fixture command is not a tracked blob at the candidate, so a j12 plan cannot start."
+    }
+  },
+  "verdictCap": {
+    "rowCap": "PARTIAL-candidate",
+    "artifactClass": "process-local-fixture",
+    "supersedingAuthorities": [],
+    "ruling": "🌊's CHANGES_REQUESTED review on docs#616 (5720773113, 2026-10-31) and his #616 issue comment, Discord 1565925290008387728; openclaw-bootstrap#1727",
+    "description": "This row's only producer is the process-local launcher (launch-return-covenant-driver.mjs) and its product-owned fixture driver inside an isolated sandbox, which is not an external gateway invocation, so the row verdict is at most PARTIAL-candidate: the minimum of the signed matrix receipt's verdict and this cap. A signed matrix PASS-candidate is behavioral only and does not lift the cap. Lifting it needs a superseding authority receipt from a different artifact class, adopted by an explicit method change; none is adopted."
+  },
+  "expectedReceipts": [
+    {
+      "name": "exact-product-build-identity",
+      "required": true,
+      "description": "Candidate commit/tree, runtime artifact, package manager, Node, and tracked command identities are exact and immutable."
+    },
+    {
+      "name": "product-owned-schema-fixture",
+      "required": true,
+      "description": "The product-owned fixture creates and reopens the recipient-authority store in every planned database profile. The plan's profiles are fresh v19, two v18 upgrades and an idempotent v19 reopen (product authority 0ed59cb6); at j12 the per-agent schema is 40 and the global schema 36, so the profiles and the retention inspector's pins are not j12's."
+    },
+    {
+      "name": "accepted-held-dispatch",
+      "required": true,
+      "description": "Each form records an accepted held result and captured recipient generation before the lifecycle transition."
+    },
+    {
+      "name": "recipient-generation-diagnostic",
+      "required": true,
+      "description": "Captured and current recipient generations are observed from product-owned authority."
+    },
+    {
+      "name": "lifecycle-transition",
+      "required": true,
+      "description": "All seven allowed and five forbidden lifecycle edges execute in the accepted serial order."
+    },
+    {
+      "name": "queue-admission-disposition",
+      "required": true,
+      "description": "Allowed results are adopted exactly once; refused results have their durable row acknowledged and removed with no retry. The product refuses on one predicate (captured epoch differs from the stored epoch); the stale, unauthorized and revoked labels name the edge that advanced the epoch, not distinct product refusals."
+    },
+    {
+      "name": "prompt-wake-channel-effect-counts",
+      "required": true,
+      "description": "Allowed cases match their return mode's prompt adoption, wake and channel counts; forbidden cases prove zero prompt adoption, wake and channel delivery."
+    },
+    {
+      "name": "bounded-transcript-and-system-event-scan",
+      "required": true,
+      "description": "Successor transcript and trusted system-event scans corroborate every final-effect count."
+    },
+    {
+      "name": "signed-authoritative-receipt",
+      "required": true,
+      "description": "One signed receipt binds the complete 12-case and 24-observation matrix."
+    },
+    {
+      "name": "cleanup",
+      "required": true,
+      "description": "The isolated process group, state, config, control, and writable runtime roots are fully cleaned."
+    },
+    {
+      "name": "tempo-trace-json",
+      "required": true,
+      "description": "Public-safe Tempo trace JSON for the matrix's continue_delegate fires. Required for every continuation row (#600). The sandbox runs with an unshared network namespace and exports no spans, so no matrix run can discharge this receipt; it stays pending on every run."
+    },
+    {
+      "name": "continuation-trace-correlation",
+      "required": true,
+      "description": "continuation-trace-correlation.json for the same fires, matched by reason fingerprint and delegate mode. The sandboxed matrix cannot produce it."
+    }
+  ],
+  "artifactDestination": {
+    "root": "PROOFS",
+    "sha": "${OPENCLAW_CANDIDATE_SHA}",
+    "row": "R-CD-RECIPIENT-AUTHORITY-MATRIX",
+    "seat": "${OPENCLAW_SEAT_NAME:-frond-scribe}",
+    "runDirPrefix": "authority-run"
+  },
+  "review": {
+    "candidateOnly": true,
+    "foldRequiresReview": true,
+    "notes": "PASS-candidate from the signed receipt requires the complete indivisible matrix, signed authority and cleanup; no subset or historical observation transfers authority. The row is capped at PARTIAL-candidate (verdictCap) while this process-local launcher is its only producer. It cannot execute at j12 (the product seam was cut to fork-only). It is reviewed and folded as its own row and never folded into R-CD-RETURN-COVENANT-AUTHORITY's verdict; its allowed-gateway-restart-replay edge is not evidence for that row's supervised-restart claim."
+  },
+  "telemetryContract": {
+    "schema": "openclaw.k6.row-telemetry-contract.v1",
+    "census": {
+      "issue": "karmaterminal/openclaw#1254",
+      "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
+      "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
+      "limits": "The census found accepted continuation entry spans carry no origin, session, turn or run identity and that proof traffic carries no marker, so a trace receipt could join a continue_delegate tool span to its dispatch and fire spans only by shared trace and reason fingerprint. This row's verdict comes from a signed process-local matrix receipt whose sandbox exports no spans, so the trace receipts can never be discharged by it; they record that a continuation-tool PASS without its trace is incomplete."
+    },
+    "enforcement": "advisory",
+    "rebindable": false,
+    "productInstrumentationPrerequisite": true,
+    "prerequisiteRows": [
+      "R-OBS-CONT-PROVENANCE",
+      "R-OBS-PROOF-MARKER",
+      "R-OBS-BACKEND-DISPOSITION"
+    ],
+    "rebindReceipts": [
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "expectedTelemetry": {
+      "spans": [
+        {
+          "name": "continuation.delegate.dispatch",
+          "role": "accepted-entry",
+          "emittedByProduct": true,
+          "notes": "Accepted entry span. Carries no origin/session/turn/run identity."
+        },
+        {
+          "name": "continuation.delegate.fire",
+          "role": "fire",
+          "emittedByProduct": true
+        },
+        {
+          "name": "openclaw.tool.execution",
+          "role": "tool-execution",
+          "emittedByProduct": true,
+          "notes": "Typed-tool form only; the bracket form has no typed tool span."
+        }
+      ],
+      "attributes": [
+        {
+          "key": "continuation.chain.id",
+          "purpose": "chain",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16",
+          "notes": "The strongest join currently available; it is not an identity."
+        },
+        {
+          "key": "delegate.mode",
+          "purpose": "other",
+          "emittedByProduct": true,
+          "publicSafeForm": "enum"
+        },
+        {
+          "key": "reason.hash",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "sha256-16"
+        },
+        {
+          "key": "reason.length",
+          "purpose": "reason",
+          "emittedByProduct": true,
+          "publicSafeForm": "integer"
+        },
+        {
+          "key": "continuation.signal.origin",
+          "purpose": "origin",
+          "emittedByProduct": false,
+          "publicSafeForm": "enum",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.origin.run.fingerprint",
+          "purpose": "run",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.session.fingerprint",
+          "purpose": "session",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "continuation.turn.fingerprint",
+          "purpose": "turn",
+          "emittedByProduct": false,
+          "publicSafeForm": "salted-fingerprint",
+          "productIssue": "karmaterminal/openclaw#1254"
+        },
+        {
+          "key": "openclaw.proof.run_id",
+          "purpose": "proof-run",
+          "emittedByProduct": false,
+          "publicSafeForm": "sha256-16",
+          "productIssue": "karmaterminal/openclaw#1254"
+        }
+      ]
+    },
+    "redaction": {
+      "rule": "The public receipt carries only SHA identities, timestamps, enums, counts and SHA-256 fingerprints. Raw logical session keys, session IDs, authority generations, dispatch/result/queue IDs, result markers, prompts and credentials are scanned for and refused before signing.",
+      "forbiddenInArtifacts": [
+        "raw session key",
+        "raw authority generation",
+        "raw result marker",
+        "prompt body",
+        "gateway token",
+        "observer signing key"
+      ]
+    },
+    "controls": {
+      "positive": "Each allowed edge keeps the captured epoch current, and its held result reaches prompt adoption, wake and channel delivery exactly as the case's return mode configures.",
+      "negative": "Each forbidden edge advances the epoch; a stale prompt adoption, wake or channel delivery, a retained queue row, or a residual result marker in the successor transcript or trusted system events fails the signed receipt. None of these can be argued from a missing trace."
+    },
+    "backendUnavailable": {
+      "disposition": "PARTIAL-candidate",
+      "treatZeroAsAbsence": false,
+      "requiredCompletenessKeys": [
+        "totalBlocks",
+        "completedJobs",
+        "inspectedBytes",
+        "tempoApiStatus"
+      ],
+      "rebindKeys": [
+        "candidate_sha",
+        "row_id",
+        "seat",
+        "run_id",
+        "window_start_utc",
+        "window_end_utc",
+        "traceql_query",
+        "continuation.chain.id",
+        "reason.hash",
+        "delegate.mode"
+      ],
+      "notes": "The sandbox has no telemetry backend at all. The trace receipts stay pending as review debt; they never change the signed matrix verdict."
+    },
+    "artifact": {
+      "schema": "openclaw.k6.return-covenant-authoritative-receipt.v1",
+      "requiredFiles": [
+        "scenario-manifest.json",
+        "product-build-identity.json",
+        "observer-receipt.json",
+        "cleanup-receipt.json",
+        "row-scenario.js",
+        "tempo-trace-<traceId[0:12]>.json",
+        "continuation-trace-correlation.json"
+      ]
+    },
+    "verdictAuthority": {
+      "passScope": "behavioral-only",
+      "pass": "The signed observer receipt reports PASS-candidate: all 24 observations exactly once, every allowed edge adopted with its mode's effects, every forbidden edge refused before any prompt adoption, wake or channel delivery, and complete cleanup. That is the matrix's behavioral verdict, not the row's: the manifest caps this process-local row at PARTIAL-candidate (verdictCap). The trace receipts decide review completeness, not the verdict.",
+      "partial": "The row's artifact class (verdictCap): a process-local launcher and fixture driver are not an external gateway invocation, so the row is not promoted past PARTIAL-candidate whatever the signed receipt reports. Lifting the cap needs a superseding authority receipt from a different artifact class, adopted by an explicit method change.",
+      "fail": "The signed receipt reports FAIL-candidate: a forbidden edge reached prompt adoption, wake or channel delivery, an allowed edge did not adopt exactly once, an observation is missing or duplicated, identity drifted, a resource was retained, or cleanup failed."
+    },
+    "execution": {
+      "deterministicK6": "Not a run-proof.sh scenario: launch-return-covenant-driver.mjs starts the pinned k6 inside the sandbox against contracts/return-covenant-authority/scenario.js and signs the observer receipt itself.",
+      "manual": "No live fire is authorized for this row (docs#536), and at j12 its product seam is absent, so it has no run and its trace receipts stay review debt.",
+      "relationship": "The signed matrix receipt owns the behavioral verdict, the verdict cap bounds the row, and the trace receipts decide only whether review is complete."
+    }
+  },
+  "liveRunSafety": {
+    "classification": "orchestration-required",
+    "requiresLiveGatewayToken": false,
+    "requiresTargetSessionKey": false,
+    "requiresCandidateSha": true,
+    "requiresExternalAgentOrToolInvocation": true,
+    "requiresHumanConfirmation": true,
+    "sameSessionConcurrencySafe": false,
+    "expectedArtifactClass": "PARTIAL-candidate",
+    "requiredReceipts": [
+      "exact-product-build-identity",
+      "product-owned-schema-fixture",
+      "accepted-held-dispatch",
+      "recipient-generation-diagnostic",
+      "lifecycle-transition",
+      "queue-admission-disposition",
+      "prompt-wake-channel-effect-counts",
+      "bounded-transcript-and-system-event-scan",
+      "signed-authoritative-receipt",
+      "cleanup",
+      "tempo-trace-json",
+      "continuation-trace-correlation"
+    ],
+    "foldRequiresReview": true,
+    "notes": "run-proof.sh and run-proofs.sh refuse orchestration-required rows, so a catalog or live-suite run never fires the matrix. It runs only through the trusted launcher, against an exact candidate that carries the product fixture seam, after a live fire is authorized (docs#536: not before the final successor is mergeable, exact-head CI-clean, reviewed and deployed fleet-wide). j12 carries no seam."
+  }
+}

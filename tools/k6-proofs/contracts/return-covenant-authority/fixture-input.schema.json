@@ -20,7 +20,7 @@
       "const": "openclaw.k6.return-covenant-fixture-input.v1"
     },
     "rowId": {
-      "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+      "const": "R-CD-RECIPIENT-AUTHORITY-MATRIX"
     },
     "runId": {
       "type": "string",

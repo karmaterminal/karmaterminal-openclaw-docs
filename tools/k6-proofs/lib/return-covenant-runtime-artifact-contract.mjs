@@ -70,7 +70,7 @@ export function validateReturnCovenantRuntimeArtifactBinding(binding) {
     'mounts',
   ]) &&
     binding.schema === RETURN_COVENANT_RUNTIME_ARTIFACT_BINDING_SCHEMA &&
-    binding.rowId === 'R-CD-RETURN-COVENANT-AUTHORITY' &&
+    binding.rowId === 'R-CD-RECIPIENT-AUTHORITY-MATRIX' &&
     RUN_ID.test(binding.runId || '') &&
     SHA_40.test(binding.productSha || '') &&
     SHA_40.test(binding.productTreeSha || '') &&

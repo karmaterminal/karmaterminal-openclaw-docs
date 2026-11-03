@@ -49,7 +49,7 @@
           "const": "openclaw.k6.return-covenant-retention-request.v1"
         },
         "rowId": {
-          "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+          "const": "R-CD-RECIPIENT-AUTHORITY-MATRIX"
         },
         "runId": { "$ref": "#/$defs/runId" },
         "candidateSha": { "$ref": "#/$defs/sha40" },

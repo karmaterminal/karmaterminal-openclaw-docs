@@ -680,7 +680,7 @@ function validateManifestShape(manifest) {
   }
   if (
     manifest.schema !== RETURN_COVENANT_RUNTIME_ARTIFACT_SCHEMA ||
-    manifest.rowId !== 'R-CD-RETURN-COVENANT-AUTHORITY' ||
+    manifest.rowId !== 'R-CD-RECIPIENT-AUTHORITY-MATRIX' ||
     !RUN_ID.test(manifest.runId || '') ||
     !exactKeys(manifest.product, ['commitSha', 'treeSha']) ||
     !SHA_40.test(manifest.product.commitSha || '') ||
@@ -1276,12 +1276,12 @@ export async function createReturnCovenantRuntimeArtifact({
   sourceDir,
   outputDir,
   runId,
-  rowId = 'R-CD-RETURN-COVENANT-AUTHORITY',
+  rowId = 'R-CD-RECIPIENT-AUTHORITY-MATRIX',
   docsHarnessSha,
   packageManagerCommand,
 }) {
   if (
-    rowId !== 'R-CD-RETURN-COVENANT-AUTHORITY' ||
+    rowId !== 'R-CD-RECIPIENT-AUTHORITY-MATRIX' ||
     !RUN_ID.test(runId || '') ||
     !SHA_40.test(docsHarnessSha || '')
   ) {

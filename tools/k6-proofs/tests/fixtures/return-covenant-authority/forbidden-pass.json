@@ -1,6 +1,6 @@
 {
   "schema": "openclaw.k6.return-covenant-observation.v1",
-  "rowId": "R-CD-RETURN-COVENANT-AUTHORITY",
+  "rowId": "R-CD-RECIPIENT-AUTHORITY-MATRIX",
   "runId": "rcv-00000000000000000000000000000001",
   "caseId": "forbidden-delete-recreate",
   "form": "typed-tool",

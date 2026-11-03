@@ -32,7 +32,7 @@
       "const": "openclaw.k6.return-covenant-observation.v1"
     },
     "rowId": {
-      "const": "R-CD-RETURN-COVENANT-AUTHORITY"
+      "const": "R-CD-RECIPIENT-AUTHORITY-MATRIX"
     },
     "runId": { "$ref": "#/$defs/runId" },
     "caseId": {

@@ -18,7 +18,7 @@
     "schema": {
       "const": "openclaw.k6.return-covenant-runtime-artifact.v1"
     },
-    "rowId": { "const": "R-CD-RETURN-COVENANT-AUTHORITY" },
+    "rowId": { "const": "R-CD-RECIPIENT-AUTHORITY-MATRIX" },
     "runId": { "$ref": "#/$defs/runId" },
     "product": {
       "type": "object",

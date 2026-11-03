@@ -148,11 +148,13 @@ test('the live-run guard refuses the matrix row until a live fire is authorized'
 });
 
 test('the pipeline, README and row doc register the matrix as its own row', async () => {
-  const [pipeline, readme, doc] = await Promise.all([
+  const [pipeline, readme, rawDoc] = await Promise.all([
     readFile(path.join(proofs, 'k6-proofs-pipeline.xml'), 'utf8'),
     readFile(path.join(proofs, 'README.md'), 'utf8'),
     readFile(MATRIX_DOC, 'utf8'),
   ]);
+  // Whitespace folded, so a claim wrapped across lines is still found.
+  const doc = rawDoc.replace(/\s+/g, ' ');
   const rowStart = pipeline.indexOf(`<Row id="${MATRIX_ROW}"`);
   assert.ok(rowStart >= 0, 'no pipeline row');
   const row = pipeline.slice(rowStart, pipeline.indexOf('</Row>', rowStart));
@@ -166,7 +168,7 @@ test('the pipeline, README and row doc register the matrix as its own row', asyn
   assert.match(readme, new RegExp(`^\\| ${MATRIX_ROW} \\| \`launch-return-covenant-driver\\.mjs\` \\| process-local/`, 'm'));
   assert.match(readme, new RegExp(`^### ${MATRIX_ROW}`, 'm'));
 
-  assert.match(doc, new RegExp(`^# ${MATRIX_ROW}`, 'm'));
+  assert.match(rawDoc, new RegExp(`^# ${MATRIX_ROW}`, 'm'));
   assert.match(doc, /not evidence for the supervised[- ]restart claim/);
   // ClawSweeper's standing review on openclaw/openclaw#129388, mapped case by case.
   assert.match(doc, /5442236054/);
@@ -188,11 +190,46 @@ test('the scenario header anchors every case at j12 and marks why none executes 
   assert.match(header, new RegExp(P89));
   assert.match(header, /no case executes at j12/i);
   for (const { id } of RETURN_COVENANT_CASES) {
-    const entry = new RegExp(`^ \\* +- ${id}:`, 'm');
+    const entry = new RegExp(`^ \\* +- ${id}(?: \\([^)]*\\))?:`, 'm');
     assert.match(header, entry, `no j12 anchor for ${id}`);
   }
   // The anchors cover where a return is bound, checked, refused or adopted, and its effect.
   for (const stage of ['Bound', 'Checked', 'Refused', 'Adopted', 'Final effects']) {
     assert.match(header, new RegExp(`^ \\* +${stage}\\b`, 'm'), stage);
+  }
+});
+
+test('a candidate without the product fixture command, as at j12, is refused before launch', async () => {
+  // Characterization of the launcher's existing tracked-command check (it already held before
+  // this row split): at j12 scripts/return-covenant-fixture-driver.mjs is not in the tree, so
+  // the launcher refuses the plan before it starts any candidate process.
+  const { mkdtemp, mkdir, rm, writeFile } = await import('node:fs/promises');
+  const os = await import('node:os');
+  const { verifyReturnCovenantTrackedCommand } = await import('../../lib/return-covenant-runtime-artifact.mjs');
+  const product = await mkdtemp(path.join(os.tmpdir(), 'matrix-j12-shape-'));
+  const git = (...args) => {
+    const run = spawnSync('git', ['-C', product, ...args], { encoding: 'utf8' });
+    assert.equal(run.status, 0, run.stderr);
+    return run.stdout.trim();
+  };
+  try {
+    git('init', '-q');
+    await mkdir(path.join(product, 'scripts'));
+    await writeFile(path.join(product, 'scripts/other.mjs'), 'export {};\n');
+    git('add', '.');
+    git('-c', 'user.name=matrix', '-c', 'user.email=matrix@example.invalid', 'commit', '-q', '-m', 'j12-shaped tree');
+    const candidateSha = git('rev-parse', 'HEAD');
+    const command = {
+      sourceDir: product,
+      relativePath: 'scripts/return-covenant-fixture-driver.mjs',
+      productSha: candidateSha,
+      expectedSha256: 'a'.repeat(64),
+    };
+    await assert.rejects(verifyReturnCovenantTrackedCommand(command), /ENOENT/);
+    // An untracked copy planted in the checkout is not the candidate's command either.
+    await writeFile(path.join(product, command.relativePath), 'export {};\n');
+    await assert.rejects(verifyReturnCovenantTrackedCommand(command), /not a regular Git blob/);
+  } finally {
+    await rm(product, { recursive: true, force: true });
   }
 });

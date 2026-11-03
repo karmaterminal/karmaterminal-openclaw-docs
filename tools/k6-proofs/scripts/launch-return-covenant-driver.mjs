@@ -42,6 +42,7 @@ import {
 } from '../lib/return-covenant-authoritative-receipt.mjs';
 import {
   RETURN_COVENANT_DRIVER_SCHEMA,
+  RETURN_COVENANT_EVIDENCE_PREFIX,
   validateReturnCovenantPlan,
 } from '../lib/return-covenant-scenario-contract.mjs';
 import {
@@ -66,9 +67,9 @@ import {
 const execFileAsync = promisify(execFile);
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const defaultDocsDir = path.resolve(scriptDir, '../../..');
-const SANDBOX_EXIT_PREFIX = 'R_CD_RETURN_COVENANT_AUTHORITY_EXIT ';
+const SANDBOX_EXIT_PREFIX = 'R_CD_RECIPIENT_AUTHORITY_MATRIX_EXIT ';
 const RUNTIME_MOUNT_PREFIX =
-  'R_CD_RETURN_COVENANT_AUTHORITY_RUNTIME_MOUNTS ';
+  'R_CD_RECIPIENT_AUTHORITY_MATRIX_RUNTIME_MOUNTS ';
 const CANDIDATE_CLEANUP_RETAINED_NAMES = [
   'delegates',
   'queueItems',
@@ -1201,19 +1202,12 @@ async function main() {
       if (!liveStoreObservationPromise) {
         const line = capturedK6Log
           .split(/\r?\n/u)
-          .find((entry) => entry.includes(
-            'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE ',
-          ));
-        const offset = line?.indexOf(
-          'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE ',
-        ) ?? -1;
+          .find((entry) => entry.includes(RETURN_COVENANT_EVIDENCE_PREFIX));
+        const offset = line?.indexOf(RETURN_COVENANT_EVIDENCE_PREFIX) ?? -1;
         if (offset >= 0) {
           try {
             const liveEvidence = JSON.parse(
-              line.slice(
-                offset +
-                  'R_CD_RETURN_COVENANT_AUTHORITY_EVIDENCE '.length,
-              ),
+              line.slice(offset + RETURN_COVENANT_EVIDENCE_PREFIX.length),
             );
             liveStoreObservationPromise = (async () => {
               const target = liveEvidence.retentionObservation?.target;

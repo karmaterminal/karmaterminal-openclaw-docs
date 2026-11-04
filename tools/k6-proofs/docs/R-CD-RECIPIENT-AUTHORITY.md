@@ -247,20 +247,9 @@ It does not prove:
     `f52dc67e` (`:235`, an incognito election fails visibly and elects nothing) and the bound
     control (`:285`).
 - **The incognito fanout refusal and the memory-store maintenance separation.** They are proven by
-  the product's unit pins, not by this row:
-  - `src/auto-reply/continuation/delegate-recipient-authority.incognito.test.ts`: an incognito
-    election refused and nothing left, `post-compaction` with no fanout, `tree` and `all`, and
-    `normal` `tree` and `all` (`:58-76`); a durable session's `post-compaction` `tree` and `all`
-    fanout still elected and delivered (`:78-104`);
-  - `src/config/sessions/session-actor-memory.test.ts`: an incognito memory store's maintenance keeps
-    a live custody owner past the entry cap without opening the ambient state database (`:458`);
-  - `src/agents/subagents/registry/subagent-registry-maintenance.test.ts`: continuation rows read from
-    the maintained store's state root, never the ambient one (`:159`), and a memory store's live
-    custody owners kept without reading rows or awaiting readiness (`:167`).
-
-  Every case's sessions live in the gateway's durable store, and every delegate case elects one
-  explicit `targetSessionKey`, never a fanout, so no case reaches either path
-  ([what they change for this row](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)).
+  the product's unit pins (`delegate-recipient-authority.incognito.test.ts`,
+  `session-actor-memory.test.ts`, `subagent-registry-maintenance.test.ts`), not by this row
+  ([the fix](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)).
 - **The grant's refusals.** Revocation (a revoked device), a narrowed scope ceiling, a grant used
   under another session, expiry and a restart are proven by the product's unit pins in
   `src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts` (`:387`, `:398`,
@@ -1220,7 +1209,7 @@ the row's isolated gateway. None changes one; the setup below rules out the one 
   anchor is not finalized (`work-store.ts:329-334`), so an early probe could only move the refusal
   after the probe (MISSING, never FAIL).
 - **#1544 maintenance custody (`984f4e1f`).** Session-store maintenance now preserves every
-  session that holds live custody (`subagent-registry-maintenance.ts:52-75` at `a22bd9c05c`, which
+  session that holds live custody (`subagent-registry-maintenance.ts:32-75` at `a22bd9c05c`, which
   reads it from the maintained store's own state root;
   [below](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)): an election's owner,
   an admitted child's requester and bound recipients, and any session a pending continuation row is
@@ -1344,8 +1333,8 @@ captures a grant from a WebSocket owner or restores one as `gateway-owner`. Capt
 a model-policy snapshot and a decode (`operator-run-authority.ts:661-664`;
 `operator-run-recovery-source.ts:46-51`). Restore as `gateway-owner` needs that profile's identity
 and its resident catalog row (`operator-run-recovery.ts:216, 327-330`). That this row's client gets
-a grant is read from the bytes above. The one-case smoke at `2907e656` will be the first run of that
-shape.
+a grant is read from the bytes above. 🕯's two runs at `2907e656` were the first runs of that shape.
+`a22bd9c05c` changed none of the grant's files, and the fresh 13 there is the next.
 
 ## The incognito fanout refusal and the memory-store maintenance separation
 
@@ -1362,18 +1351,20 @@ three things:
   incognito, before any record exists (`:64-69`). It calls `assertSessionRecipientAuthorityOwner`
   (`session-sharing-store.async.ts:591-600`, exported at `session-accessor.ts:188-191`). That throws
   the default return's own refusal, "Incognito collaboration command requires its dedicated owner"
-  (`session-sharing-store.async.ts:56-57`, the capture's at `:68`), when the requester's storage
-  owner is a memory owner. That owner exists only for an incognito key
-  (`agent:<id>:(dashboard|subagent|internal-session-effects):incognito-…`,
-  `packages/session-url-contract/src/session-key.ts:6-13`) or an explicit incognito store
-  (`session-actor-storage-binding.ts:119-135`). The binding is its only caller, and the delegate's
-  enqueue is the binding's only caller (`delegate-flow-store.ts:437-442`). The explicit-target path
+  (`session-sharing-store.async.ts:56-57`, the capture's at `:68`), whenever the requester's key is
+  incognito (`agent:<id>:(dashboard|subagent|internal-session-effects):incognito-…`,
+  `packages/session-url-contract/src/session-key.ts:6-13`). For any other key, the owner capture
+  returns nothing (`session-actor-storage-binding.ts:127-135`). The binding is the assert's only
+  caller. `createDelegateRecord` (`delegate-flow-store.ts:420`, the binding at `:437-442`) is the
+  binding's only caller, for the delegate's enqueue (`delegate-store.ts:214`) and for post-compaction
+  staging (`delegate-store-post-compaction.ts:62`), which no case drives. The explicit-target path
   (`recipient-authority-binding.ts:70-77`) is the old `:66-73`, byte for byte.
 - **The memory-store maintenance separation.** `prepareSessionMaintenancePreservation` now hands each
   provider the maintained store's state environment and whether it is an incognito memory store
   (`store-maintenance-preserve.ts:76-83`, `:109`). On a memory store, the continuation custody provider
   (`subagent-registry-maintenance.ts:52-75`) reads no pending rows and waits on no custody readiness
-  (`:58-66`). It keeps only the live owners (`:67-70`).
+  (`:58-66`), so its custody holders are the live owners alone (`:67-70`). The subagent runs' child,
+  requester and recipient keys (`:32-50`) are kept as on any store.
 - **Custody read from the maintained store's root.** On any other store, the provider reads pending
   rows, readiness and live owners from that store's `env` (`:60`, `:65`, `:68`;
   `work-store.ts:827-828`), not from the process's ambient root.
@@ -1405,7 +1396,17 @@ No case reaches either half of the fix:
   protects are unchanged, and at the defaults maintenance reaches no row session anyway
   ([above](#the-merged-heads-other-lanes-on-the-rows-gateway)).
 
-The fix is proven by the product's unit pins, not by this row (under "does not prove").
+The fix is proven by the product's unit pins, not by this row (under "does not prove"):
+
+- `src/auto-reply/continuation/delegate-recipient-authority.incognito.test.ts`: an incognito election
+  is refused and leaves nothing, for `post-compaction` with no fanout, `tree` or `all`, and for
+  `normal` `tree` and `all` (`:58-76`). A durable session's `post-compaction` `tree` and `all` fanout
+  is still elected and delivered (`:78-104`).
+- `src/config/sessions/session-actor-memory.test.ts`: an incognito memory store's maintenance keeps a
+  live custody owner past the entry cap without opening the ambient state database (`:458`).
+- `src/agents/subagents/registry/subagent-registry-maintenance.test.ts`: continuation rows are read
+  from the maintained store's state root, never the ambient one (`:159`). A memory store's live
+  custody owners are kept without reading rows or awaiting readiness (`:167`).
 
 ## Cites re-walked at the merged j12′
 
@@ -1419,16 +1420,16 @@ non-test product files. The row cites three of them:
 | File | Cite (at `2907e656`) | At `a22bd9c05c` | What it affects |
 |---|---|---|---|
 | `src/auto-reply/continuation/recipient-authority-binding.ts` | `:56-74` (scenario header, section 2: the binding captured before the custody record) | **moved** to `:57-78` by an import (`:4`) and the fanout refusal (`:64-69`). The explicit-target capture the row reads, `:70-77`, is the old `:66-73`, unchanged in meaning. The function **gained** the incognito fanout refusal | none: no case elects a fanout, and no row session is incognito |
-| `src/agents/subagents/registry/subagent-registry-maintenance.ts` | `:47-65` (#1544: maintenance preserves every session that holds live custody) | **moved and changed in meaning** to `:52-75`. On a durable store it preserves the same holders, now read from the maintained store's root (`:60`, `:65`, `:68`). On a memory store it keeps the live owners only (`:58-66`) | none: the row's stores are durable and in the gateway's own root, and the setup pin (maintenance at its defaults) stands |
+| `src/agents/subagents/registry/subagent-registry-maintenance.ts` | `:47-65` (#1544: maintenance preserves every session that holds live custody) | **moved and changed in meaning** to `:52-75`, and the cite's range **corrected** to `:32-75`: the child's requester and bound recipients, which the paragraph names, are `protectedSubagentSessionKeys` (`:32-50`, the old `:27-45`). On a durable store the provider preserves the same holders, now read from the maintained store's root (`:60`, `:65`, `:68`). On a memory store it reads no rows and waits on no readiness (`:58-66`), so its custody holders are the live owners alone (`:67-70`) | none: the row's stores are durable and in the gateway's own root, and the setup pin (maintenance at its defaults) stands |
 | `src/auto-reply/continuation/work-store.ts` | `:97-146`, `:213-313`, `:226, 260`, `:273-282`, `:315-365`, `:329-334`, `:335-345`, `:639-655`: 15 cites, 4 in the scenario header, 2 in the lib and 9 here | **unchanged**. The file changed only at `:821-828` (`listLiveContinuationCustodyOwners` takes an `env`), after every cited line, and each cited range is byte-identical | none |
 
 The row had no cite to re-walk in the other three non-test files the fix changed:
 `session-accessor.ts`, `session-sharing-store.async.ts` and `store-maintenance-preserve.ts`. The
 `session-accessor.sqlite-*.ts` files the row cites are other, unchanged files. On the test side the
-fix added three unit-pin files (`delegate-recipient-authority.incognito.test.ts`,
-`session-actor-memory.test.ts`, `subagent-registry-maintenance.test.ts`), the test-lines allocation
-and one Vitest routing line. The row cited none of them, and now cites the unit pins under "does not
-prove". The fix's own lines are cited in
+fix added one unit-pin file (`delegate-recipient-authority.incognito.test.ts`), extended two
+(`session-actor-memory.test.ts`, `subagent-registry-maintenance.test.ts`), and changed the test-lines
+allocation and one Vitest routing line. The row cited none of them, and now cites the unit pins under
+"does not prove". The fix's own lines are cited in
 [its section](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation).
 
 Every other product file the row cites is byte-identical from `2907e656` to `a22bd9c05c`, so its

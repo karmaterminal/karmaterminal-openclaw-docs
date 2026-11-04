@@ -109,6 +109,7 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.equal(manifest.invocation.pinStatus, RRA_PIN_STATUS);
   assert.equal(RRA_PIN_STATUS, 'merged');
   assert.doesNotMatch(JSON.stringify(manifest), /INTERIM/, 'no interim pin left in the manifest');
+  for (const old of FORMER_PINS) assert.ok(!JSON.stringify(manifest).includes(old), `no former pin's full SHA in the manifest: ${old}`);
   assert.notEqual(manifest.invocation.pinnedCandidate, PRE_GRANT, 'the pre-grant head is history, never the pin');
   assert.notEqual(manifest.invocation.pinnedCandidate, GRANT_HEAD, 'the grant\'s head is history, never the pin');
   assert.notEqual(RRA_PINNED, GRANT_HEAD, 'the grant\'s head is refused');
@@ -142,12 +143,12 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   }
   // The status line: re-pinned to a22bd9c05c (🕯, room msg 1567674372905505001), the grant's head
   // refused, and what the owner runs next.
-  assert.match(docs, /^Status: \*\*re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\./m);
+  // Under it, the pin before it, as it stood: the owner's fresh 13 at 2907e656, the two cases it left
+  // open now fixed, where the fixes landed, and that 663fafdc was no gate-3 PASS (🌊, room msg
+  // 1567656724549075047).
+  const statusLine = /^Status: \*\*re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\.\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
+  assert.ok(statusLine, 'the status line, and the former pin\'s status under it');
   assert.match(docs, /1567674372905505001/, '🕯\'s re-pin message');
-  // The pin before it, as it stood: the owner's fresh 13 at 2907e656, the two cases it left open now
-  // fixed, where the fixes landed, and that 663fafdc was no gate-3 PASS (🌊, room msg 1567656724549075047).
-  const statusLine = /^At `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
-  assert.ok(statusLine, 'the status at the former pin');
   assert.notEqual(statusLine[1], '663fafdc', 'the fixes landed after 663fafdc');
   const status = docs.slice(0, docs.indexOf('## What it proves'));
   for (const open of ['`revoked-owner`', '`allowed`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
@@ -355,8 +356,9 @@ test('the docs say what the incognito fanout refusal and the memory-store mainte
   for (const file of ['session-accessor.ts', 'session-sharing-store.async.ts', 'store-maintenance-preserve.ts']) {
     assert.ok(rewalk.includes(`\`${file}\``), `${file}: named as not cited`);
   }
-  // The #1544 paragraph cites the maintenance provider at its new lines.
-  assert.ok(docs.includes('`subagent-registry-maintenance.ts:52-75` at `a22bd9c05c`'));
+  // The #1544 paragraph cites the maintenance provider at its new lines, the range corrected to
+  // cover the child's requester and recipients (protectedSubagentSessionKeys).
+  assert.ok(docs.includes('`subagent-registry-maintenance.ts:32-75` at `a22bd9c05c`'));
   assert.ok(!docs.includes('subagent-registry-maintenance.ts:47-65`):'), 'the 2907e656 lines as a live cite');
   // The manifest, the README section and the pipeline row say the same.
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
@@ -1854,6 +1856,7 @@ test('the control refuses: another candidate, a non-j12′ build, a live-overlap
     ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: GRANT_HEAD }), {}],
     ['stage-build-mismatch', { buildCommit: 'f15237ec921879d918482cdf372b0718d4c1aab9' }, (o) => o, {}],
     ['stage-build-mismatch', { buildCommit: RRA_J12 }, (o) => o, {}],
+    ['stage-build-mismatch', { buildCommit: INTERIM }, (o) => o, {}],
     ['stage-build-mismatch', { buildCommit: PRE_GRANT }, (o) => o, {}],
     ['stage-build-mismatch', { buildCommit: GRANT_HEAD }, (o) => o, {}],
     ['state-dir-overlaps-live', { stateLink: true }, (o) => o, {}],
@@ -2236,37 +2239,53 @@ test('case receipts are signed; a tampered or foreign-key receipt does not verif
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceJson: 'tempo-trace-000000000000.json' }), false, 'a trace file that is not its own');
 });
 
-// The re-pin to a22bd9c05c (🕯, room msg 1567674372905505001): a whole run sealed at the grant's head,
-// as 🕯's two runs there were, is history. Each receipt verifies under its key, and each case is
-// still MISSING, because its candidate and its stage name 2907e656, not j12′.
-test('--grade-row refuses a whole run sealed at the grant\'s head 2907e656: every case MISSING, nothing judged', () => {
+// The re-pin to a22bd9c05c (🕯, room msg 1567674372905505001): a whole run sealed at a former pin,
+// as 🕯's two runs at the grant's head 2907e656 were, is history. Each receipt verifies under its
+// key, and each case is still MISSING, because its candidate and its stage name the former pin, not
+// j12′. Each record carries a contradiction that is FAIL at the pin, so "nothing judged" can fail.
+test('--grade-row refuses a whole run sealed at a former pin, the grant\'s head 2907e656 included: every case MISSING, nothing judged', () => {
   const key = 'k'.repeat(40);
-  const dir = mkdtempSync(path.join(os.tmpdir(), 'rra-grade-grant-head-'));
-  try {
-    for (const caseId of RRA_CASE_IDS) {
-      mkdirSync(path.join(dir, caseId));
-      const record = mutate(completeRecord(caseId), (r) => { r.candidateSha = GRANT_HEAD; r.gates.buildInfoCommit = GRANT_HEAD; r.trace = null; });
-      const graded = gradeRecipientAuthorityCase(record);
-      assert.equal(graded.verdict, 'MISSING-candidate', caseId);
-      for (const code of ['candidate-not-pinned', 'gate:buildInfoCommit']) assert.ok(graded.missing.includes(code), `${caseId}: ${graded.missing}`);
-      assert.deepEqual(graded.contradictions, [], `${caseId}: nothing else about it is judged`);
-      const sealed = sealCaseReceipt(record, key);
-      assert.equal(verifyCaseReceipt(sealed, key), true, `${caseId}: the receipt itself verifies`);
-      writeFileSync(path.join(dir, caseId, 'case-receipt.json'), JSON.stringify(sealed));
-      const correlation = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json`, delegate: { mode: RRA_CASES[caseId].mode } };
-      if (RRA_CASES[caseId].expectChild !== false) writeFileSync(path.join(dir, caseId, 'continuation-trace-correlation.json'), JSON.stringify(correlation));
+  // A return in the parent is FAIL for every delegate case; a wake turn is FAIL for the work case.
+  const contradiction = (caseId) => (r) => {
+    if (caseId === WORK_CASE) r.target.foreignRuns = 1;
+    else r.parent.ackRows = 1;
+  };
+  for (const caseId of RRA_CASE_IDS) {
+    assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), contradiction(caseId))).verdict, 'FAIL-candidate', `${caseId}: the injected contradiction is FAIL at the pin`);
+  }
+  for (const formerPin of FORMER_PINS) {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'rra-grade-former-pin-'));
+    try {
+      for (const caseId of RRA_CASE_IDS) {
+        mkdirSync(path.join(dir, caseId));
+        const record = mutate(completeRecord(caseId), (r) => {
+          r.candidateSha = formerPin;
+          r.gates.buildInfoCommit = formerPin;
+          r.trace = null;
+          contradiction(caseId)(r);
+        });
+        const graded = gradeRecipientAuthorityCase(record);
+        assert.equal(graded.verdict, 'MISSING-candidate', `${formerPin} ${caseId}`);
+        for (const code of ['candidate-not-pinned', 'gate:buildInfoCommit']) assert.ok(graded.missing.includes(code), `${formerPin} ${caseId}: ${graded.missing}`);
+        assert.deepEqual(graded.contradictions, [], `${formerPin} ${caseId}: nothing else about it is judged`);
+        const sealed = sealCaseReceipt(record, key);
+        assert.equal(verifyCaseReceipt(sealed, key), true, `${formerPin} ${caseId}: the receipt itself verifies`);
+        writeFileSync(path.join(dir, caseId, 'case-receipt.json'), JSON.stringify(sealed));
+        const correlation = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json`, delegate: { mode: RRA_CASES[caseId].mode } };
+        if (RRA_CASES[caseId].expectChild !== false) writeFileSync(path.join(dir, caseId, 'continuation-trace-correlation.json'), JSON.stringify(correlation));
+      }
+      const row = gradeRowFromArtifacts(dir, key);
+      assert.equal(row.verdict, 'MISSING-candidate', formerPin);
+      assert.equal(row.candidateSha, MERGED_J12P, 'the row grades for the pin');
+      for (const caseId of RRA_CASE_IDS) assert.equal(row.cases[caseId].verdict, 'MISSING-candidate', `${formerPin} ${caseId}`);
+      // The same receipts at the pin, without the contradiction, pass: only the SHA refuses them.
+      for (const caseId of RRA_CASE_IDS) {
+        writeFileSync(path.join(dir, caseId, 'case-receipt.json'), JSON.stringify(sealCaseReceipt({ ...completeRecord(caseId), trace: null }, key)));
+      }
+      assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'PASS-candidate', formerPin);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
-    const row = gradeRowFromArtifacts(dir, key);
-    assert.equal(row.verdict, 'MISSING-candidate');
-    assert.equal(row.candidateSha, MERGED_J12P, 'the row grades for the pin');
-    for (const caseId of RRA_CASE_IDS) assert.equal(row.cases[caseId].verdict, 'MISSING-candidate', caseId);
-    // The same receipts at the pin pass: only the SHA refuses them.
-    for (const caseId of RRA_CASE_IDS) {
-      writeFileSync(path.join(dir, caseId, 'case-receipt.json'), JSON.stringify(sealCaseReceipt({ ...completeRecord(caseId), trace: null }, key)));
-    }
-    assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'PASS-candidate');
-  } finally {
-    rmSync(dir, { recursive: true, force: true });
   }
 });
 

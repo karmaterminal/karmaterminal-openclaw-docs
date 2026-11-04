@@ -22,8 +22,9 @@
  *   binding at :435-442). A transition after that toolResult is a change between dispatch and return.
  *   The same step captures the electing operator's dispatch grant (:443-451), which the delegate's
  *   spawn runs under; it changes no case's stage or oracle. The binding refuses an incognito
- *   requester's tree/all fanout election (recipient-authority-binding.ts:64-69); every case elects
- *   one explicit targetSessionKey, which the tool refuses beside a fanoutMode, so no case reaches it.
+ *   requester's tree/all fanout election (recipient-authority-binding.ts:64-69); every delegate case
+ *   elects one explicit targetSessionKey, which the tool refuses beside a fanoutMode, and no row key
+ *   is incognito, so no case reaches it.
  * - Every refused return logs one line, `[continuation:return-refused] stage=<stage>
  *   reason=recipient-authority-changed session=<key>[ deliveryId=<id>]`
  *   (src/auto-reply/continuation/return-refusal.ts:16-36), at whichever boundary sees it first:

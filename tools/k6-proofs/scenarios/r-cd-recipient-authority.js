@@ -39,8 +39,9 @@
  *    src/auto-reply/continuation/recipient-authority-binding.ts:57-78). The tool's "scheduled" result
  *    (continue-delegate-tool.ts:436-449) is therefore after capture. At a22bd9c05c the binding also
  *    refuses an incognito requester's tree/all fanout election before any record
- *    (recipient-authority-binding.ts:64-69); every case passes one explicit targetSessionKey, which
- *    the tool refuses beside a fanoutMode (continue-delegate-tool.ts:328-334), so none reaches it.
+ *    (recipient-authority-binding.ts:64-69); every delegate case passes one explicit
+ *    targetSessionKey, which the tool refuses beside a fanoutMode (continue-delegate-tool.ts:328-334),
+ *    and no row key is incognito, so none reaches it.
  *    The child carries the binding
  *    (src/auto-reply/continuation/delegate-dispatch-request.ts:65-66,
  *    src/agents/subagents/spawn/subagent-spawn-request.ts:328, subagent-spawn-continuation.ts:138-159).

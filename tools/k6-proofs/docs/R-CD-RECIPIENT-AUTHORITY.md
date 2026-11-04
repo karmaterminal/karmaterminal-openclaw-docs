@@ -1,6 +1,6 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **11/13 at `rra-a4d5318d426ad728`; fixes landed; owner fires a fresh 13.** In no corpus.
+Status: **11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61`; `663fafdc` was not a gate-3 PASS; owner fires a fresh whole 13 after 🌿's review.** In no corpus.
 Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head
 with the delegate dispatch grant, karmaterminal/openclaw `2907e656a892c0efa93821670e9488c07be12c17`
 (branch `codeagent/j12prime-candidate`).
@@ -1095,6 +1095,27 @@ literal model could not. Pin (h) drives `allowed`'s fallback through the real ca
 - with the probe reworded on the wire to the "this turn" text, the model answers `PROBE-OK`: MISSING
   `probe-ack-unobserved`. Sealed with that text's hash, the receipt is also `probe-text-unbound`;
 - every refusal case and `allowed-silent` answer the same under either wording.
+
+**The pins, RED before and GREEN at `48656f61`.** This head's two test files were run three ways:
+
+- against the lib, scenario and docs at `663fafdc`;
+- at `48656f61` with only `RRA_PROBE_CONDITION` and `RRA_PROBE_TEXT_SHA256` reverted, which gives
+  the same REDs;
+- at `48656f61` itself.
+
+| Test | At `663fafdc`, and with the two constants reverted | At `48656f61` |
+|---|---|---|
+| dry run (h) | RED: `allowed`'s fallback is MISSING `probe-ack-unobserved`, because the literal model answered the "this turn" probe `PROBE-OK` | GREEN |
+| dry run (f) | RED: the fallback's probe is the "this turn" text | GREEN |
+| dry run (g) | RED: the fallback's probe is answered `PROBE-OK`, so its first shape, an ack in both the wake turn and the fallback, reads `probe-ack-unobserved` instead of `duplicate-ack-wake-and-fallback` | GREEN |
+| dry run (a), (e) | RED: every probe is the "this turn" text | GREEN |
+| unit: the probe text | RED: `RRA_PROBE_CONDITION` is the "this turn" wording | GREEN |
+| unit: the "this turn" probe is another probe | RED: its hash is `RRA_PROBE_TEXT_SHA256`, so its receipts would grade PASS | GREEN |
+| unit: the row is registered | RED: at `663fafdc` the docs lack the context ruling; with the constants reverted the lib's condition is not the docs' | GREEN |
+
+Every other test passes all three ways: 32 of the dry run's 37 and 50 of the unit file's 53. At
+`663fafdc` with its own tests the dry run was 36/36, because its model read "this turn" as "in
+context" and so (f) passed there.
 
 ### The refusal cases' absence: no ack in the probe run
 

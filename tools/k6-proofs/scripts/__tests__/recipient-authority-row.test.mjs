@@ -130,8 +130,11 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
   // The status line: the owner's fresh 13 at the merged head, the two cases it left open now fixed,
-  // and what the owner runs next.
-  assert.match(docs, /^Status: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed; owner fires a fresh 13\.\*\* In no corpus\./m);
+  // where the fixes landed, that 663fafdc was no gate-3 PASS (🌊, room msg 1567656724549075047), and
+  // what the owner runs next.
+  const statusLine = /^Status: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\./m.exec(docs);
+  assert.ok(statusLine, 'the status line');
+  assert.notEqual(statusLine[1], '663fafdc', 'the fixes landed after 663fafdc');
   const status = docs.slice(0, docs.indexOf('## What it proves'));
   for (const open of ['`revoked-owner`', '`allowed`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
   assert.match(status, /1567622903074390167/, 'the fresh 13\'s room message');
@@ -187,6 +190,7 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.match(readmeLine, /j12′ 2907e656/);
   assert.doesNotMatch(readmeLine, /1ab5a73e/);
   assert.doesNotMatch(readmeLine, /interim/i);
+  assert.ok(readmeLine.includes(`fixes landed at \`${statusLine[1]}\``) && readmeLine.includes('`663fafdc` was not a gate-3 PASS'), 'the README line says the docs\' status');
   const readmeSection = /### R-CD-RECIPIENT-AUTHORITY [^\n]*\n[\s\S]*?(?=\n### )/.exec(readme)?.[0] ?? '';
   assert.match(readmeSection, new RegExp(MERGED_J12P));
   assert.doesNotMatch(readmeSection, /INTERIM/);

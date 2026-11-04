@@ -482,7 +482,8 @@ export default function () {
       const instruction =
         `[k6-proof-harness] Use tool_search to discover the deferred continue_delegate tool, then call dispatch_action with id from that result and ` +
         `args={task:"${childTask}", mode:"${spec.mode}", delaySeconds:${delaySeconds}, targetSessionKey:"${keys.target}"}. ` +
-        'This is a proof run: perform the discovery and call, then no other action.';
+        'This is a proof run: perform the discovery and call, then no other action. ' +
+        'On any later turn, including after an interrupted notice, call no tool.';
       send(keys.parent, instruction, `${RRA_ROW}-${rowNonce}`, (r) => {
         if (!r.ok) {
           refuse(`dispatch sessions.send rejected: ${boundedText(r.error?.message)}`);

@@ -55,10 +55,11 @@ function gatewayFor(world) {
     if (frame?.type !== 'req') return [];
     const p = frame.params || {};
     const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
+    const fail = (message) => [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message } }];
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: ALL_METHODS } });
       case 'sessions.create': {
-        if (Object.values(sessions).some((session) => session.label === p.label)) return fail('label already in use');
+        if (Object.entries(sessions).some(([key, session]) => key !== p.key && session.label === p.label)) return fail('label already in use');
         sessions[p.key] = { label: p.label, messages: [] };
         return ok({ key: p.key });
       }
@@ -71,8 +72,8 @@ function gatewayFor(world) {
         if (frame.method === 'session.members.list') return ok({ sessionKey: p.sessionKey, identities: world.noIdentity ? [] : [{ type: 'agent', id: 'main' }] });
         return ok({ ok: true, sessionKey: p.sessionKey });
       }
-      case 'sessions.delete': return ok({ ok: true });
-      case 'sessions.reset': sessions[p.key] = { messages: [] }; return ok({ ok: true, key: p.key });
+      case 'sessions.delete': delete sessions[p.key]; return ok({ ok: true });
+      case 'sessions.reset': sessions[p.key] = { ...sessions[p.key], messages: [] }; return ok({ ok: true, key: p.key });
       case 'config.get': return ok({ hash: 'config-hash-1' });
       case 'config.patch': {
         if (world.patchFails) return [{ type: 'res', id: frame.id, ok: false, error: { code: 'INVALID_REQUEST', message: 'config base hash required; re-run config.get and retry' } }];
@@ -305,6 +306,18 @@ test('dry run: every case drives its public surfaces and grades PASS-candidate a
     assert.equal(typeof drive.reason_length, 'number');
     // The continue_work case dispatches no delegate, so it has no mode.
     assert.equal(drive.delegate_mode, RRA_CASES[caseId].mode ?? null);
+  }
+});
+
+test('dry run: the same case can run twice on one gateway without colliding with prior labels', async () => {
+  const gateway = gatewayFor({ caseId: 'allowed', ack: 'wake' });
+  for (const runId of ['rra-1111111111111111', 'rra-2222222222222222']) {
+    const { evidence } = await fire('allowed', {}, {
+      gateway,
+      env: { OPENCLAW_RCD_RA_RUN: runId },
+    });
+    assert.deepEqual(evidence.refusals, [], `${runId}: ${evidence.refusals}`);
+    assert.equal(evidence.control_run_id, runId);
   }
 });
 

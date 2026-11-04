@@ -76,7 +76,8 @@ const HARNESS_MARKER = '[k6-proof-harness]';
  * <probeNonce>`, and that unconditional instruction won over the primed target's conditional return
  * instruction: in 🕯's run rra-88e4fd22f0b122a8, allowed-silent's probe was answered PROBE-OK with no
  * ack (probe_ran true, probeReplied true, target_obs.ackRuns 0; room msg 1567590581796868168). From
- * 53c1c192 to 663fafdc the condition asked whether "this turn" held the completion. On allowed's
+ * the conditional-probe lane (b822d7c5, head 53c1c192) to 663fafdc the condition asked whether "this
+ * turn" held the completion. On allowed's
  * fallback the woken run had already taken the return in, so a literal model answered PROBE-OK (🌿's
  * review on #620, comment 6642952113). The condition now asks about the target's context, as the
  * priming does ("is in your context"), and hands back to the priming, which alone asks for
@@ -112,8 +113,9 @@ export const RRA_PROBE_NONCE_SLOT = '<probeNonce>';
  * SHA-256 (hex) of rraProbeText(RRA_PROBE_NONCE_SLOT): the probe every probing case's receipt must
  * name (target.probeTextSha256). The scenario hashes the text it sent, its own nonce written as the
  * slot. A receipt naming no probe, or another, is not about this probe: `probe-text-unbound`. The
- * others include the unconditional probe before 🌊's first ruling, and the "this turn" probe from
- * 53c1c192 to 663fafdc, whose hash was d6187455…. The unit tests pin it against node:crypto.
+ * others include the unconditional probe before 🌊's first ruling, and the "this turn" probe of the
+ * conditional-probe lane (bound by hash from 153d547d, head 53c1c192) to 663fafdc, whose hash was
+ * d6187455…. The unit tests pin it against node:crypto.
  */
 export const RRA_PROBE_TEXT_SHA256 = '509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512';
 

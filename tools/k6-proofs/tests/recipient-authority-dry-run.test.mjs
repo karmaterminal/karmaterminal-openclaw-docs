@@ -42,8 +42,8 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
 // 1567656724549075047 rules, quoted here rather than imported, so the driver's text is pinned to the
 // ruling itself. The driver keeps its harness header before it.
 const PROBE_CONDITION = 'If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
-// The condition from 53c1c192 to 663fafdc, as room msg 1567590902694936678 first worded it. The
-// scripted model reads it literally, so only pin (h) sends it.
+// The condition from the conditional-probe lane (b822d7c5, head 53c1c192) to 663fafdc, as room msg
+// 1567590902694936678 first worded it. The scripted model reads it literally; only pin (h) sends it.
 const THIS_TURN_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
 const probeTextFor = (probeNonce) => `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: ${PROBE_CONDITION} Otherwise reply exactly PROBE-OK ${probeNonce}.`;
 const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' && frame.method === 'sessions.send' && String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`));
@@ -63,8 +63,8 @@ const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' &&
  * (chat-send-input-dispatch.ts:330-350, user-turn-transcript.ts:130-140,
  * session-system-event-adoption.ts:287-296).
  *
- * The primed model reads the probe it was sent. With the return in its turn, 🌊's conditional probe
- * hands the turn back to the priming: the ack alone, no PROBE-OK. An unconditional `reply exactly
+ * The primed model reads the probe it was sent. With the return in its context, 🌊's conditional
+ * probe hands the turn back to the priming: the ack alone, no PROBE-OK. An unconditional `reply exactly
  * PROBE-OK` wins over the priming instead: PROBE-OK and no ack, as 🕯's run rra-88e4fd22f0b122a8
  * showed (allowed-silent: probe_ran true, probeReplied true, target_obs.ackRuns 0; room msg
  * 1567590581796868168). With no return, either probe is answered PROBE-OK <the nonce it names>.
@@ -88,7 +88,7 @@ const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' &&
  * The model reads the probe's condition literally (🌿's review on #620, comment 6642952113). "If your
  * context includes" (room msg 1567656724549075047) holds a completion that any turn took in: the
  * probe turn's own drain, or allowed's woken run before it. "If this turn includes", the condition
- * from 53c1c192 to 663fafdc, holds only one that this turn's drain adopted, so on allowed's fallback
+ * through 663fafdc, holds only one that this turn's drain adopted, so on allowed's fallback
  * it is answered PROBE-OK. Until 663fafdc this model read both wordings as "in context", which is
  * why the dry run passed allowed's fallback while a literal model could not.
  */

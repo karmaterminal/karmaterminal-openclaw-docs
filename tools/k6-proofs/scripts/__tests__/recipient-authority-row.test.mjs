@@ -1078,7 +1078,7 @@ test('the probe text: 🌊\'s conditional wording with its own nonce, and the te
     ['the proof id the priming names', text.replace('the proof you were primed for', `proof ${rowNonce.slice(-16)}`), ['probe-names-row-nonce', 'probe-not-conditional-wording']],
     ['the ack and the row nonce, as the priming asks', `${text} TARGET-ACK ${rowNonce}`, ['probe-names-ack', 'probe-names-row-nonce', 'probe-not-conditional-wording']],
     ['the unconditional probe at 4f86dd78', `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: reply exactly PROBE-OK ${probeNonce}.`, ['probe-not-conditional-wording']],
-    ['the "this turn" probe from 53c1c192 to 663fafdc', text.replace('If your context includes', 'If this turn includes'), ['probe-not-conditional-wording']],
+    ['the "this turn" probe through 663fafdc', text.replace('If your context includes', 'If this turn includes'), ['probe-not-conditional-wording']],
     ['🌊\'s wording without the harness header', `${ruled} Otherwise reply exactly PROBE-OK ${probeNonce}.`, ['probe-not-conditional-wording']],
     ['another probe\'s nonce', rraProbeText('RCDRA-PROBE-other'), ['probe-nonce-missing', 'probe-not-conditional-wording']],
     ['the probe nonce run on into another', text.replace(`PROBE-OK ${probeNonce}.`, `PROBE-OK ${probeNonce}x.`), ['probe-nonce-missing', 'probe-not-conditional-wording']],
@@ -1173,7 +1173,7 @@ test('a probe that ran is bound to the conditional text by its hash: unbound or 
 // 🌊's ruling, room msg 1567656724549075047, on 🌿's review of 663fafdc (#620, comment 6642952113):
 // the condition reads the target's context, as the priming does. A receipt sealed by a run that sent
 // the "this turn" text names that text's hash, and never grades PASS at this head.
-test('the "this turn" probe from 53c1c192 to 663fafdc is another probe: every receipt naming it, allowed\'s fallback included, is MISSING probe-text-unbound', () => {
+test('the "this turn" probe through 663fafdc is another probe: every receipt naming it, allowed\'s fallback included, is MISSING probe-text-unbound', () => {
   const thisTurn = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
   const oldText = (probeNonce) => `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: ${thisTurn} Otherwise reply exactly PROBE-OK ${probeNonce}.`;
   const oldHash = createHash('sha256').update(oldText(RRA_PROBE_NONCE_SLOT)).digest('hex');

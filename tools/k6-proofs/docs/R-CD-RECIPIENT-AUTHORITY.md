@@ -1039,7 +1039,8 @@ Its limits:
 🌊's ruling, room msg 1567656724549075047, is quoted in the rulings list above. It answers 🌿's
 review of `663fafdc` (#620, comment 6642952113).
 
-From `53c1c192` to `663fafdc` the two instructions asked different things:
+From the conditional-probe lane (the text from `b822d7c5`, bound by hash from `153d547d`, head
+`53c1c192`) to `663fafdc`, the two instructions asked different things:
 
 - the priming: "On a later turn, only if an internal task completion for proof <suffix> is **in your
   context**, reply exactly `TARGET-ACK <nonce>`" (the scenario's `prime()`);
@@ -1053,7 +1054,7 @@ answers `PROBE-OK`, and the case stays MISSING `probe-ack-unobserved` however co
 
 The condition now asks what the priming asks. Only that sentence and the hash changed:
 
-| | from `53c1c192` to `663fafdc` | this head |
+| | the conditional-probe lane to `663fafdc` | this head |
 |---|---|---|
 | `RRA_PROBE_CONDITION` | `If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.` | `If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead.` |
 | `RRA_PROBE_TEXT_SHA256` | `d6187455fe5d61ff33f4255e6ece5e65fde4cd67d0d452703c4262892292b8cf` | `509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512` |
@@ -1096,22 +1097,27 @@ literal model could not. Pin (h) drives `allowed`'s fallback through the real ca
   `probe-ack-unobserved`. Sealed with that text's hash, the receipt is also `probe-text-unbound`;
 - every refusal case and `allowed-silent` answer the same under either wording.
 
-**The pins, RED before and GREEN at `48656f61`.** This head's two test files were run three ways:
+**The pins, RED before the fix and GREEN at this head.** This head's two test files were run three
+ways:
 
 - against the lib, scenario and docs at `663fafdc`;
-- at `48656f61` with only `RRA_PROBE_CONDITION` and `RRA_PROBE_TEXT_SHA256` reverted, which gives
-  the same REDs;
-- at `48656f61` itself.
+- at this head with only `RRA_PROBE_CONDITION` and `RRA_PROBE_TEXT_SHA256` reverted, which gives the
+  same REDs;
+- at this head.
 
-| Test | At `663fafdc`, and with the two constants reverted | At `48656f61` |
+The fix itself landed at `48656f61`. Its own test files give the same REDs and GREENs. This head's
+registration test also needs the status line, which landed after `48656f61`, so this head's files
+read `48656f61` as 52 of 53.
+
+| Test | At `663fafdc`, and at this head with the two constants reverted | At this head |
 |---|---|---|
 | dry run (h) | RED: `allowed`'s fallback is MISSING `probe-ack-unobserved`, because the literal model answered the "this turn" probe `PROBE-OK` | GREEN |
 | dry run (f) | RED: the fallback's probe is the "this turn" text | GREEN |
-| dry run (g) | RED: the fallback's probe is answered `PROBE-OK`, so its first shape, an ack in both the wake turn and the fallback, reads `probe-ack-unobserved` instead of `duplicate-ack-wake-and-fallback` | GREEN |
+| dry run (g) | RED: the fallback's probe is answered `PROBE-OK`, so its shape "an ack in both the wake turn and the fallback" reads `probe-ack-unobserved` instead of `duplicate-ack-wake-and-fallback` | GREEN |
 | dry run (a), (e) | RED: every probe is the "this turn" text | GREEN |
 | unit: the probe text | RED: `RRA_PROBE_CONDITION` is the "this turn" wording | GREEN |
 | unit: the "this turn" probe is another probe | RED: its hash is `RRA_PROBE_TEXT_SHA256`, so its receipts would grade PASS | GREEN |
-| unit: the row is registered | RED: at `663fafdc` the docs lack the context ruling; with the constants reverted the lib's condition is not the docs' | GREEN |
+| unit: the row is registered | RED: at `663fafdc` the docs predate this lane, so the status line fails first; with the constants reverted the lib's condition is not the docs' | GREEN |
 
 Every other test passes all three ways: 32 of the dry run's 37 and 50 of the unit file's 53. At
 `663fafdc` with its own tests the dry run was 36/36, because its model read "this turn" as "in

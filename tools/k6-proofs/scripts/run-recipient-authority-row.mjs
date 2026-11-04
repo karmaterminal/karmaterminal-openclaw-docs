@@ -558,7 +558,8 @@ function workRefusalReason(logEntries, sessionKey, afterMs) {
 /**
  * The continue_work case's capture, from the store. Its `scheduled` toolResult is written before the
  * turn schedules the election and captures the epoch, so the result says nothing about the capture.
- * Only the capture and the case's own transition write the session's authority row, so the first
+ * During a case only the capture and the case's own transition write the session's authority row
+ * (the legacy import and doctor's repair insert rows only outside a run), so the first
  * readable sample holding it is the capture (byMs), the readable sample before it, without the row,
  * bounds the capture from below (afterMs), and its epoch is the captured one. The grade checks that
  * the capture preceded the transition.

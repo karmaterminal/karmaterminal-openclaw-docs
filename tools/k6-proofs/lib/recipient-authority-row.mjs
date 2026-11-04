@@ -219,7 +219,8 @@ export const RRA_CASES = Object.freeze({
   }),
   // A kept continue_work wake (j12′'s binding, work-recipient-authority.ts): the session elects its
   // own wake, its visibility narrows while the wake waits, and the dispatcher's handoff refuses it
-  // before any busy, fold, admission or turn-start-fence decision. There is no parent, child or
+  // right after the claim, before the busy, fold, admission and turn-start-fence branches that would
+  // run it. There is no parent, child or
   // router line: the electing session is the recipient.
   'work-revoked-visibility': Object.freeze({
     family: 'refusal',
@@ -677,11 +678,24 @@ export function findDelegateDispatch(messages, { taskMarker, targetSessionKey })
   return null;
 }
 
-/** Every continue_delegate call in a transcript, through Tool Search or not. */
-export function countDelegateCalls(messages) {
+/**
+ * Whether a row counts toward a call count limited to `inRuns`: every row when no limit is given,
+ * else a row of one of those runs, or one with no run id (it cannot be placed elsewhere).
+ */
+function inCountedRun(message, inRuns) {
+  if (!Array.isArray(inRuns)) return true;
+  const runId = messageRunId(message);
+  return !runId || inRuns.includes(runId);
+}
+
+/**
+ * Every continue_delegate call in a transcript, through Tool Search or not; with `inRuns`, only
+ * those of the given runs (and rows with no run id).
+ */
+export function countDelegateCalls(messages, { inRuns } = {}) {
   let count = 0;
   for (const message of Array.isArray(messages) ? messages : []) {
-    if (roleOf(message) !== 'assistant' || !Array.isArray(message.content)) continue;
+    if (roleOf(message) !== 'assistant' || !Array.isArray(message.content) || !inCountedRun(message, inRuns)) continue;
     for (const part of message.content) if (toolCallTarget(part)?.name === 'continue_delegate') count += 1;
   }
   return count;
@@ -719,11 +733,14 @@ export function findWorkElection(messages, { reasonMarker }) {
   return null;
 }
 
-/** Every continue_work call in a transcript, through Tool Search or not. */
-export function countWorkCalls(messages) {
+/**
+ * Every continue_work call in a transcript, through Tool Search or not; with `inRuns`, only those
+ * of the given runs (and rows with no run id).
+ */
+export function countWorkCalls(messages, { inRuns } = {}) {
   let count = 0;
   for (const message of Array.isArray(messages) ? messages : []) {
-    if (roleOf(message) !== 'assistant' || !Array.isArray(message.content)) continue;
+    if (roleOf(message) !== 'assistant' || !Array.isArray(message.content) || !inCountedRun(message, inRuns)) continue;
     for (const part of message.content) if (toolCallTarget(part)?.name === 'continue_work') count += 1;
   }
   return count;
@@ -1068,12 +1085,13 @@ export function gradeRecipientAuthorityCase(record) {
  *   reason); any other assistant run but the probe's is a wake turn;
  * - there is no parent, child, router line or trace: the wake never fires;
  * - the capture comes after the `scheduled` toolResult (findWorkElection), so it is read from the
- *   store. Only the capture and the case's own transition write this session's authority row
- *   (session-accessor.sqlite-recipient-authority.ts:17-37 and its callers), so the first sample
- *   holding the row is the capture, and the last sample without it bounds the capture from below;
+ *   store. During a case only the capture and the case's own transition write this session's
+ *   authority row (session-accessor.sqlite-recipient-authority.ts:17-37 and its callers; the legacy
+ *   import and doctor's repair insert rows only outside a run), so the first sample holding the row
+ *   is the capture, and the last sample without it bounds the capture from below;
  * - the wake is due no earlier than the election plus its delay (work-dispatch.ts:667-668; an
- *   anchored wake is due at its turn's finalization plus the delay, work-store.ts:335-345), so a
- *   transition that settled before that bound preceded the handoff;
+ *   anchored wake's anchor is a later dispatcher pass, and an overdue one matures at that pass,
+ *   work-store.ts:335-345), so a transition that settled before that bound preceded the handoff;
  * - the reason is j12′'s `[continuation:work-refused]` line for this session at stage=wake, naming
  *   one election. The handoff fails the record before it reports (work-recipient-authority.ts
  *   :133-141), and a failed record is never driven again (work-store.ts:226, 260), so a line logged

@@ -1512,6 +1512,16 @@ test('work election binding: the case\'s own continue_work call, through Tool Se
   assert.equal(findWorkElection([{ role: 'assistant', content: [{ type: 'toolCall', id: 'c1', name: 'continue_delegate', arguments: { task: reason } }] }, result('c1', { status: 'scheduled' })], { reasonMarker: 'RCDRA:abc' }), null);
   assert.equal(countWorkCalls([viaSearch('w1', { reason }), direct('w2', { reason }), say('x', 'r')]), 2);
   assert.equal(countDelegateCalls([viaSearch('w1', { reason })]), 0);
+  // Limited to the case's own runs: a wake turn's call is that wake's, never the electing run's;
+  // a row with no run id cannot be placed elsewhere, so it still counts.
+  const wakeCall = { ...direct('w3', { reason }), __openclaw: { runId: 'run-wake' } };
+  const unplaced = { role: 'assistant', content: [{ type: 'toolCall', id: 'w4', name: 'continue_work', arguments: { reason } }] };
+  const delegateInWake = { role: 'assistant', content: [{ type: 'toolCall', id: 'c2', name: 'continue_delegate', arguments: { task: 'x' } }], __openclaw: { runId: 'run-wake' } };
+  const transcript = [viaSearch('w1', { reason }), wakeCall, unplaced, delegateInWake];
+  assert.equal(countWorkCalls(transcript), 3);
+  assert.equal(countWorkCalls(transcript, { inRuns: ['run-e', 'run-probe'] }), 2);
+  assert.equal(countDelegateCalls(transcript), 1);
+  assert.equal(countDelegateCalls(transcript, { inRuns: ['run-e', 'run-probe'] }), 0);
 });
 
 /** work-revoked-visibility at j12′: scheduled at 1 s, captured by 1.5 s, narrowed at 5 s, refused at 32 s, probed at 50 s. */

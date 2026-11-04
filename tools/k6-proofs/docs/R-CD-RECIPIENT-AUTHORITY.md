@@ -104,9 +104,11 @@ It does not prove:
   The wake-mode cases pin the first read (`:277-280`), which refuses before any row.
 - **A kept `continue_work` wake refused at replay or adoption, by any other transition, or allowed.**
   `work-revoked-visibility` pins `stage=wake` with a visibility narrowing on a live gateway. The
-  replay sweep runs only at custody boot (`custody-boot.ts:107-114`). The adoption check sees a wake
-  only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`). A
-  Gateway delete cancels the wake instead of refusing it. An owner change needs a second model
+  replay sweep runs only at custody boot (`custody-boot.ts:107-114`). The adoption check refuses a
+  wake only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`)
+  or the authority moved after the handoff's read (`work-recipient-authority.reset.test.ts:316-334`).
+  That window is the claim-to-turn span, and the case's transition settles long before the wake is
+  due. A Gateway delete cancels the wake instead of refusing it. An owner change needs a second model
   turn, and a member removal needs a known identity. No case elects an allowed `continue_work` wake,
   so the row has no positive control of its own showing that a work wake turn's rows appear in
   `chat.history`. The case's absence rests on the product line, which is logged only after the
@@ -184,9 +186,11 @@ Byte-read with `git show` / `git grep` at `1ab5a73e`. Files the merge did not ch
 
 Authority is one UUID epoch per logical session key in `session_recipient_authority` (per-agent
 database). A captured binding is current only while the stored epoch equals it
-(`src/config/sessions/session-recipient-authority-types.ts:96-101`). Only five sites write an epoch:
-the four advances below and the first capture
-(`session-accessor.sqlite-recipient-authority.ts:17-37` and its callers).
+(`src/config/sessions/session-recipient-authority-types.ts:96-101`). While a gateway runs, only five
+sites write an epoch: the four advances below and the first capture
+(`session-accessor.sqlite-recipient-authority.ts:17-37` and its callers). Two more insert a row, and
+neither runs during a case: the legacy import (`src/state/openclaw-agent-db-session-migrations.ts:403-417`)
+and doctor's canonical-key repair (`src/commands/doctor-session-recipient-authority-repair.ts:68-78`).
 
 | Public RPC | Effect on the target's epoch | Path at j12′ |
 |---|---|---|
@@ -242,7 +246,7 @@ the console behind the `[continuation/work-refused]` tag, with the same fields i
 | Election (capture) | `work-dispatch.ts:631-740`; the capture at `:662-665` precedes `electedAt` (`:667`) and the due time (`:668`); an election inside its turn is anchored to the turn's finalization (`work-store.ts:315-365`) | a failed capture elects nothing | none |
 | Replay (custody boot) | `custody-boot.ts:107-114` -> `work-recipient-authority.ts:159-171` | refused before startup recovery drives it | `stage=replay` |
 | Wake handoff | the work timer drives the dispatcher with no busy check first (`work-dispatch.ts:169-199`), which claims the due record (`work-store.ts:213-313`) and refuses a stale binding at `work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`, before the busy, fold and grant branches (`work-dispatch.ts:573-627`) | the record fails with no notice (`work-recipient-authority.ts:133-141` -> `work-store.ts:639-655`) and its custody is released; it is never claimed again (`work-store.ts:226, 260`) | `stage=wake` |
-| Adoption | `work-dispatch-execution.ts:267, 450`, before the turn-start fence (`:270-276`) and the fold note | refused; reached only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`) | `stage=adoption` |
+| Adoption | `work-dispatch-execution.ts:267, 450`, before the turn-start fence (`:270-276`) and the fold note | refused; a stale wake reaches it only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`) or the authority moved after the handoff's read | `stage=adoption` |
 
 ## The cases
 
@@ -270,9 +274,9 @@ admitted while current and sits un-adopted (mode silent does not wake). A wake-m
 opposite: its transition settles before the delegate's delay ends, so its return is never routed.
 The control samples the epoch every 500 ms: captured after the `scheduled` toolResult and strictly
 before the transition, again after it, and at the end. For `work-revoked-visibility` the capture
-follows the `scheduled` toolResult. Only the capture and the case's own transition write that
-session's row, so the first sample holding it is the capture, and the sample before it, without the
-row, bounds it from below.
+follows the `scheduled` toolResult. During a case only the capture and the case's own transition
+write that session's row, so the first sample holding it is the capture, and the sample before it,
+without the row, bounds it from below.
 
 **One stage per case.** Each refused return's stage comes from where its queued copy is when its
 epoch advances. The bytes allow exactly one first refusal per case:
@@ -290,8 +294,10 @@ epoch advances. The bytes allow exactly one first refusal per case:
 - `wake-revoked-visibility`, `wake-reassigned`: the epoch has advanced before the child returns,
   so the router's first read refuses it.
 - `work-revoked-visibility`: the replay sweep runs only at custody boot, and no restart comes
-  between election and wake. The handoff reads the authority before any busy, fold, admission or
-  fence decision. So the first boundary to see the wake is the handoff, and once refused the record
+  between election and wake. The handoff reads the authority right after the claim, before the
+  busy, fold, admission and turn-start-fence branches that would run the wake. The claim itself only
+  interrupts a record that already carries a fence (`work-store.ts:273-282`), which a wake that never
+  started does not. So the first boundary to see the wake is the handoff, and once refused the record
   is failed and seen by no later boundary.
 - `replay-restart`: the old generation never prompts the target, and its sweep defers to the copy,
   so the first boundary to see the row is the replacement's boot recovery. Custody boot's new

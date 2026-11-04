@@ -142,9 +142,10 @@
  *      (:662-665 -> work-operator-continuation.ts:34-52 -> work-recipient-authority.ts:63-67,
  *      insert-if-absent). So the capture comes AFTER the scheduled toolResult; the control reads it
  *      from the store, where this session's row first appears with it;
- *    - the wake is due at the election plus its delay, or at its turn's finalization plus the delay
- *      (work-dispatch.ts:667-668, work-store.ts:315-365). The timer drives the dispatcher with no
- *      busy check first (work-dispatch.ts:169-199), which claims the due record (work-store.ts:213-313)
+ *    - the wake is due no earlier than the election plus its delay: then, or at an anchor taken on a
+ *      later dispatcher pass, matured if overdue (work-dispatch.ts:667-668, work-store.ts:315-365).
+ *      The timer drives the dispatcher with no busy check first (work-dispatch.ts:169-199), which
+ *      claims the due record (work-store.ts:213-313)
  *      and at the handoff refuses a stale binding (work-dispatch.ts:529 -> work-recipient-authority.ts
  *      :102-152) before the busy, fold, admission and turn-start-fence branches (:573-627). The record
  *      fails with no notice (work-store.ts:639-655) and the refusal logs
@@ -153,7 +154,8 @@
  *      a failed record is never claimed again (work-store.ts:226, 260);
  *    - the only earlier boundary, the replay sweep, runs at custody boot (custody-boot.ts:107-114 ->
  *      work-recipient-authority.ts:159-171); a later one, adoption (work-dispatch-execution.ts:267, 450),
- *      sees the wake only if the handoff could not read the authority (work-recipient-authority.ts:116-124).
+ *      refuses a wake only if the handoff could not read the authority (work-recipient-authority.ts:116-124)
+ *      or the authority moved after the handoff's read.
  *    So the case pins stage=wake: the session elects with a delay, narrows its own visibility after
  *    the capture, and is probed only after the wake was due.
  */
@@ -724,10 +726,13 @@ export default function () {
         evidence.target_obs = messages
           ? observeTargetTranscript(messages, { nonce: rowNonce, primingRunIds: evidence.priming_run_ids, probeRunId: evidence.probe_run_id, probeNonce })
           : null;
-        // Every continue_work call beyond the case's own election, and any continue_delegate.
-        const workCalls = messages ? countWorkCalls(messages) : null;
+        // Every continue_work call beyond the case's own election, and any continue_delegate, that the
+        // electing or the probe run made. A call in any other run belongs to a wake turn, which is
+        // itself the contradiction; counting it would turn that FAIL into a deviation.
+        const inRuns = [...evidence.priming_run_ids, ...(evidence.probe_run_id ? [evidence.probe_run_id] : [])];
+        const workCalls = messages ? countWorkCalls(messages, { inRuns }) : null;
         evidence.other_work_calls = workCalls === null ? null : workCalls - (evidence.dispatch?.tool_call_id ? 1 : 0);
-        evidence.other_delegate_calls = messages ? countDelegateCalls(messages) : null;
+        evidence.other_delegate_calls = messages ? countDelegateCalls(messages, { inRuns }) : null;
         finish();
       });
     }

@@ -33,7 +33,7 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
 
 /**
  * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, noIdentity,
- * workWake, retry }. Allowed cases get the woken target's ack after their (last) priming; refused
+ * workWake, wakeElects, probeElects, retry }. Allowed cases get the woken target's ack after their (last) priming; refused
  * cases spawn a child only when the delegate would have fired. The continue_work case's session
  * answers its election with a scheduled result, and with `workWake` a wake turn shows once the
  * probe was sent.
@@ -91,8 +91,14 @@ function gatewayFor(world) {
           // (managed-delivery-turn-lifecycle.ts:107-111, written by user-turn-transcript.metadata.ts
           // :102-104) and the primed target's ack in the probe run.
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
-          // A refused kept wake that ran anyway: its turn's row, from a run of its own.
-          if (world.workWake) push(p.key, say(`RCDRA-WOKE ${nonce}`, 'run-work-wake'));
+          // A refused kept wake that ran anyway: its turn's row, from a run of its own, and with
+          // `wakeElects` that wake turn electing again.
+          if (world.workWake) {
+            if (world.wakeElects) push(p.key, toolCall('w9', 'continue_work', { reason: 'again', delaySeconds: 30 }, 'run-work-wake'));
+            push(p.key, say(`RCDRA-WOKE ${nonce}`, 'run-work-wake'));
+          }
+          // The model electing in the probe turn: a new election after the transition.
+          if (world.probeElects) push(p.key, toolCall('w8', 'continue_work', { reason: 'probe', delaySeconds: 0 }, 'run-probe'));
           push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(adopts ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
           push(p.key, say(world.adoptOnProbe && !world.markerOnly ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
           return ok({ runId: 'run-probe' });
@@ -462,6 +468,20 @@ test('dry run: a refused kept wake that still ran a turn is FAIL-candidate, the 
   const { graded } = await grade(workCase, { workWake: true });
   assert.equal(graded.verdict, 'FAIL-candidate', JSON.stringify(graded));
   assert.ok(graded.contradictions.includes('target-woken'));
+  // Review finding: a call the wrongly run wake turn makes is part of that wake, never a deviation
+  // of the electing run, so it cannot turn the FAIL into MISSING.
+  const { drive, graded: elected } = await grade(workCase, { workWake: true, wakeElects: true });
+  assert.equal(drive.other_work_calls, 0, 'only the electing and probe runs are counted');
+  assert.equal(elected.verdict, 'FAIL-candidate', JSON.stringify(elected));
+  assert.ok(elected.contradictions.includes('target-woken'));
+});
+
+test('dry run: an election in the probe turn is a model deviation: MISSING, never FAIL', async () => {
+  const { drive, graded } = await grade(workCase, { workWake: true, probeElects: true });
+  assert.equal(drive.other_work_calls, 1);
+  assert.equal(graded.verdict, 'MISSING-candidate', JSON.stringify(graded));
+  assert.ok(graded.missing.includes('extra-work-calls'));
+  assert.deepEqual(graded.contradictions, []);
 });
 
 test('dry run: a continue_work capture not seen before the transition, or a second election, is MISSING, never FAIL', async () => {

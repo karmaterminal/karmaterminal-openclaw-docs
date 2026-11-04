@@ -115,7 +115,9 @@
  *      (src/auto-reply/continuation/continuation-wake.test.ts:878-920). chat.history hides the wake's
  *      own rows (see lib/wake-turn-receipt.mjs). So every adoption this row reads, a wake's or the
  *      probe turn's, is the primed target's TARGET-ACK, bound to its run (🌊's ruling (a), room msg
- *      1567556038281007235);
+ *      1567556038281007235). The probe is conditional (🌊, room msg 1567590902694936678): a turn
+ *      that drained the return follows its priming, any other answers PROBE-OK; the unconditional
+ *      probe before it won over the priming, so allowed-silent's ack could never show;
  *    - sessions.delete (and sessions.reset) consume the session's queued events
  *      (src/gateway/server-methods/sessions-delete.ts:454-470 -> src/gateway/session-lifecycle-cleanup.ts:74-92
  *      -> src/gateway/session-reset-runtime-cleanup.ts:77-93 -> src/gateway/session-reset-runtime-state.ts:11-51
@@ -204,7 +206,6 @@ import {
   RRA_CASES,
   RRA_EVIDENCE_PREFIX,
   RRA_PINNED,
-  RRA_PROBE_MARKER,
   RRA_READY_MARKER,
   RRA_RETURN_MARKER,
   RRA_ROW,
@@ -216,6 +217,8 @@ import {
   findOwnerAssignment,
   findWorkElection,
   observeTargetTranscript,
+  rraProbeText,
+  rraProbeTextProblems,
   scenarioMethodsFor,
 } from '../lib/recipient-authority-row.mjs';
 
@@ -747,9 +750,17 @@ export default function () {
     }
 
     function probeThenFinal() {
-      // The probe never names the ack or the row nonce: an ack in its run is the primed target
-      // answering a return its turn drained, never an echo of this text.
-      const instruction = `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
+      // 🌊's conditional probe (room msg 1567590902694936678), the same text for every case: a turn
+      // that drained the return follows its priming and acks; any other answers PROBE-OK <probeNonce>.
+      // It never names the ack or the row nonce, so an ack in its run is the primed target answering
+      // a return its turn drained, never an echo of this text. A text that fails the text test is
+      // never sent.
+      const instruction = rraProbeText(probeNonce);
+      const problems = rraProbeTextProblems(instruction, { rowNonce, probeNonce });
+      if (problems.length) {
+        refuse(`probe text refused: ${problems.join(', ')}`);
+        return finalReads();
+      }
       // A prompt-drain refusal must come from this turn's drain, and allowed-silent's ack must follow
       // the return's Delivered to line, so both are timed against the send.
       evidence.probe_sent_at_ms = Date.now();

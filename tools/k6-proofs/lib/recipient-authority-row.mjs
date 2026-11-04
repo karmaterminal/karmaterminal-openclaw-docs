@@ -62,6 +62,52 @@ export const RRA_ACK_MARKER = 'TARGET-ACK';
 export const RRA_READY_MARKER = 'TARGET-READY';
 export const RRA_RETURN_MARKER = 'RCDRA-RETURN';
 export const RRA_PROBE_MARKER = 'PROBE-OK';
+/** Every prompt the harness sends opens with it; hasExactSentinelText credits no sentinel in text carrying it. */
+const HARNESS_MARKER = '[k6-proof-harness]';
+
+/**
+ * The probe's condition, 🌊's wording (room msg 1567590902694936678). The probe at 4f86dd78 asked
+ * only `reply exactly PROBE-OK <probeNonce>`, and that unconditional instruction won over the primed
+ * target's conditional return instruction: in 🕯's run rra-88e4fd22f0b122a8, allowed-silent's probe
+ * was answered PROBE-OK with no ack (probe_ran true, probeReplied true, target_obs.ackRuns 0; room
+ * msg 1567590581796868168). The condition hands a turn that drained the return back to the
+ * priming, which alone asks for `TARGET-ACK <row nonce>`.
+ */
+export const RRA_PROBE_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
+/** The 16 trailing characters of the row nonce, the proof id the priming names (`for proof <suffix>`). */
+const PROOF_ID_CHARS = 16;
+
+/**
+ * The one probe text, the same for every case but for its own nonce: the harness header, then
+ * 🌊's two sentences word for word. The header's tag keeps a model that echoes the probe from being
+ * credited with its PROBE-OK (hasExactSentinelText). It names neither the ack nor the row nonce, so
+ * an ack in the probe's run can only come from the priming.
+ */
+export function rraProbeText(probeNonce) {
+  return `${HARNESS_MARKER} ${RRA_ROW} probe ${probeNonce}: ${RRA_PROBE_CONDITION} Otherwise reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
+}
+
+/**
+ * The text test: why `text` is not a probe this row may send, as codes, none when it is.
+ * - probe-names-ack: it carries the ack marker, in any case, or the constant's name;
+ * - probe-names-row-nonce: it carries the row nonce, or the proof id the priming names (its last
+ *   16 characters), in any case; without a row nonce to compare, `row-nonce-unknown`;
+ * - probe-nonce-missing: it does not ask for `PROBE-OK <probeNonce>`, or there is no probe nonce;
+ * - probe-not-conditional-wording: it is not rraProbeText(probeNonce), 🌊's wording.
+ * The scenario sends no probe that fails it.
+ */
+export function rraProbeTextProblems(text, { rowNonce, probeNonce } = {}) {
+  if (typeof text !== 'string' || !text) return ['probe-text-missing'];
+  const problems = [];
+  const upper = text.toUpperCase();
+  if (upper.includes(RRA_ACK_MARKER) || upper.includes('RRA_ACK_MARKER')) problems.push('probe-names-ack');
+  if (typeof rowNonce !== 'string' || rowNonce.length < PROOF_ID_CHARS) problems.push('row-nonce-unknown');
+  else if (upper.includes(rowNonce.toUpperCase()) || upper.includes(rowNonce.slice(-PROOF_ID_CHARS).toUpperCase())) problems.push('probe-names-row-nonce');
+  const nonceOk = typeof probeNonce === 'string' && probeNonce.length > 0;
+  if (!nonceOk || !text.includes(`${RRA_PROBE_MARKER} ${probeNonce}`)) problems.push('probe-nonce-missing');
+  if (!nonceOk || text !== rraProbeText(probeNonce)) problems.push('probe-not-conditional-wording');
+  return problems;
+}
 
 const SHA40 = /^[0-9a-f]{40}$/u;
 
@@ -630,7 +676,6 @@ function roleOf(message) {
   return String(message?.role || '').toLowerCase();
 }
 
-const HARNESS_MARKER = '[k6-proof-harness]';
 // The heartbeat_respond fields an ack may sit in (lib/wake-turn-receipt.mjs, SENTINEL_FIELDS).
 const HEARTBEAT_ACK_FIELDS = ['notificationText', 'notification_text', 'summary'];
 
@@ -985,6 +1030,9 @@ function isHash(value) {
  *   the probe's own run, sent after the router's `Delivered to` line from its child, and none before
  *   (🌊's ruling (a), room msg 1567556038281007235). The ack is the model's, so a missing, doubled or
  *   other-nonce ack is MISSING; a wake turn is FAIL.
+ * - Every probing case gets the same conditional probe (rraProbeText; 🌊, room msg
+ *   1567590902694936678). Its reply is graded as one of two answers, never both required: a refusal
+ *   needs `PROBE-OK <probeNonce>` and no ack; allowed-silent needs the ack, PROBE-OK or not.
  */
 export function gradeRecipientAuthorityCase(record) {
   const missing = [];
@@ -1163,6 +1211,8 @@ export function gradeRecipientAuthorityCase(record) {
       // 🌊's ruling (a), room msg 1567556038281007235: the probe turn's adoption is read from the
       // primed target's TARGET-ACK in the probe's own run. The product's marker is not evidence: no
       // pin writes it on a sessions.send turn's row (observeTargetTranscript, adoptedDeliveryRows).
+      // The probe's PROBE-OK is never required here: the conditional probe (rraProbeText, room msg
+      // 1567590902694936678) tells a turn that drained the return to follow its priming instead.
       need(child.spawned === true, 'child-spawn-unobserved');
       need(target.probeRan === true, 'probe-turn-unobserved');
       // The return reached the target at the router's `Delivered to` line naming it and coming from
@@ -1256,6 +1306,8 @@ export function gradeRecipientAuthorityCase(record) {
         need(isCount(armed) && armed > 0, 'no-sweep-armed-in-transition');
       }
     }
+    // With no return in its turn, the conditional probe is answered `PROBE-OK <probeNonce>`: that
+    // answer, from the probe's own run, shows the turn whose drain the absence is read after.
     need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
     if (counted) {
       // The absence: no ack of this case's nonce in the probe run (probeAckRows) or any later run

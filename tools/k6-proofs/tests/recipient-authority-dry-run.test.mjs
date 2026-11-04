@@ -31,6 +31,12 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
   content: [{ type: 'text', text: typeof payload === 'string' ? payload : JSON.stringify(payload) }], __openclaw: { runId },
 });
 
+// 🌊's conditional probe (room msg 1567590902694936678), quoted here rather than imported, so the
+// driver's text is pinned to the ruling itself. The driver keeps its harness header before it.
+const PROBE_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
+const probeTextFor = (probeNonce) => `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: ${PROBE_CONDITION} Otherwise reply exactly PROBE-OK ${probeNonce}.`;
+const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' && frame.method === 'sessions.send' && String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`));
+
 /**
  * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, markerOnly,
  * probeAck, probeMarker, primingAck, wakeAck, noIdentity, workWake, wakeElects, probeElects, retry }.
@@ -44,10 +50,20 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
  * (allowed-silent's, or with `adoptOnProbe` a refused one the product failed to refuse), but its
  * input was staged before the drain, so its row never carries __openclaw.sessionDeliveryAckIds
  * (chat-send-input-dispatch.ts:330-350, user-turn-transcript.ts:130-140,
- * session-system-event-adoption.ts:287-296). The primed model acks what it saw, in the probe run.
- * `probeAck` overrides the model's answer: 'ack' (one row: the ack and PROBE-OK), 'none' (PROBE-OK
- * only), 'wrong-nonce' (the ack with the probe's nonce), 'twice' (two ack rows), 'heartbeat-refused'
- * (the ack through a heartbeat_respond call the turn refuses, then PROBE-OK). `probeMarker`, and
+ * session-system-event-adoption.ts:287-296).
+ *
+ * The primed model reads the probe it was sent. With the return in its turn, 🌊's conditional probe
+ * hands the turn back to the priming: the ack alone, no PROBE-OK. An unconditional `reply exactly
+ * PROBE-OK` wins over the priming instead: PROBE-OK and no ack, as 🕯's run rra-88e4fd22f0b122a8
+ * showed (allowed-silent: probe_ran true, probeReplied true, target_obs.ackRuns 0; room msg
+ * 1567590581796868168). With no return, either probe is answered PROBE-OK <the nonce it names>.
+ * Before the conditional probe this model answered the ack and PROBE-OK in one row whatever the
+ * probe said, which is why the dry run passed allowed-silent while the live run could not.
+ * `probeAck` overrides the model's answer: 'ack' (one row: the ack and PROBE-OK), 'ack-only' (the
+ * ack alone), 'none' (PROBE-OK only), 'wrong-nonce' (the ack with the probe's nonce), 'twice' (two
+ * ack rows), 'heartbeat-refused' (the ack through a heartbeat_respond call the turn refuses, then
+ * PROBE-OK), 'probe-ok-other' (PROBE-OK with another probe's nonce), 'probe-ok-row-nonce' (PROBE-OK
+ * with the row nonce). `probeMarker`, and
  * `adoptOnProbe` by default, put the marker on the probe row: a product no pin is, kept so the
  * marker check stays covered. `markerOnly` keeps the old meaning: the marker and no ack.
  * `primingAck` adds an ack row to the priming run; `wakeAck` a woken run that acks before the probe.
@@ -107,11 +123,13 @@ function gatewayFor(world, sessions = {}) {
         }
         const probe = /probe (\S+):/.exec(message);
         if (probe) {
-          // A parked return the probe turn's drain adopts: the primed target acks it in the probe run,
-          // and no marker reaches the row (see above).
+          // A parked return the probe turn's drain adopts, and no marker reaches the row (see above).
+          // The primed model acks it in the probe run only when the probe hands the turn back to its
+          // priming.
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
           const marker = world.probeMarker ?? world.adoptOnProbe === true;
-          const answer = world.probeAck ?? (adopts && !world.markerOnly ? 'ack' : 'none');
+          const conditional = message.includes(PROBE_CONDITION);
+          const answer = world.probeAck ?? (adopts && !world.markerOnly && conditional ? 'ack-only' : 'none');
           // A silent return that woke the target anyway, and whose wake acked it.
           if (world.wakeAck) push(p.key, say(`TARGET-ACK ${nonce}`, 'run-wake'));
           // A refused kept wake that ran anyway: its turn's row, from a run of its own, and with
@@ -124,6 +142,9 @@ function gatewayFor(world, sessions = {}) {
           if (world.probeElects) push(p.key, toolCall('w8', 'continue_work', { reason: 'probe', delaySeconds: 0 }, 'run-probe'));
           push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(marker ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
           if (answer === 'ack') push(p.key, say(`TARGET-ACK ${nonce}\nPROBE-OK ${probe[1]}`, 'run-probe'));
+          else if (answer === 'ack-only') push(p.key, say(`TARGET-ACK ${nonce}`, 'run-probe'));
+          else if (answer === 'probe-ok-other') push(p.key, say('PROBE-OK RCDRA-PROBE-1800000000000-otherprb', 'run-probe'));
+          else if (answer === 'probe-ok-row-nonce') push(p.key, say(`PROBE-OK ${nonce}`, 'run-probe'));
           else if (answer === 'wrong-nonce') push(p.key, say(`TARGET-ACK ${probe[1]}\nPROBE-OK ${probe[1]}`, 'run-probe'));
           else if (answer === 'twice') {
             push(p.key, say(`TARGET-ACK ${nonce}`, 'run-probe'));
@@ -311,11 +332,13 @@ function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reas
 async function grade(caseId, world = {}, harnessOptions = {}) {
   // One scripted store for both phases: the replacement generation serves the same state.
   const gateway = gatewayFor({ caseId, ...world });
-  const { evidence: drive } = await fire(caseId, world, { gateway });
+  const { evidence: drive, frames } = await fire(caseId, world, { gateway });
   let observe = null;
   if (RRA_CASES[caseId].restart) {
     assert.equal(drive.handoff?.ready_for_restart, true, 'the drive phase hands over for the restart');
-    observe = (await fire(caseId, world, { phase: 'observe', state: drive, gateway })).evidence;
+    const observed = await fire(caseId, world, { phase: 'observe', state: drive, gateway });
+    observe = observed.evidence;
+    frames.push(...observed.frames);
   }
   const final = observe ?? drive;
   const record = assembleCaseRecord({
@@ -330,7 +353,7 @@ async function grade(caseId, world = {}, harnessOptions = {}) {
     startedAtMs: 1,
   });
   if (RRA_CASES[caseId].expectChild !== false) record.trace = { correlated: true };
-  return { drive, observe, record, graded: gradeRecipientAuthorityCase(record) };
+  return { drive, observe, final, frames, record, graded: gradeRecipientAuthorityCase(record) };
 }
 
 test('dry run: every case drives its public surfaces and grades PASS-candidate against a j12′-shaped gateway', async () => {
@@ -471,11 +494,16 @@ const delegateRefusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].f
 
 test('dry run: an ack of the nonce in a refusal case\'s probe run fails it, with no marker on the row', async () => {
   for (const caseId of delegateRefusalCases) {
-    const { record, graded } = await grade(caseId, { probeAck: 'ack' });
-    assert.equal(record.target.adoptedDeliveryRows, 0, caseId);
-    assert.equal(record.target.probeAckRows, 1, caseId);
-    assert.equal(graded.verdict, 'FAIL-candidate', `${caseId}: ${JSON.stringify(graded)}`);
-    assert.deepEqual(graded.contradictions, ['refused-return-adopted'], caseId);
+    // With PROBE-OK beside it, or alone, as a turn the conditional probe handed to its priming
+    // answers.
+    for (const probeAck of ['ack', 'ack-only']) {
+      const { record, graded } = await grade(caseId, { probeAck });
+      assert.equal(record.target.adoptedDeliveryRows, 0, `${caseId} ${probeAck}`);
+      assert.equal(record.target.probeAckRows, 1, `${caseId} ${probeAck}`);
+      assert.equal(record.target.probeReplied, probeAck === 'ack', `${caseId} ${probeAck}`);
+      assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} ${probeAck}: ${JSON.stringify(graded)}`);
+      assert.deepEqual(graded.contradictions, ['refused-return-adopted'], `${caseId} ${probeAck}`);
+    }
     // An ack-shaped reply with another nonce, or an exact ack through a heartbeat_respond call the
     // turn refused, leaves the absence unread.
     for (const probeAck of ['wrong-nonce', 'heartbeat-refused']) {
@@ -488,6 +516,98 @@ test('dry run: an ack of the nonce in a refusal case\'s probe run fails it, with
     assert.equal(quiet.record.target.probeAckRows, 0, caseId);
     assert.equal(quiet.graded.verdict, 'PASS-candidate', `${caseId}: ${JSON.stringify(quiet.graded)}`);
   }
+});
+
+/*
+ * 🌊's ruling, room msg 1567590902694936678: "the probe's unconditional `reply exactly PROBE-OK`
+ * conflicts with the primed target's conditional return instruction. … make the probe conditional
+ * … Keep `TARGET-ACK` and the row nonce out of the probe; the ACK must still originate from priming
+ * and be counted only in the probe's returned run, after `Delivered to`. Pin a refusal with no return
+ * → PROBE-OK/no ACK, and an allowed-silent return → exactly one ACK/no forced PROBE-OK. … The old
+ * receipt remains `probe-ack-unobserved`, not PASS." Pins (a)-(e) of the conditional-probe lane.
+ */
+const refusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'refusal');
+
+test('dry run: (a) a refusal with no return is sent the conditional probe, answers PROBE-OK <probe nonce> and no ack, and passes', async () => {
+  for (const caseId of refusalCases) {
+    const { final, frames, record, graded } = await grade(caseId);
+    assert.deepEqual([record.target.probeReplied, record.target.probeAckRows, record.target.ackRuns], [true, 0, 0], caseId);
+    assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, caseId);
+    // The same stimulus allowed-silent gets: nothing in the refusal case's probe asks for PROBE-OK
+    // unconditionally (at 4f86dd78 it did).
+    assert.deepEqual(probeFrames(frames).map((frame) => frame.params.message), [probeTextFor(final.probe_nonce)], caseId);
+  }
+});
+
+test('dry run: (b) allowed-silent, its return in the probe turn, passes on exactly one ack and no PROBE-OK', async () => {
+  const { record, graded } = await grade('allowed-silent');
+  // At 4f86dd78 the unconditional probe won over the priming, as in 🕯's run: PROBE-OK and no ack,
+  // MISSING probe-ack-unobserved.
+  assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  assert.deepEqual([record.target.probeAckRows, record.target.ackRuns, record.target.foreignRuns], [1, 1, 0]);
+  assert.equal(record.target.probeReplied, false, 'PROBE-OK is never forced on an allowed return');
+  assert.ok(record.park.deliveredFromChildAtMs < record.target.probeSentAtMs, 'the ack follows Delivered to');
+  // Neither answer is required beside the other: the ack and PROBE-OK in one row passes on the ack.
+  const both = await grade('allowed-silent', { probeAck: 'ack' });
+  assert.deepEqual([both.record.target.probeAckRows, both.record.target.probeReplied], [1, true]);
+  assert.equal(both.graded.verdict, 'PASS-candidate', JSON.stringify(both.graded));
+});
+
+test('dry run: (c) allowed-silent answered with PROBE-OK only is MISSING probe-ack-unobserved, the old run\'s shape, never upgraded', async () => {
+  const { record, graded } = await grade('allowed-silent', { probeAck: 'none' });
+  // 🕯's receipt (rra-88e4fd22f0b122a8): probe_ran true, probeReplied true, target_obs.ackRuns 0.
+  assert.deepEqual(
+    [record.target.probeRan, record.target.probeReplied, record.target.ackRuns, record.target.probeAckRows, record.target.foreignRuns, record.target.adoptedDeliveryRows],
+    [true, true, 0, 0, 0, 0],
+  );
+  assert.deepEqual(graded, { verdict: 'MISSING-candidate', missing: ['probe-ack-unobserved'], contradictions: [], partial: [] });
+});
+
+test('dry run: (d) a PROBE-OK with any nonce but the probe\'s is never credited', async () => {
+  for (const probeAck of ['probe-ok-other', 'probe-ok-row-nonce']) {
+    for (const caseId of refusalCases) {
+      const { record, graded } = await grade(caseId, { probeAck });
+      assert.equal(record.target.probeReplied, false, `${caseId} ${probeAck}`);
+      assert.deepEqual(graded, { verdict: 'MISSING-candidate', missing: ['probe-turn-unobserved'], contradictions: [], partial: [] }, `${caseId} ${probeAck}`);
+    }
+    // Nor does it stand in for allowed-silent's ack.
+    const silent = await grade('allowed-silent', { probeAck });
+    assert.equal(silent.record.target.probeReplied, false, probeAck);
+    assert.deepEqual(silent.graded, { verdict: 'MISSING-candidate', missing: ['probe-ack-unobserved'], contradictions: [], partial: [] }, probeAck);
+  }
+});
+
+test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own nonce, and the text test refuses one naming TARGET-ACK or the row nonce', async () => {
+  // The text test is new with the conditional probe; the rest of this file needs nothing new.
+  const { rraProbeTextProblems } = await import('../lib/recipient-authority-row.mjs');
+  const texts = new Set();
+  for (const caseId of RRA_CASE_IDS) {
+    const { drive, final, frames } = await grade(caseId, { ack: 'wake' });
+    const sent = probeFrames(frames).map((frame) => frame.params.message);
+    // allowed and allowed-across-reset read the wake's own ack and send no probe; every other case
+    // sends exactly one.
+    if (RRA_CASES[caseId].family === 'allowed' && !RRA_CASES[caseId].probeAdopts) {
+      assert.deepEqual(sent, [], caseId);
+      continue;
+    }
+    assert.deepEqual(sent, [probeTextFor(final.probe_nonce)], caseId);
+    const [text] = sent;
+    texts.add(text.replaceAll(final.probe_nonce, '<probe nonce>'));
+    const rowNonce = drive.nonce;
+    const options = { rowNonce, probeNonce: final.probe_nonce };
+    assert.deepEqual(rraProbeTextProblems(text, options), [], caseId);
+    for (const [label, bad, code] of [
+      ['the ack marker', `${text} TARGET-ACK`, 'probe-names-ack'],
+      ['the ack marker, lower case', text.replace('priming instruction', 'target-ack instruction'), 'probe-names-ack'],
+      ['the ack constant', `${text} RRA_ACK_MARKER`, 'probe-names-ack'],
+      ['the row nonce', `${text} ${rowNonce}`, 'probe-names-row-nonce'],
+      ['the proof id the priming names', text.replace('the proof you were primed for', `proof ${rowNonce.slice(-16)}`), 'probe-names-row-nonce'],
+      ['the probe at 4f86dd78', `[k6-proof-harness] ${RRA_ROW} probe ${final.probe_nonce}: reply exactly PROBE-OK ${final.probe_nonce}.`, 'probe-not-conditional-wording'],
+    ]) {
+      assert.ok(rraProbeTextProblems(bad, options).includes(code), `${caseId} ${label}: ${rraProbeTextProblems(bad, options)}`);
+    }
+  }
+  assert.equal(texts.size, 1, [...texts].join('\n'));
 });
 
 test('dry run: a policy patch the gateway rejected stops the case before dispatch and is never FAIL', async () => {

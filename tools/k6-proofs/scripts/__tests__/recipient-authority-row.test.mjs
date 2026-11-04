@@ -1,8 +1,9 @@
 // R-CD-RECIPIENT-AUTHORITY: a live, isolated-gateway row (🌊's ruling, room msg
-// 1567077062139838485; docs#536), pinned to j12′ e9dc1c31 (INTERIM; msg 1567104742604406896).
-// Registration, the live-run guard's refusal, the verdict rules over fixture receipts (each case,
-// each missing observation is never PASS, each stage pinned), j12′'s refusal-line matcher (j12's
-// lines never count), the control's refusals and its public-safe, signed case receipts.
+// 1567077062139838485; docs#536), pinned to the merged j12′ 1ab5a73e (msg 1567104742604406896;
+// gate 3, msg 1567194866507841678). Registration, the live-run guard's refusal, the verdict rules
+// over fixture receipts (each case, each missing observation is never PASS, each stage pinned),
+// j12′'s refusal-line matchers (j12's lines never count), the continue_work case, the control's
+// refusals and its public-safe, signed case receipts.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -23,12 +24,15 @@ import {
   countDelegateCalls,
   countParentAcks,
   countRoutedAfter,
+  countWorkCalls,
   evaluateContinuationConfig,
   evaluateModelSignIn,
   findDelegateDispatch,
   findOwnerAssignment,
   findReason,
   findReturnRefusals,
+  findWorkElection,
+  findWorkRefusals,
   gradeRecipientAuthorityCase,
   gradeRecipientAuthorityRow,
   isAdmissionPolicyRefusal,
@@ -37,6 +41,7 @@ import {
   matchReasonLine,
   observeTargetTranscript,
   parseReturnRefusedLine,
+  parseWorkRefusedLine,
   routedFromChild,
   routedToTarget,
   traceCorrelationMatches,
@@ -58,6 +63,11 @@ const RUN = 'rra-0123456789abcdef';
 const H = (c) => c.repeat(64);
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 const COMP = `comp-${RRA_PINNED.slice(0, 8)}`;
+/** The merged j12′ every record must name. */
+const MERGED_J12P = '1ab5a73e14309922fa79edf4f93034bdb0acde62';
+/** The refused chain e9dc1c31, the row's former interim pin: history, graded only, never fired. */
+const INTERIM = 'e9dc1c318a2f73fd01755fc4682fa3349e8a0e94';
+const WORK_CASE = 'work-revoked-visibility';
 const sha256Hex = (value) => createHash('sha256').update(value).digest('hex');
 
 /* ------------------------------------------------------------------------------------ */
@@ -72,10 +82,12 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.equal(manifest.invocation.tool, 'continue_delegate');
   assert.equal(manifest.invocation.control, 'tools/k6-proofs/scripts/run-recipient-authority-row.mjs');
   assert.equal(manifest.invocation.artifactClass, 'disposable-real-process');
+  assert.equal(RRA_J12P, MERGED_J12P, 'pinned to the merged j12′');
   assert.equal(RRA_PINNED, RRA_J12P);
   assert.equal(manifest.invocation.pinnedCandidate, RRA_J12P);
   assert.equal(manifest.invocation.pinStatus, RRA_PIN_STATUS);
-  assert.equal(RRA_PIN_STATUS, 'interim');
+  assert.equal(RRA_PIN_STATUS, 'merged');
+  assert.doesNotMatch(JSON.stringify(manifest), /INTERIM/, 'no interim pin left in the manifest');
   assert.equal(manifest.invocation.baselineCandidate, RRA_J12, 'j12 is the named baseline, never the pin');
   assert.deepEqual(manifest.invocation.cases, RRA_CASE_IDS);
   assert.equal(Object.hasOwn(manifest, 'verdictCap'), false, 'a disposable real process needs no cap');
@@ -91,29 +103,47 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.ok(existsSync(path.join(k6Root, 'scenarios', manifest.scenario.file)));
   const docs = readFileSync(path.join(k6Root, 'docs', 'R-CD-RECIPIENT-AUTHORITY.md'), 'utf8');
   assert.match(docs, new RegExp(RRA_J12P));
-  assert.match(docs, /INTERIM/);
+  assert.doesNotMatch(docs, /INTERIM/);
+  // The owner procedure stages, sets up and publishes at the merged head, never the interim pin.
+  assert.match(docs, new RegExp(`proof-gw/comp-${MERGED_J12P.slice(0, 8)}`));
+  assert.match(docs, new RegExp(`PROOFS/${MERGED_J12P}/R-CD-RECIPIENT-AUTHORITY/`));
+  assert.match(docs, new RegExp(`--candidate ${MERGED_J12P}`));
+  for (const stale of [`comp-${INTERIM.slice(0, 8)}`, `PROOFS/${INTERIM}`, `--candidate ${INTERIM}`]) assert.ok(!docs.includes(stale), stale);
+  // The status line: every case MISSING until an owner runs it at the merged head.
+  assert.match(docs, /^Status: \*\*catalogued, every case MISSING, never fired, in no corpus\.\*\*/m);
+  assert.match(docs, /an owner runs it at `1ab5a73e`/);
   for (const caseId of RRA_CASE_IDS) assert.match(docs, new RegExp(`\`${caseId}\``), caseId);
   // The case table pins one stage per refused return.
-  for (const caseId of RRA_CASE_IDS.filter((id) => RRA_CASES[id].reasonKind === 'return-refused')) {
+  for (const caseId of RRA_CASE_IDS.filter((id) => ['return-refused', 'work-refused'].includes(RRA_CASES[id].reasonKind))) {
     assert.match(docs, new RegExp(`\\| \`${caseId}\` \\|[^\\n]*\`stage=${RRA_CASES[caseId].refusedAt}\``), caseId);
   }
   assert.match(docs, /## Operator procedure/);
   assert.match(docs, /5442236054/);
   const readme = readFileSync(path.join(k6Root, 'README.md'), 'utf8');
-  assert.match(readme, /^\| R-CD-RECIPIENT-AUTHORITY \| `run-recipient-authority-row\.mjs` \| [^|]*j12′/m);
+  const readmeLine = /^\| R-CD-RECIPIENT-AUTHORITY \| `run-recipient-authority-row\.mjs` \| [^\n]*$/m.exec(readme)?.[0] ?? '';
+  assert.match(readmeLine, /j12′ 1ab5a73e/);
+  assert.doesNotMatch(readmeLine, /interim/i);
+  const readmeSection = /### R-CD-RECIPIENT-AUTHORITY [^\n]*\n[\s\S]*?(?=\n### )/.exec(readme)?.[0] ?? '';
+  assert.match(readmeSection, new RegExp(MERGED_J12P));
+  assert.doesNotMatch(readmeSection, /INTERIM/);
   const pipeline = readFileSync(path.join(k6Root, 'k6-proofs-pipeline.xml'), 'utf8');
   assert.match(pipeline, /<Row id="R-CD-RECIPIENT-AUTHORITY" [^>]*issue="docs#536"/);
-  assert.match(pipeline, /e9dc1c318a2f/);
+  const pipelineRow = /<Row id="R-CD-RECIPIENT-AUTHORITY" [\s\S]*?<\/Row>/.exec(pipeline)?.[0] ?? '';
+  assert.match(pipelineRow, /1ab5a73e1430/);
+  assert.doesNotMatch(pipelineRow, /INTERIM|e9dc1c318a2f/);
+  assert.match(pipelineRow, /work-revoked-visibility/);
   assert.match(pipeline, /<Manifest>tools\/k6-proofs\/manifests\/r-cd-recipient-authority\.json<\/Manifest>/);
 });
 
 test('the scenario header cites the j12′ product path at every boundary the verdict rests on', () => {
   const scenario = readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8');
   assert.match(scenario, new RegExp(RRA_J12P));
-  assert.match(scenario, /INTERIM/);
-  // Files j12′ did not change keep their j12 lines; the refusal path is j12′'s own.
+  assert.doesNotMatch(scenario, /INTERIM/);
+  // Every anchor re-walked at the merged j12′: files it did not change keep their lines; the
+  // refusal path and the continue_work binding are j12′'s own.
   for (const anchor of [
-    'src/config/sessions/session-recipient-authority-types.ts:87-92',
+    'src/config/sessions/session-recipient-authority-types.ts:96-101',
+    'src/config/sessions/session-recipient-authority.worker.ts:36-56',
     'src/auto-reply/continuation/delegate-flow-store.ts:426-437',
     'src/config/sessions/session-accessor.sqlite-entry-store.ts:56-69',
     'session-accessor.sqlite-owner.ts:158-182',
@@ -121,7 +151,8 @@ test('the scenario header cites the j12′ product path at every boundary the ve
     'session-sharing-store.native.ts:150-195',
     'src/agents/tools/continue-delegate-tool.ts:353-362',
     'src/auto-reply/continuation/delegate-dispatch.ts:267-290',
-    'src/auto-reply/continuation/return-refusal.ts:15-29',
+    'src/auto-reply/continuation/return-refusal.ts:16-36',
+    'src/auto-reply/continuation/return-refusal.ts:38-46',
     'src/agents/subagent-announce.continuation-return.ts:98-215',
     'src/auto-reply/continuation/targeting.ts:249-411',
     'src/auto-reply/continuation/continuation-wake.ts:127-256',
@@ -129,13 +160,20 @@ test('the scenario header cites the j12′ product path at every boundary the ve
     'src/gateway/server-restart-sentinel-delivery.ts:263-281',
     'src/infra/session-delivery-queue-recovery.ts:152-215',
     'src/infra/delivery-queue-sqlite.kernel.ts:397-429',
-    'src/auto-reply/reply/session-reset-cleanup.ts:146-196',
+    'src/auto-reply/reply/session-reset-cleanup.ts:149-227, consumed at :202-203',
     'src/cli/gateway-cli/run-loop.ts:496-551',
+    'src/auto-reply/continuation/work-dispatch.ts:631-740',
+    'work-dispatch.ts:529 -> work-recipient-authority.ts',
+    'src/auto-reply/reply/agent-runner-continuation-signal.ts:463',
   ]) {
     assert.ok(scenario.includes(anchor), anchor);
   }
-  // j12's anchors for the files j12′ changed are gone.
-  for (const stale of ['targeting.ts:240-254', 'continuation-wake.ts:127-238', 'server-restart-sentinel-delivery.ts:226-243', 'session event delivery skipped']) {
+  // j12's anchors for the files j12′ changed, and the interim pin's for the files the merge moved, are gone.
+  for (const stale of [
+    'targeting.ts:240-254', 'continuation-wake.ts:127-238', 'server-restart-sentinel-delivery.ts:226-243', 'session event delivery skipped',
+    'session-recipient-authority-types.ts:87-92', 'session-recipient-authority.worker.ts:35-50', 'return-refusal.ts:15-29',
+    'session-reset-cleanup.ts:146-196', 'consumed at :194-196',
+  ]) {
     assert.ok(!scenario.includes(stale), stale);
   }
 });
@@ -231,6 +269,22 @@ function completeRecord(caseId) {
     };
     record.reason = refusedReason(spec, { observedAtMs: 9000, generation: 1 });
   }
+  if (spec.tool === 'continue_work') {
+    // The session elects its own wake (scheduled result at 1 s, captured at 1.5-2 s), narrows its own
+    // visibility at 5 s, is refused at the handoff at 32 s and probed at 50 s. No parent, child,
+    // router line or trace.
+    record.keys = { parent: null };
+    record.dispatch = { accepted: true, status: 'scheduled', capturedAtMs: 1000, reasonHash: 'abcdef0123456789', reasonLength: 140, delegateMode: null, resultMode: null, resultDelaySeconds: 30, otherDelegateCalls: 0, otherWorkCalls: 0 };
+    record.child = { spawned: null, bound: false, done: false };
+    record.target = { ...record.target, probeSentAtMs: 50_000 };
+    record.parent = { ackRows: null };
+    record.preTransition = { ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 0 };
+    record.park = { deliveredToTargetAtMs: null };
+    record.routing = null;
+    record.epochs = { captured: H('a'), capturedAfterMs: 1500, capturedByMs: 2000, afterTransition: H('b'), final: H('b') };
+    record.reason = { kind: 'work-refused', stage: 'wake', stages: ['wake'], reasonTexts: ['recipient-authority-changed'], observedAtMs: 32_000, generation: 0, flowIdHash: H('f'), distinctFlowIds: 1, lines: 1 };
+    record.trace = null;
+  }
   return record;
 }
 
@@ -255,7 +309,8 @@ const mutate = (record, fn) => {
   fn(copy);
   return copy;
 };
-const refusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'refusal');
+// The delegate cases; the one continue_work case has its own rules and tests below.
+const refusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'refusal' && !RRA_CASES[caseId].tool);
 const allowedCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'allowed');
 const durableCases = refusalCases.filter((caseId) => RRA_CASES[caseId].expectChild !== false);
 const parkedCases = durableCases.filter((caseId) => RRA_CASES[caseId].timing === 'parked');
@@ -265,8 +320,11 @@ test('every case with its complete receipt chain grades PASS-candidate', () => {
   assert.deepEqual(RRA_CASE_IDS, [
     'allowed', 'allowed-across-reset', 'allowed-silent', 'unauthorized-admission', 'unauthorized-dispatch',
     'revoked-visibility', 'revoked-membership', 'revoked-owner', 'reassigned', 'wake-revoked-visibility',
-    'wake-reassigned', 'replay-restart',
+    'wake-reassigned', 'work-revoked-visibility', 'replay-restart',
   ]);
+  // The twelve delegate cases keep their grouping; the continue_work case is the one addition.
+  assert.equal(refusalCases.length + allowedCases.length, 12);
+  assert.deepEqual(RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].tool), [WORK_CASE]);
   for (const caseId of RRA_CASE_IDS) {
     const graded = gradeRecipientAuthorityCase(completeRecord(caseId));
     assert.equal(graded.verdict, 'PASS-candidate', `${caseId}: ${JSON.stringify(graded)}`);
@@ -560,8 +618,10 @@ test('a record not about j12′ on a harness-owned gateway is MISSING whatever e
   for (const [label, fn] of Object.entries({
     'candidate-not-pinned': (r) => { r.candidateSha = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
     'candidate-not-pinned (the j12 baseline)': (r) => { r.candidateSha = RRA_J12; },
+    'candidate-not-pinned (the interim pin)': (r) => { r.candidateSha = INTERIM; },
     'gate:buildInfoCommit': (r) => { r.gates.buildInfoCommit = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
     'gate:buildInfoCommit (a j12 stage)': (r) => { r.gates.buildInfoCommit = RRA_J12; },
+    'gate:buildInfoCommit (an interim stage)': (r) => { r.gates.buildInfoCommit = INTERIM; },
     'gateway-not-harness-owned': (r) => { r.gateway.generations[0].ownedListenerThroughout = false; },
     'gateway-not-harness-owned (none)': (r) => { r.gateway.generations = []; },
     'scenario-not-bound-to-run': (r) => { r.scenario.controlRunId = 'rra-ffffffffffffffff'; },
@@ -1278,4 +1338,237 @@ test('the CLI fails closed with no target and refuses to grade without an observ
   assert.throws(() => parseArgs(['node', 'x', '--cases', 'stale']), /unknown case/);
   assert.throws(() => parseArgs(['node', 'x', '--gateway-env', 'OPENCLAW_AGENT_DIR=/home/u/.openclaw']), /not allowed/);
   assert.deepEqual(parseArgs(['node', 'x', '--cases', 'replay-restart,allowed']).cases, ['allowed', 'replay-restart']);
+});
+
+/* ------------------------------------------------------------------------------------ */
+/* The continue_work case (work-revoked-visibility)                                      */
+/* ------------------------------------------------------------------------------------ */
+
+test('work-revoked-visibility: a kept continue_work wake refused at the handoff, pinned to stage=wake', () => {
+  const spec = RRA_CASES[WORK_CASE];
+  assert.deepEqual(
+    [spec.family, spec.tool, spec.refusedAt, spec.timing, spec.transition, spec.reasonKind, spec.flowId, spec.expectChild, spec.laterStages],
+    ['refusal', 'continue_work', 'wake', 'before-wake', 'session.visibility.set', 'work-refused', true, false, undefined],
+  );
+  assert.match(spec.refusedAtBytes, /work-dispatch\.ts:529/u);
+  assert.equal(gradeRecipientAuthorityCase(completeRecord(WORK_CASE)).verdict, 'PASS-candidate');
+  // Its wake never fires, so it owes no trace receipt.
+  assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.trace = null; })).verdict, 'PASS-candidate');
+  assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.cleanup.residue = true; })).verdict, 'PARTIAL-candidate');
+  // The row's gates come first: a record of the interim pin is not about j12′.
+  for (const fn of [(r) => { r.candidateSha = INTERIM; }, (r) => { r.gates.buildInfoCommit = INTERIM; }]) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { fn(r); r.target.foreignRuns = 1; }));
+    assert.equal(graded.verdict, 'MISSING-candidate');
+    assert.deepEqual(graded.contradictions, []);
+  }
+});
+
+test('work-revoked-visibility is never PASS without its work-refused line at stage=wake, after the transition and before the probe, naming one election', () => {
+  const holes = {
+    'refusal-reason-not-observed': (r) => { r.reason = null; },
+    'refusal-reason-not-observed (a return-refused reason)': (r) => { r.reason.kind = 'return-refused'; },
+    'refusal-reason-not-observed (before the transition)': (r) => { r.reason.observedAtMs = 4_000; },
+    'refusal-reason-mismatch (an unbound election\'s reason)': (r) => { r.reason.reasonTexts = ['recipient-authority-unverifiable']; },
+    'refusal-reason-mismatch (mixed)': (r) => { r.reason.reasonTexts = ['recipient-authority-changed', 'recipient-authority-unverifiable']; },
+    'refusal-reason-mismatch (unread)': (r) => { r.reason.reasonTexts = undefined; },
+    'refusal-stage-mismatch (replay)': (r) => { r.reason.stage = 'replay'; r.reason.stages = ['replay']; },
+    'refusal-stage-mismatch (adoption)': (r) => { r.reason.stage = 'adoption'; r.reason.stages = ['adoption']; },
+    'refusal-stage-mismatch (a later adoption line)': (r) => { r.reason.stages = ['wake', 'adoption']; r.reason.lines = 2; },
+    'reason-flow-id-ambiguous': (r) => { r.reason.distinctFlowIds = 2; },
+    'reason-flow-id-ambiguous (unread)': (r) => { r.reason.distinctFlowIds = undefined; },
+    'reason-flow-id-ambiguous (no hash)': (r) => { r.reason.flowIdHash = null; },
+    'reason-not-before-probe': (r) => { r.reason.observedAtMs = 51_000; },
+    'reason-not-before-probe (unsent)': (r) => { r.target.probeSentAtMs = null; },
+  };
+  for (const [label, fn] of Object.entries(holes)) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), fn));
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.ok(graded.missing.includes(label.replace(/ \(.*\)$/u, '')), `${label}: ${graded.missing}`);
+  }
+});
+
+test('work-revoked-visibility is never PASS without the observed absence, and a wake turn or adoption is FAIL', () => {
+  for (const [label, fn] of Object.entries({
+    'transcript-not-read': (r) => { r.target.foreignRuns = null; },
+    'transcript-not-read (marker)': (r) => { r.target.adoptedDeliveryRows = undefined; },
+    'unattributable-target-rows': (r) => { r.target.unattributedAssistantRows = 1; },
+    'probe-turn-unobserved': (r) => { r.target.probeRan = false; },
+    'probe-turn-unobserved (no reply)': (r) => { r.target.probeReplied = false; },
+    'electing-run-unrecorded': (r) => { r.target.primed = false; },
+    'election-not-accepted': (r) => { r.dispatch.status = 'error'; r.dispatch.accepted = false; },
+  })) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), fn));
+    assert.equal(graded.verdict, 'MISSING-candidate', label);
+    assert.ok(graded.missing.includes(label.replace(/ \(.*\)$/u, '')), `${label}: ${graded.missing}`);
+  }
+  for (const [code, fn] of Object.entries({
+    'target-woken': (r) => { r.target.foreignRuns = 1; },
+    'refused-work-adopted': (r) => { r.target.adoptedDeliveryRows = 1; },
+  })) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), fn));
+    assert.equal(graded.verdict, 'FAIL-candidate', code);
+    assert.ok(graded.contradictions.includes(code), `${code}: ${graded.contradictions}`);
+  }
+  // The model repeating the reason's marker in the probe turn decides nothing: only a run is a wake.
+  assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.returnMarkerRows = 1; r.target.ackRuns = 1; })).verdict, 'PASS-candidate');
+});
+
+test('work-revoked-visibility: a capture not seen before the transition, a late transition or a deviation is MISSING, never FAIL', () => {
+  const woke = (r) => { r.target.foreignRuns = 1; r.target.adoptedDeliveryRows = 1; };
+  for (const [label, fn] of Object.entries({
+    'capture-unobserved': (r) => { r.epochs.capturedAfterMs = null; },
+    'capture-unobserved (no row)': (r) => { r.epochs.capturedByMs = null; r.epochs.captured = null; },
+    'capture-unobserved (out of order)': (r) => { r.epochs.capturedAfterMs = 2_500; },
+    'capture-not-before-transition': (r) => { r.epochs.capturedByMs = 5_500; },
+    // The wake is due no earlier than 1.5 s + (30 - 1) s.
+    'transition-not-before-wake': (r) => { r.transition.settledAtMs = 30_600; },
+    'transition-not-before-wake (no delay)': (r) => { r.dispatch.resultDelaySeconds = null; },
+    'transition-not-observed': (r) => { r.transition.ok = false; },
+    'transition-did-not-advance-epoch': (r) => { r.epochs.afterTransition = r.epochs.captured; },
+    'epochs-unread': (r) => { r.epochs.afterTransition = null; },
+    'extra-work-calls': (r) => { r.dispatch.otherWorkCalls = 1; },
+    'extra-delegate-calls': (r) => { r.dispatch.otherDelegateCalls = 1; },
+    'delegate-calls-unread': (r) => { r.dispatch.otherWorkCalls = null; },
+    'wake-ran-before-transition': (r) => { r.preTransition.foreignRuns = 1; },
+    'pre-transition-unread': (r) => { r.preTransition = null; },
+    'scenario-refused': (r) => { r.scenario.refusals = ['websocket error']; },
+    'preflight-not-ok': (r) => { r.scenario.preflightOk = false; },
+  })) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { fn(r); woke(r); }));
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.ok(graded.missing.includes(label.replace(/ \(.*\)$/u, '')), `${label}: ${graded.missing}`);
+    assert.deepEqual(graded.contradictions, [], `${label}: a wake the premise does not rule out is not judged`);
+  }
+  // Just inside the bound the premise holds, and the same wake is FAIL.
+  const inside = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.transition.settledAtMs = 30_400; woke(r); }));
+  assert.equal(inside.verdict, 'FAIL-candidate', JSON.stringify(inside));
+});
+
+/** j12′'s refused-work line as the console prints it (return-refusal.ts:38-46). */
+const FLOW_ID = '0b5e9a2c-7d1f-4e3a-9c4b-2f6d8e1a0c3b';
+const workConsole = (stage, key, { reason = 'recipient-authority-changed', flowId = FLOW_ID } = {}) =>
+  `08:00:00.000 [continuation/work-refused] [continuation:work-refused] stage=${stage} reason=${reason} session=${key} flowId=${flowId}`;
+const workFile = (stage, key, meta = {}) => JSON.stringify({
+  0: JSON.stringify({ subsystem: 'continuation/work-refused' }),
+  1: { stage, reason: 'recipient-authority-changed', sessionKey: key, flowId: FLOW_ID, ...meta },
+  2: `[continuation:work-refused] stage=${stage} reason=recipient-authority-changed session=${key} flowId=${FLOW_ID}`,
+  _meta: { logLevelName: 'WARN', name: JSON.stringify({ subsystem: 'continuation/work-refused' }) },
+  time: '2026-11-04T08:00:00.000Z',
+});
+
+test('j12′\'s refused-work line is read from the console or the file log, and never as or from a return-refused line', () => {
+  const key = 'agent:main:r-cd-ra-work-revoked-visibility-target-abc';
+  for (const stage of ['replay', 'wake', 'adoption']) {
+    for (const line of [workConsole(stage, key), workFile(stage, key), `\u001b[35m[continuation/work-refused]\u001b[39m [continuation:work-refused] stage=${stage} reason=recipient-authority-changed session=${key} flowId=${FLOW_ID}`]) {
+      assert.deepEqual(parseWorkRefusedLine(line), { stage, reason: 'recipient-authority-changed', session: key, flowId: FLOW_ID }, line);
+      assert.equal(matchReasonLine(line, 'work-refused', { targetKey: key }), true, line);
+      assert.equal(parseReturnRefusedLine(line), null, `a work line is no return refusal: ${line}`);
+    }
+  }
+  const jsonConsole = JSON.stringify({ subsystem: 'continuation/work-refused', message: `[continuation:work-refused] stage=wake reason=recipient-authority-changed session=${key} flowId=${FLOW_ID}`, stage: 'wake', sessionKey: key, flowId: FLOW_ID });
+  assert.equal(parseWorkRefusedLine(jsonConsole)?.stage, 'wake');
+  const message = `[continuation:work-refused] stage=wake reason=recipient-authority-changed session=${key} flowId=${FLOW_ID}`;
+  for (const line of [
+    refusedConsole('wake', key),
+    `[agent/embedded] ${message}`,
+    `08:00:00 [agent/embedded] assistant text: [continuation/work-refused] ${message}`,
+    `08:00:00.000 [continuation/work-refused] [continuation:work-refused] stage=wake reason=recipient-authority-changed session=${key}`,
+    `${workConsole('wake', key)} extra`,
+    workFile('wake', key, { stage: 'replay' }),
+    workFile('wake', key, { flowId: 'other' }),
+    workFile('wake', key, { sessionKey: `${key}2` }),
+    JSON.stringify({ 0: '{"subsystem":"agent/embedded"}', 2: message }),
+    JSON.stringify({ subsystem: 'continuation/return-refused', message }),
+    '08:00:00 [continuation/work-authority] [continuation:work-authority-unread] stage=wake count=1 error=x',
+  ]) {
+    assert.equal(parseWorkRefusedLine(line), null, line);
+  }
+  assert.equal(matchReasonLine(workConsole('wake', key, { reason: 'recipient-authority-unverifiable' }), 'work-refused', { targetKey: key }), false);
+  assert.equal(matchReasonLine(workConsole('wake', `${key}2`), 'work-refused', { targetKey: key }), false, 'a longer key is another session');
+  assert.equal(matchReasonLine(refusedConsole('wake', key), 'work-refused', { targetKey: key }), false);
+  const entries = [
+    { atMs: 10, text: workConsole('wake', key) },
+    { atMs: 20, text: workConsole('wake', 'agent:main:other') },
+    { atMs: 30, text: workConsole('adoption', key, { flowId: 'f-2' }), generation: 1 },
+    { atMs: 40, text: refusedConsole('wake', key) },
+  ];
+  assert.deepEqual(findWorkRefusals(entries, key, 15).map(({ atMs, stage, flowId, generation }) => [atMs, stage, flowId, generation]), [[30, 'adoption', 'f-2', 1]]);
+  assert.equal(findWorkRefusals(entries, key).length, 2);
+  assert.deepEqual(findWorkRefusals(entries, ''), []);
+});
+
+test('work election binding: the case\'s own continue_work call, through Tool Search or not, paired by toolCallId', () => {
+  const reason = 'RCDRA:abc Proof wake n: when this continuation runs, reply exactly RCDRA-WOKE n.';
+  const viaSearch = (id, args) => ({ role: 'assistant', content: [{ type: 'toolCall', id, name: 'dispatch_action', arguments: { id: 'openclaw:core:continue_work', args } }], __openclaw: { runId: 'run-e' } });
+  const direct = (id, args) => ({ role: 'assistant', content: [{ type: 'toolCall', id, name: 'continue_work', arguments: args }], __openclaw: { runId: 'run-e' } });
+  const result = (id, payload, isError = false) => ({ role: 'toolResult', toolCallId: id, toolName: 'dispatch_action', isError, content: [{ type: 'text', text: typeof payload === 'string' ? payload : JSON.stringify(payload) }] });
+  for (const call of [viaSearch, direct]) {
+    assert.deepEqual(findWorkElection([call('w1', { reason, delaySeconds: 30 }), result('w1', { status: 'scheduled', delaySeconds: 30 })], { reasonMarker: 'RCDRA:abc' }), { status: 'scheduled', toolCallId: 'w1', delaySeconds: 30 });
+  }
+  assert.deepEqual(findWorkElection([viaSearch('w2', { reason })], { reasonMarker: 'RCDRA:abc' }), { status: null, toolCallId: 'w2', delaySeconds: null });
+  assert.equal(findWorkElection([viaSearch('w3', { reason }), result('w3', 'continue_work requires an active session.', true)], { reasonMarker: 'RCDRA:abc' }).status, 'error');
+  assert.equal(findWorkElection([viaSearch('w4', { reason: 'other' }), result('w4', { status: 'scheduled' })], { reasonMarker: 'RCDRA:abc' }), null);
+  // A continue_delegate call is no election.
+  assert.equal(findWorkElection([{ role: 'assistant', content: [{ type: 'toolCall', id: 'c1', name: 'continue_delegate', arguments: { task: reason } }] }, result('c1', { status: 'scheduled' })], { reasonMarker: 'RCDRA:abc' }), null);
+  assert.equal(countWorkCalls([viaSearch('w1', { reason }), direct('w2', { reason }), say('x', 'r')]), 2);
+  assert.equal(countDelegateCalls([viaSearch('w1', { reason })]), 0);
+});
+
+/** work-revoked-visibility at j12′: scheduled at 1 s, captured by 1.5 s, narrowed at 5 s, refused at 32 s, probed at 50 s. */
+function workEvidence() {
+  return {
+    ...revokedEvidence(),
+    case: WORK_CASE,
+    keys: { parent: null, target: 'agent:main:r-cd-ra-work-revoked-visibility-target-abc', ops: null },
+    delegate_mode: null,
+    reason_length: 140,
+    dispatch: { status: 'scheduled', accepted: true, result_mode: null, result_delay_seconds: 30, observed_at_ms: 1_000 },
+    other_delegate_calls: 0,
+    other_work_calls: 0,
+    child: { spawned: null, bound: false, done: false, key: null },
+    transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
+    probe_sent_at_ms: 50_000,
+  };
+}
+
+test('the control assembles the continue_work case: its capture from the store, its reason from the work line, ids hashed', () => {
+  const evidence = workEvidence();
+  const key = evidence.keys.target;
+  const e1 = '11111111-1111-4111-8111-111111111111';
+  const e2 = '22222222-2222-4222-8222-222222222222';
+  const timeline = [
+    { atMs: 900, state: 'read', rows: [] },
+    { atMs: 1_100, state: 'read', rows: [] },
+    { atMs: 1_300, state: 'unreadable', rows: [] },
+    { atMs: 1_600, state: 'read', rows: [{ session_key: key, epoch: e1 }] },
+    { atMs: 5_200, state: 'read', rows: [{ session_key: key, epoch: e2 }] },
+  ];
+  const logEntries = [{ atMs: 32_000, text: workConsole('wake', key), generation: 0 }];
+  const assemble = (extra = {}) => assembleCaseRecord({
+    caseId: WORK_CASE, runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence, logEntries, timeline,
+    generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500, ...extra,
+  });
+  const record = assemble();
+  assert.deepEqual(record.epochs, { captured: sha256Hex(e1), capturedAfterMs: 1_100, capturedByMs: 1_600, afterTransition: sha256Hex(e2), final: sha256Hex(e2) });
+  assert.deepEqual(record.reason, { kind: 'work-refused', stage: 'wake', stages: ['wake'], reasonTexts: ['recipient-authority-changed'], observedAtMs: 32_000, generation: 0, flowIdHash: sha256Hex(FLOW_ID), distinctFlowIds: 1, lines: 1 });
+  assert.equal(record.dispatch.otherWorkCalls, 0);
+  assert.equal(record.routing, null);
+  assert.equal(record.keys.parent, null);
+  assert.equal(gradeRecipientAuthorityCase(record).verdict, 'PASS-candidate', JSON.stringify(gradeRecipientAuthorityCase(record)));
+  const publicText = JSON.stringify(record);
+  for (const secret of [key, FLOW_ID, e1, e2]) assert.ok(!publicText.includes(secret), `public record leaks ${secret}`);
+  // The delegate cases' records carry no work field.
+  assert.equal(Object.hasOwn(assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: revokedEvidence(), ...revokedHarness(revokedEvidence()), generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 }).dispatch, 'otherWorkCalls'), false);
+  // The row first appears only after the transition was requested: no capture before it.
+  const late = assemble({ timeline: [timeline[0], timeline[1], { atMs: 5_050, state: 'read', rows: [{ session_key: key, epoch: e2 }] }, timeline[4]] });
+  assert.equal(late.epochs.capturedByMs, 5_050);
+  const lateGrade = gradeRecipientAuthorityCase(late);
+  assert.ok(lateGrade.missing.includes('capture-not-before-transition'), JSON.stringify(lateGrade));
+  // The row in the very first sample: nothing bounds the capture from below.
+  const early = assemble({ timeline: timeline.slice(3) });
+  assert.equal(early.epochs.capturedAfterMs, null);
+  assert.ok(gradeRecipientAuthorityCase(early).missing.includes('capture-unobserved'));
+  // A line before the transition is not searched; a return-refused line is not this case's reason.
+  assert.equal(assemble({ logEntries: [{ atMs: 4_000, text: workConsole('wake', key), generation: 0 }] }).reason, null);
+  assert.equal(assemble({ logEntries: [{ atMs: 32_000, text: refusedConsole('wake', key), generation: 0 }] }).reason, null);
 });

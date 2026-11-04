@@ -11,7 +11,7 @@
   "timeoutSeconds": 3600,
   "scenario": {
     "name": "r-cd-recipient-authority",
-    "description": "A live, isolated-gateway row pinned to j12′ (INTERIM: the reviewed refused chain e9dc1c31): a targeted delegate return reaches only a recipient whose authority is unchanged. On one disposable gateway started by the control, each case is its own receipt. A real continue_delegate with targetSessionKey from a model turn (the R-CD-4 shape) is accepted, the target's authority is changed through a public gateway RPC between dispatch and return, and the case is graded from what the product leaves observable. allowed and allowed-across-reset must be adopted and acknowledged exactly once by the primed target; allowed-silent, the control for every refusal case's absence, must be adopted into the probe turn with the product's adoption marker on the visible row. unauthorized-admission and unauthorized-dispatch must show the cross-session policy refusal. revoked-visibility, revoked-membership, revoked-owner, reassigned, wake-revoked-visibility, wake-reassigned and replay-restart must each show j12′'s [continuation:return-refused] line for the target at the case's pinned stage (prompt-drain, replay or enqueue), no Delivered to line for the return once its transition settled, and the absence of target adoption, ack, wake and final effect.",
+    "description": "A live, isolated-gateway row pinned to j12′, the merged head 1ab5a73e: a targeted delegate return reaches only a recipient whose authority is unchanged, and a kept continue_work wake only a session whose authority is unchanged. On one disposable gateway started by the control, each case is its own receipt. A real continue_delegate with targetSessionKey from a model turn (the R-CD-4 shape) is accepted, the target's authority is changed through a public gateway RPC between dispatch and return, and the case is graded from what the product leaves observable. allowed and allowed-across-reset must be adopted and acknowledged exactly once by the primed target; allowed-silent, the control for every refusal case's absence, must be adopted into the probe turn with the product's adoption marker on the visible row. unauthorized-admission and unauthorized-dispatch must show the cross-session policy refusal. revoked-visibility, revoked-membership, revoked-owner, reassigned, wake-revoked-visibility, wake-reassigned and replay-restart must each show j12′'s [continuation:return-refused] line for the target at the case's pinned stage (prompt-drain, replay or enqueue), no Delivered to line for the return once its transition settled, and the absence of target adoption, ack, wake and final effect. work-revoked-visibility elects a continue_work wake, narrows its own session's visibility after the election is captured, and must show j12′'s [continuation:work-refused] line at stage=wake for that session and no wake turn, adoption or final effect.",
     "methods": [
       "sessions.create",
       "sessions.send",
@@ -27,11 +27,12 @@
       "config.patch",
       "gateway.restart.request",
       "sessions tool assign_owner (sessions.assignOwner)",
-      "continue_delegate (model turn)"
+      "continue_delegate (model turn)",
+      "continue_work (model turn)"
     ],
     "status": "runnable",
     "file": "r-cd-recipient-authority.js",
-    "notes": "scenarios/r-cd-recipient-authority.js drives one case's gateway WebSocket protocol and refuses to run unless the control launched it for its own run (it throws from setup() otherwise). Its header holds the j12′ product path with path:line anchors. The control, scripts/run-recipient-authority-row.mjs, starts and owns the disposable gateway, reads its console log and the recipient-authority epoch read-only, performs the supervised restart for replay-restart, grades each case with lib/recipient-authority-row.mjs and signs the receipt.",
+    "notes": "scenarios/r-cd-recipient-authority.js drives one case's gateway WebSocket protocol and refuses to run unless the control launched it for its own run (it throws from setup() otherwise). Its header holds the j12′ product path with path:line anchors. The control, scripts/run-recipient-authority-row.mjs, starts and owns the disposable gateway, reads its console log and the recipient-authority epoch read-only (the continue_work case's capture is read there), performs the supervised restart for replay-restart, grades each case with lib/recipient-authority-row.mjs and signs the receipt.",
     "registryNotes": "🌊's ruling (room msg 1567077062139838485, 2026-11-03): a live, isolated-gateway row, separate from the supervised-restart row R-CD-RETURN-COVENANT-AUTHORITY; every case MISSING until an owner runs it; observe the refusal reason and the absence of target adoption, ack and final effect, including replay. 🌊's ruling (room msg 1567104742604406896): fix before presenting; j12′ carries a reason at enqueue, replay/wake and prompt drain, no Delivered to for an empty set, and a silent park or the sweep is not wake proof; the row re-anchors to j12′ (msg 1567194866507841678: gate 3 after the merged head is reviewed). The fixture matrix (R-CD-RECIPIENT-AUTHORITY-MATRIX, docs#549) is history, not j12′ proof. This row never feeds either of those rows' verdicts and reads none of their receipts."
   },
   "invocation": {
@@ -41,15 +42,15 @@
       "silent-wake",
       "silent"
     ],
-    "modeNote": "allowed, allowed-across-reset, the unauthorized cases and the wake-mode refusal cases (wake-revoked-visibility, wake-reassigned) dispatch silent-wake (R-CD-4's mode). allowed-silent and the revoked, reassigned and replay cases dispatch silent so the return parks un-adopted before the transition. At j12′ the parked revocations are refused at the probe turn's prompt drain (the sweep defers to the queued copy), reassigned and replay-restart at replay (no copy left in memory), and the wake-mode cases at enqueue before any row. invocation.mode names the trace collector's default; each case's evidence records its own delegate_mode.",
+    "modeNote": "allowed, allowed-across-reset, the unauthorized cases and the wake-mode refusal cases (wake-revoked-visibility, wake-reassigned) dispatch silent-wake (R-CD-4's mode). allowed-silent and the revoked, reassigned and replay cases dispatch silent so the return parks un-adopted before the transition. At j12′ the parked revocations are refused at the probe turn's prompt drain (the sweep defers to the queued copy), reassigned and replay-restart at replay (no copy left in memory), and the wake-mode cases at enqueue before any row. invocation.mode names the trace collector's default; each case's evidence records its own delegate_mode. work-revoked-visibility dispatches no delegate: its session elects a continue_work wake (no mode), and the dispatcher's handoff refuses it at stage=wake.",
     "targetSessionKey": "${OPENCLAW_TARGET_SESSION_KEY:-disposable}",
     "promptTemplate": "RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.",
     "idempotencyKeyPrefix": "R-CD-RECIPIENT-AUTHORITY",
     "control": "tools/k6-proofs/scripts/run-recipient-authority-row.mjs",
     "artifactClass": "disposable-real-process",
-    "pinnedCandidate": "e9dc1c318a2f73fd01755fc4682fa3349e8a0e94",
-    "pinStatus": "interim",
-    "pinNote": "j12′ is not cut yet: it will be the merge of this refused chain, keeps-queued-2 and the continue_work authority binding. The refusal strings, stages and receipt are final here; the reset path (allowed-across-reset, sessions.reset) and continue_work cites are re-walked at the merged head.",
+    "pinnedCandidate": "1ab5a73e14309922fa79edf4f93034bdb0acde62",
+    "pinStatus": "merged",
+    "pinNote": "j12′ is the merged head (karmaterminal/openclaw codeagent/j12prime-candidate): the refused chain e9dc1c31, keeps-queued-2, the continue_work authority binding with its incognito pin, the turn-start fence, the burning annex, wake admission and fence drain, annex crash gating, #1544 maintenance custody and the test-lines allocation. Every cite was re-walked at it. e9dc1c31 was this row's interim pin and is history: no record may name it.",
     "baselineCandidate": "352f56029dc95c60149ab4aaa127226a861d0b3d",
     "cases": [
       "allowed",
@@ -63,10 +64,12 @@
       "reassigned",
       "wake-revoked-visibility",
       "wake-reassigned",
+      "work-revoked-visibility",
       "replay-restart"
     ],
-    "rowVerdict": "The row verdict is the minimum over every case's signed receipt (--grade-row). A case with no verified receipt is MISSING-candidate, so the row is MISSING until an owner runs all twelve at j12′.",
-    "controlState": "an existing proof-gw directory (composite-launcher.sh setup and login, then stop) at the pinned candidate; its state is kept for composite-launcher.sh shred"
+    "rowVerdict": "The row verdict is the minimum over every case's signed receipt (--grade-row). A case with no verified receipt is MISSING-candidate, so the row is MISSING until an owner runs all thirteen at j12′.",
+    "controlState": "an existing proof-gw directory (composite-launcher.sh setup and login, then stop) at the pinned candidate; its state is kept for composite-launcher.sh shred",
+    "workReasonTemplate": "RCDRA:{{nonceSuffix16}} Proof wake {{nonce}}: when this continuation runs, reply exactly RCDRA-WOKE {{nonce}}. Do not mutate files. Do not post to any channel."
   },
   "expectedReceipts": [
     {
@@ -82,27 +85,27 @@
     {
       "name": "dispatch-binding",
       "required": true,
-      "description": "The continue_delegate toolCall from the parent's model turn (unwrapped through Tool Search) whose task carries the case marker and targetSessionKey, paired by toolCallId with its toolResult: status scheduled (the binding is captured by then), or for unauthorized-admission the product's policy error. Records reason_hash, reason_length and delegate_mode."
+      "description": "The continue_delegate toolCall from the parent's model turn (unwrapped through Tool Search) whose task carries the case marker and targetSessionKey, paired by toolCallId with its toolResult: status scheduled (the binding is captured by then), or for unauthorized-admission the product's policy error. Records reason_hash, reason_length and delegate_mode. For work-revoked-visibility, the continue_work toolCall whose reason carries the case marker, paired with its scheduled toolResult (written before the election's capture), the electing run recorded and every other continue_work or continue_delegate call counted."
     },
     {
       "name": "authority-epochs",
       "required": true,
-      "description": "The target's session_recipient_authority epoch, read read-only from the isolated per-agent database and published as SHA-256 only: captured (after the scheduled toolResult), after the transition, and at the end of the case."
+      "description": "The target's session_recipient_authority epoch, read read-only from the isolated per-agent database and published as SHA-256 only: captured (after the scheduled toolResult), after the transition, and at the end of the case. For work-revoked-visibility the capture follows the scheduled toolResult, so it is the first sample holding the session's row, bounded below by the last sample without it, and must precede the transition."
     },
     {
       "name": "transition-response",
       "required": true,
-      "description": "The public RPC response for the case's authority transition: sessions.reset, config.patch (crossSessionTargeting disabled, then restored), session.visibility.set, session.members.remove, the sessions tool assign_owner toolResult, or sessions.delete plus sessions.create."
+      "description": "The public RPC response for the case's authority transition: sessions.reset, config.patch (crossSessionTargeting disabled, then restored), session.visibility.set (on the target, or on the electing session for work-revoked-visibility), session.members.remove, the sessions tool assign_owner toolResult, or sessions.delete plus sessions.create."
     },
     {
       "name": "refusal-reason",
       "required": true,
-      "description": "Refusal cases only: the product's own reason for this case's session key. The continue_delegate policy error (admission), the [continuation:delegate-rejected] policy.cross_session_targeting log line for the dispatcher (dispatch), or j12′'s [continuation:return-refused] stage=<stage> reason=recipient-authority-changed session=<target>[ deliveryId=<id>] line from the console or the structured file log, at the case's pinned stage (prompt-drain after the probe for the parked revocations, replay for reassigned and, from the replacement generation, replay-restart, enqueue with no row for the wake-mode cases), naming a row exactly when that stage writes one and never two rows; and no router Delivered to line naming the target or from the case's child once the transition settled (one while the transition RPC was in flight is MISSING). j12's 'recipient authority changed' lines never count."
+      "description": "Refusal cases only: the product's own reason for this case's session key. The continue_delegate policy error (admission), the [continuation:delegate-rejected] policy.cross_session_targeting log line for the dispatcher (dispatch), or j12′'s [continuation:return-refused] stage=<stage> reason=recipient-authority-changed session=<target>[ deliveryId=<id>] line from the console or the structured file log, at the case's pinned stage (prompt-drain after the probe for the parked revocations, replay for reassigned and, from the replacement generation, replay-restart, enqueue with no row for the wake-mode cases), naming a row exactly when that stage writes one and never two rows; and no router Delivered to line naming the target or from the case's child once the transition settled (one while the transition RPC was in flight is MISSING). j12's 'recipient authority changed' lines never count. For work-revoked-visibility: j12′'s [continuation:work-refused] stage=wake reason=recipient-authority-changed session=<key> flowId=<id> line for the electing session, after the transition and before the probe, naming one election (its flowId published as SHA-256 only)."
     },
     {
       "name": "target-adoption-observation",
       "required": true,
-      "description": "The target transcript read after the observation window: the product's adoption marker (__openclaw.sessionDeliveryAckIds on a visible row, which chat.history keeps), TARGET-ACK <nonce> as assistant text or a heartbeat_respond receipt from a run other than priming, woken target runs, the return marker repeated by the target, and for refusal cases the probe turn (its send time recorded) that forces a prompt drain. allowed cases need exactly one acknowledging run; allowed-silent also the marker on its probe row; refusal cases need no marker, no ack, no wake and no return marker."
+      "description": "The target transcript read after the observation window: the product's adoption marker (__openclaw.sessionDeliveryAckIds on a visible row, which chat.history keeps), TARGET-ACK <nonce> as assistant text or a heartbeat_respond receipt from a run other than priming, woken target runs, the return marker repeated by the target, and for refusal cases the probe turn (its send time recorded) that forces a prompt drain. allowed cases need exactly one acknowledging run; allowed-silent also the marker on its probe row; refusal cases need no marker, no ack, no wake and no return marker. For work-revoked-visibility the electing session's transcript, with the electing run excluded: no assistant run but the probe's (no wake turn) and no adoption marker."
     },
     {
       "name": "no-parent-return",
@@ -122,7 +125,7 @@
     {
       "name": "tempo-trace-json",
       "required": true,
-      "description": "Public-safe Tempo trace JSON for each case whose delegate fired, collected after the run with collect-continuation-trace.mjs from the case's evidence.jsonl (#600)."
+      "description": "Public-safe Tempo trace JSON for each case whose delegate fired, collected after the run with collect-continuation-trace.mjs from the case's evidence.jsonl (#600). The unauthorized cases and work-revoked-visibility fire nothing and owe none."
     },
     {
       "name": "continuation-trace-correlation",
@@ -140,7 +143,7 @@
   "review": {
     "candidateOnly": true,
     "foldRequiresReview": true,
-    "notes": "The control writes candidate receipts only. Folding is a reviewed corpus step at j12′. The row stays MISSING until an owner runs every case on an isolated proof gateway at j12′; no case may be carried from the fixture matrix, the restart control, j12 or any earlier SHA. A deviation by the model or the setup (another delegate call, another mode or delay, a return adopted before its transition, a wake-mode transition that settled after the fire, a scenario refusal) grades MISSING, never FAIL."
+    "notes": "The control writes candidate receipts only. Folding is a reviewed corpus step at j12′. The row stays MISSING until an owner runs every case on an isolated proof gateway at j12′; no case may be carried from the fixture matrix, the restart control, j12, the interim e9dc1c31 or any earlier SHA. A deviation by the model or the setup (another delegate call, another mode or delay, a return adopted before its transition, a wake-mode transition that settled after the fire, a continue_work capture after the transition, a scenario refusal) grades MISSING, never FAIL."
   },
   "telemetryContract": {
     "schema": "openclaw.k6.row-telemetry-contract.v1",
@@ -148,7 +151,7 @@
       "issue": "karmaterminal/openclaw#1254",
       "reportCommit": "39803b297bd4786db3971eb82a3a7fd0b29bc643",
       "productBasis": "6b09b1dbe938ab6b5f56eaf4e58f1ed243f89955",
-      "limits": "The claim is which session adopts a targeted return. Tempo drops session identifiers from exported spans. At j12′ a refusal is counted on continuation.queue.drain (queue.refused_count, refusal.reason) and on continuation.queue.fanout (fanout.refused_count, refusal.reason; only for a fanout mode or several recipients), with no session identity, and the control collects no spans, so the claim is proven from the gateway event stream, the gateway's own log and the read-only authority store captured at run time. Telemetry corroborates the dispatch and fire only."
+      "limits": "The claim is which session adopts a targeted return. Tempo drops session identifiers from exported spans. At j12′ a refusal is counted on continuation.queue.drain (queue.refused_count, refusal.reason; a refused continue_work wake too), with no session identity, and on continuation.queue.fanout (fanout.refused_count, refusal.reason, and 12-hex SHA-256 prefixes of the recipient keys; only for a fanout mode or several recipients, which no case drives), and the control collects no spans, so the claim is proven from the gateway event stream, the gateway's own log and the read-only authority store captured at run time. Telemetry corroborates the dispatch and fire only."
     },
     "enforcement": "advisory",
     "rebindable": false,
@@ -246,7 +249,7 @@
     },
     "controls": {
       "positive": "allowed and allowed-across-reset: the primed target acknowledges the nonce-bound return exactly once, from a run other than priming, with its authority epoch unchanged; sessions.reset leaves the epoch unchanged at j12′.",
-      "negative": "Each refusal case: the product's reason for this case's own session key (for a refused return, j12′'s [continuation:return-refused] line at the case's pinned stage), no Delivered to line for the return once its transition settled, and no adoption marker, no acknowledgement, no woken target run, no return marker in the target, a probe turn that drained, and no parent landing. allowed-silent shows the marker where the refusal cases show none. A refusal whose reason the product does not emit, or emits at another stage, stays MISSING, never PASS."
+      "negative": "Each refusal case: the product's reason for this case's own session key (for a refused return, j12′'s [continuation:return-refused] line at the case's pinned stage), no Delivered to line for the return once its transition settled, and no adoption marker, no acknowledgement, no woken target run, no return marker in the target, a probe turn that drained, and no parent landing. allowed-silent shows the marker where the refusal cases show none. A refusal whose reason the product does not emit, or emits at another stage, stays MISSING, never PASS. work-revoked-visibility: j12′'s [continuation:work-refused] line at stage=wake for the electing session, before the probe, and no wake turn or adoption in that session."
     },
     "backendUnavailable": {
       "disposition": "PARTIAL-candidate",
@@ -282,9 +285,9 @@
     },
     "verdictAuthority": {
       "passScope": "behavioral-only",
-      "pass": "Every case's signed receipt grades PASS-candidate at j12′ on one harness-started isolated gateway: allowed returns adopted and acknowledged exactly once (allowed-silent with the product's adoption marker), every refusal case with both its product reason (at its pinned stage) and the absence of adoption, ack, wake and final effect, and each fired delegate's trace correlated.",
+      "pass": "Every case's signed receipt grades PASS-candidate at j12′ on one harness-started isolated gateway: allowed returns adopted and acknowledged exactly once (allowed-silent with the product's adoption marker), every refusal case with both its product reason (at its pinned stage) and the absence of adoption, ack, wake and final effect, work-revoked-visibility with its work-refused line at stage=wake and no wake turn, and each fired delegate's trace correlated.",
       "partial": "A trace receipt is pending, a config.patch change was not restored, cleanup was incomplete, a receipt did not verify, or two receipts of one case disagree.",
-      "fail": "A refused return was adopted, acknowledged, woke the target or was logged Delivered to once its transition had settled; an allowed return was routed but never adopted, or adopted twice; a return landed in the parent; an unauthorized delegate spawned; or sessions.reset advanced the epoch."
+      "fail": "A refused return was adopted, acknowledged, woke the target or was logged Delivered to once its transition had settled; an allowed return was routed but never adopted, or adopted twice; a return landed in the parent; an unauthorized delegate spawned; a refused continue_work wake ran a turn or was adopted; or sessions.reset advanced the epoch."
     },
     "execution": {
       "deterministicK6": "Not a run-proof.sh scenario: run-recipient-authority-row.mjs starts the disposable gateway and runs scenarios/r-cd-recipient-authority.js once per case against it.",

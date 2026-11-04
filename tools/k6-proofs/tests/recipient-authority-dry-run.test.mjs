@@ -1,12 +1,13 @@
 // R-CD-RECIPIENT-AUTHORITY dry run against the mock-gateway pattern (helpers/k6-node-runtime.mjs).
 //
 // The real case driver (scenarios/r-cd-recipient-authority.js) runs in Node against a scripted
-// gateway shaped like j12′'s public surface (e9dc1c31, INTERIM pin): hello-ok, sessions.*,
+// gateway shaped like the public surface of the merged j12′ (1ab5a73e): hello-ok, sessions.*,
 // session.visibility.set, session.members.*, config.get/patch, chat.history with Tool Search
-// dispatch_action rows. The control's own assembleCaseRecord then joins the evidence with scripted
-// j12′ gateway log lines (the router's Delivered to line, the [continuation:return-refused] line at
-// each case's pinned stage) and an epoch timeline, and lib/recipient-authority-row.mjs grades it.
-// No gateway, no model, no network.
+// dispatch_action rows for continue_delegate and continue_work. The control's own
+// assembleCaseRecord then joins the evidence with scripted j12′ gateway log lines (the router's
+// Delivered to line, the [continuation:return-refused] line at each case's pinned stage, the
+// [continuation:work-refused] line at stage=wake) and an epoch timeline, and
+// lib/recipient-authority-row.mjs grades it. No gateway, no model, no network.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -19,6 +20,7 @@ import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RUN = 'rra-0123456789abcdef';
 const CHILD = 'agent:main:subagent:continuation-rra-child';
+const FLOW = '6f1e2d3c-0000-4000-8000-00000000f10e';
 const ALL_METHODS = [...new Set(RRA_CASE_IDS.flatMap((caseId) => scenarioMethodsFor(caseId)))];
 
 const user = (text) => ({ role: 'user', content: [{ type: 'text', text }] });
@@ -30,9 +32,11 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
 });
 
 /**
- * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, noIdentity }.
- * Allowed cases get the woken target's ack after their (last) priming; refused cases spawn a child
- * only when the delegate would have fired.
+ * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, noIdentity,
+ * workWake, retry }. Allowed cases get the woken target's ack after their (last) priming; refused
+ * cases spawn a child only when the delegate would have fired. The continue_work case's session
+ * answers its election with a scheduled result, and with `workWake` a wake turn shows once the
+ * probe was sent.
  */
 function gatewayFor(world) {
   const spec = RRA_CASES[world.caseId];
@@ -86,9 +90,21 @@ function gatewayFor(world) {
           // A parked return adopted into the probe turn: the product's marker on the visible user row
           // (managed-delivery-turn-lifecycle.ts:107-111) and the primed target's ack in the probe run.
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
+          // A refused kept wake that ran anyway: its turn's row, from a run of its own.
+          if (world.workWake) push(p.key, say(`RCDRA-WOKE ${nonce}`, 'run-work-wake'));
           push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(adopts ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
           push(p.key, say(world.adoptOnProbe && !world.markerOnly ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
           return ok({ runId: 'run-probe' });
+        }
+        if (message.includes('Call the continue_work tool')) {
+          // The tool answers `scheduled` before the turn schedules (and captures) the election
+          // (continue-work-tool.ts:84-110).
+          const reason = /reason:"([^"]+)"/.exec(message)[1];
+          nonce = /Proof wake (\S+):/.exec(reason)[1];
+          push(p.key, toolCall('w1', 'dispatch_action', { id: 'openclaw:core:continue_work', args: { reason, delaySeconds: 30 } }, 'run-e'));
+          push(p.key, toolResult('w1', 'dispatch_action', { status: 'scheduled', delaySeconds: 30 }, 'run-e'));
+          if (world.retry) push(p.key, toolCall('w2', 'continue_work', { reason, delaySeconds: 5 }, 'run-e'));
+          return ok({ runId: 'run-e' });
         }
         if (message.includes('assign_owner')) {
           const sessionKey = /sessionKey:"([^"]+)"/.exec(message)[1];
@@ -168,11 +184,15 @@ const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${messa
 
 /**
  * What the control would have seen around the case at j12′: product log lines, epochs, generations.
- * options: reason (emit the case's reason), stage (override the refused-return stage), j12Reason
- * (emit j12's replay line instead of j12′'s), routedAfter (a Delivered to line naming the target
- * after the transition), emptyListAfter (j12's empty-list Delivered to line from the child after it).
+ * options: reason (emit the case's reason), stage (override the refused-return or refused-work
+ * stage), j12Reason (emit j12's replay line instead of j12′'s), routedAfter (a Delivered to line
+ * naming the target after the transition), emptyListAfter (j12's empty-list Delivered to line from
+ * the child after it). For the continue_work case: workReason (the line's reason), workAfterProbe
+ * (the line lands after the probe was sent), returnLineInstead (a return-refused line naming the
+ * session instead of the work line), secondFlow (a second line naming another election),
+ * captureLate (the session's authority row first appears after the transition was requested).
  */
-function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false } = {}) {
+function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false } = {}) {
   const spec = RRA_CASES[caseId];
   const { target, parent } = drive.keys;
   const transition = drive.transition || {};
@@ -201,10 +221,34 @@ function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reas
       : consoleLine('continuation/return-refused', `[continuation:return-refused] stage=${refusedAt} reason=recipient-authority-changed session=${target}${deliveryId}`);
     logEntries.push({ atMs, text, generation: spec.restart ? 1 : 0 });
   }
+  if (reason && spec.reasonKind === 'work-refused') {
+    // The dispatcher's handoff refuses the kept wake once it is due, before the probe is sent.
+    const atMs = workAfterProbe ? final.probe_sent_at_ms + 3 : settledAt + 3;
+    const message = (flow) => `[continuation:work-refused] stage=${stage ?? spec.refusedAt} reason=${workReason} session=${target} flowId=${flow}`;
+    logEntries.push({
+      atMs,
+      text: returnLineInstead
+        ? consoleLine('continuation/return-refused', `[continuation:return-refused] stage=wake reason=recipient-authority-changed session=${target} deliveryId=${DELIVERY_ID}`)
+        : consoleLine('continuation/work-refused', message(FLOW)),
+      generation: 0,
+    });
+    if (secondFlow) logEntries.push({ atMs: atMs + 1, text: consoleLine('continuation/work-refused', message(`${FLOW}-2`)), generation: 0 });
+  }
   if (routedAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
   if (emptyListAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to  from ${CHILD}`, generation: 0 });
   const e1 = '11111111-1111-4111-8111-111111111111';
   const e2 = '22222222-2222-4222-8222-222222222222';
+  if (spec.tool === 'continue_work') {
+    // The election is captured after its scheduled result: the session's row first appears then,
+    // before the transition (or, captureLate, only after it was requested).
+    const timeline = [
+      { atMs: capturedAt - 1, state: 'read', rows: [] },
+      ...(captureLate ? [] : [{ atMs: transitionAt - 1, state: 'read', rows: [{ session_key: target, epoch: e1 }] }]),
+      { atMs: settledAt, state: 'read', rows: [{ session_key: target, epoch: e2 }] },
+      { atMs: settledAt + 1_000, state: 'read', rows: [{ session_key: target, epoch: e2 }] },
+    ];
+    return { logEntries, timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], restartedAtMs: null };
+  }
   const timeline = [
     { atMs: capturedAt, state: 'read', rows: [{ session_key: target, epoch: e1 }] },
     { atMs: settledAt, state: 'read', rows: [{ session_key: target, epoch: durable ? e2 : e1 }] },
@@ -248,7 +292,8 @@ test('dry run: every case drives its public surfaces and grades PASS-candidate a
     // The trace collector's fingerprint contract (#600): the dispatched task, hashed.
     assert.match(drive.reason_hash, /^[0-9a-f]{16}$/);
     assert.equal(typeof drive.reason_length, 'number');
-    assert.equal(drive.delegate_mode, RRA_CASES[caseId].mode);
+    // The continue_work case dispatches no delegate, so it has no mode.
+    assert.equal(drive.delegate_mode, RRA_CASES[caseId].mode ?? null);
   }
 });
 
@@ -357,6 +402,77 @@ test('dry run: no member identity to add leaves revoked-membership MISSING, neve
   const { drive, graded } = await grade('revoked-membership', { noIdentity: true });
   assert.ok(drive.refusals.some((refusal) => refusal.startsWith('precondition:')), drive.refusals.join('\n'));
   assert.equal(graded.verdict, 'MISSING-candidate');
+});
+
+const workCase = 'work-revoked-visibility';
+
+test('dry run: the continue_work case elects its own wake, narrows its own session after the capture and probes after the refusal', async () => {
+  assert.equal(RRA_CASES[workCase].tool, 'continue_work');
+  const { evidence: elected, frames } = await fire(workCase, {});
+  const sent = frames.filter((frame) => frame.type === 'req');
+  const sends = sent.filter((frame) => frame.method === 'sessions.send');
+  assert.equal(elected.keys.parent, null, 'the electing session is the recipient: no parent');
+  assert.deepEqual([...new Set(sends.map((frame) => frame.params.key))], [elected.keys.target], 'every turn is the electing session\'s');
+  assert.ok(sends[0].params.message.includes('Call the continue_work tool'), 'the first turn elects');
+  assert.ok(!sends.some((frame) => frame.params.message.includes('continue_delegate')), 'no delegate is dispatched');
+  assert.deepEqual(
+    sent.filter((frame) => frame.method === 'session.visibility.set').map((frame) => [frame.params.sessionKey, frame.params.visibility]),
+    [[elected.keys.target, 'read-only']],
+    'the transition narrows the electing session itself',
+  );
+  assert.deepEqual(sent.filter((frame) => frame.method === 'sessions.create').map((frame) => frame.params.key), [elected.keys.target]);
+  const { drive, record, graded } = await grade(workCase, {});
+  assert.equal(drive.dispatch.status, 'scheduled');
+  assert.equal(drive.dispatch.result_delay_seconds, 30);
+  assert.deepEqual(drive.priming_run_ids, ['run-e'], 'the electing run is the one run excluded');
+  assert.equal(drive.other_work_calls, 0);
+  assert.equal(drive.other_delegate_calls, 0);
+  assert.ok(drive.transition.requested_at_ms > drive.dispatch.observed_at_ms, 'the transition follows the scheduled result');
+  assert.ok(drive.probe_sent_at_ms > drive.transition.settled_at_ms, 'the probe follows the transition');
+  assert.ok(record.epochs.capturedAfterMs < record.epochs.capturedByMs && record.epochs.capturedByMs < record.transition.requestedAtMs, JSON.stringify(record.epochs));
+  assert.equal(record.reason.kind, 'work-refused');
+  assert.equal(record.reason.stage, 'wake');
+  assert.equal(record.reason.distinctFlowIds, 1);
+  assert.match(record.reason.flowIdHash, /^[0-9a-f]{64}$/u);
+  assert.ok(!JSON.stringify(record).includes(FLOW), 'the flowId is published as SHA-256 only');
+  assert.equal(record.routing, null, 'no router line belongs to a kept wake');
+  assert.equal(graded.verdict, 'PASS-candidate', JSON.stringify(graded));
+});
+
+test('dry run: the continue_work case is never PASS without j12′\'s work-refused line at stage=wake, before the probe, naming one election', async () => {
+  for (const [label, options, code] of [
+    ['no line', { reason: false }, 'refusal-reason-not-observed'],
+    // The analog of j12's line for a return: another reason kind naming the same session.
+    ['a return-refused line instead', { returnLineInstead: true }, 'refusal-reason-not-observed'],
+    ['stage=replay', { stage: 'replay' }, 'refusal-stage-mismatch'],
+    ['stage=adoption', { stage: 'adoption' }, 'refusal-stage-mismatch'],
+    ['an unbound election\'s reason', { workReason: 'recipient-authority-unverifiable' }, 'refusal-reason-mismatch'],
+    ['logged after the probe was sent', { workAfterProbe: true }, 'reason-not-before-probe'],
+    ['a second election', { secondFlow: true }, 'reason-flow-id-ambiguous'],
+  ]) {
+    const { graded } = await grade(workCase, {}, options);
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.ok(graded.missing.includes(code), `${label}: ${graded.missing}`);
+    assert.deepEqual(graded.contradictions, [], label);
+  }
+});
+
+test('dry run: a refused kept wake that still ran a turn is FAIL-candidate, the work line notwithstanding', async () => {
+  const { graded } = await grade(workCase, { workWake: true });
+  assert.equal(graded.verdict, 'FAIL-candidate', JSON.stringify(graded));
+  assert.ok(graded.contradictions.includes('target-woken'));
+});
+
+test('dry run: a continue_work capture not seen before the transition, or a second election, is MISSING, never FAIL', async () => {
+  for (const [label, world, options, code] of [
+    ['capture after the transition', { workWake: true }, { captureLate: true }, 'capture-not-before-transition'],
+    ['a retried election', { workWake: true, retry: true }, {}, 'extra-work-calls'],
+  ]) {
+    const { graded } = await grade(workCase, world, options);
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.ok(graded.missing.includes(code), `${label}: ${graded.missing}`);
+    assert.deepEqual(graded.contradictions, [], `${label}: a wake of a binding the transition did not stale is correct`);
+  }
 });
 
 test('dry run: outside the control the scenario refuses before it sends a frame', async () => {

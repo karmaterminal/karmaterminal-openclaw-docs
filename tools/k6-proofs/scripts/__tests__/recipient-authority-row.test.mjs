@@ -53,6 +53,9 @@ import {
   rraProofId,
   traceCorrelationMatches,
 } from '../../lib/recipient-authority-row.mjs';
+// What 🌊's ordering ruling (room msg 1567623059727458526) added is read through the namespace, so this
+// file still loads against a lib without it and each new pin fails on its own assertion.
+import * as rowLib from '../../lib/recipient-authority-row.mjs';
 import {
   assembleCaseRecord,
   evaluateRecipientAuthorityTarget,
@@ -1130,6 +1133,171 @@ test('a probe that ran is bound to the conditional text by its hash: unbound or 
   }
 });
 
+/*
+ * 🌊's ruling, room msg 1567623059727458526 (on 🕯's rra-a4d5318d426ad728): "For `revoked-owner`, force the
+ * intended ordering: witness the queued/parked copy first, then change owner and prove refusal at
+ * probe-drain. If the fixture also supports the earlier-enqueue ordering, pin it separately; don't let
+ * that substitute for the parked-copy claim. For `allowed`, use the same conditional probe only when the
+ * woken run has no ACK. Credit exactly one nonce-bound ACK in that probe run, after the delivered
+ * return, and label the receipt probe-mediated rather than claiming an ACK in the wake turn. No ACK
+ * remains MISSING, never FAIL."
+ */
+
+test('a parked case holds only with the control\'s witness of its return\'s queued copy before the transition; an enqueue refusal never satisfies it', () => {
+  const parked = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].timing === 'parked');
+  assert.deepEqual(parked, ['revoked-visibility', 'revoked-membership', 'revoked-owner', 'reassigned', 'replay-restart']);
+  assert.equal(rowLib.RRA_ORDERING_RULING, '1567623059727458526');
+  for (const anchor of ['subagent-announce.continuation-return.ts:198-203', 'targeting.ts:409', '(:304)', '(:322-341', '(:358-375)', 'src/runtime.ts:80-88']) {
+    assert.ok(String(rowLib.RRA_PARKED_COPY_WITNESS_BYTES).includes(anchor), anchor);
+  }
+  for (const caseId of parked) {
+    const adopted = (r) => { r.target.ackRuns = 1; r.target.probeAckRows = 1; };
+    for (const [label, fn] of Object.entries({
+      'no witness': (r) => { r.witness = null; },
+      'the line never seen': (r) => { r.witness = { parkedCopyAtMs: null, releasedAtMs: null }; },
+      'never released': (r) => { r.witness.releasedAtMs = null; },
+      'released before the line': (r) => { r.witness.releasedAtMs = 3_999; },
+      'the transition sent before the release': (r) => { r.witness.releasedAtMs = 5_001; },
+      'another line than the park': (r) => { r.witness.parkedCopyAtMs = 3_000; },
+      'no park line from the child': (r) => { r.park.deliveredFromChildAtMs = null; },
+    })) {
+      const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { fn(r); adopted(r); }));
+      assert.equal(graded.verdict, 'MISSING-candidate', `${caseId} ${label}: ${JSON.stringify(graded)}`);
+      assert.ok(graded.missing.includes('parked-copy-unwitnessed'), `${caseId} ${label}: ${graded.missing}`);
+      assert.deepEqual(graded.contradictions, [], `${caseId} ${label}: an unwitnessed ordering is not judged`);
+    }
+    // With the witness, an ack of the refused return is still FAIL.
+    const acked = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.ackRuns = 1; }));
+    assert.equal(acked.verdict, 'FAIL-candidate', caseId);
+  }
+  // 🕯's revoked-owner shape: the owner change settled first, the router refused at enqueue with no row
+  // and logged no Delivered to line. As the parked case's receipt it is never PASS, witness or not.
+  for (const caseId of ['revoked-visibility', 'revoked-membership', 'revoked-owner']) {
+    for (const witness of [null, { parkedCopyAtMs: 4_000, releasedAtMs: 4_500 }]) {
+      const enqueue = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => {
+        r.park = { deliveredToTargetAtMs: null, deliveredFromChildAtMs: null };
+        r.witness = witness;
+        r.reason = { ...r.reason, stage: 'enqueue', stages: ['enqueue'], observedAtMs: 6_000, deliveryIdHash: null, distinctDeliveryIds: 0, linesWithoutDeliveryId: 1 };
+      }));
+      assert.equal(enqueue.verdict, 'MISSING-candidate', `${caseId}: ${JSON.stringify(enqueue)}`);
+      for (const code of ['parked-copy-unwitnessed', 'return-not-parked-before-transition', 'refusal-stage-mismatch', 'refusal-delivery-id-mismatch']) {
+        assert.ok(enqueue.missing.includes(code), `${caseId} ${code}: ${enqueue.missing}`);
+      }
+    }
+  }
+  // No other case reads a witness.
+  for (const caseId of RRA_CASE_IDS.filter((id) => !parked.includes(id))) {
+    assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.witness = null; })).verdict, 'PASS-candidate', caseId);
+  }
+});
+
+test('the early-enqueue ordering is a separate dry-run pin: graded by its own rules, never a row case, never the parked-copy case', () => {
+  const pins = rowLib.RRA_EARLY_ENQUEUE_PINS ?? {};
+  assert.deepEqual(Object.keys(pins), ['revoked-visibility-early-enqueue', 'revoked-membership-early-enqueue', 'revoked-owner-early-enqueue']);
+  for (const [pinId, pin] of Object.entries(pins)) {
+    // The wake-mode shape, with the revoked case's own transition and mode.
+    const record = mutate(completeRecord('wake-revoked-visibility'), (r) => {
+      r.case = pinId;
+      r.dispatch.delegateMode = pin.mode;
+      r.dispatch.resultMode = pin.mode;
+      r.transition.method = pin.transition;
+    });
+    assert.deepEqual(rowLib.gradeEarlyEnqueuePin(record), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, pinId);
+    assert.equal(rowLib.rraCaseSpec(pinId), pin, pinId);
+    assert.equal(rowLib.rraCaseSpec(pin.pinOf), RRA_CASES[pin.pinOf], pin.pinOf);
+    // Its own rules: a transition after the fire is MISSING, a Delivered to line after it is FAIL.
+    assert.ok(rowLib.gradeEarlyEnqueuePin(mutate(record, (r) => { r.transition.settledAtMs = 31_500; })).missing.includes('transition-not-before-fire'), pinId);
+    assert.equal(rowLib.gradeEarlyEnqueuePin(mutate(record, (r) => { r.routing.afterTransition = 1; })).verdict, 'FAIL-candidate', pinId);
+    // Never a row case: the case grade refuses it, the control's CLI refuses it, and in place of its
+    // revoked case's receipt the row is MISSING.
+    assert.deepEqual(gradeRecipientAuthorityCase(record).missing, ['unknown-case'], pinId);
+    assert.throws(() => parseArgs(['node', 'x', '--cases', pinId]), /unknown case/, pinId);
+    const rows = RRA_CASE_IDS.map((caseId) => ({ record: caseId === pin.pinOf ? record : completeRecord(caseId), verified: true }));
+    const row = gradeRecipientAuthorityRow(rows);
+    assert.equal(row.verdict, 'MISSING-candidate', pinId);
+    assert.deepEqual(row.cases[pin.pinOf], { verdict: 'MISSING-candidate', missing: ['case-not-run'] }, pinId);
+    // Relabelled as its revoked case, it fails the parked-copy oracle.
+    const offered = gradeRecipientAuthorityCase({ ...record, case: pin.pinOf });
+    assert.equal(offered.verdict, 'MISSING-candidate', pinId);
+    for (const code of ['parked-copy-unwitnessed', 'return-not-parked-before-transition', 'refusal-stage-mismatch']) assert.ok(offered.missing.includes(code), `${pinId} ${code}: ${offered.missing}`);
+    // And a parked-copy receipt is no pin.
+    assert.deepEqual(rowLib.gradeEarlyEnqueuePin(completeRecord(pin.pinOf)).missing, ['unknown-case'], pinId);
+  }
+});
+
+/** allowed on its fallback: a woken run with no ack, then the conditional probe, acked once in its own run. */
+function fallbackRecord() {
+  return mutate(completeRecord('allowed'), (r) => {
+    Object.assign(r.target, { probeRan: true, probeSentAtMs: 90_000, probeTextSha256: RRA_PROBE_TEXT_SHA256, probeReplied: false, ackRuns: 1, wakeAckRuns: 0, probeAckRows: 1, foreignRuns: 1 });
+    r.ack = { path: 'probe-mediated', fallbackDecision: { decidedAtMs: 89_000, wokenRuns: 1, ackRuns: 0 } };
+  });
+}
+
+test('allowed: one ack in its woken run (direct wake), or only after a woken run with no ack one in the probe\'s own run, labelled probe-mediated', () => {
+  assert.equal(RRA_CASES.allowed.fallbackProbe, true);
+  assert.deepEqual(RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].fallbackProbe), ['allowed'], 'only allowed has the fallback');
+  // The direct path, its oracle unchanged, and its label.
+  assert.deepEqual(gradeRecipientAuthorityCase(completeRecord('allowed')), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  for (const path of [null, 'probe-mediated']) {
+    const mislabelled = gradeRecipientAuthorityCase(mutate(completeRecord('allowed'), (r) => { r.ack.path = path; }));
+    assert.deepEqual([mislabelled.verdict, mislabelled.missing], ['MISSING-candidate', ['direct-wake-label-missing']], String(path));
+  }
+  const unacked = gradeRecipientAuthorityCase(mutate(completeRecord('allowed'), (r) => { r.target.ackRuns = 0; r.target.wakeAckRuns = 0; }));
+  assert.deepEqual([unacked.verdict, unacked.missing], ['MISSING-candidate', ['woken-without-ack']], '🕯\'s shape at 53c1c192, no fallback sent');
+  // The fallback.
+  assert.deepEqual(gradeRecipientAuthorityCase(fallbackRecord()), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  assert.equal(gradeRecipientAuthorityCase(mutate(fallbackRecord(), (r) => { r.target.probeReplied = true; })).verdict, 'PASS-candidate', 'PROBE-OK beside the ack is neither required nor refused');
+  for (const [label, fn, codes] of [
+    ['no ack in the probe run', (r) => { r.target.probeAckRows = 0; r.target.ackRuns = 0; }, ['probe-ack-unobserved']],
+    ['no ack, PROBE-OK only', (r) => { r.target.probeAckRows = 0; r.target.ackRuns = 0; r.target.probeReplied = true; }, ['probe-ack-unobserved']],
+    ['an ack in both the wake turn and the fallback', (r) => { r.target.wakeAckRuns = 1; r.target.ackRuns = 2; }, ['fallback-after-wake-ack', 'duplicate-ack-wake-and-fallback']],
+    ['a wake ack and no probe ack', (r) => { r.target.wakeAckRuns = 1; r.target.probeAckRows = 0; }, ['fallback-after-wake-ack', 'probe-ack-unobserved']],
+    ['sent when the woken run had acked', (r) => { r.ack.fallbackDecision.ackRuns = 1; }, ['fallback-not-after-unacked-wake']],
+    ['sent with no woken run', (r) => { r.ack.fallbackDecision.wokenRuns = 0; }, ['fallback-not-after-unacked-wake']],
+    ['sent before its read', (r) => { r.ack.fallbackDecision.decidedAtMs = 91_000; }, ['fallback-not-after-unacked-wake']],
+    ['no read', (r) => { r.ack.fallbackDecision = null; }, ['fallback-not-after-unacked-wake']],
+    ['no woken run at the end', (r) => { r.target.foreignRuns = 0; }, ['fallback-not-after-unacked-wake']],
+    ['sent before the delivered return', (r) => { r.target.probeSentAtMs = 3_000; r.ack.fallbackDecision.decidedAtMs = 2_000; }, ['probe-not-after-return']],
+    ['no Delivered to line from the child', (r) => { r.park.deliveredFromChildAtMs = null; }, ['return-not-routed-from-child']],
+    ['a wrong-nonce ack', (r) => { r.target.probeAckRows = 0; r.target.ackRuns = 0; r.target.uncreditedAckRows = 1; }, ['probe-ack-unobserved', 'ack-uncredited']],
+    ['a wrong-nonce ack beside the right one', (r) => { r.target.uncreditedAckRows = 1; }, ['ack-uncredited']],
+    ['an ack in the priming run', (r) => { r.target.primingAckRows = 1; }, ['ack-before-return']],
+    ['two acks in the probe run', (r) => { r.target.probeAckRows = 2; }, ['probe-ack-duplicated']],
+    ['labelled as the wake turn\'s ack', (r) => { r.ack.path = 'direct-wake'; }, ['probe-mediated-label-missing']],
+    ['unlabelled', (r) => { r.ack.path = null; }, ['probe-mediated-label-missing']],
+    ['unlabelled, no ack block', (r) => { r.ack = null; }, ['probe-mediated-label-missing', 'fallback-not-after-unacked-wake']],
+    ['another probe', (r) => { r.target.probeTextSha256 = H('0'); }, ['probe-text-unbound']],
+    ['the wake runs unread', (r) => { r.target.wakeAckRuns = null; }, ['transcript-not-read']],
+  ]) {
+    const graded = gradeRecipientAuthorityCase(mutate(fallbackRecord(), fn));
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.deepEqual([...graded.missing].sort(), [...codes].sort(), `${label}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.contradictions, [], label);
+  }
+  // Contradictions stay contradictions on the fallback path.
+  for (const [label, fn, code] of [
+    ['two wake turns that each acked', (r) => { r.target.wakeAckRuns = 2; r.target.ackRuns = 3; r.target.foreignRuns = 2; }, 'duplicate-adoption'],
+    ['two woken runs', (r) => { r.target.foreignRuns = 2; }, 'duplicate-wake'],
+    ['a return in the parent', (r) => { r.parent.ackRows = 1; }, 'return-landed-in-parent'],
+    ['two marked rows', (r) => { r.target.adoptedDeliveryRows = 2; }, 'duplicate-adoption'],
+    ['adopted after its epoch moved', (r) => { r.epochs.final = H('c'); }, 'adopted-after-epoch-advance'],
+  ]) {
+    const graded = gradeRecipientAuthorityCase(mutate(fallbackRecord(), fn));
+    assert.equal(graded.verdict, 'FAIL-candidate', label);
+    assert.ok(graded.contradictions.includes(code), `${label}: ${graded.contradictions}`);
+  }
+  // A probe-mediated ack never reads as one in the wake turn: the direct path's one-ack rule does not
+  // read it, and its never-woken FAIL is not the fallback's.
+  assert.equal(gradeRecipientAuthorityCase(mutate(fallbackRecord(), (r) => { r.target.ackRuns = 2; r.target.wakeAckRuns = 1; })).contradictions.length, 0);
+  // The row's summary names the path.
+  const rows = RRA_CASE_IDS.map((caseId) => ({ record: caseId === 'allowed' ? fallbackRecord() : completeRecord(caseId), verified: true }));
+  const row = gradeRecipientAuthorityRow(rows);
+  assert.equal(row.verdict, 'PASS-candidate');
+  assert.deepEqual(row.cases.allowed, { verdict: 'PASS-candidate', receipts: 1, ackPaths: ['probe-mediated'] });
+  assert.deepEqual(gradeRecipientAuthorityRow(RRA_CASE_IDS.map((caseId) => ({ record: completeRecord(caseId), verified: true }))).cases.allowed.ackPaths, ['direct-wake']);
+  assert.equal(Object.hasOwn(row.cases['allowed-across-reset'], 'ackPaths'), false, 'only allowed has a fallback');
+});
+
 test('the row stays MISSING until every case has a verified receipt, and moves only down', () => {
   const empty = gradeRecipientAuthorityRow([]);
   assert.equal(empty.verdict, 'MISSING-candidate');
@@ -1578,22 +1746,35 @@ test('the control never asks a gateway it does not own to restart', async () => 
   try {
     let owner = { pid: 4242, startTicks: 77 };
     const rpcs = [];
+    const phases = [];
+    const target = 'agent:main:r-cd-ra-replay-restart-target-abc';
+    const lines = [];
     const { platform } = fakePlatform(fixture, {
       listenerOwner: () => owner,
       gatewayRpc: async (call) => {
         rpcs.push(call.method);
         return { ok: true };
       },
-      spawnGateway: () => ({ pid: 4242, lines: [], exited: new Promise(() => {}), signal: () => {} }),
+      spawnGateway: () => ({ pid: 4242, lines, exited: new Promise(() => {}), signal: () => {} }),
       runK6: async ({ env }) => {
-        // The drive phase hands over for the restart; meanwhile another process took the port.
-        owner = { pid: 5151, startTicks: 99 };
-        const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase: env.OPENCLAW_RCD_RA_PHASE, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_PINNED, keys: { parent: 'p', target: 't' }, handoff: { ready_for_restart: true }, refusals: [] };
+        const phase = env.OPENCLAW_RCD_RA_PHASE;
+        phases.push(phase);
+        const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_PINNED, keys: { parent: 'p', target }, child: { spawned: true, bound: true, done: true, key: CHILD_KEY }, refusals: [] };
+        if (phase === 'drive') {
+          // The drive hands over for the witness, and the router has logged the parked copy.
+          evidence.handoff = { ready_for_witness: true };
+          lines.push({ atMs: platform.now(), text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD_KEY}` });
+        } else {
+          // The transition phase hands over for the restart; meanwhile another process took the port.
+          owner = { pid: 5151, startTicks: 99 };
+          evidence.handoff = { ready_for_restart: true };
+        }
         return { code: 0, log: `R_CD_RECIPIENT_AUTHORITY_EVIDENCE ${JSON.stringify(evidence)}\n` };
       },
     });
     const result = await runRecipientAuthorityRow(controlOptions(fixture, { cases: ['replay-restart'] }), platform);
     assert.equal(result.ok, true);
+    assert.deepEqual(phases, ['drive', 'transition'], 'no observe phase without the restart');
     assert.deepEqual(rpcs, [], 'no restart request reaches a gateway the control does not own');
     const receipt = JSON.parse(readFileSync(path.join(fixture.home, 'artifacts', 'replay-restart', 'case-receipt.json'), 'utf8'));
     assert.equal(receipt.grade.verdict, 'MISSING-candidate');
@@ -1601,6 +1782,66 @@ test('the control never asks a gateway it does not own to restart', async () => 
   } finally {
     fixture.cleanup();
   }
+});
+
+// 🌊's ruling, room msg 1567623059727458526: witness the parked copy first, then change. The control
+// releases the transition phase only once its gateway's console shows the router's line for the case's
+// target from the case's child; the drive's own handover is never enough.
+test('the control releases a parked case\'s transition only after the router\'s Delivered to line for its target from its child', async () => {
+  const target = 'agent:main:r-cd-ra-revoked-owner-target-abc';
+  for (const [label, line, releases] of [
+    ['the line for the target from the child', `[continuation:targeted-return] Delivered to ${target} from ${CHILD_KEY}`, true],
+    ['the line among other recipients', `[continuation:targeted-return] Delivered to agent:main:x,${target} from ${CHILD_KEY}`, true],
+    ['no line', null, false],
+    ['a line from another child', `[continuation:targeted-return] Delivered to ${target} from agent:main:subagent:other`, false],
+    ['a line for another target', `[continuation:targeted-return] Delivered to agent:main:other from ${CHILD_KEY}`, false],
+    ['a held return, not delivered', `[continuation:targeted-return] Held for retry (system event queue full) to ${target} from ${CHILD_KEY}`, false],
+    ['the enqueue refusal', `08:00:00.000 [continuation/return-refused] [continuation:return-refused] stage=enqueue reason=recipient-authority-changed session=${target}`, false],
+  ]) {
+    const fixture = proofGwFixture();
+    try {
+      const phases = [];
+      const lines = [];
+      const { platform } = fakePlatform(fixture, {
+        listenerOwner: () => ({ pid: 4242, startTicks: 77 }),
+        spawnGateway: () => ({ pid: 4242, lines, exited: new Promise(() => {}), signal: () => {} }),
+        runK6: async ({ env }) => {
+          const phase = env.OPENCLAW_RCD_RA_PHASE;
+          phases.push(phase);
+          const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_PINNED, keys: { parent: 'agent:main:r-cd-ra-revoked-owner-parent-abc', target, ops: 'agent:main:r-cd-ra-revoked-owner-ops-abc' }, child: { spawned: true, bound: true, done: true, key: CHILD_KEY }, refusals: [], preflight: { ok: true } };
+          if (phase === 'drive') {
+            evidence.handoff = { ready_for_witness: true };
+            if (line) lines.push({ atMs: platform.now(), text: line });
+          } else {
+            // The transition phase continues the drive's state.
+            assert.equal(JSON.parse(env.OPENCLAW_RCD_RA_STATE).keys.target, target, label);
+            const at = platform.now();
+            evidence.transition = { method: 'sessions.assignOwner', ok: true, requested_at_ms: at, settled_at_ms: at + 1 };
+          }
+          return { code: 0, log: `R_CD_RECIPIENT_AUTHORITY_EVIDENCE ${JSON.stringify(evidence)}\n` };
+        },
+      });
+      const result = await runRecipientAuthorityRow(controlOptions(fixture, { cases: ['revoked-owner'], timing: { OPENCLAW_RCD_RA_WITNESS_WAIT_MS: '5000' } }), platform);
+      assert.equal(result.ok, true, label);
+      assert.deepEqual(phases, releases ? ['drive', 'transition'] : ['drive'], label);
+      const receipt = JSON.parse(readFileSync(path.join(fixture.home, 'artifacts', 'revoked-owner', 'case-receipt.json'), 'utf8'));
+      if (releases) {
+        assert.ok(receipt.witness.parkedCopyAtMs === receipt.park.deliveredFromChildAtMs, `${label}: ${JSON.stringify(receipt.witness)}`);
+        assert.ok(receipt.witness.parkedCopyAtMs <= receipt.witness.releasedAtMs && receipt.witness.releasedAtMs <= receipt.transition.requestedAtMs, `${label}: ${JSON.stringify([receipt.witness, receipt.transition])}`);
+        assert.ok(!receipt.grade.missing.includes('parked-copy-unwitnessed'), `${label}: ${receipt.grade.missing}`);
+      } else {
+        assert.deepEqual(receipt.witness, { parkedCopyAtMs: null, releasedAtMs: null }, label);
+        assert.equal(receipt.transition.requestedAtMs, null, `${label}: no transition was sent`);
+        assert.ok(receipt.grade.missing.includes('parked-copy-unwitnessed'), `${label}: ${receipt.grade.missing}`);
+      }
+      assert.ok(!JSON.stringify(receipt).includes(CHILD_KEY) && !JSON.stringify(receipt).includes(target), `${label}: keys stay private`);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+  // The control's own knob: a positive integer, like the scenario's.
+  assert.equal(parseArgs([], { OPENCLAW_RCD_RA_WITNESS_WAIT_MS: '60000' }).timing.OPENCLAW_RCD_RA_WITNESS_WAIT_MS, '60000');
+  assert.throws(() => parseArgs([], { OPENCLAW_RCD_RA_WITNESS_WAIT_MS: '0' }), /positive integer/);
 });
 
 /* ------------------------------------------------------------------------------------ */

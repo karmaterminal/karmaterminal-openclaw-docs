@@ -16,13 +16,19 @@ import { fileURLToPath } from 'node:url';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { assembleCaseRecord } from '../scripts/run-recipient-authority-row.mjs';
 import { RRA_CASES, RRA_CASE_IDS, RRA_J12, RRA_PINNED, RRA_ROW, gradeRecipientAuthorityCase, scenarioMethodsFor } from '../lib/recipient-authority-row.mjs';
+import * as rowLib from '../lib/recipient-authority-row.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+
+// What 🌊's ordering ruling (room msg 1567623059727458526) added is read through the namespace, so this
+// file still loads against a lib without it and each new pin fails on its own assertion.
+const specOf = (caseId) => rowLib.rraCaseSpec?.(caseId) ?? RRA_CASES[caseId];
+const EARLY_PINS = rowLib.RRA_EARLY_ENQUEUE_PINS ?? {};
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RUN = 'rra-0123456789abcdef';
 const CHILD = 'agent:main:subagent:continuation-rra-child';
 const FLOW = '6f1e2d3c-0000-4000-8000-00000000f10e';
-const ALL_METHODS = [...new Set(RRA_CASE_IDS.flatMap((caseId) => scenarioMethodsFor(caseId)))];
+const ALL_METHODS = [...new Set([...RRA_CASE_IDS, ...Object.keys(EARLY_PINS)].flatMap((caseId) => scenarioMethodsFor(caseId)))];
 
 const user = (text) => ({ role: 'user', content: [{ type: 'text', text }] });
 const say = (text, runId) => ({ role: 'assistant', content: [{ type: 'text', text }], __openclaw: { runId } });
@@ -68,9 +74,15 @@ const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' &&
  * `adoptOnProbe` by default, put the marker on the probe row: a product no pin is, kept so the
  * marker check stays covered. `markerOnly` keeps the old meaning: the marker and no ack.
  * `primingAck` adds an ack row to the priming run; `wakeAck` a woken run that acks before the probe.
+ *
+ * allowed's wake (🌊's ruling, room msg 1567623059727458526): `ack: 'wake'` is a woken run that acks
+ * (the direct path), `'wake-no-ack'` a woken run that answers without the ack (🕯's rra-a4d5318d426ad728
+ * shape), `'none'` no wake at all. After a woken run, the return's completion is in the model's
+ * context, so a conditional probe is answered with the ack alone. `lateWakeAck` puts the woken run's
+ * ack in the transcript only once the fallback probe has been sent.
  */
 function gatewayFor(world, sessions = {}) {
-  const spec = RRA_CASES[world.caseId];
+  const spec = specOf(world.caseId);
   const push = (key, message) => {
     sessions[key] ??= { messages: [] };
     sessions[key].messages.push(message);
@@ -80,6 +92,7 @@ function gatewayFor(world, sessions = {}) {
   let parentKey = null;
   let primes = 0;
   let ackDue = false;
+  let woken = false;
   let childSpawned = false;
   return (frame) => {
     if (frame?.type !== 'req') return [];
@@ -126,13 +139,16 @@ function gatewayFor(world, sessions = {}) {
         if (probe) {
           // A parked return the probe turn's drain adopts, and no marker reaches the row (see above).
           // The primed model acks it in the probe run only when the probe hands the turn back to its
-          // priming.
+          // priming. After allowed's woken run the completion is already in its context.
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
+          const inContext = adopts || woken;
           const marker = world.probeMarker ?? world.adoptOnProbe === true;
           const conditional = message.includes(PROBE_CONDITION);
-          const answer = world.probeAck ?? (adopts && !world.markerOnly && conditional ? 'ack-only' : 'none');
+          const answer = world.probeAck ?? (inContext && !world.markerOnly && conditional ? 'ack-only' : 'none');
           // A silent return that woke the target anyway, and whose wake acked it.
           if (world.wakeAck) push(p.key, say(`TARGET-ACK ${nonce}`, 'run-wake'));
+          // allowed's woken run's ack, seen only after the fallback decision.
+          if (world.lateWakeAck) push(p.key, say(`TARGET-ACK ${nonce}`, 'run-wake'));
           // A refused kept wake that ran anyway: its turn's row, from a run of its own, and with
           // `wakeElects` that wake turn electing again.
           if (world.workWake) {
@@ -198,10 +214,12 @@ function gatewayFor(world, sessions = {}) {
       case 'sessions.list':
         return ok({ sessions: p.spawnedBy === parentKey && childSpawned ? [{ key: CHILD, spawnedBy: parentKey, status: 'done' }] : [] });
       case 'chat.history': {
-        // The woken target acknowledges once its current head was primed after the dispatch.
+        // The woken target acknowledges once its current head was primed after the dispatch, or with
+        // 'wake-no-ack' answers its wake without the ack.
         if (ackDue && p.sessionKey !== parentKey && sessions[p.sessionKey]?.messages.some((m) => /TARGET-READY/.test(m.content?.[0]?.text || '')) && primes >= (spec.reprime ? 2 : 1)) {
-          push(p.sessionKey, say(`TARGET-ACK ${nonce}`, 'run-wake'));
+          push(p.sessionKey, say(world.ack === 'wake-no-ack' ? 'Noted: the delegate finished.' : `TARGET-ACK ${nonce}`, 'run-wake'));
           ackDue = false;
+          woken = true;
         }
         return ok({ messages: sessions[p.sessionKey]?.messages || [] });
       }
@@ -210,10 +228,11 @@ function gatewayFor(world, sessions = {}) {
   };
 }
 
-async function fire(caseId, world = {}, { phase = 'drive', state = null, env = {}, gateway = gatewayFor({ caseId, ...world }) } = {}) {
-  // Wall-clock stamps the scenario takes must order like the virtual timers it schedules.
+async function fire(caseId, world = {}, { phase = 'drive', state = null, env = {}, gateway = gatewayFor({ caseId, ...world }), clockStart = 1_800_000_000_000 } = {}) {
+  // Wall-clock stamps the scenario takes must order like the virtual timers it schedules; a later
+  // phase of the same case starts its clock where the control's own step left it.
   const realNow = Date.now;
-  let clock = 1_800_000_000_000;
+  let clock = clockStart;
   Date.now = () => (clock += 10);
   try {
     const { log, frames } = await runK6Scenario({
@@ -235,10 +254,43 @@ async function fire(caseId, world = {}, { phase = 'drive', state = null, env = {
     });
     const records = extractEvidence(log).filter((record) => record.row === RRA_ROW);
     assert.equal(records.length, 1, log);
-    return { evidence: records[0], frames, log };
+    return { evidence: records[0], frames, log, clock };
   } finally {
     Date.now = realNow;
   }
+}
+
+/**
+ * One case as the control runs it: the drive phase; for a parked case that hands over, the control's
+ * witness of the parked copy (the router's Delivered to line for the target from the child, logged
+ * 100 ms after the drive ended) and then the transition phase it releases; for replay-restart, the
+ * observe phase after the restart. `witness: false` is a control that never saw the line: no
+ * transition phase runs. Every phase's frames, in order, with the phase that sent them.
+ */
+async function runCase(caseId, world = {}, { gateway = gatewayFor({ caseId, ...world }), witness: seen = true } = {}) {
+  const ran = await fire(caseId, world, { gateway });
+  const drive = ran.evidence;
+  const frames = ran.frames.map((frame) => ({ ...frame, phase: 'drive' }));
+  let now = ran.clock;
+  let transition = null;
+  let witness = null;
+  if (drive.handoff?.ready_for_witness) {
+    witness = seen ? { parkedCopyAtMs: now + 100, releasedAtMs: now + 200 } : { parkedCopyAtMs: null, releasedAtMs: null };
+    if (seen) {
+      const next = await fire(caseId, world, { phase: 'transition', state: drive, gateway, clockStart: now + 1_000 });
+      transition = next.evidence;
+      frames.push(...next.frames.map((frame) => ({ ...frame, phase: 'transition' })));
+      now = next.clock;
+    }
+  }
+  const handed = transition ?? drive;
+  let observe = null;
+  if (specOf(caseId).restart && handed.handoff?.ready_for_restart) {
+    const next = await fire(caseId, world, { phase: 'observe', state: handed, gateway, clockStart: now + 1_000 });
+    observe = next.evidence;
+    frames.push(...next.frames.map((frame) => ({ ...frame, phase: 'observe' })));
+  }
+  return { drive, transition, observe, final: observe ?? transition ?? drive, frames, witness };
 }
 
 const DELIVERY_ID = '0f1e2d3c'.repeat(8);
@@ -257,32 +309,36 @@ const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${messa
  * ('after-delete': after the delete's response, while the create was in flight).
  * routedAfterProbe: the router's Delivered to line lands only after the probe was sent;
  * routedFrom: the source that line names, in place of the case's child.
+ * witness: the control's witness of a parked case's copy ({ parkedCopyAtMs }): the Delivered to line
+ * is logged then. enqueueInstead: the transition beat the return, so the router refused it at enqueue
+ * with no row and logged no Delivered to line (the early-enqueue ordering).
+ * `driven` is the evidence that holds the case's transition: the transition phase's for a parked case.
  */
-function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, sweepInTransition = false, routedAfterProbe = false, routedFrom = CHILD } = {}) {
-  const spec = RRA_CASES[caseId];
-  const { target, parent } = drive.keys;
-  const transition = drive.transition || {};
-  const capturedAt = drive.dispatch?.observed_at_ms ?? 1;
+function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, sweepInTransition = false, routedAfterProbe = false, routedFrom = CHILD, witness = null, enqueueInstead = false } = {}) {
+  const spec = specOf(caseId);
+  const { target, parent } = driven.keys;
+  const transition = driven.transition || {};
+  const capturedAt = driven.dispatch?.observed_at_ms ?? 1;
   const transitionAt = transition.requested_at_ms ?? capturedAt + 5;
   const settledAt = transition.settled_at_ms ?? transitionAt + 1;
   const restartedAtMs = spec.restart ? settledAt + 5 : null;
   const durable = spec.family === 'refusal' && spec.expectChild !== false;
   const logEntries = [];
-  // A parked or allowed return is routed while current: before the transition. A wake-mode
-  // refusal is refused by the router itself, which logs no Delivered to line.
-  if (spec.expectChild !== false && spec.timing !== 'before-return') {
-    const routedAt = routedAfterProbe ? final.probe_sent_at_ms + 1 : transitionAt - 1;
+  // A parked or allowed return is routed while current: before the transition, when the control saw
+  // it. A wake-mode refusal is refused by the router itself, which logs no Delivered to line.
+  if (spec.expectChild !== false && spec.timing !== 'before-return' && !enqueueInstead) {
+    const routedAt = routedAfterProbe ? final.probe_sent_at_ms + 1 : Number.isFinite(witness?.parkedCopyAtMs) ? witness.parkedCopyAtMs : transitionAt - 1;
     logEntries.push({ atMs: routedAt, text: `[continuation:targeted-return] Delivered to ${target} from ${routedFrom}`, generation: 0 });
   }
   if (reason && spec.reasonKind === 'dispatch-policy') {
     logEntries.push({ atMs: transitionAt + 3, text: `[continuation:delegate-rejected] policy.cross_session_targeting task=RCDRA session=${parent}`, generation: 0 });
   }
   if (reason && spec.reasonKind === 'return-refused') {
-    const refusedAt = stage ?? spec.refusedAt;
+    const refusedAt = enqueueInstead ? 'enqueue' : stage ?? spec.refusedAt;
     // Where j12′ refuses it: the probe's drain, the sweep after the transition, the router after
     // it, or the replacement's boot replay.
-    const atMs = spec.restart ? restartedAtMs + 3 : refusedAt === 'prompt-drain' ? final.probe_sent_at_ms + 3 : settledAt + 3;
-    const deliveryId = spec.deliveryId || refusedAt !== 'enqueue' ? ` deliveryId=${DELIVERY_ID}` : '';
+    const atMs = spec.restart && !enqueueInstead ? restartedAtMs + 3 : refusedAt === 'prompt-drain' ? final.probe_sent_at_ms + 3 : settledAt + 3;
+    const deliveryId = (spec.deliveryId && !enqueueInstead) || refusedAt !== 'enqueue' ? ` deliveryId=${DELIVERY_ID}` : '';
     const text = j12Reason
       ? `2026-11-03T08:00:00.000Z [gateway/restart-sentinel] session event delivery skipped: recipient authority changed sessionKey=${target} queueId=q-1`
       : consoleLine('continuation/return-refused', `[continuation:return-refused] stage=${refusedAt} reason=recipient-authority-changed session=${target}${deliveryId}`);
@@ -331,36 +387,32 @@ function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reas
 }
 
 async function grade(caseId, world = {}, harnessOptions = {}) {
-  // One scripted store for both phases: the replacement generation serves the same state.
+  // One scripted store for every phase: the replacement generation serves the same state.
   const gateway = gatewayFor({ caseId, ...world });
-  const { evidence: drive, frames } = await fire(caseId, world, { gateway });
-  let observe = null;
-  if (RRA_CASES[caseId].restart) {
-    assert.equal(drive.handoff?.ready_for_restart, true, 'the drive phase hands over for the restart');
-    const observed = await fire(caseId, world, { phase: 'observe', state: drive, gateway });
-    observe = observed.evidence;
-    frames.push(...observed.frames);
-  }
-  const final = observe ?? drive;
+  const { drive, transition, observe, final, frames, witness } = await runCase(caseId, world, { gateway, witness: harnessOptions.witness !== false });
+  if (specOf(caseId).restart && harnessOptions.witness !== false) assert.equal((transition ?? drive).handoff?.ready_for_restart, true, 'the case hands over for the restart');
+  const driven = transition ?? drive;
   const record = assembleCaseRecord({
     caseId,
     runId: RUN,
     docsSha: 'd'.repeat(40),
     gates: { candidatePinned: true, buildInfoCommit: RRA_PINNED, stateIsolated: true, modelSignIn: true, crossSessionTargetingEnabled: true, gatewayStartedByHarness: true },
     evidence: drive,
+    transitionEvidence: transition,
     observeEvidence: observe,
-    ...harnessFor(caseId, drive, final, harnessOptions),
+    witness,
+    ...harnessFor(caseId, driven, final, { ...harnessOptions, witness }),
     cleanup: { gatewayStopped: true, residue: false },
     startedAtMs: 1,
   });
-  if (RRA_CASES[caseId].expectChild !== false) record.trace = { correlated: true };
-  return { drive, observe, final, frames, record, graded: gradeRecipientAuthorityCase(record) };
+  if (specOf(caseId).expectChild !== false) record.trace = { correlated: true };
+  return { drive, transition, observe, final, frames, record, graded: gradeRecipientAuthorityCase(record) };
 }
 
 test('dry run: every case drives its public surfaces and grades PASS-candidate against a j12′-shaped gateway', async () => {
   for (const caseId of RRA_CASE_IDS) {
-    const { drive, graded } = await grade(caseId, { ack: 'wake' });
-    assert.deepEqual(drive.refusals, [], `${caseId}: ${drive.refusals}`);
+    const { drive, record, graded } = await grade(caseId, { ack: 'wake' });
+    assert.deepEqual(record.scenario.refusals, [], `${caseId}: ${record.scenario.refusals}`);
     assert.equal(graded.verdict, 'PASS-candidate', `${caseId}: ${JSON.stringify(graded)}`);
     // The trace collector's fingerprint contract (#600): the dispatched task, hashed.
     assert.match(drive.reason_hash, /^[0-9a-f]{16}$/);
@@ -388,11 +440,13 @@ test('dry run: the same case can run twice on one gateway without colliding with
 test('dry run: reassigned and wake-reassigned re-create their targets in one world under one run id', async () => {
   const store = {};
   for (const caseId of ['reassigned', 'wake-reassigned']) {
-    const { evidence, frames } = await fire(caseId, {}, { gateway: gatewayFor({ caseId }, store) });
+    const { drive, transition, frames } = await runCase(caseId, {}, { gateway: gatewayFor({ caseId }, store) });
+    // reassigned's delete and re-create run in its transition phase, after the witness.
+    const evidence = transition ?? drive;
     assert.equal(evidence.control_run_id, RUN, caseId);
     assert.equal(evidence.transition.error, null, `${caseId}: ${evidence.transition.error}`);
     assert.equal(evidence.transition.ok, true, caseId);
-    assert.deepEqual(evidence.refusals, [], `${caseId}: ${evidence.refusals}`);
+    assert.deepEqual([...drive.refusals, ...(transition?.refusals ?? [])], [], `${caseId}: ${evidence.refusals}`);
     const created = frames.filter((frame) => frame.type === 'req' && frame.method === 'sessions.create' && frame.params.key === evidence.keys.target);
     assert.equal(created.length, 2, `${caseId}: the target is created, then re-created`);
     for (const frame of created) assert.ok(frame.params.label.includes(` ${caseId} `) && frame.params.label.includes(RUN), frame.params.label);
@@ -405,8 +459,9 @@ test('dry run: every case runs on one gateway under one run id without a label c
   const store = {};
   const labels = new Map();
   for (const caseId of RRA_CASE_IDS) {
-    const { evidence, frames } = await fire(caseId, { ack: 'wake' }, { gateway: gatewayFor({ caseId, ack: 'wake' }, store) });
-    assert.deepEqual(evidence.refusals, [], `${caseId}: ${evidence.refusals}`);
+    const { drive, transition, observe, frames } = await runCase(caseId, { ack: 'wake' }, { gateway: gatewayFor({ caseId, ack: 'wake' }, store) });
+    const refusals = [drive, transition, observe].filter(Boolean).flatMap((phase) => phase.refusals);
+    assert.deepEqual(refusals, [], `${caseId}: ${refusals}`);
     for (const frame of frames.filter((f) => f.type === 'req' && f.method === 'sessions.create')) {
       const { label, key } = frame.params;
       assert.ok(label.includes(` ${caseId} `) && label.includes(RUN), `${caseId}: ${label}`);
@@ -419,7 +474,7 @@ test('dry run: every case runs on one gateway under one run id without a label c
 test('dry run: each case sends exactly its transition, never another case\'s', async () => {
   const transitions = ['sessions.reset', 'config.patch', 'session.visibility.set', 'session.members.remove', 'sessions.delete'];
   for (const caseId of RRA_CASE_IDS) {
-    const { frames } = await fire(caseId, { ack: 'wake' });
+    const { frames } = await runCase(caseId, { ack: 'wake' });
     const sent = new Set(frames.filter((frame) => frame.type === 'req').map((frame) => frame.method));
     const spec = RRA_CASES[caseId];
     for (const method of transitions) {
@@ -622,6 +677,164 @@ test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own
     assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, caseId);
     assert.equal(record.target.probeTextSha256, createHash('sha256').update(sent[0].replaceAll(final.probe_nonce, '<probeNonce>')).digest('hex'), caseId);
   }
+});
+
+/*
+ * 🌊's ruling, room msg 1567623059727458526, on 🕯's fresh 13 (rra-a4d5318d426ad728: revoked-owner refused
+ * at enqueue, its owner change settled before the return was enqueued; allowed woken without an ack):
+ * "For `revoked-owner`, force the intended ordering: witness the queued/parked copy first, then change
+ * owner and prove refusal at probe-drain. If the fixture also supports the earlier-enqueue ordering,
+ * pin it separately; don't let that substitute for the parked-copy claim. For `allowed`, use the same
+ * conditional probe only when the woken run has no ACK. Credit exactly one nonce-bound ACK in that probe
+ * run, after the delivered return, and label the receipt probe-mediated rather than claiming an ACK in
+ * the wake turn. No ACK remains MISSING, never FAIL. Pin both the direct-wake and fallback paths before
+ * another 13." Pins (p)-(g).
+ */
+const parkedCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].timing === 'parked');
+const revokedCases = ['revoked-visibility', 'revoked-membership', 'revoked-owner'];
+// A frame that applies a case's authority transition: an RPC, or the owner change's model turn.
+const isTransitionFrame = (frame) => frame.type === 'req' && (
+  ['session.visibility.set', 'session.members.remove', 'sessions.delete'].includes(frame.method) ||
+    (frame.method === 'sessions.send' && String(frame.params?.message).includes('assign_owner')));
+const sorted = (values) => [...values].sort();
+
+test('dry run: (p) a parked case sends its transition only once the control witnessed its return\'s queued copy, and passes only with that witness', async () => {
+  assert.deepEqual(parkedCases, ['revoked-visibility', 'revoked-membership', 'revoked-owner', 'reassigned', 'replay-restart']);
+  for (const caseId of parkedCases) {
+    const { drive, transition, frames, record, graded } = await grade(caseId);
+    // The drive ends once the child returned, sending no transition, and hands over for the witness.
+    assert.deepEqual(drive.handoff, { ready_for_witness: true }, caseId);
+    assert.equal(drive.transition.requested_at_ms, null, caseId);
+    assert.deepEqual(frames.filter((frame) => frame.phase === 'drive' && isTransitionFrame(frame)), [], `${caseId}: no transition in the drive`);
+    // The transition phase sends it, after the control's release.
+    assert.ok(transition, caseId);
+    assert.ok(frames.some((frame) => frame.phase === 'transition' && isTransitionFrame(frame)), caseId);
+    assert.ok(record.witness.parkedCopyAtMs <= record.witness.releasedAtMs && record.witness.releasedAtMs <= record.transition.requestedAtMs, `${caseId}: ${JSON.stringify([record.witness, record.transition])}`);
+    // The witness is the line the grade reads as the park: the router's, for the target, from the child.
+    assert.equal(record.witness.parkedCopyAtMs, record.park.deliveredFromChildAtMs, caseId);
+    assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, caseId);
+    // A control that never saw the line releases nothing: no transition is sent, and the case is MISSING.
+    const unseen = await grade(caseId, {}, { witness: false });
+    assert.equal(unseen.transition, null, caseId);
+    assert.deepEqual(unseen.frames.filter(isTransitionFrame), [], `${caseId}: no transition without the witness`);
+    assert.equal(unseen.graded.verdict, 'MISSING-candidate', caseId);
+    assert.ok(unseen.graded.missing.includes('parked-copy-unwitnessed'), `${caseId}: ${unseen.graded.missing}`);
+    assert.deepEqual(unseen.graded.contradictions, [], caseId);
+  }
+  // Only a parked case has a transition phase.
+  for (const caseId of RRA_CASE_IDS.filter((id) => !parkedCases.includes(id))) {
+    const { evidence, frames } = await fire(caseId, {}, { phase: 'transition', state: {} });
+    assert.ok(evidence.refusals.some((refusal) => refusal.includes('only a parked case has a transition phase')), `${caseId}: ${evidence.refusals}`);
+    assert.equal(frames.length, 0, caseId);
+  }
+});
+
+test('dry run: (q) an enqueue refusal fails the parked-copy case: MISSING, never PASS', async () => {
+  for (const caseId of revokedCases) {
+    // The transition beat the return: the router refused it at enqueue with no row and logged no
+    // Delivered to line (🕯's revoked-owner in rra-a4d5318d426ad728).
+    const { record, graded } = await grade(caseId, {}, { enqueueInstead: true });
+    assert.deepEqual([record.reason.stage, record.reason.deliveryIdHash, record.park.deliveredToTargetAtMs], ['enqueue', null, null], caseId);
+    assert.equal(graded.verdict, 'MISSING-candidate', `${caseId}: ${JSON.stringify(graded)}`);
+    for (const code of ['parked-copy-unwitnessed', 'return-not-parked-before-transition', 'refusal-stage-mismatch', 'refusal-delivery-id-mismatch']) {
+      assert.ok(graded.missing.includes(code), `${caseId} ${code}: ${graded.missing}`);
+    }
+    assert.deepEqual(graded.contradictions, [], caseId);
+  }
+});
+
+test('dry run: (r) the early-enqueue ordering is its own pin with its own bytes, and never satisfies the parked-copy case', async () => {
+  assert.deepEqual(Object.keys(EARLY_PINS), revokedCases.map((caseId) => `${caseId}-early-enqueue`), 'one pin per revoked case');
+  for (const [pinId, pin] of Object.entries(EARLY_PINS)) {
+    const parked = RRA_CASES[pin.pinOf];
+    assert.deepEqual([pin.refusedAt, pin.deliveryId, pin.timing, pin.mode, pin.transition, pin.ordering], ['enqueue', false, 'before-return', parked.mode, parked.transition, 'early-enqueue'], pinId);
+    assert.match(pin.refusedAtBytes, /targeting\.ts:277-280/u, pinId);
+    assert.ok(!RRA_CASE_IDS.includes(pinId), `${pinId} is not a row case`);
+    const { drive, frames, record } = await grade(pinId);
+    assert.deepEqual(drive.refusals, [], `${pinId}: ${drive.refusals}`);
+    // One phase: the transition is sent after the scheduled result and settles before the delegate fires.
+    assert.equal(drive.handoff, undefined, pinId);
+    assert.ok(frames.some((frame) => frame.phase === 'drive' && isTransitionFrame(frame)), pinId);
+    assert.ok(drive.transition.settled_at_ms - drive.dispatch.observed_at_ms < drive.dispatch.result_delay_seconds * 1000, pinId);
+    assert.deepEqual([record.reason.stage, record.reason.deliveryIdHash, record.park.deliveredToTargetAtMs, record.witness], ['enqueue', null, null, null], pinId);
+    assert.deepEqual(rowLib.gradeEarlyEnqueuePin(record), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, pinId);
+    // Not a row case's receipt: the row's grade does not know it.
+    assert.deepEqual(gradeRecipientAuthorityCase(record).missing, ['unknown-case'], pinId);
+    // Offered as its revoked case's receipt, its shape fails the parked-copy oracle, with or without a
+    // witness claimed for it.
+    for (const witness of [null, { parkedCopyAtMs: record.transition.requestedAtMs - 1, releasedAtMs: record.transition.requestedAtMs - 1 }]) {
+      const offered = gradeRecipientAuthorityCase({ ...record, case: pin.pinOf, witness });
+      assert.equal(offered.verdict, 'MISSING-candidate', `${pinId} as ${pin.pinOf}: ${JSON.stringify(offered)}`);
+      for (const code of ['parked-copy-unwitnessed', 'return-not-parked-before-transition', 'refusal-stage-mismatch']) assert.ok(offered.missing.includes(code), `${pinId} ${code}: ${offered.missing}`);
+      assert.deepEqual(offered.contradictions, [], pinId);
+    }
+    // And the pin's grade is not the parked case's: a parked-copy receipt is no early-enqueue pin.
+    const parkedRun = await grade(pin.pinOf);
+    assert.deepEqual(rowLib.gradeEarlyEnqueuePin(parkedRun.record).missing, ['unknown-case'], pin.pinOf);
+  }
+});
+
+test('dry run: (w) allowed\'s direct-wake path: one ack in its woken run passes, no probe is sent, and the receipt says direct-wake', async () => {
+  const { frames, record, graded } = await grade('allowed', { ack: 'wake' });
+  assert.deepEqual(probeFrames(frames), [], 'a woken run that acked gets no fallback probe');
+  assert.deepEqual(record.ack, { path: 'direct-wake', fallbackDecision: null });
+  assert.deepEqual([record.target.ackRuns, record.target.wakeAckRuns, record.target.foreignRuns, record.target.probeRan], [1, 1, 1, false]);
+  assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  // Its oracle is unchanged: routed and never woken is still FAIL, and no fallback probe is sent for it.
+  const never = await grade('allowed', { ack: 'none' });
+  assert.deepEqual(probeFrames(never.frames), []);
+  assert.deepEqual(never.record.ack.path, 'direct-wake');
+  assert.deepEqual([never.record.ack.fallbackDecision?.wokenRuns, never.record.ack.fallbackDecision?.ackRuns], [0, 0], 'the read that sent no probe');
+  assert.equal(never.graded.verdict, 'FAIL-candidate');
+  assert.deepEqual(never.graded.contradictions, ['allowed-return-not-adopted']);
+});
+
+test('dry run: (f) allowed\'s fallback: only after a woken run with no ack, the conditional probe, and one ack in its own run after the delivered return, labelled probe-mediated', async () => {
+  const { final, frames, record, graded } = await grade('allowed', { ack: 'wake-no-ack' });
+  // The same probe every probing case sends, once.
+  assert.deepEqual(probeFrames(frames).map((frame) => frame.params.message), [probeTextFor(final.probe_nonce)]);
+  assert.equal(record.target.probeTextSha256, rowLib.RRA_PROBE_TEXT_SHA256);
+  // The read that sent it: a woken run, no ack.
+  assert.equal(record.ack.path, 'probe-mediated');
+  assert.deepEqual([record.ack.fallbackDecision.wokenRuns, record.ack.fallbackDecision.ackRuns], [1, 0]);
+  assert.ok(record.ack.fallbackDecision.decidedAtMs <= record.target.probeSentAtMs);
+  // The ack is the probe run's, never the wake turn's.
+  assert.deepEqual(
+    [record.target.probeAckRows, record.target.wakeAckRuns, record.target.ackRuns, record.target.foreignRuns, record.target.uncreditedAckRows, record.target.primingAckRows],
+    [1, 0, 1, 1, 0, 0],
+  );
+  assert.ok(record.park.deliveredFromChildAtMs < record.target.probeSentAtMs, 'after the delivered return');
+  assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  // At 53c1c192 this woken run without an ack graded MISSING woken-without-ack, with no probe.
+});
+
+test('dry run: (g) allowed\'s fallback refuses a duplicate, a probe after a wake ack, a pre-return or wrong-nonce ack and an unlabelled receipt; no ack is MISSING, never FAIL', async () => {
+  for (const [label, world, options, change, missingCodes] of [
+    ['no ack in the fallback either', { probeAck: 'none' }, {}, null, ['probe-ack-unobserved']],
+    ['an ack in both the wake turn and the fallback', { lateWakeAck: true }, {}, null, ['duplicate-ack-wake-and-fallback', 'fallback-after-wake-ack']],
+    ['the probe sent when the woken run already acked', {}, {}, (r) => { r.ack.fallbackDecision.ackRuns = 1; }, ['fallback-not-after-unacked-wake']],
+    ['the probe sent with no woken run', {}, {}, (r) => { r.ack.fallbackDecision.wokenRuns = 0; }, ['fallback-not-after-unacked-wake']],
+    ['no read before the probe', {}, {}, (r) => { r.ack.fallbackDecision = null; }, ['fallback-not-after-unacked-wake']],
+    ['the fallback ack before the delivered return', {}, { routedAfterProbe: true }, null, ['probe-not-after-return']],
+    ['a fallback ack with no Delivered to line from the child', {}, { routedFrom: 'agent:main:subagent:continuation-other' }, null, ['return-not-routed-from-child']],
+    ['an ack in the priming run', { primingAck: true }, {}, null, ['ack-before-return']],
+    ['a wrong-nonce ack', { probeAck: 'wrong-nonce' }, {}, null, ['ack-uncredited', 'probe-ack-unobserved']],
+    ['two acks in the probe run', { probeAck: 'twice' }, {}, null, ['probe-ack-duplicated']],
+    ['the receipt claims the wake turn\'s ack', {}, {}, (r) => { r.ack.path = 'direct-wake'; }, ['probe-mediated-label-missing']],
+    ['the receipt names no path', {}, {}, (r) => { r.ack.path = null; }, ['probe-mediated-label-missing']],
+    ['another probe\'s text', {}, {}, (r) => { r.target.probeTextSha256 = null; }, ['probe-text-unbound']],
+  ]) {
+    const { record } = await grade('allowed', { ack: 'wake-no-ack', ...world }, options);
+    if (change) change(record);
+    const graded = gradeRecipientAuthorityCase(record);
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(sorted(graded.missing), sorted(missingCodes), `${label}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.contradictions, [], label);
+  }
+  // A direct-wake receipt labelled probe-mediated claims a probe that never ran.
+  const direct = await grade('allowed', { ack: 'wake' });
+  direct.record.ack.path = 'probe-mediated';
+  assert.deepEqual(gradeRecipientAuthorityCase(direct.record).missing, ['direct-wake-label-missing']);
 });
 
 test('dry run: a policy patch the gateway rejected stops the case before dispatch and is never FAIL', async () => {

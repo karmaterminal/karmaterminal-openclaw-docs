@@ -170,10 +170,12 @@
  *    src/auto-reply/continuation/delegate-dispatch-grant.ts:48-79), and the spawn runs under it after
  *    the policy check (delegate-dispatch.ts:449-484 -> delegate-dispatch-grant.ts:85-141): another
  *    session, expiry, revocation or narrowed scopes fail the delegate with a named reason and no
- *    child. It authorizes only the spawn: routing, enqueue, wake, drain and replay are unchanged, so
- *    no case's stage or oracle moves. A refused grant leaves no child, which grades MISSING. The
- *    grant's refusals are the product's unit pins
- *    (src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts), not this row's.
+ *    child (delegate-dispatch.ts:565-596). It governs the spawn and the child's run, not the return's
+ *    path: routing, enqueue, wake, drain and replay are unchanged, so no case's stage or oracle moves.
+ *    A refused grant leaves no child, which grades MISSING. That this owner connection gets a grant is
+ *    read from the bytes; the grant's unit pins elect through a paired-device operator, and its
+ *    refusals are those pins' (src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts),
+ *    not this row's.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';

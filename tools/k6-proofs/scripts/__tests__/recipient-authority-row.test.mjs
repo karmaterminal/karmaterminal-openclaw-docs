@@ -67,7 +67,7 @@ const COMP = `comp-${RRA_PINNED.slice(0, 8)}`;
 const MERGED_J12P = '2907e656a892c0efa93821670e9488c07be12c17';
 /** The refused chain e9dc1c31, the row's former interim pin: history, graded only, never fired. */
 const INTERIM = 'e9dc1c318a2f73fd01755fc4682fa3349e8a0e94';
-/** The merged j12′ before the delegate dispatch grant, the row's former pin: history, graded only, never fired. */
+/** The merged j12′ before the delegate dispatch grant, the row's former pin: history, graded only; its one-case smoke stopped before any receipt. */
 const PRE_GRANT = '1ab5a73e14309922fa79edf4f93034bdb0acde62';
 const WORK_CASE = 'work-revoked-visibility';
 const sha256Hex = (value) => createHash('sha256').update(value).digest('hex');
@@ -115,7 +115,7 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
   // The status line: every case MISSING until an owner runs it at the merged head.
-  assert.match(docs, /^Status: \*\*catalogued, every case MISSING, never fired, in no corpus\.\*\*/m);
+  assert.match(docs, /^Status: \*\*catalogued, every case MISSING, no case receipt at any pin, in no corpus\.\*\*/m);
   assert.match(docs, /an owner runs it at `2907e656`/);
   for (const caseId of RRA_CASE_IDS) assert.match(docs, new RegExp(`\`${caseId}\``), caseId);
   // The case table pins one stage per refused return.

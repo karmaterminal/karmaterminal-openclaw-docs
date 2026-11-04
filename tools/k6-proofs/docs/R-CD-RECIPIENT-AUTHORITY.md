@@ -1,9 +1,10 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **catalogued, every case MISSING, never fired, in no corpus.** Each case stays MISSING until
-an owner runs it at `2907e656`. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned
-product: j12′, the merged head with the delegate dispatch grant, karmaterminal/openclaw
-`2907e656a892c0efa93821670e9488c07be12c17` (branch `codeagent/j12prime-candidate`).
+Status: **catalogued, every case MISSING, no case receipt at any pin, in no corpus.** Each case stays
+MISSING until an owner runs it at `2907e656`. Bound issue:
+karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head with the
+delegate dispatch grant, karmaterminal/openclaw `2907e656a892c0efa93821670e9488c07be12c17` (branch
+`codeagent/j12prime-candidate`).
 
 **The pin.** The merged j12′ is the refused chain (`e9dc1c31`) plus:
 
@@ -15,15 +16,16 @@ product: j12′, the merged head with the delegate dispatch grant, karmaterminal
 - #1544 maintenance custody (`984f4e1f`) and the test-lines allocation (`1ab5a73e`);
 - #1544's test routing (`583e0526`, tests only);
 - the delegate dispatch grant (`da8851c5`, 🌊's ruling A, room msg 1567487338383413250) and its
-  test-lines allocation (`2907e656`). [What it changes for this row](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
+  test-lines allocation (`2907e656`):
+  [what it changes for this row](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
 
 This row is gate 3, run by an owner at the merged head (🌊, room msg 1567194866507841678). It was
 first written to j12, then pinned to the refused chain `e9dc1c31` as an interim pin, then to the
 merged head before the grant, `1ab5a73e14309922fa79edf4f93034bdb0acde62`. All three are history:
 j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`) is the named baseline, and its receipts stay j12's.
 No case is carried from j12, `e9dc1c31` or `1ab5a73e`, and a record that names any of them is
-MISSING: the row's tests grade such a record and refuse it. The row never ran at `1ab5a73e`; its
-one-case live smoke there stopped on the delegate's dispatch, before any case receipt
+MISSING: the row's tests grade such a record and refuse it. No case completed at `1ab5a73e`: the
+row's one-case live smoke there stopped on the delegate's dispatch, before any case receipt
 ([below](#the-delegate-dispatch-grant-and-this-rows-operator-connection)).
 Every cite below was re-walked at `2907e656`
 ([the re-walk](#cites-re-walked-at-the-merged-j12)).
@@ -142,8 +144,10 @@ It does not prove:
   `:409`, `:435`, `:446`; the disconnect at `:320`). The grant's lane revert-proved them (7 RED
   against `1ab5a73e`). This row cannot drive them: no case revokes the elector's device, narrows its
   scopes, copies a grant to another session or waits out its hour. Its cases only spawn under a
-  grant that holds, and that its own shared-token owner client gets one is read from the bytes, not
-  pinned ([the grant](#the-delegate-dispatch-grant-and-this-rows-operator-connection)).
+  grant that holds. That its own shared-token owner client gets one is read from the bytes, not
+  pinned. Nor does a PASS show that a spawn used the grant: the row reads nothing that tells a
+  grant spawn from one under its still-open connection
+  ([the grant](#the-delegate-dispatch-grant-and-this-rows-operator-connection)).
 - **"Settled as refused" from the record.** j12′ retires a refused row as a bounded `failed`
   receipt, never `recovered` (`return-refusal.ts:53-66`; the sweep's settlement,
   `session-delivery-queue-recovery.ts:161-180, 208-213`). But no public surface reads that receipt:
@@ -409,13 +413,15 @@ admitted as the Gateway owner (`connect-session.ts:216-220, 360-367, 377-378`; p
 request scope that armed its timer, the k6 client's own request, and re-read that request's
 authority when the delegate fired (`delegate-dispatch.ts:449` -> `subagent-spawn-gateway.ts:323-326,
 179-197` -> `server-plugin-in-process-authority.ts:336-340, 703-714` ->
-`operator-run-authority.ts:358-359`). So every delegate the row fires needed the k6 connection's
-authority still current when it fired. The row's one-case live smoke (🕯, emeric, at `1ab5a73e`)
-stopped there: `continuation.delegate.dispatch` ERROR "Gateway caller authority is no longer
-active." ×4, the k6 operator's connection having closed before the timed delegate fired. It wrote
-no case receipt.
+`operator-run-authority.ts:358-359`, the path the grant lane's red reproduction takes with a
+paired-device operator). So every delegate the row fires needed the k6 connection's authority still
+current when it fired. The row's one-case live smoke (🕯, emeric, at `1ab5a73e`)
+stopped on the delegate's dispatch: `continuation.delegate.dispatch` ERROR "Gateway caller authority
+is no longer active." ×4. It wrote no case receipt. The smoke's report reads it as the k6 operator's
+connection having closed before the timed delegate fired. The grant's lane (merge `12617a330d`) reads
+it as "a timed delegate re-checked the electing operator's live connection".
 
-Two things about that smoke are not settled by the bytes:
+Three things about that smoke are not settled by the bytes:
 
 - The scenario holds one connection per case and closes it only when the case ends
   (`finish()` in `scenarios/r-cd-recipient-authority.js`), after its final reads. In a case
@@ -423,6 +429,8 @@ Two things about that smoke are not settled by the bytes:
   refusal, a socket error or the 885 s window.
 - For this owner client, a fully processed socket close makes the capture return no authority
   (`operator-run-authority.ts:339, 352`) rather than throw at `:358-359`.
+- The message is thrown at several sites, among them `operator-run-authority.ts:359, 529` and
+  `operator-invocation-authority.ts:144`.
 
 Which path the smoke took is for its own log to say.
 
@@ -444,8 +452,10 @@ Which path the smoke took is for its own log to say.
   (`:572-575`).
 - **Restore at dispatch.** After the policy check (`delegate-dispatch.ts:268-291`) and the spawn fence
   (`:437-448`), the spawn runs under the grant (**`delegate-dispatch.ts:449-484` ->
-  `delegate-dispatch-grant.ts:85-141`**). The delegate fails with a named reason and no child
-  (`:97-108, 120-121`) when the grant:
+  `delegate-dispatch-grant.ts:85-141`**). The restore throws before the spawn (`:97-108, 120-121`),
+  and dispatch fails the delegate terminally with an owner notice and no child
+  (`delegate-dispatch.ts:565-596`). It logs `[continuation:delegate-spawn-failed] error=Continuation
+  delegate operator dispatch grant <reason>` (`:585`). This happens when the grant:
   - belongs to another session;
   - has expired;
   - has no Gateway to restore it on;
@@ -456,11 +466,14 @@ Which path the smoke took is for its own log to say.
   Otherwise the child spawns under the restored authority, in a fresh scope. That scope reads
   neither the electing connection nor the scope that armed the timer (`:123-137`).
 
-**What it changes for this row.** The row now depends on the grant to spawn. Each of the ten firing
-cases spawns its child under the k6 owner's grant, so a k6 connection closed before the fire no
-longer fails it. A delegate captured without a grant (an unretainable source logs
-`[continuation:delegate-grant-unavailable]`, `delegate-dispatch-grant.ts:63-69`) would dispatch under
-the k6 connection as at `1ab5a73e` (`:94-95`).
+**What it changes for this row.** The row now depends on the grant to spawn. On the bytes, each of
+the ten firing cases captures a grant for the k6 owner and spawns its child under it, so the spawn
+no longer needs the k6 connection's authority to be current at the fire, which is where the smoke
+stopped. The row cannot see which authority a spawn used. A delegate captured without a grant (an
+unretainable source logs `[continuation:delegate-grant-unavailable]`,
+`delegate-dispatch-grant.ts:63-69`, which the row does not grade) would dispatch under the k6
+connection as at `1ab5a73e` (`:94-95`). In a case that runs to its end, that connection is still
+open. So a PASS shows that the delegates spawned, not that the grant spawned them.
 
 **No case's expected stage or oracle changes.** Re-derived from the bytes:
 
@@ -470,8 +483,10 @@ the k6 connection as at `1ab5a73e` (`:94-95`).
 - The policy refusals come before any grant. `unauthorized-admission` is refused at the tool
   (`continue-delegate-tool.ts:353-362`), and `unauthorized-dispatch` at `delegate-dispatch.ts:268-291`,
   which restores no grant. Each keeps its line.
-- The grant authorizes only the spawn. Routing, enqueue, wake, prompt drain, replay and settlement are
-  byte-identical to `1ab5a73e`, so every refused return keeps its stage, its line and its absence.
+- The grant governs the spawn, and with it, by inference, the child's run, which carries the restored
+  authority (`delegate-dispatch-grant.ts:125-129`). It does not touch the return's path. Routing,
+  enqueue, wake, prompt drain, replay and settlement are byte-identical to `1ab5a73e`, so every
+  refused return keeps its stage, its line and its absence.
 - No case's transition reaches the elector's grant. Visibility, membership, owner, delete and
   recreate, and reset change the target session's recipient authority, not the owner's device,
   profile, role, scopes or token. The only config write while a delegate is pending is
@@ -487,9 +502,12 @@ the k6 connection as at `1ab5a73e` (`:94-95`).
 **Not pinned for this row's client shape.** The grant's unit pins
 (`src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts`) elect through a
 paired-device operator with a named profile (`:159-194`), not a shared-token owner. No product test
-captures a grant from a WebSocket owner or restores one as `gateway-owner`. That this row's client
-gets a grant is read from the bytes above, and the one-case smoke at `2907e656` is the first run of
-that shape.
+captures a grant from a WebSocket owner or restores one as `gateway-owner`. Capture also has to pass
+a model-policy snapshot and a decode (`operator-run-authority.ts:661-664`;
+`operator-run-recovery-source.ts:46-51`). Restore as `gateway-owner` needs that profile's identity
+and its resident catalog row (`operator-run-recovery.ts:216, 327-330`). That this row's client gets
+a grant is read from the bytes above. The one-case smoke at `2907e656` will be the first run of that
+shape.
 
 ## Cites re-walked at the merged j12′
 
@@ -501,7 +519,8 @@ re-read with `git show`. The grant changed twelve non-test product files. Five o
 here; the rest of the cited files are byte-identical, so their cites stand as re-walked at
 `1ab5a73e` ([below](#from-e9dc1c31-to-1ab5a73e)). On the test side only the grant's new unit pins
 (`subagent-spawn.continuation-operator-grant.test.ts`), the test-lines allocation and #1544's test
-routing changed; the row cites none of them as a pin.
+routing changed. The row had no cite in any of them at `1ab5a73e`, and it now cites the grant's unit
+pins under "does not prove".
 
 | File | Cite (at `1ab5a73e`) | At `2907e656` | What it affects |
 |---|---|---|---|
@@ -512,11 +531,12 @@ routing changed; the row cites none of them as a pin.
 | `src/auto-reply/reply/agent-runner-continuation-signal.ts` | `:463` (the turn schedules the `continue_work` election after its attempt) | **moved** to `:467`; unchanged in meaning. The file changed only in the bracket-token delegate's enqueue (`:251-274`), which now passes the run's admitted operator as the elector (`:273`) | none: the row drives no token form, and `work-revoked-visibility`'s election path is unchanged |
 | `src/auto-reply/continuation/types.ts` | **not cited** by the row (`session-recipient-authority-types.ts`, which it cites, is another, unchanged file) | the file gained `PendingContinuationDelegate.dispatchGrant` and `ContinuationDelegateDispatchGrant` (`:129-140`) | none |
 
-The other six non-test files the grant changed are not cited:
+The row had no cite at `1ab5a73e` to re-walk in the other six non-test files the grant changed:
 `subagent-announce.continuation.runtime.ts` (a sub-agent's own delegates spawn under their grant),
 `delegate-dispatch-contract.ts`, `delegate-dispatch-grant.ts` (new),
 `delegate-dispatch-hedge.ts`, `delegate-flow-state.ts` and `server-runtime-services.ts`. The grant's
-own lines are cited in [its section](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
+own lines are now cited in
+[its section](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
 
 ### From `e9dc1c31` to `1ab5a73e`
 

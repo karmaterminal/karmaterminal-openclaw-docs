@@ -432,18 +432,23 @@ test('dry run: allowed-silent passes on its probe run\'s ack, after the router d
   assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
 });
 
+// Each rejection also runs with the product's marker on the probe row (a product no pin is): at
+// 432e2c3e those graded PASS-candidate on the marker alone, the ack never read.
 test('dry run: allowed-silent rejects a pre-return, wrong-nonce, priming, foreign or doubled ack, and a missing one', async () => {
   const cases = [
     // [label, world, harness options, verdict, missing, contradictions]
     ['the model never acked', { probeAck: 'none' }, {}, 'MISSING-candidate', ['probe-ack-unobserved'], []],
     ['marker on the row, no ack (a product no pin is)', { probeAck: 'none', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved'], []],
     ['pre-return: the probe was sent before the Delivered to line', {}, { routedAfterProbe: true }, 'MISSING-candidate', ['probe-not-after-return'], []],
+    ['pre-return, with the marker', { probeMarker: true }, { routedAfterProbe: true }, 'MISSING-candidate', ['probe-not-after-return'], []],
     ['the Delivered to line came from another child', {}, { routedFrom: 'agent:main:subagent:continuation-other' }, 'MISSING-candidate', ['return-not-routed-from-child'], []],
     ['wrong nonce', { probeAck: 'wrong-nonce' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch'], []],
     ['wrong nonce, with the marker', { probeAck: 'wrong-nonce', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch'], []],
     ['an ack in the priming run only', { primingAck: true, probeAck: 'none' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return'], []],
+    ['an ack in the priming run only, with the marker', { primingAck: true, probeAck: 'none', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return'], []],
     ['an ack in the priming run beside the probe\'s', { primingAck: true }, {}, 'MISSING-candidate', ['ack-before-return'], []],
     ['two acks in the probe run', { probeAck: 'twice' }, {}, 'MISSING-candidate', ['probe-ack-duplicated'], []],
+    ['two acks in the probe run, with the marker', { probeAck: 'twice', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-duplicated'], []],
     ['an ack in a foreign run only', { wakeAck: true, probeAck: 'none' }, {}, 'FAIL-candidate', ['probe-ack-unobserved'], ['silent-return-woke-target']],
     ['two acks: a foreign run and the probe run', { wakeAck: true }, {}, 'FAIL-candidate', [], ['duplicate-adoption', 'silent-return-woke-target']],
   ];

@@ -119,9 +119,11 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   for (const old of [INTERIM, PRE_GRANT]) {
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
-  // The status line: every case MISSING until an owner runs it at the merged head.
-  assert.match(docs, /^Status: \*\*catalogued, every case MISSING, no case receipt at any pin, in no corpus\.\*\*/m);
-  assert.match(docs, /an owner runs it at `2907e656`/);
+  // The status line: the owner's one run at the merged head, and the three cases it left open.
+  assert.match(docs, /^Status: \*\*10\/13 PASS-candidate at `2907e656` \(run `rra-88e4fd22f0b122a8`\); 3 open, owner re-runs at\s+the new docs head\.\*\* In no corpus\./m);
+  const status = docs.slice(0, docs.indexOf('## What it proves'));
+  for (const open of ['`wake-reassigned`', '`reassigned`', '`allowed-silent`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
+  assert.match(status, /held for 🌊/);
   for (const caseId of RRA_CASE_IDS) assert.match(docs, new RegExp(`\`${caseId}\``), caseId);
   // The case table pins one stage per refused return.
   for (const caseId of RRA_CASE_IDS.filter((id) => ['return-refused', 'work-refused'].includes(RRA_CASES[id].reasonKind))) {

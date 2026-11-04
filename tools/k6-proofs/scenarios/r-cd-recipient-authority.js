@@ -119,7 +119,10 @@
  *    So each case's stage (RRA_CASES, refusedAt): revoked-visibility, revoked-membership and
  *    revoked-owner park a silent return whose queued copy survives the transition, so the sweep
  *    defers and the probe turn's prompt drain refuses it (stage=prompt-drain); reassigned deletes the
- *    target, which drops the copy, so the sweep refuses it (stage=replay); wake-revoked-visibility
+ *    target, which drops the copy, so the sweep refuses it (stage=replay), unless a sweep replayed
+ *    the row between the delete's consume and its epoch commit (sessions-delete.ts:454, 514) and
+ *    re-queued the copy while the epoch was current (server-restart-sentinel-delivery.ts:263-274,
+ *    307-314), which the probe turn's drain then refuses (RRA_CASES, otherFirstStages); wake-revoked-visibility
  *    and wake-reassigned (silent-wake) transition while the delegate waits to fire, so the router's
  *    first read refuses it with no row and no Delivered to line (stage=enqueue); replay-restart
  *    restarts before any prompt, so the replacement's boot replay refuses it (stage=replay).
@@ -716,7 +719,8 @@ export default function () {
         return finalReads();
       }
       // At least one pending sweep sees the stale row first: it defers to the queued copy, which the
-      // probe turn's prompt drain then refuses, or, with no copy left (reassigned), refuses it.
+      // probe turn's prompt drain then refuses, or, with no copy left (reassigned), refuses it. A
+      // sweep inside reassigned's delete re-queues the copy, and the probe's drain refuses it then.
       later(sweepWaitMs, probeThenFinal);
     }
 

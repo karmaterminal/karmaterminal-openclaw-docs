@@ -36,6 +36,10 @@
  *   reads it: the gateway health's failed count leaves it out on purpose
  *   (delivery-queue-sqlite.kernel.ts:397-429). So "settled as refused" is still read from the
  *   reason and the absence of adoption, never from the row.
+ * - The router's `Delivered to` line is the one public surface that shows a return's queued copy
+ *   (RRA_PARKED_COPY_WITNESS_BYTES): no gateway RPC reads a session's queued system events. So a
+ *   parked case's transition waits for the control to see that line (🌊's ruling, room msg
+ *   1567623059727458526), and the grade requires the control's witness (record.witness).
  */
 import { TASK_IDENTITY_NONCE_SUFFIX_CHARS } from './row-child-correlation.mjs';
 import { toolCallTarget } from './tool-call-identity.mjs';
@@ -137,13 +141,35 @@ export const RRA_REFUSAL_STAGES = Object.freeze(['enqueue', 'replay', 'wake', 'p
 export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
 
 /**
+ * 🌊's ruling on the orderings and on `allowed` (room msg 1567623059727458526), on 🕯's fresh 13
+ * (run rra-a4d5318d426ad728, room msg 1567622903074390167, 11/13 PASS-candidate): "take 1 + (a). For
+ * `revoked-owner`, force the intended ordering: witness the queued/parked copy first, then change
+ * owner and prove refusal at probe-drain. If the fixture also supports the earlier-enqueue ordering,
+ * pin it separately; don't let that substitute for the parked-copy claim. For `allowed`, use the same
+ * conditional probe only when the woken run has no ACK. Credit exactly one nonce-bound ACK in that
+ * probe run, after the delivered return, and label the receipt probe-mediated rather than claiming an
+ * ACK in the wake turn. No ACK remains MISSING, never FAIL."
+ */
+export const RRA_ORDERING_RULING = '1567623059727458526';
+
+/**
+ * Why the router's `Delivered to <target> from <child>` line witnesses the return's queued copy at
+ * j12′ 2907e656. No gateway RPC reads a session's queued system events (peekSystemEvents and
+ * peekSystemEventEntries have test callers only), so this console line is the public witness the
+ * control reads before it releases a parked case's transition.
+ */
+export const RRA_PARKED_COPY_WITNESS_BYTES =
+  'subagent-announce.continuation-return.ts:198-203 logs `[continuation:targeted-return] Delivered to <keys> from <child>` only for deliveredSessionKeys, through defaultRuntime.log to the console (src/runtime.ts:80-88); targeting.ts:409 adds the target there only after the row was written (:304), its in-memory copy carrying the row\'s ack id was queued (:322-341: enqueueSystemEvent at :339, or already queued, hasQueuedSystemEventDelivery at :340) and the authority was re-read current after the queueing (:358-375); a silent return requests no wake (subagent-announce.continuation-return.ts:175; targeting.ts:395), so the copy stays parked until a turn of the target drains it';
+
+/**
  * The cases. `family` is what the return must do: `allowed` is adopted and acknowledged by the
  * primed target; `refusal` is refused with a product reason and leaves no adoption, ack, wake or
  * final effect. `refusedAt` is where j12′ refuses it, and so which reason it leaves: `admission`
  * and `dispatch` are the cross-session policy; every other value is the one `stage=` its
  * `[continuation:return-refused]` line must carry (`[continuation:work-refused]` for the
  * `continue_work` case), and `refusedAtBytes` names the bytes that put it there. `timing` says
- * when the transition lands: `parked` after the return was routed and parked un-adopted (mode
+ * when the transition lands: `parked` after the control witnessed the return's queued copy (the
+ * router's `Delivered to` line, RRA_PARKED_COPY_WITNESS_BYTES) and released the transition (mode
  * silent), `before-return` after the scheduled result and before the delegate fires,
  * `before-wake` after the election was captured and before its wake is due. `deliveryId` says
  * whether that line names the refused row (`true`) or no row was written (`false`); `flowId` that
@@ -151,14 +177,20 @@ export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
  * the same row may carry, and why. `otherFirstStages` names another first stage the bytes give the
  * case under an ordering the harness cannot prevent, each with its own bytes, later stages and the
  * product line that must witness it (`sweepArmedInTransition`); only `reassigned` has one. `tool` is `continue_work` for the one case that elects a kept
- * wake instead of a delegate (graded by gradeWorkRefusalCase). `clawSweeper` quotes the open item
- * on openclaw/openclaw#129388 (comment 5442236054) it answers.
+ * wake instead of a delegate (graded by gradeWorkRefusalCase). `fallbackProbe` marks the one case
+ * whose woken run may be followed by the conditional probe when it has no ack (🌊's ruling,
+ * RRA_ORDERING_RULING). `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment
+ * 5442236054) it answers.
  */
 export const RRA_CASES = Object.freeze({
   allowed: Object.freeze({
     family: 'allowed',
     mode: 'silent-wake',
     transition: null,
+    // Direct wake: one ack of the nonce in the woken run. Only when the woken run has no ack, the same
+    // conditional probe as every probing case; exactly one ack in that probe's own run, after the
+    // delivered return, is credited and labelled probe-mediated, never as an ack in the wake turn.
+    fallbackProbe: true,
     clawSweeper: 'allowed-recipient proof ... through prompt adoption, wake',
   }),
   'allowed-across-reset': Object.freeze({
@@ -200,7 +232,9 @@ export const RRA_CASES = Object.freeze({
   }),
   // A parked silent return keeps its queued copy in memory, so the pending sweep defers to it
   // (refuseStaleAuthorityReplay, server-restart-sentinel-delivery.ts:61-65) and the probe turn's
-  // prompt drain is the first boundary to see it stale.
+  // prompt drain is the first boundary to see it stale. The copy is witnessed before the transition
+  // is sent (RRA_PARKED_COPY_WITNESS_BYTES); a transition that lands before the return is enqueued is
+  // refused at enqueue instead, which is another ordering (RRA_EARLY_ENQUEUE_PINS), never this case.
   'revoked-visibility': Object.freeze({
     family: 'refusal',
     refusedAt: 'prompt-drain',
@@ -346,6 +380,45 @@ export const RRA_CASES = Object.freeze({
 export const RRA_CASE_IDS = Object.freeze(Object.keys(RRA_CASES));
 /** Every case is required: the row verdict is the minimum over all of them. */
 export const RRA_REQUIRED_CASES = RRA_CASE_IDS;
+
+/**
+ * The early-enqueue ordering of each revoked case, pinned apart (🌊's ruling, RRA_ORDERING_RULING:
+ * "pin it separately; don't let that substitute for the parked-copy claim"). The same transition, sent
+ * after the `scheduled` result and before the delegate fires, so the router's first authority read
+ * refuses the return before any row is written: `stage=enqueue`, no `deliveryId`, no `Delivered to`
+ * line (the shape 🕯's revoked-owner showed in rra-a4d5318d426ad728). Dry-run pins only: they are not
+ * row cases, the control never runs them (parseArgs accepts RRA_CASES only), --grade-row never reads
+ * them, and gradeRecipientAuthorityCase refuses their records (`unknown-case`). gradeEarlyEnqueuePin
+ * grades one; offered as its revoked case's receipt, its shape fails the parked-copy oracle.
+ */
+const EARLY_ENQUEUE_BYTES = 'the transition commits before the child returns, so the router\'s first authority read refuses the return before any row (targeting.ts:277-280, refuseStaleRecipient with no deliveryId at :261-276); no Delivered to line, because the target never enters deliveredSessionKeys (subagent-announce.continuation-return.ts:198-203; targeting.ts:409)';
+function earlyEnqueuePin(caseId) {
+  const parked = RRA_CASES[caseId];
+  return Object.freeze({
+    family: 'refusal',
+    refusedAt: 'enqueue',
+    refusedAtBytes: EARLY_ENQUEUE_BYTES,
+    timing: 'before-return',
+    deliveryId: false,
+    mode: parked.mode,
+    transition: parked.transition,
+    reasonKind: 'return-refused',
+    expectChild: true,
+    ordering: 'early-enqueue',
+    pinOf: caseId,
+  });
+}
+export const RRA_EARLY_ENQUEUE_PINS = Object.freeze(Object.fromEntries(
+  ['revoked-visibility', 'revoked-membership', 'revoked-owner'].map((caseId) => [`${caseId}-early-enqueue`, earlyEnqueuePin(caseId)]),
+));
+export const RRA_EARLY_ENQUEUE_PIN_IDS = Object.freeze(Object.keys(RRA_EARLY_ENQUEUE_PINS));
+
+/** A row case's spec, or a dry-run pin's: what the case driver and the control assemble from. */
+export function rraCaseSpec(caseId) {
+  if (Object.hasOwn(RRA_CASES, caseId)) return RRA_CASES[caseId];
+  if (Object.hasOwn(RRA_EARLY_ENQUEUE_PINS, caseId)) return RRA_EARLY_ENQUEUE_PINS[caseId];
+  return null;
+}
 
 /** The gates the control records; each must be exactly true, or the case is not about the pin. */
 export const RRA_GATE_KEYS = Object.freeze([
@@ -764,6 +837,8 @@ function heartbeatAckCalls(list, nonce) {
  * proof's task completion is in the model's context; nothing else the harness sends names it.
  * - ackRuns: distinct non-priming runs that acknowledged the return (the probe run included: the
  *   probe never names the ack, so an ack there is the return adopted into the probe turn).
+ * - wakeAckRuns: those of them that are not the probe run: an ack in a wake turn. allowed's
+ *   probe-mediated fallback credits the probe run's ack only while this is 0.
  * - probeAckRows: acks of the probe run: assistant text rows carrying the exact ack, plus one per
  *   accepted heartbeat_respond call. The probe run is the one sessions.send started for the probe,
  *   by its run id; a run id that is also a priming run's names no probe run.
@@ -838,6 +913,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
   }
   return {
     ackRuns: ackRuns.size,
+    wakeAckRuns: [...ackRuns].filter((runId) => runId !== probeRunId).length,
     probeAckRows,
     primingAckRows,
     uncreditedAckRows,
@@ -995,7 +1071,7 @@ export function findOwnerAssignment(messages, targetSessionKey) {
 
 /** The gateway methods a case's scenario calls; each must be advertised in hello-ok. */
 export function scenarioMethodsFor(caseId) {
-  const spec = RRA_CASES[caseId];
+  const spec = rraCaseSpec(caseId);
   if (!spec) return [];
   const methods = ['sessions.create', 'sessions.send', 'sessions.list', 'chat.history'];
   if (spec.transition === 'sessions.reset') methods.push('sessions.reset');
@@ -1056,8 +1132,27 @@ function isHash(value) {
  *   needs `PROBE-OK <probeNonce>` and no ack; allowed-silent needs the ack, PROBE-OK or not. A probe
  *   that ran must be named by its text's hash (RRA_PROBE_TEXT_SHA256), else MISSING
  *   `probe-text-unbound`.
+ * - A parked case (revoked-*, reassigned, replay-restart) holds only with the control's witness of the
+ *   return's queued copy before it released the transition (record.witness, the router's `Delivered
+ *   to` line from the case's child; 🌊's ruling, RRA_ORDERING_RULING), else MISSING
+ *   `parked-copy-unwitnessed`. An enqueue refusal never satisfies it.
+ * - allowed passes on one ack in its woken run (direct wake), or, only after a woken run with no ack,
+ *   on exactly one ack in the conditional probe's own run, after the delivered return, with the
+ *   receipt labelled probe-mediated (record.ack.path). No ack on either path is MISSING, never FAIL.
  */
 export function gradeRecipientAuthorityCase(record) {
+  return gradeCaseRecord(record, RRA_CASES);
+}
+
+/**
+ * Grade a dry-run early-enqueue pin's record (RRA_EARLY_ENQUEUE_PINS) by its own spec: the wake-mode
+ * rules, with the revoked case's transition and mode. A row case's record is not a pin (`unknown-case`).
+ */
+export function gradeEarlyEnqueuePin(record) {
+  return gradeCaseRecord(record, RRA_EARLY_ENQUEUE_PINS);
+}
+
+function gradeCaseRecord(record, specs) {
   const missing = [];
   const contradictions = [];
   const partial = [];
@@ -1066,7 +1161,7 @@ export function gradeRecipientAuthorityCase(record) {
     missing.push('not-a-case-record');
     return result('MISSING-candidate');
   }
-  const spec = RRA_CASES[record.case];
+  const spec = typeof record.case === 'string' && Object.hasOwn(specs, record.case) ? specs[record.case] : null;
   if (!spec) {
     missing.push('unknown-case');
     return result('MISSING-candidate');
@@ -1083,6 +1178,7 @@ export function gradeRecipientAuthorityCase(record) {
     missing.push('scenario-not-bound-to-run');
   }
   if (record.scenario?.observeRunId !== undefined && record.scenario.observeRunId !== record.runId) missing.push('scenario-not-bound-to-run');
+  if (record.scenario?.transitionRunId !== undefined && record.scenario.transitionRunId !== record.runId) missing.push('scenario-not-bound-to-run');
   if (missing.length) return result('MISSING-candidate');
   if (spec.tool === 'continue_work') return gradeWorkRefusalCase(record, spec);
 
@@ -1163,6 +1259,18 @@ export function gradeRecipientAuthorityCase(record) {
         missing.push('return-not-parked-before-transition');
         premise = false;
       }
+      // 🌊's ruling (RRA_ORDERING_RULING): witness the parked copy first, then change. The control
+      // released the transition only once it had seen the router's `Delivered to` line for this target
+      // from this case's child (RRA_PARKED_COPY_WITNESS_BYTES), the same line the grade reads as the
+      // park; the transition was requested after that release. Without it the case shows another
+      // ordering or none (a transition before the enqueue is refused at enqueue): MISSING.
+      const witness = record.witness ?? {};
+      if (!(isTime(witness.parkedCopyAtMs) && witness.parkedCopyAtMs === record.park?.deliveredFromChildAtMs &&
+        isTime(witness.releasedAtMs) && witness.parkedCopyAtMs <= witness.releasedAtMs &&
+        isTime(transition.requestedAtMs) && witness.releasedAtMs <= transition.requestedAtMs)) {
+        missing.push('parked-copy-unwitnessed');
+        premise = false;
+      }
     }
     // A router line while the transition RPC was in flight may have read the epoch before it
     // committed: neither a refusal nor a contradiction.
@@ -1219,16 +1327,60 @@ export function gradeRecipientAuthorityCase(record) {
         else missing.push('epoch-advanced-premise-broken');
       }
     }
+    // allowed's probe-mediated fallback (🌊's ruling, RRA_ORDERING_RULING): the conditional probe ran
+    // after its woken run had no ack. Its ack is the probe run's, never the wake turn's, so the direct
+    // path's rules do not read it.
+    const fallback = spec.fallbackProbe === true && target.probeRan === true;
     if (counted) {
       if (parent.ackRows > 0) contradict('return-landed-in-parent');
-      if (target.ackRuns > 1) contradict('duplicate-adoption');
+      if (!fallback && target.ackRuns > 1) contradict('duplicate-adoption');
       if (target.foreignRuns > 1) contradict('duplicate-wake');
-      if (!spec.probeAdopts && target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) {
+      if (!spec.probeAdopts && !fallback && target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) {
         // Routed and never woken is the product's; woken without the exact ack may be the model's.
         if (target.foreignRuns === 0) contradict('allowed-return-not-adopted');
         else missing.push('woken-without-ack');
       }
       if (target.adoptedDeliveryRows > 1) contradict('duplicate-adoption');
+    }
+    if (spec.fallbackProbe) {
+      const ack = record.ack ?? {};
+      if (!fallback) {
+        // The direct-wake path, its oracle unchanged: one ack in the woken run. The receipt says so.
+        need(ack.path === 'direct-wake', 'direct-wake-label-missing');
+      } else {
+        // The receipt claims no ack in the wake turn: it is labelled probe-mediated.
+        need(ack.path === 'probe-mediated', 'probe-mediated-label-missing');
+        // Sent only when the woken run had no ack: the scenario's read before the probe shows a woken
+        // run and no ack, and the final read still shows that run.
+        const decision = ack.fallbackDecision ?? {};
+        need(
+          isTime(decision.decidedAtMs) && isCount(decision.wokenRuns) && decision.wokenRuns >= 1 && decision.ackRuns === 0 &&
+            isTime(target.probeSentAtMs) && decision.decidedAtMs <= target.probeSentAtMs && !(counted && target.foreignRuns === 0),
+          'fallback-not-after-unacked-wake',
+        );
+        // The same conditional probe every probing case sends, named by its hash.
+        need(target.probeTextSha256 === RRA_PROBE_TEXT_SHA256, 'probe-text-unbound');
+        // After the delivered return: the router's line naming the target from this case's child.
+        const deliveredAt = record.park?.deliveredFromChildAtMs;
+        if (need(isTime(deliveredAt), 'return-not-routed-from-child')) {
+          need(isTime(target.probeSentAtMs) && target.probeSentAtMs > deliveredAt, 'probe-not-after-return');
+        }
+        if (counted && need(isCount(target.wakeAckRuns), 'transcript-not-read')) {
+          // Exactly one ack of the nonce in the probe's own run. The ack is the model's: none, two, or
+          // one it cannot credit is MISSING, never FAIL.
+          if (target.probeAckRows === 0) missing.push('probe-ack-unobserved');
+          if (target.probeAckRows > 1) missing.push('probe-ack-duplicated');
+          if (target.uncreditedAckRows > 0) missing.push('ack-uncredited');
+          if (target.primingAckRows > 0) missing.push('ack-before-return');
+          // An ack in a wake turn means the fallback was not the woken run's only ack: the probe was
+          // not allowed, and an ack in both is a duplicate. The priming asks for the ack on any later
+          // turn that holds the completion, so a model may give both for one adoption: MISSING.
+          if (target.wakeAckRuns > 0) missing.push('fallback-after-wake-ack');
+          if (target.wakeAckRuns > 0 && target.probeAckRows > 0) missing.push('duplicate-ack-wake-and-fallback');
+          // Two wake turns that each acked are two adoptions, as on the direct path.
+          if (target.wakeAckRuns > 1) contradict('duplicate-adoption');
+        }
+      }
     }
     if (spec.probeAdopts) {
       // 🌊's ruling (a), room msg 1567556038281007235: the probe turn's adoption is read from the
@@ -1519,7 +1671,8 @@ export function gradeRecipientAuthorityRow(entries = []) {
   if (runIds.size > 1) lower('MISSING-candidate', 'receipts-from-different-runs');
   const cases = {};
   for (const caseId of RRA_REQUIRED_CASES) {
-    const graded = verified.filter((record) => record?.case === caseId).map((record) => gradeRecipientAuthorityCase(record));
+    const records = verified.filter((record) => record?.case === caseId);
+    const graded = records.map((record) => gradeRecipientAuthorityCase(record));
     if (graded.length === 0) {
       cases[caseId] = { verdict: 'MISSING-candidate', missing: ['case-not-run'] };
       lower('MISSING-candidate', `${caseId}:case-not-run`);
@@ -1532,6 +1685,8 @@ export function gradeRecipientAuthorityRow(entries = []) {
       notes.push(`${caseId}:conflicting-receipts`);
     }
     cases[caseId] = { verdict: caseVerdict, receipts: graded.length };
+    // Which path credited allowed's ack: the row's summary says probe-mediated where it was.
+    if (RRA_CASES[caseId].fallbackProbe) cases[caseId].ackPaths = [...new Set(records.map((record) => record.ack?.path ?? null))];
     if (caseVerdict !== 'PASS-candidate') lower(caseVerdict, `${caseId}:${caseVerdict}`);
   }
   return { schema: RRA_ROW_VERDICT_SCHEMA, row: RRA_ROW, candidateSha: RRA_PINNED, pinStatus: RRA_PIN_STATUS, verdict, cases, notes };

@@ -23,8 +23,11 @@
  *      gateway's own console output (where j12′'s `[continuation:return-refused]` and
  *      `[continuation:work-refused]` lines and the router's `Delivered to` line land) and sampling
  *      the session_recipient_authority table read-only (the continue_work case's capture is read
- *      there: it follows the tool's `scheduled` result);
- *   4. for replay-restart, after the drive phase: gateway.restart.request, wait for the old process to
+ *      there: it follows the tool's `scheduled` result). A parked case's drive phase ends once its
+ *      child returned; the control waits for the router's `Delivered to` line for that target from
+ *      that child, the witness of the return's queued copy, and only then runs its transition phase
+ *      (🌊's ruling, room msg 1567623059727458526). With no witness the transition is never sent;
+ *   4. for replay-restart, after the transition phase: gateway.restart.request, wait for the old process to
  *      exit 0, consume its restart handoff (`gateway restart-handoff consume --expected-pid`), start
  *      the replacement and run the observe phase;
  *   5. assemble each case's record, grade it with lib/recipient-authority-row.mjs, sign it with the
@@ -82,6 +85,7 @@ import {
   listenerOwnedBy,
   parseReturnRefusedLine,
   parseWorkRefusedLine,
+  rraCaseSpec,
   traceCorrelationMatches,
 } from '../lib/recipient-authority-row.mjs';
 import { extractEvidence } from './extract-k6-evidence.mjs';
@@ -96,7 +100,10 @@ const RUN_MARKER_ENV = 'RRA_RUN_MARKER';
 const GATEWAY_ENV_ALLOWED = /^(?:NODE_OPTIONS|OPENCLAW_CODEX_APP_SERVER_BIN)$/u;
 const NODE_OPTIONS_ALLOWED = /^(?:--max-old-space-size=\d+|--inspect=127\.0\.0\.1:\d{4,5})$/u;
 // Case timing the operator may tune; passed to the scenario, recorded in the receipt.
-const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 'OPENCLAW_RCD_RA_CAPTURE_WAIT_MS', 'OPENCLAW_RCD_RA_PROBE_SETTLE_MS'];
+// OPENCLAW_RCD_RA_WITNESS_WAIT_MS is the control's own: how long it waits for a parked copy's witness.
+const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 'OPENCLAW_RCD_RA_CAPTURE_WAIT_MS', 'OPENCLAW_RCD_RA_PROBE_SETTLE_MS', 'OPENCLAW_RCD_RA_WITNESS_WAIT_MS'];
+const WITNESS_WAIT_MS = 120_000;
+const WITNESS_POLL_MS = 250;
 const READY_TIMEOUT_MS = 120_000;
 // Live generations of the current run, so an interrupted CLI can still stop what it started.
 const liveGenerations = new Set();
@@ -614,16 +621,44 @@ function routingAround(logEntries, keys, transition) {
 }
 
 /**
+ * The router's first `Delivered to` line at or after `sinceMs` that names `targetKey` and comes from
+ * `childKey`: the witness of a parked return's queued copy (RRA_PARKED_COPY_WITNESS_BYTES), as its
+ * log time, else null. The same line the record reads as park.deliveredFromChildAtMs.
+ */
+export function findParkedCopy(lines, { sinceMs, targetKey, childKey }) {
+  if (typeof targetKey !== 'string' || !targetKey || typeof childKey !== 'string' || !childKey) return null;
+  return findRouted((Array.isArray(lines) ? lines : []).filter((line) => line.atMs >= sinceMs), targetKey, { childKey });
+}
+
+/**
+ * Wait up to `waitMs` for the parked copy's witness in the gateway's live console lines, as
+ * { parkedCopyAtMs } (null when it never came).
+ */
+async function witnessParkedCopy({ generation, sinceMs, targetKey, childKey, waitMs, platform }) {
+  const deadline = platform.now() + waitMs;
+  for (;;) {
+    const parkedCopyAtMs = findParkedCopy(generation.process.lines, { sinceMs, targetKey, childKey });
+    if (parkedCopyAtMs !== null || platform.now() >= deadline) return { parkedCopyAtMs };
+    await platform.sleep(WITNESS_POLL_MS);
+  }
+}
+
+/**
  * Assemble one case's public record from the scenario's evidence, the gateway's own log, the epoch
  * timeline and the generations the control started. Pure: no I/O. Session keys, delivery ids and
  * epochs leave only as SHA-256; log lines leave only as a reason kind and stage, a time and a
- * generation.
+ * generation. A parked case's transition phase continues its drive (it carries the drive's state),
+ * so its evidence is read for the transition and what follows; `witness` is the control's own
+ * observation of the parked copy before it released that phase ({ parkedCopyAtMs, releasedAtMs }).
  */
-export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, observeEvidence = null, logEntries, timeline, generations, restartedAtMs = null, cleanup, startedAtMs }) {
-  const spec = RRA_CASES[caseId];
-  const final = observeEvidence ?? evidence ?? {};
+export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, transitionEvidence = null, observeEvidence = null, witness = null, logEntries, timeline, generations, restartedAtMs = null, cleanup, startedAtMs }) {
+  const spec = rraCaseSpec(caseId);
+  // The drive's evidence, carried forward by the transition phase when there was one.
+  const driven = transitionEvidence ?? evidence;
+  const final = observeEvidence ?? driven ?? {};
+  const phases = [evidence, transitionEvidence, observeEvidence].filter(Boolean);
   const keys = evidence?.keys ?? {};
-  const transition = evidence?.transition ?? {};
+  const transition = driven?.transition ?? {};
   const capturedAt = evidence?.dispatch?.observed_at_ms;
   // The captured epoch is read after the scheduled toolResult and strictly before the transition,
   // so a transition that advanced it can never be read as the captured value.
@@ -663,9 +698,10 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     },
     scenario: {
       controlRunId: evidence?.control_run_id ?? null,
+      transitionRunId: transitionEvidence ? transitionEvidence.control_run_id ?? null : undefined,
       observeRunId: observeEvidence ? observeEvidence.control_run_id ?? null : undefined,
-      refusals: [...(evidence?.refusals ?? []), ...(observeEvidence?.refusals ?? [])].map((text) => String(text).slice(0, 200)),
-      preflightOk: evidence?.preflight?.ok === true,
+      refusals: phases.flatMap((phase) => phase.refusals ?? []).map((text) => String(text).slice(0, 200)),
+      preflightOk: phases.length > 0 && phases.every((phase) => phase.preflight?.ok === true),
     },
     keys: { parent: hashKeyed(keys.parent), target: hashKeyed(keys.target), ops: hashKeyed(keys.ops) },
     dispatch: {
@@ -692,6 +728,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       probeTextSha256: final.probe_text_sha256 ?? null,
       probeReplied: target.probeReplied === true,
       ackRuns: target.ackRuns ?? null,
+      wakeAckRuns: target.wakeAckRuns ?? null,
       probeAckRows: target.probeAckRows ?? null,
       primingAckRows: target.primingAckRows ?? null,
       uncreditedAckRows: target.uncreditedAckRows ?? null,
@@ -701,11 +738,21 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       adoptedDeliveryRows: target.adoptedDeliveryRows ?? null,
     },
     parent: { ackRows: final.parent_ack_rows ?? null },
-    preTransition: evidence?.pre_transition_obs
+    // allowed: the path its ack was read on, and the read that sent the fallback probe (🌊's ruling,
+    // room msg 1567623059727458526). A probe-mediated ack is the probe run's, never the wake turn's.
+    ack: spec.fallbackProbe
       ? {
-          ackRuns: evidence.pre_transition_obs.ackRuns ?? null,
-          foreignRuns: evidence.pre_transition_obs.foreignRuns ?? null,
-          adoptedDeliveryRows: evidence.pre_transition_obs.adoptedDeliveryRows ?? null,
+          path: final.ack_path ?? null,
+          fallbackDecision: final.fallback
+            ? { decidedAtMs: final.fallback.decided_at_ms ?? null, wokenRuns: final.fallback.woken_runs ?? null, ackRuns: final.fallback.ack_runs ?? null }
+            : null,
+        }
+      : null,
+    preTransition: driven?.pre_transition_obs
+      ? {
+          ackRuns: driven.pre_transition_obs.ackRuns ?? null,
+          foreignRuns: driven.pre_transition_obs.foreignRuns ?? null,
+          adoptedDeliveryRows: driven.pre_transition_obs.adoptedDeliveryRows ?? null,
         }
       : null,
     transition: {
@@ -721,6 +768,10 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       deliveredToTargetAtMs: findRouted(logEntries, keys.target),
       deliveredFromChildAtMs: findRouted(logEntries, keys.target, { childKey }),
     },
+    // A parked case: the control's witness of that same line before it released the transition.
+    witness: spec.timing === 'parked'
+      ? { parkedCopyAtMs: witness?.parkedCopyAtMs ?? null, releasedAtMs: witness?.releasedAtMs ?? null }
+      : null,
     // Router lines for this return, the target named or its child as the source (the child key
     // stays private): while the transition RPC was in flight, and once it had settled. A refused
     // return must leave none after the settle at j12′.
@@ -738,7 +789,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
           final: epochIn(timeline, keys.target, Number.isFinite(capturedAt) ? capturedAt : 0, Infinity, { last: true }),
         },
     reason,
-    config: spec.transition === 'config.patch' ? { restored: evidence?.config?.restored === true } : null,
+    config: spec.transition === 'config.patch' ? { restored: driven?.config?.restored === true } : null,
     trace: null,
     cleanup,
   };
@@ -919,12 +970,34 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
   const secrets = [target.token, observerKey];
   try {
     for (const caseId of options.cases) {
+      const spec = RRA_CASES[caseId];
       const caseStart = platform.now();
       const ownedBefore = verifyOwnership(current, target, platform);
       const evidence = ownedBefore ? await runScenario({ caseId, phase: 'drive', runId, target, options, privateDir, platform }) : null;
+      // A parked case: witness the return's queued copy, then release the transition (🌊's ruling,
+      // room msg 1567623059727458526). No witness, or a gateway the control no longer owns, and the
+      // transition is never sent.
+      let transitionEvidence = null;
+      let witness = null;
+      if (spec.timing === 'parked' && evidence?.handoff?.ready_for_witness) {
+        witness = await witnessParkedCopy({
+          generation: current,
+          sinceMs: caseStart,
+          targetKey: evidence.keys?.target,
+          childKey: evidence.child?.key,
+          waitMs: Number(options.timing.OPENCLAW_RCD_RA_WITNESS_WAIT_MS ?? WITNESS_WAIT_MS),
+          platform,
+        });
+        if (witness.parkedCopyAtMs !== null && verifyOwnership(current, target, platform)) {
+          witness.releasedAtMs = platform.now();
+          transitionEvidence = await runScenario({ caseId, phase: 'transition', state: evidence, runId, target, options, privateDir, platform });
+        }
+      }
+      // replay-restart's restart follows its transition phase, never its drive.
+      const handedOver = spec.timing === 'parked' ? transitionEvidence : evidence;
       let observeEvidence = null;
       let restartedAtMs = null;
-      if (RRA_CASES[caseId].restart && evidence?.handoff?.ready_for_restart) {
+      if (spec.restart && handedOver?.handoff?.ready_for_restart) {
         restarting = true;
         const restarted = await restartGeneration({ generation: current, target, options, runId, privateDir, platform, next: generations.length });
         restarting = false;
@@ -932,7 +1005,7 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
         if (restarted.ok) {
           current = restarted.replacement;
           restartedAtMs = restarted.restartedAtMs;
-          observeEvidence = await runScenario({ caseId, phase: 'observe', state: evidence, runId, target, options, privateDir, platform });
+          observeEvidence = await runScenario({ caseId, phase: 'observe', state: handedOver, runId, target, options, privateDir, platform });
         }
       }
       verifyOwnership(current, target, platform);
@@ -951,7 +1024,9 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
         docsSha: options.docsSha,
         gates: caseGates,
         evidence: evidence ?? { candidate_sha: RRA_PINNED, control_run_id: null },
+        transitionEvidence,
         observeEvidence,
+        witness,
         logEntries: logEntries.filter((line) => line.atMs >= caseStart),
         timeline: timeline.filter((sample) => sample.atMs >= caseStart),
         generations: caseGenerations,
@@ -962,7 +1037,7 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       receipts.push(record);
       for (const value of Object.values(evidence?.keys ?? {})) secrets.push(value);
       // The child's key and every refused row's id stay private too: the record carries hashes only.
-      secrets.push(evidence?.child?.key, observeEvidence?.child?.key);
+      secrets.push(evidence?.child?.key, transitionEvidence?.child?.key, observeEvidence?.child?.key);
       // So does a refused election's flowId.
       for (const line of logEntries) {
         if (line.atMs < caseStart) continue;

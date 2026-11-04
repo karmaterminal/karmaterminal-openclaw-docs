@@ -9,10 +9,12 @@
  * proof. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536.
  *
  * Only the control runs this: tools/k6-proofs/scripts/run-recipient-authority-row.mjs starts the
- * disposable gateway, runs this scenario once per case (twice for replay-restart: drive, then
- * observe after its supervised restart) and grades. Without the control's run id the scenario
- * refuses from setup() and from default(). It never decides a verdict: it prints evidence, and
- * lib/recipient-authority-row.mjs grades the control's case record.
+ * disposable gateway, runs this scenario once per case and grades. A parked case runs twice: drive
+ * (up to its child's return), then transition, which the control starts only once it has witnessed
+ * the return's queued copy (section 9); replay-restart runs a third time, observe, after its
+ * supervised restart. Without the control's run id the scenario refuses from setup() and from
+ * default(). It never decides a verdict: it prints evidence, and lib/recipient-authority-row.mjs
+ * grades the control's case record.
  *
  * Product path at j12′, karmaterminal/openclaw 2907e656a892c0efa93821670e9488c07be12c17 (the merged
  * head with the delegate dispatch grant), every anchor re-walked with git show / git grep at that
@@ -190,6 +192,25 @@
  *    read from the bytes; the grant's unit pins elect through a paired-device operator, and its
  *    refusals are those pins' (src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts),
  *    not this row's.
+ *
+ * 9. The orderings and allowed's fallback (🌊's ruling, room msg 1567623059727458526, on 🕯's run
+ *    rra-a4d5318d426ad728, where revoked-owner's owner change settled before its return was enqueued
+ *    and was refused at enqueue, and allowed's woken run gave no ack):
+ *    - a parked case witnesses its return's queued copy before its transition. No gateway RPC reads a
+ *      session's queued system events, so the witness is the router's line
+ *      `[continuation:targeted-return] Delivered to <target> from <child>`
+ *      (src/agents/subagent-announce.continuation-return.ts:198-203, console through
+ *      src/runtime.ts:80-88), logged only for a target whose row was written
+ *      (src/auto-reply/continuation/targeting.ts:304), whose in-memory copy was queued (:322-341) and
+ *      whose authority was re-read current after it (:358-375; deliveredSessionKeys at :409). A silent
+ *      return requests no wake (subagent-announce.continuation-return.ts:175; targeting.ts:395), so
+ *      that copy stays parked. This scenario cannot read the gateway's console: the drive phase ends
+ *      once the child returned, the control waits for the line, and only then runs the transition
+ *      phase. A transition before the enqueue (refused at enqueue by targeting.ts:277-280, no row, no
+ *      Delivered to) is another ordering, pinned apart as a dry-run case (RRA_EARLY_ENQUEUE_PINS);
+ *    - allowed's woken run gives the ack (direct wake). Only when the woken run has no ack does
+ *      allowed send the same conditional probe; one ack in that probe's own run is labelled
+ *      probe-mediated (ack_path), never an ack in the wake turn.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -203,7 +224,6 @@ import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { messageRunId, hasExactSentinelText } from '../lib/wake-turn-receipt.mjs';
 import {
   RRA_ACK_MARKER,
-  RRA_CASES,
   RRA_EVIDENCE_PREFIX,
   RRA_PINNED,
   RRA_PROBE_NONCE_SLOT,
@@ -218,6 +238,7 @@ import {
   findOwnerAssignment,
   findWorkElection,
   observeTargetTranscript,
+  rraCaseSpec,
   rraProofId,
   rraProbeText,
   rraProbeTextProblems,
@@ -261,10 +282,12 @@ function controlEnv() {
   const phase = __ENV.OPENCLAW_RCD_RA_PHASE || '';
   const runId = __ENV.OPENCLAW_RCD_RA_RUN || '';
   const problems = [];
+  const spec = rraCaseSpec(caseId);
   if (!/^rra-[0-9a-f]{16}$/.test(runId)) problems.push('control run id missing');
-  if (!RRA_CASES[caseId]) problems.push('unknown case');
-  if (phase !== 'drive' && phase !== 'observe') problems.push('unknown phase');
-  if (phase === 'observe' && !RRA_CASES[caseId]?.restart) problems.push('only replay-restart has an observe phase');
+  if (!spec) problems.push('unknown case');
+  if (phase !== 'drive' && phase !== 'transition' && phase !== 'observe') problems.push('unknown phase');
+  if (phase === 'transition' && spec?.timing !== 'parked') problems.push('only a parked case has a transition phase');
+  if (phase === 'observe' && !spec?.restart) problems.push('only replay-restart has an observe phase');
   if ((__ENV.OPENCLAW_CANDIDATE_SHA || '') !== RRA_PINNED) problems.push('candidate is not j12′');
   if (!__ENV.OPENCLAW_GATEWAY_TOKEN || !__ENV.OPENCLAW_GATEWAY_WS) problems.push('the control passes the disposable gateway');
   return { caseId, phase, runId, problems };
@@ -309,7 +332,7 @@ function boundedText(value) {
 
 export default function () {
   const control = controlEnv();
-  const spec = RRA_CASES[control.caseId];
+  const spec = rraCaseSpec(control.caseId);
   const evidence = {
     row: RRA_ROW,
     case: control.caseId,
@@ -334,7 +357,9 @@ export default function () {
     if (errors.length) console.warn(`Manifest validation warnings: ${errors.join('; ')}`);
   }
 
-  const prior = control.phase === 'observe' ? JSON.parse(__ENV.OPENCLAW_RCD_RA_STATE || '{}') : null;
+  // The transition and observe phases continue the drive's case: its nonce, keys, priming runs,
+  // dispatch, child and (observe) transition come from the previous phase's evidence.
+  const prior = control.phase !== 'drive' ? JSON.parse(__ENV.OPENCLAW_RCD_RA_STATE || '{}') : null;
   const rowNonce = prior?.nonce || makeNonce('RCDRA');
   const suffix = rraProofId(rowNonce);
   const probeNonce = makeNonce('RCDRA-PROBE');
@@ -366,7 +391,9 @@ export default function () {
     target_primed: prior?.target_primed ?? false,
     dispatch: prior?.dispatch || null,
     child: prior?.child || { spawned: null, bound: false, done: false, key: null },
-    member_identity_found: null,
+    member_identity_found: prior?.member_identity_found ?? null,
+    // Private: the identity revoked-membership adds in its drive and removes in its transition.
+    member_identity: prior?.member_identity ?? null,
     config: { patched_at_ms: null, restored: spec.transition === 'config.patch' ? false : null },
     transition: prior?.transition || { method: spec.transition, ok: spec.transition ? null : true, requested_at_ms: null, settled_at_ms: null, error: null },
     probe_run_id: null,
@@ -379,6 +406,10 @@ export default function () {
     target_obs: null,
     parent_ack_rows: null,
     child_spawn_observed: null,
+    // allowed: which path its ack is read on (direct-wake, or probe-mediated once the fallback probe
+    // is sent), and the read that decided it.
+    ack_path: spec.fallbackProbe ? 'direct-wake' : null,
+    fallback: null,
   });
   if (prior) {
     evidence.reason_hash = prior.reason_hash ?? null;
@@ -392,7 +423,7 @@ export default function () {
     const handlers = {};
     let connectId = null;
     let configHash = null;
-    let memberIdentity = null;
+    let memberIdentity = evidence.member_identity;
     let closed = false;
 
     const later = (ms, fn) => socket.setTimeout(fn, k6TimeoutMs(ms));
@@ -450,6 +481,7 @@ export default function () {
         const identities = Array.isArray(r.payload?.identities) ? r.payload.identities : [];
         memberIdentity = identities.find((identity) => identity && typeof identity.id === 'string' && identity.id)?.id || null;
         evidence.member_identity_found = Boolean(memberIdentity);
+        evidence.member_identity = memberIdentity;
         if (!memberIdentity) {
           refuse('precondition: no known identity to add as a member (session.members.add accepts only a known identity)');
           return finish();
@@ -624,8 +656,15 @@ export default function () {
       if (spec.timing === 'before-return') {
         return later(numberEnv('OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 2000), () => transition((ok) => (ok ? waitForChild(() => later(parkMs, probeThenFinal)) : finalReads())));
       }
-      // Parked: let the silent return route and park, then transition.
-      waitForChild(() => later(parkMs, () => transition(afterTransition)));
+      // Parked: the drive ends once the child returned. The control then waits for the router's
+      // Delivered to line for this target from this child, the witness of the parked copy, and only
+      // then runs the transition phase (🌊's ruling, room msg 1567623059727458526). A child that never
+      // returned hands nothing over: the case reads MISSING.
+      waitForChild((bound) => {
+        if (!bound) return finalReads();
+        evidence.handoff = { ready_for_witness: true };
+        finish();
+      });
     }
 
     function resetTarget(next) {
@@ -746,9 +785,25 @@ export default function () {
       pollHistory(keys.target, (messages) => {
         const seen = observeTargetTranscript(messages, { nonce: rowNonce, primingRunIds: evidence.priming_run_ids });
         return seen.ackRuns > 0 ? seen : null;
-      }, attempts(windowMs + delaySeconds * 1000), () => {
-        // Keep watching one more sweep period for a duplicate adoption.
-        waitForChild(() => later(numberEnv('OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 75000), finalReads));
+      }, attempts(windowMs + delaySeconds * 1000), (hit) => {
+        // Keep watching one more sweep period for a duplicate adoption; then, for allowed with no
+        // ack yet, decide on the fallback.
+        const next = hit || !spec.fallbackProbe ? finalReads : fallbackOrFinal;
+        waitForChild(() => later(numberEnv('OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 75000), next));
+      });
+    }
+
+    // 🌊's ruling (room msg 1567623059727458526): "use the same conditional probe only when the woken
+    // run has no ACK". The target is read once more: a woken run and no ack sends the probe, and the
+    // case's ack is then read in the probe's own run, labelled probe-mediated. An ack, or no woken run
+    // at all (routed and never woken stays the product's, FAIL), sends nothing.
+    function fallbackOrFinal() {
+      history(keys.target, (messages) => {
+        const seen = messages ? observeTargetTranscript(messages, { nonce: rowNonce, primingRunIds: evidence.priming_run_ids }) : null;
+        if (seen) evidence.fallback = { decided_at_ms: Date.now(), woken_runs: seen.foreignRuns, ack_runs: seen.ackRuns };
+        if (!seen || seen.ackRuns > 0 || seen.foreignRuns === 0) return finalReads();
+        evidence.ack_path = 'probe-mediated';
+        probeThenFinal();
       });
     }
 
@@ -855,6 +910,8 @@ export default function () {
           return finish();
         }
         if (control.phase === 'observe') return later(numberEnv('OPENCLAW_RCD_RA_BOOT_WAIT_MS', 30000), probeThenFinal);
+        // The control witnessed the parked copy and released the transition.
+        if (control.phase === 'transition') return later(250, () => transition(afterTransition));
         return later(250, createSessions);
       }
       if (id && handlers[id]) {

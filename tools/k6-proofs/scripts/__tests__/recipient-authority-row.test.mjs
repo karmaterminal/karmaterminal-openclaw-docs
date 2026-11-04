@@ -311,6 +311,7 @@ function completeRecord(caseId) {
       probeTextSha256: refusal ? RRA_PROBE_TEXT_SHA256 : null,
       probeReplied: refusal,
       ackRuns: refusal ? 0 : 1,
+      wakeAckRuns: refusal ? 0 : 1,
       probeAckRows: 0,
       primingAckRows: 0,
       uncreditedAckRows: 0,
@@ -320,6 +321,8 @@ function completeRecord(caseId) {
       adoptedDeliveryRows: 0,
     },
     parent: { ackRows: 0 },
+    // allowed's ack was read in its woken run: the direct-wake path, labelled so.
+    ack: spec.fallbackProbe ? { path: 'direct-wake', fallbackDecision: null } : null,
     preTransition: durable ? { ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 0 } : null,
     transition: { method: spec.transition, ok: spec.transition ? true : null, requestedAtMs: spec.transition ? 5000 : null, settledAtMs: spec.transition ? 5100 : null },
     // A parked return was routed before its transition, from the case's child; a wake-mode one
@@ -327,6 +330,8 @@ function completeRecord(caseId) {
     park: spec.timing === 'before-return'
       ? { deliveredToTargetAtMs: null, deliveredFromChildAtMs: null }
       : { deliveredToTargetAtMs: 4000, deliveredFromChildAtMs: 4000 },
+    // The control saw that line, then released the transition (🌊's ruling, room msg 1567623059727458526).
+    witness: spec.timing === 'parked' ? { parkedCopyAtMs: 4000, releasedAtMs: 4500 } : null,
     routing: durable ? { duringTransition: 0, afterTransition: 0 } : null,
     sweep: durable ? { armedInTransition: 0 } : null,
     epochs: { captured: H('a'), afterTransition: spec.transition ? (durable ? H('b') : H('a')) : null, final: durable ? H('b') : H('a') },
@@ -347,6 +352,7 @@ function completeRecord(caseId) {
       probeTextSha256: RRA_PROBE_TEXT_SHA256,
       probeReplied: false,
       ackRuns: 1,
+      wakeAckRuns: 0,
       probeAckRows: 1,
       foreignRuns: 0,
       adoptedDeliveryRows: 0,
@@ -1269,6 +1275,7 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   const quiet = observeTargetTranscript(messages, { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe', probeNonce: 'probe-1' });
   assert.deepEqual(quiet, {
     ackRuns: 0,
+    wakeAckRuns: 0,
     probeAckRows: 0,
     primingAckRows: 1,
     uncreditedAckRows: 0,
@@ -1288,6 +1295,7 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   const inProbe = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe')], probeOpts);
   assert.equal(inProbe.ackRuns, 1, 'an ack in the probe run is the return adopted into the probe turn');
   assert.equal(inProbe.probeAckRows, 1);
+  assert.equal(inProbe.wakeAckRuns, 0, 'the probe run\'s ack is never a wake turn\'s');
   assert.equal(inProbe.foreignRuns, 0);
   // Two ack rows in the probe run are two rows, one run.
   const twice = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe'), say(`TARGET-ACK ${nonce}`, 'run-probe')], probeOpts);
@@ -1295,7 +1303,10 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   assert.equal(twice.ackRuns, 1);
   // An ack in a wake run is not the probe run's.
   const elsewhere = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-wake')], probeOpts);
-  assert.deepEqual([elsewhere.ackRuns, elsewhere.probeAckRows, elsewhere.foreignRuns], [1, 0, 1]);
+  assert.deepEqual([elsewhere.ackRuns, elsewhere.wakeAckRuns, elsewhere.probeAckRows, elsewhere.foreignRuns], [1, 1, 0, 1]);
+  // An ack in both is one wake run and the probe run: two runs, one of them a wake turn's.
+  const both = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-wake'), say(`TARGET-ACK ${nonce}`, 'run-probe')], probeOpts);
+  assert.deepEqual([both.ackRuns, both.wakeAckRuns, both.probeAckRows, both.foreignRuns], [2, 1, 1, 1]);
   // Another nonce after the marker, or none, is never this case's ack; it is counted apart.
   for (const text of ['TARGET-ACK probe-1', 'TARGET-ACK RCDRA-1-abcd', 'TARGET-ACK', `TARGET-ACK ${nonce}\nTARGET-ACK RCDRA-2-xyz`]) {
     const other = observeTargetTranscript([...messages, say(text, 'run-probe')], probeOpts);
@@ -1647,12 +1658,15 @@ function revokedHarness(evidence) {
 test('the control assembles a case record from scenario evidence, product log lines and the epoch timeline', () => {
   const evidence = revokedEvidence();
   const harness = revokedHarness(evidence);
+  // The control saw the park line at 3 s and released the transition at 4 s.
+  const witness = { parkedCopyAtMs: 3_000, releasedAtMs: 4_000 };
   const record = assembleCaseRecord({
     caseId: 'revoked-visibility',
     runId: RUN,
     docsSha: 'd'.repeat(40),
     gates: completeRecord('allowed').gates,
     evidence,
+    witness,
     ...harness,
     generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }],
     cleanup: { gatewayStopped: true, residue: false },
@@ -1660,6 +1674,7 @@ test('the control assembles a case record from scenario evidence, product log li
   });
   assert.equal(record.park.deliveredToTargetAtMs, 3_000);
   assert.equal(record.park.deliveredFromChildAtMs, 3_000, 'the park line names the target and comes from the case\'s child');
+  assert.deepEqual(record.witness, witness, 'the control\'s witness of that line, before it released the transition');
   assert.deepEqual(record.routing, { duringTransition: 0, afterTransition: 0 }, 'the park line precedes the transition');
   assert.equal(record.target.probeSentAtMs, 59_000);
   assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, 'the probe the scenario sent, by its text\'s hash');
@@ -1681,7 +1696,7 @@ test('the control assembles a case record from scenario evidence, product log li
   for (const secret of [evidence.keys.target, evidence.keys.parent, CHILD_KEY, DELIVERY_ID, '11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222']) {
     assert.ok(!publicText.includes(secret), `public record leaks ${secret}`);
   }
-  const assemble = (logEntries, extra = {}) => assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: { ...evidence, ...extra }, logEntries, timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
+  const assemble = (logEntries, extra = {}) => assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: { ...evidence, ...extra }, witness, logEntries, timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
   const grade = (logEntries, extra) => gradeRecipientAuthorityCase({ ...assemble(logEntries, extra), trace: { correlated: true } });
   const noReason = assemble(harness.logEntries.slice(0, 2));
   assert.equal(noReason.reason, null);

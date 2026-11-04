@@ -386,9 +386,8 @@ function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Rea
   return { logEntries, timeline, generations, restartedAtMs };
 }
 
-async function grade(caseId, world = {}, harnessOptions = {}) {
+async function grade(caseId, world = {}, harnessOptions = {}, gateway = gatewayFor({ caseId, ...world })) {
   // One scripted store for every phase: the replacement generation serves the same state.
-  const gateway = gatewayFor({ caseId, ...world });
   const { drive, transition, observe, final, frames, witness } = await runCase(caseId, world, { gateway, witness: harnessOptions.witness !== false });
   if (specOf(caseId).restart && harnessOptions.witness !== false) assert.equal((transition ?? drive).handoff?.ready_for_restart, true, 'the case hands over for the restart');
   const driven = transition ?? drive;
@@ -721,6 +720,12 @@ test('dry run: (p) a parked case sends its transition only once the control witn
     assert.ok(unseen.graded.missing.includes('parked-copy-unwitnessed'), `${caseId}: ${unseen.graded.missing}`);
     assert.deepEqual(unseen.graded.contradictions, [], caseId);
   }
+  // A transition phase continues only a drive that handed over before any transition (review finding).
+  for (const state of [{}, { handoff: { ready_for_witness: true }, transition: { requested_at_ms: 1_800_000_000_500 } }, { transition: { requested_at_ms: null } }]) {
+    const { evidence, frames } = await fire('revoked-owner', {}, { phase: 'transition', state });
+    assert.ok(evidence.refusals.some((refusal) => refusal.includes('continues only a drive that handed over')), `${JSON.stringify(state)}: ${evidence.refusals}`);
+    assert.equal(frames.length, 0, JSON.stringify(state));
+  }
   // Only a parked case has a transition phase.
   for (const caseId of RRA_CASE_IDS.filter((id) => !parkedCases.includes(id))) {
     const { evidence, frames } = await fire(caseId, {}, { phase: 'transition', state: {} });
@@ -831,10 +836,22 @@ test('dry run: (g) allowed\'s fallback refuses a duplicate, a probe after a wake
     assert.deepEqual(sorted(graded.missing), sorted(missingCodes), `${label}: ${JSON.stringify(graded)}`);
     assert.deepEqual(graded.contradictions, [], label);
   }
-  // A direct-wake receipt labelled probe-mediated claims a probe that never ran.
+  // A direct-wake receipt labelled probe-mediated claims a probe that never ran: never PASS.
   const direct = await grade('allowed', { ack: 'wake' });
   direct.record.ack.path = 'probe-mediated';
-  assert.deepEqual(gradeRecipientAuthorityCase(direct.record).missing, ['direct-wake-label-missing']);
+  const claimed = gradeRecipientAuthorityCase(direct.record);
+  assert.equal(claimed.verdict, 'MISSING-candidate', JSON.stringify(claimed));
+  assert.ok(claimed.missing.includes('probe-turn-unobserved'), claimed.missing.join());
+  // A fallback probe the gateway did not start is a scenario refusal, and the receipt keeps the
+  // direct-wake label: no probe-mediated ack is claimed (review finding).
+  const gateway = gatewayFor({ caseId: 'allowed', ack: 'wake-no-ack' });
+  const refusingProbe = (frame) => (frame.method === 'sessions.send' && String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`)
+    ? [{ type: 'res', id: frame.id, ok: false, error: { code: 'UNAVAILABLE', message: 'busy' } }]
+    : gateway(frame));
+  const { record } = await grade('allowed', { ack: 'wake-no-ack' }, {}, refusingProbe);
+  assert.ok(record.scenario.refusals.includes('fallback probe turn not accepted with a run id'), record.scenario.refusals.join());
+  assert.equal(record.ack.path, 'direct-wake');
+  assert.equal(gradeRecipientAuthorityCase(record).verdict, 'MISSING-candidate');
 });
 
 test('dry run: a policy patch the gateway rejected stops the case before dispatch and is never FAIL', async () => {

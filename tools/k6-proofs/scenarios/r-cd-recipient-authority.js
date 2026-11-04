@@ -197,7 +197,8 @@
  *    rra-a4d5318d426ad728, where revoked-owner's owner change settled before its return was enqueued
  *    and was refused at enqueue, and allowed's woken run gave no ack):
  *    - a parked case witnesses its return's queued copy before its transition. No gateway RPC reads a
- *      session's queued system events, so the witness is the router's line
+ *      non-main session's queued system events (`status` peeks only each agent's main session,
+ *      src/status/summary.ts:503-514), so the witness is the router's line
  *      `[continuation:targeted-return] Delivered to <target> from <child>`
  *      (src/agents/subagent-announce.continuation-return.ts:198-203, console through
  *      src/runtime.ts:80-88), logged only for a target whose row was written
@@ -345,6 +346,14 @@ export default function () {
     ended: null,
     refusals: [],
   };
+  // A transition phase continues a drive that handed over before any transition: one the drive
+  // already sent would make the control's witness meaningless.
+  if (control.phase === 'transition' && !control.problems.length) {
+    const handed = JSON.parse(__ENV.OPENCLAW_RCD_RA_STATE || '{}');
+    if (handed?.handoff?.ready_for_witness !== true || handed?.transition?.requested_at_ms != null) {
+      control.problems.push('the transition phase continues only a drive that handed over before any transition');
+    }
+  }
   if (control.problems.length) {
     evidence.refusals.push(...control.problems);
     failures.add(1);
@@ -802,12 +811,11 @@ export default function () {
         const seen = messages ? observeTargetTranscript(messages, { nonce: rowNonce, primingRunIds: evidence.priming_run_ids }) : null;
         if (seen) evidence.fallback = { decided_at_ms: Date.now(), woken_runs: seen.foreignRuns, ack_runs: seen.ackRuns };
         if (!seen || seen.ackRuns > 0 || seen.foreignRuns === 0) return finalReads();
-        evidence.ack_path = 'probe-mediated';
-        probeThenFinal();
+        probeThenFinal({ fallback: true });
       });
     }
 
-    function probeThenFinal() {
+    function probeThenFinal({ fallback = false } = {}) {
       // 🌊's conditional probe (room msg 1567590902694936678), the same text for every case: a turn
       // that drained the return follows its priming and acks; any other answers PROBE-OK <probeNonce>.
       // It never names the ack or the row nonce, so an ack in its run is the primed target answering
@@ -828,7 +836,12 @@ export default function () {
       send(keys.target, instruction, `${RRA_ROW}-PROBE-${probeNonce}`, (r) => {
         evidence.probe_run_id = r.payload?.runId || null;
         evidence.probe_ran = Boolean(r.ok && evidence.probe_run_id);
-        if (!evidence.probe_ran) return finalReads();
+        // allowed's fallback: once its probe runs, the ack is read in that run, labelled probe-mediated.
+        if (fallback && evidence.probe_ran) evidence.ack_path = 'probe-mediated';
+        if (!evidence.probe_ran) {
+          if (fallback) refuse('fallback probe turn not accepted with a run id');
+          return finalReads();
+        }
         // Once the probe run has answered, let it finish: an ack (or a second one) may follow its
         // first row, and the final read counts every row of the run.
         pollHistory(keys.target, (messages) => messages.some((m) => messageRunId(m) === evidence.probe_run_id &&

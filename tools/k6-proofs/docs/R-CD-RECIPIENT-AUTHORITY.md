@@ -463,11 +463,18 @@ waited for the child to be done plus `_PARK_MS`, then sent the owner change. Tha
 force the ordering: a child done in `sessions.list` is not yet a routed return, and the owner change
 is a model turn of its own.
 
-**The witness.** No gateway RPC reads a session's queued system events. `peekSystemEventEntries` and
-`peekSystemEvents` (`src/infra/system-events.ts:717, 737`) have in-process callers only (the reset
-cleanup, hook dispatch, session creation, the plugin SDK runtime), and no file under
-`src/gateway/server-methods` but a test names them. The public surface is the router's console
-line, the one the row already reads as the park (`RRA_PARKED_COPY_WITNESS_BYTES`):
+**The witness.** No gateway RPC reads a non-main session's queued system events.
+
+- `peekSystemEventEntries` and `peekSystemEvents` (`src/infra/system-events.ts:717, 737`) are called
+  in process: the reset cleanup, hook dispatch, session creation, session-state notices, the plugin
+  SDK runtime and the status summary. No file under `src/gateway/server-methods` but a test names
+  them.
+- The one RPC that returns queued events, `status` (`src/gateway/server-methods/health.ts:131-142` ->
+  `src/status/summary.ts:503-514`, returned at `:561`), peeks only each agent's canonical main
+  session. A row target is a disposable session, never that one.
+
+So the public surface is the router's console line, the one the row already reads as the park
+(`RRA_PARKED_COPY_WITNESS_BYTES`):
 
 - `[continuation:targeted-return] Delivered to <keys> from <child>` is logged only for
   `deliveredSessionKeys` (`subagent-announce.continuation-return.ts:198-203`), through
@@ -492,10 +499,12 @@ So that line, naming the case's target and coming from the case's child, witness
 2. The control waits, up to `OPENCLAW_RCD_RA_WITNESS_WAIT_MS` (120000), for the router's line for
    the case's target from the case's child in its gateway's console since the case began
    (`findParkedCopy`).
-3. Only then, and only while it still owns the listener, does it run the case's transition phase
+3. Only then, only after a drive that recorded no refusal and passed its preflight, and only while
+   it still owns the listener, does it run the case's transition phase
    (`OPENCLAW_RCD_RA_PHASE=transition`). That phase carries the drive's state and does the rest: the
    pre-transition read, the transition, the sweep wait, the probe and the final reads, or for
-   `replay-restart` the restart handoff.
+   `replay-restart` the restart handoff. The scenario refuses a transition phase whose drive did not
+   hand over, or already sent a transition.
 
 With no line, nothing is changed: no transition phase runs, and the case is MISSING
 (`parked-copy-unwitnessed`). The record carries `witness: { parkedCopyAtMs, releasedAtMs }`. For every
@@ -505,8 +514,14 @@ parked case the grade requires:
 - the release at or after it;
 - the transition requested at or after the release.
 
-Otherwise the case is MISSING `parked-copy-unwitnessed`, and nothing the return then did is judged,
-as for the other premises. Every other rule is unchanged: the park before the transition request,
+Otherwise the case is MISSING `parked-copy-unwitnessed`. The witness only adds MISSING:
+
+- while the record's own router line from the child precedes the transition request, the ordering
+  it shows still holds, so an ack, wake or route of the refused return is still FAIL, as at
+  `53c1c192`;
+- with no such line, nothing the return then did is judged, as for the other premises.
+
+Every other rule is unchanged: the park before the transition request,
 no route while it was in flight, the epoch advanced, the reason at the pinned stage, and after the
 probe for `prompt-drain`.
 
@@ -573,7 +588,8 @@ miss, never FAIL.
 
 **The direct-wake path, unchanged.** One `TARGET-ACK <nonce>` in the woken run, a non-priming,
 non-probe run, gives PASS. A return routed and never woken is still FAIL
-(`allowed-return-not-adopted`): that is no wake, not a missing ack, and no probe is sent for it. The
+(`allowed-return-not-adopted`): that is no wake, not a missing ack. No probe is sent for it, and a
+probe or a label in the receipt never changes that FAIL. The
 receipt now says which path it took: `ack.path` is `direct-wake`, else MISSING
 `direct-wake-label-missing`.
 
@@ -591,6 +607,11 @@ receipt now says which path it took: `ack.path` is `direct-wake`, else MISSING
    `probe-mediated` (`ack.path`), and acks in a wake turn are counted apart (`target.wakeAckRuns`,
    which must be 0). The receipt never claims an ack in the wake turn.
 
+The label is set once the probe has run. A fallback probe the gateway did not start is a scenario
+refusal (MISSING), and the receipt keeps `direct-wake`. A receipt labelled `probe-mediated` is read
+as the fallback, so it needs the probe to have run (`probe-turn-unobserved`); it never reads as the
+direct path.
+
 What it rejects (dry-run pins (f) and (g), and the unit tests):
 
 | Shape | Verdict | Code |
@@ -602,7 +623,7 @@ What it rejects (dry-run pins (f) and (g), and the unit tests):
 | an ack in a priming run | MISSING | `ack-before-return` |
 | a wrong-nonce ack | MISSING | `ack-uncredited` (and `probe-ack-unobserved` when alone) |
 | two acks in the probe run | MISSING | `probe-ack-duplicated` |
-| a fallback receipt not labelled `probe-mediated` | MISSING | `probe-mediated-label-missing` |
+| a fallback receipt not labelled `probe-mediated`, or labelled with no probe run | MISSING | `probe-mediated-label-missing`; `probe-turn-unobserved` |
 | two wake turns that each acked; two woken runs; a return in the parent | FAIL | `duplicate-adoption`; `duplicate-wake`; `return-landed-in-parent` |
 
 An ack in both the wake turn and the probe run is MISSING, not the direct path's `duplicate-adoption`.
@@ -631,7 +652,7 @@ the lib, scenario, control and manifest at `53c1c192`, the head this lane starte
 
 | Pin | Shape | At this head | At `53c1c192` |
 |---|---|---|---|
-| (p) parked copy | every parked case sends its transition only in its transition phase, after the control's witness, and passes with it. Without the witness no transition is sent: MISSING `parked-copy-unwitnessed` | GREEN | RED: the drive sent the transition itself after `_PARK_MS`, with no handoff and no witness, and a parked record with no witness graded PASS |
+| (p) parked copy | every parked case sends its transition only in its transition phase, after the control's witness, and passes with it. Without the witness no transition is sent: MISSING `parked-copy-unwitnessed`. A transition phase refuses a drive that did not hand over or already sent a transition | GREEN | RED: the drive sent the transition itself after `_PARK_MS`, with no handoff and no witness, and a parked record with no witness graded PASS |
 | (q) enqueue refusal | an enqueue refusal offered as the parked-copy case | MISSING, with `parked-copy-unwitnessed` | RED as a pin: the code did not exist. The verdict was already MISSING (`return-not-parked-before-transition`, `refusal-stage-mismatch`), never PASS |
 | (r) early enqueue | each revoked case's early-enqueue ordering is its own pin, graded PASS by its own rules and never the parked-copy case | GREEN | RED: no pin existed |
 | (w) direct wake | `allowed`'s woken run acks: PASS, no probe sent, receipt labelled `direct-wake`; never woken is still FAIL with no probe | GREEN | RED on the label only: the verdict was already PASS, and never woken was already FAIL |
@@ -1280,12 +1301,14 @@ refusal becomes provable.
     transition RPC was in flight (`return-routed-during-transition`): the router may have read the
     epoch before it committed, so delivering then is correct;
   - a revoked or reassigned return already acknowledged, woken or marked adopted when the
-    transition was sent (the scenario reads the target just before it);
-  - a parked case without the control's witness of its queued copy before the transition
-    (`parked-copy-unwitnessed`, 🌊, room msg 1567623059727458526). The witness is `record.witness`:
-    the router's `Delivered to` line from the case's child, the same line read as the park, then the
-    release, then the transition. An enqueue refusal never satisfies a parked case. The early-enqueue
-    ordering is graded only as its own dry-run pin (`gradeEarlyEnqueuePin`), never as a row case.
+    transition was sent (the scenario reads the target just before it).
+- A parked case without the control's witness of its queued copy before the transition is MISSING
+  (`parked-copy-unwitnessed`, 🌊, room msg 1567623059727458526). The witness is `record.witness`: the
+  router's `Delivered to` line from the case's child, the same line read as the park, then the
+  release, then the transition. It only adds MISSING: while the record's own line from the child
+  precedes the transition request, a contradiction is still FAIL. An enqueue refusal never satisfies a
+  parked case. The early-enqueue ordering is graded only as its own dry-run pin
+  (`gradeEarlyEnqueuePin`), never as a row case.
 - A contradiction is **FAIL-candidate**: a refused return acknowledged (in the probe run or any
   later run), marked adopted by the product, woken, repeated in the target, or logged `Delivered to`
   once its transition had settled (the target named, or j12's empty list from its child); an allowed

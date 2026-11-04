@@ -37,7 +37,7 @@
  *   (delivery-queue-sqlite.kernel.ts:397-429). So "settled as refused" is still read from the
  *   reason and the absence of adoption, never from the row.
  * - The router's `Delivered to` line is the one public surface that shows a return's queued copy
- *   (RRA_PARKED_COPY_WITNESS_BYTES): no gateway RPC reads a session's queued system events. So a
+ *   (RRA_PARKED_COPY_WITNESS_BYTES): no gateway RPC reads a non-main session's queued system events. So a
  *   parked case's transition waits for the control to see that line (🌊's ruling, room msg
  *   1567623059727458526), and the grade requires the control's witness (record.witness).
  */
@@ -154,11 +154,14 @@ export const RRA_ORDERING_RULING = '1567623059727458526';
 
 /**
  * Why the router's `Delivered to <target> from <child>` line witnesses the return's queued copy at
- * j12′ 2907e656. No gateway RPC reads a session's queued system events: peekSystemEventEntries and
- * peekSystemEvents (src/infra/system-events.ts:717, 737) have in-process callers only (the reset
- * cleanup, hook dispatch, session creation, the plugin SDK runtime), and no file under
- * src/gateway/server-methods but a test names them. So this console line is the public witness the
- * control reads before it releases a parked case's transition.
+ * j12′ 2907e656. No gateway RPC reads a non-main session's queued system events. peekSystemEventEntries
+ * and peekSystemEvents (src/infra/system-events.ts:717, 737) are called in process (the reset cleanup,
+ * hook dispatch, session creation, session-state notices, the plugin SDK runtime, the status summary),
+ * and no file under src/gateway/server-methods but a test names them. The one RPC that returns queued
+ * events, `status` (src/gateway/server-methods/health.ts:131-142 -> src/status/summary.ts:503-514,
+ * 561), peeks only each agent's canonical main session, and a row target is never that session. So
+ * this console line is the public witness the control reads before it releases a parked case's
+ * transition.
  */
 export const RRA_PARKED_COPY_WITNESS_BYTES =
   'subagent-announce.continuation-return.ts:198-203 logs `[continuation:targeted-return] Delivered to <keys> from <child>` only for deliveredSessionKeys, through defaultRuntime.log to the console (src/runtime.ts:80-88); targeting.ts:409 adds the target there only after the row was written (:304), its in-memory copy carrying the row\'s ack id was queued (:322-341: enqueueSystemEvent at :339, or already queued, hasQueuedSystemEventDelivery at :340) and the authority was re-read current after the queueing (:358-375); a silent return requests no wake (subagent-announce.continuation-return.ts:175; targeting.ts:395), so the copy stays parked until a turn of the target drains it';
@@ -1265,13 +1268,16 @@ function gradeCaseRecord(record, specs) {
       // released the transition only once it had seen the router's `Delivered to` line for this target
       // from this case's child (RRA_PARKED_COPY_WITNESS_BYTES), the same line the grade reads as the
       // park; the transition was requested after that release. Without it the case shows another
-      // ordering or none (a transition before the enqueue is refused at enqueue): MISSING.
+      // ordering or none (a transition before the enqueue is refused at enqueue): MISSING. The witness
+      // only adds MISSING: while the record's own line from the child precedes the transition request,
+      // the ordering it shows still holds, so a contradiction is still FAIL.
       const witness = record.witness ?? {};
       if (!(isTime(witness.parkedCopyAtMs) && witness.parkedCopyAtMs === record.park?.deliveredFromChildAtMs &&
         isTime(witness.releasedAtMs) && witness.parkedCopyAtMs <= witness.releasedAtMs &&
         isTime(transition.requestedAtMs) && witness.releasedAtMs <= transition.requestedAtMs)) {
         missing.push('parked-copy-unwitnessed');
-        premise = false;
+        const fromChild = record.park?.deliveredFromChildAtMs;
+        if (!(isTime(fromChild) && isTime(transition.requestedAtMs) && fromChild < transition.requestedAtMs)) premise = false;
       }
     }
     // A router line while the transition RPC was in flight may have read the epoch before it
@@ -1332,15 +1338,16 @@ function gradeCaseRecord(record, specs) {
     // allowed's probe-mediated fallback (🌊's ruling, RRA_ORDERING_RULING): the conditional probe ran
     // after its woken run had no ack. Its ack is the probe run's, never the wake turn's, so the direct
     // path's rules do not read it.
-    const fallback = spec.fallbackProbe === true && target.probeRan === true;
+    const fallback = spec.fallbackProbe === true && (target.probeRan === true || record.ack?.path === 'probe-mediated');
     if (counted) {
       if (parent.ackRows > 0) contradict('return-landed-in-parent');
       if (!fallback && target.ackRuns > 1) contradict('duplicate-adoption');
       if (target.foreignRuns > 1) contradict('duplicate-wake');
-      if (!spec.probeAdopts && !fallback && target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) {
-        // Routed and never woken is the product's; woken without the exact ack may be the model's.
+      if (!spec.probeAdopts && target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) {
+        // Routed and never woken is the product's, probe or no probe; woken without the exact ack may be
+        // the model's, which the fallback reads instead.
         if (target.foreignRuns === 0) contradict('allowed-return-not-adopted');
-        else missing.push('woken-without-ack');
+        else if (!fallback) missing.push('woken-without-ack');
       }
       if (target.adoptedDeliveryRows > 1) contradict('duplicate-adoption');
     }
@@ -1350,8 +1357,9 @@ function gradeCaseRecord(record, specs) {
         // The direct-wake path, its oracle unchanged: one ack in the woken run. The receipt says so.
         need(ack.path === 'direct-wake', 'direct-wake-label-missing');
       } else {
-        // The receipt claims no ack in the wake turn: it is labelled probe-mediated.
+        // The receipt claims no ack in the wake turn: it is labelled probe-mediated, and its probe ran.
         need(ack.path === 'probe-mediated', 'probe-mediated-label-missing');
+        need(target.probeRan === true, 'probe-turn-unobserved');
         // Sent only when the woken run had no ack: the scenario's read before the probe shows a woken
         // run and no ack, and the final read still shows that run.
         const decision = ack.fallbackDecision ?? {};

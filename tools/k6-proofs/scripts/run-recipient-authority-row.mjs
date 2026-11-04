@@ -975,11 +975,12 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       const ownedBefore = verifyOwnership(current, target, platform);
       const evidence = ownedBefore ? await runScenario({ caseId, phase: 'drive', runId, target, options, privateDir, platform }) : null;
       // A parked case: witness the return's queued copy, then release the transition (🌊's ruling,
-      // room msg 1567623059727458526). No witness, or a gateway the control no longer owns, and the
-      // transition is never sent.
+      // room msg 1567623059727458526). No witness, a drive that recorded a refusal or failed its
+      // preflight, or a gateway the control no longer owns, and the transition is never sent.
       let transitionEvidence = null;
       let witness = null;
-      if (spec.timing === 'parked' && evidence?.handoff?.ready_for_witness) {
+      const driveClean = Array.isArray(evidence?.refusals) && evidence.refusals.length === 0 && evidence?.preflight?.ok === true;
+      if (spec.timing === 'parked' && evidence?.handoff?.ready_for_witness && driveClean) {
         witness = await witnessParkedCopy({
           generation: current,
           sinceMs: caseStart,

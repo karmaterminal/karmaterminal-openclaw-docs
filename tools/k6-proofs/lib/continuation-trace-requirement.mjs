@@ -293,6 +293,23 @@ export function manifestTraceReceiptFailures(manifest) {
       `continue_delegate row must declare invocation.mode (one of ${DELEGATE_MODES.join(', ')}); the trace collector attributes the fire by mode`,
     );
   }
+  // A row whose cases dispatch different modes lists them in invocation.modes, and the collector
+  // then takes each case's mode from its evidence, refusing one the list does not name.
+  if (invocation?.modes !== undefined) {
+    const modes = invocation.modes;
+    if (invocation.tool !== 'continue_delegate') {
+      failures.push('only a continue_delegate row may declare invocation.modes');
+    } else if (
+      !Array.isArray(modes) || modes.length < 2 ||
+      !modes.every((mode) => DELEGATE_MODES.includes(mode)) ||
+      new Set(modes).size !== modes.length ||
+      !modes.includes(invocation.mode)
+    ) {
+      failures.push(
+        `invocation.modes must list two or more distinct delegate modes (${DELEGATE_MODES.join(', ')}), invocation.mode among them; the trace collector takes each case's mode from its evidence and refuses one the list does not name`,
+      );
+    }
+  }
 
   // A bracket delegate is parsed from a child's final text, so its trace has no
   // typed continue_delegate tool span. The collector expects that topology only

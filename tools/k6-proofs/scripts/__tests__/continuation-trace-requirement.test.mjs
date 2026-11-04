@@ -247,6 +247,23 @@ test('a continue_delegate manifest must declare its delegate mode', async () => 
   assert.deepEqual(modeFailures({ rowId: 'R-Y', invocation: { tool: 'continue_work' } }), []);
 });
 
+test('a continue_delegate row that fires several modes declares them all, its default among them', async () => {
+  const { manifestTraceReceiptFailures } = await lib();
+  const modesFailures = (manifest) =>
+    manifestTraceReceiptFailures(manifest).filter((failure) => failure.includes('invocation.modes'));
+  const committed = await committedManifest('r-cd-recipient-authority.json');
+  assert.deepEqual(committed.invocation.modes, ['silent-wake', 'silent']);
+  assert.deepEqual(modesFailures(committed), []);
+  const withModes = (modes, extra = {}) => ({ ...committed, invocation: { ...committed.invocation, modes, ...extra } });
+  for (const modes of [[], ['silent'], 'silent', ['silent-wake', 'bogus'], ['silent-wake', 'silent', 'silent'], ['silent', 'normal']]) {
+    assert.equal(modesFailures(withModes(modes)).length, 1, JSON.stringify(modes));
+  }
+  assert.equal(modesFailures({ rowId: 'R-Y', invocation: { tool: 'continue_work', modes: ['silent', 'silent-wake'] } }).length, 1);
+  // A row without the list keeps the single mode rule.
+  const { modes: _modes, ...single } = committed.invocation;
+  assert.deepEqual(modesFailures({ ...committed, invocation: single }), []);
+});
+
 test('a bracket-token continue_delegate manifest declares its raw-final-text origin, and only it does', async () => {
   const { manifestTraceReceiptFailures } = await lib();
   const originFailures = (manifest) =>

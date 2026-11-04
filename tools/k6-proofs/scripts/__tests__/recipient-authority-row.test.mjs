@@ -93,6 +93,11 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.notEqual(manifest.invocation.pinnedCandidate, PRE_GRANT, 'the pre-grant head is history, never the pin');
   assert.equal(manifest.invocation.baselineCandidate, RRA_J12, 'j12 is the named baseline, never the pin');
   assert.deepEqual(manifest.invocation.cases, RRA_CASE_IDS);
+  // The trace collector takes each case's mode from its evidence and refuses one invocation.modes
+  // does not name: the list is exactly the modes the case table dispatches, the default among them.
+  const caseModes = [...new Set(RRA_CASE_IDS.map((caseId) => RRA_CASES[caseId].mode).filter(Boolean))];
+  assert.deepEqual([...manifest.invocation.modes].sort(), caseModes.sort());
+  assert.ok(manifest.invocation.modes.includes(manifest.invocation.mode));
   assert.equal(Object.hasOwn(manifest, 'verdictCap'), false, 'a disposable real process needs no cap');
   assert.equal(manifest.liveRunSafety.classification, 'orchestration-required');
   assert.equal(manifest.liveRunSafety.requiresHumanConfirmation, true);

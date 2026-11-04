@@ -714,8 +714,9 @@ How the probe's reply is graded. One of two answers counts, never both:
 | `work-revoked-visibility` | no return, no priming | `PROBE-OK <probeNonce>`, and no wake turn | no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved`. An ack is not graded here: the session is never primed |
 | `allowed-silent` | the return, drained by that turn | exactly one `TARGET-ACK <nonce>` in the probe run, after `Delivered to` from its child ([the oracle](#allowed-silent-the-probe-runs-target-ack), unchanged) | `PROBE-OK` alone: MISSING `probe-ack-unobserved`, the old run's shape. `PROBE-OK` beside the ack is neither required nor refused |
 
-The ACK oracle is the one `4f86dd78` set, unchanged: the grade itself did not move. A `PROBE-OK`
-naming another nonce, the row nonce included, is credited to no case.
+The ACK oracle is the one `4f86dd78` set, unchanged. The grade's only addition is the binding above,
+which can only add MISSING. A `PROBE-OK` naming another nonce, the row nonce included, is credited
+to no case.
 
 **The old receipt.** 🕯's `allowed-silent` receipt (`rra-88e4fd22f0b122a8`) stays
 `probe-ack-unobserved` and is never upgraded:

@@ -2,9 +2,11 @@
 /**
  * run-recipient-authority-row.mjs: the control for R-CD-RECIPIENT-AUTHORITY, the live isolated-gateway
  * row (🌊's ruling, room msg 1567077062139838485; docs#536), pinned to j12′
- * 2907e656a892c0efa93821670e9488c07be12c17, the merged head with the delegate dispatch grant (🌊's
- * ruling, room msg 1567104742604406896; gate 3, room msg 1567194866507841678; the grant, ruling A,
- * room msg 1567487338383413250).
+ * a22bd9c05c4a7a9c86e72a132cb7939e399104cb, the merged head with the delegate dispatch grant and the
+ * incognito fanout refusal (🌊's ruling, room msg 1567104742604406896; gate 3, room msg
+ * 1567194866507841678; the grant, ruling A, room msg 1567487338383413250; the incognito fix, room msgs
+ * 1567643207976886343 and 1567646197517385800). The grant's head 2907e656 is history, refused like
+ * every other SHA.
  *
  * It owns one disposable gateway that frond-scribe scripts/proof-gw/composite-launcher.sh set up,
  * signed in (login) and stopped:

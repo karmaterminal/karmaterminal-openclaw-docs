@@ -12,16 +12,18 @@
  * (scenarios/r-cd-recipient-authority.js), the control (scripts/run-recipient-authority-row.mjs)
  * and the tests share it. Plain ESM with no Node or k6 imports, so k6 can load it.
  *
- * The product path at j12′ (karmaterminal/openclaw 2907e656a892c0efa93821670e9488c07be12c17, the
+ * The product path at j12′ (karmaterminal/openclaw a22bd9c05c4a7a9c86e72a132cb7939e399104cb, the
  * merged head: the refused chain, keeps-queued-2, the continue_work authority binding, the turn-start
- * fence, wake admission, #1544 maintenance custody and the delegate dispatch grant), with path:line
- * anchors, is in the scenario header and in docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below
- * rest on:
+ * fence, wake admission, #1544 maintenance custody, the delegate dispatch grant, and the incognito
+ * fanout refusal with the memory-store maintenance separation), with path:line anchors, is in the
+ * scenario header and in docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below rest on:
  * - The binding is captured when the continue_delegate tool call is accepted, before its
  *   "scheduled" result (continue-delegate-tool.ts:424-449 -> delegate-flow-store.ts:432-452, the
  *   binding at :435-442). A transition after that toolResult is a change between dispatch and return.
  *   The same step captures the electing operator's dispatch grant (:443-451), which the delegate's
- *   spawn runs under; it changes no case's stage or oracle.
+ *   spawn runs under; it changes no case's stage or oracle. The binding refuses an incognito
+ *   requester's tree/all fanout election (recipient-authority-binding.ts:64-69); every case elects
+ *   one explicit targetSessionKey, which the tool refuses beside a fanoutMode, so no case reaches it.
  * - Every refused return logs one line, `[continuation:return-refused] stage=<stage>
  *   reason=recipient-authority-changed session=<key>[ deliveryId=<id>]`
  *   (src/auto-reply/continuation/return-refusal.ts:16-36), at whichever boundary sees it first:
@@ -47,12 +49,13 @@ import { hasExactSentinelText, heartbeatRespondCalls, heartbeatRespondResult, me
 
 export const RRA_ROW = 'R-CD-RECIPIENT-AUTHORITY';
 /**
- * j12′: the product this row is pinned to, the merged head with the delegate dispatch grant
- * (karmaterminal/openclaw codeagent/j12prime-candidate). Every cite was re-walked here. The refused
- * chain it merged (e9dc1c31) was the row's interim pin, and the merged head before the grant
- * (1ab5a73e) its pin until the grant; both are history: no record may name either.
+ * j12′: the product this row is pinned to, the merged head with the delegate dispatch grant and the
+ * incognito fanout refusal (karmaterminal/openclaw codeagent/j12prime-candidate). Every cite in a file
+ * it changed was re-walked here. The refused chain it merged (e9dc1c31) was the row's interim pin,
+ * the merged head before the grant (1ab5a73e) its pin until the grant, and the grant's head
+ * (2907e656) its pin until the incognito fix; all three are history: no record may name any of them.
  */
-export const RRA_J12P = '2907e656a892c0efa93821670e9488c07be12c17';
+export const RRA_J12P = 'a22bd9c05c4a7a9c86e72a132cb7939e399104cb';
 export const RRA_PIN_STATUS = 'merged';
 /** j12: the presentation product the row was first written to. The named baseline, never a pin. */
 export const RRA_J12 = '352f56029dc95c60149ab4aaa127226a861d0b3d';
@@ -164,11 +167,12 @@ export const RRA_ORDERING_RULING = '1567623059727458526';
 
 /**
  * Why the router's `Delivered to <target> from <child>` line witnesses the return's queued copy at
- * j12′ 2907e656. No gateway RPC reads a non-main session's queued system events. peekSystemEventEntries
- * and peekSystemEvents (src/infra/system-events.ts:717, 737) are called in process (the reset cleanup,
- * hook dispatch, session creation, session-state notices, the plugin SDK runtime, the status summary),
- * and no file under src/gateway/server-methods but a test names them. The one RPC that returns queued
- * events, `status` (src/gateway/server-methods/health.ts:131-142 -> src/status/summary.ts:503-514,
+ * j12′ (read at 2907e656; every file cited here is byte-identical at a22bd9c05c). No gateway RPC
+ * reads a non-main session's queued system events. peekSystemEventEntries and peekSystemEvents
+ * (src/infra/system-events.ts:717, 737) are called in process (the reset cleanup, hook dispatch,
+ * session creation, session-state notices, the plugin SDK runtime, the status summary), and no file
+ * under src/gateway/server-methods but a test names them. The one RPC that returns queued events,
+ * `status` (src/gateway/server-methods/health.ts:131-142 -> src/status/summary.ts:503-514,
  * 561), peeks only each agent's canonical main session, and a row target is never that session. So
  * this console line is the public witness the control reads before it releases a parked case's
  * transition.

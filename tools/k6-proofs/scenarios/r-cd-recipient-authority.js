@@ -16,12 +16,15 @@
  * default(). It never decides a verdict: it prints evidence, and lib/recipient-authority-row.mjs
  * grades the control's case record.
  *
- * Product path at j12′, karmaterminal/openclaw 2907e656a892c0efa93821670e9488c07be12c17 (the merged
- * head with the delegate dispatch grant), every anchor re-walked with git show / git grep at that
- * commit. j12 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only, the refused chain
- * e9dc1c31 the row's former interim pin, and 1ab5a73e (the merged head before the grant) its former
- * pin. Sections 1-4 and 6 read files that are j12's own or whose cited lines j12′ only moved;
- * section 5 is j12′'s return refusal, section 7 its continue_work binding and section 8 the grant.
+ * Product path at j12′, karmaterminal/openclaw a22bd9c05c4a7a9c86e72a132cb7939e399104cb (the
+ * merged head with the delegate dispatch grant and the incognito fanout refusal). Every anchor was
+ * re-walked with git show / git grep at 2907e656, and every anchor in a file a22bd9c05c changed was
+ * re-walked again at a22bd9c05c; the rest are in files byte-identical between the two. j12
+ * 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only, the refused chain e9dc1c31
+ * the row's former interim pin, 1ab5a73e (the merged head before the grant) a former pin, and
+ * 2907e656 (the grant's head, before the incognito fix) the pin before this one. Sections 1-4 and 6
+ * read files that are j12's own or whose cited lines j12′ only moved; section 5 is j12′'s return
+ * refusal, section 7 its continue_work binding and section 8 the grant.
  *
  * 1. Authority. One UUID epoch per logical session key in session_recipient_authority (per-agent
  *    database). A binding is current only while the stored epoch equals the captured one
@@ -33,8 +36,12 @@
  *    enqueues the delegate (:424-434 -> src/auto-reply/continuation/delegate-store.ts:205-224), and the
  *    custody record is created only after the binding is captured
  *    (src/auto-reply/continuation/delegate-flow-store.ts:432-452, the binding at :435-442 ->
- *    src/auto-reply/continuation/recipient-authority-binding.ts:56-74). The tool's "scheduled" result
- *    (continue-delegate-tool.ts:436-449) is therefore after capture. The child carries the binding
+ *    src/auto-reply/continuation/recipient-authority-binding.ts:57-78). The tool's "scheduled" result
+ *    (continue-delegate-tool.ts:436-449) is therefore after capture. At a22bd9c05c the binding also
+ *    refuses an incognito requester's tree/all fanout election before any record
+ *    (recipient-authority-binding.ts:64-69); every case passes one explicit targetSessionKey, which
+ *    the tool refuses beside a fanoutMode (continue-delegate-tool.ts:328-334), so none reaches it.
+ *    The child carries the binding
  *    (src/auto-reply/continuation/delegate-dispatch-request.ts:65-66,
  *    src/agents/subagents/spawn/subagent-spawn-request.ts:328, subagent-spawn-continuation.ts:138-159).
  *

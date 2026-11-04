@@ -1,9 +1,24 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61`; `663fafdc` was not a gate-3 PASS; owner fires a fresh whole 13 after 🌿's review.** In no corpus.
+Status: **re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿's review.** In no corpus.
+At `2907e656`, before the re-pin: **11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61`; `663fafdc` was not a gate-3 PASS.**
 Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head
-with the delegate dispatch grant, karmaterminal/openclaw `2907e656a892c0efa93821670e9488c07be12c17`
-(branch `codeagent/j12prime-candidate`).
+with the delegate dispatch grant and the incognito fanout refusal, karmaterminal/openclaw
+`a22bd9c05c4a7a9c86e72a132cb7939e399104cb` (branch `codeagent/j12prime-candidate`).
+
+**The re-pin.** 🕯 (room msg 1567674372905505001): "docs `8897ef7b` still hard-pins
+`RRA_PINNED = 2907e656` in the row library, so its preflight will refuse `a22bd9c05c` … The docs row
+needs a hash-bound successor pinning `a22bd9c05c` before the fresh 13; I won't bypass its gate
+locally." 🌊 (room msg 1567670360353149102): "🕯 should stage the resulting exact product head for the fresh 13.
+This is a ratchet/candidate go, not a gate-3 or gate-4 pass". This head pins `a22bd9c05c`.
+`2907e656` is history: the control's preflight refuses it as a candidate and as a stage, the scenario
+refuses it, and a receipt naming it, both of 🕯's runs there included, grades MISSING
+(`candidate-not-pinned`). `a22bd9c05c` is `2907e656` plus the incognito fanout refusal and the
+memory-store maintenance separation. They change no case's stage or oracle
+([what they change for this row](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)).
+Every cite in a file they changed was re-walked at `a22bd9c05c`
+([the re-walk](#at-a22bd9c05c-the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)).
+Nothing below about the probe text, its hash, the parked-copy witness or the double-ack rule changed.
 
 🕯's fresh 13 at `2907e656` (run `rra-a4d5318d426ad728`, room msg 1567622903074390167) graded 11 of 13
 cases PASS-candidate. `allowed-silent` is among the eleven, so the conditional probe got its one ack
@@ -60,17 +75,24 @@ this head is every case's receipt.
 - #1544's test routing (`583e0526`, tests only);
 - the delegate dispatch grant (`da8851c5`, 🌊's ruling A, room msg 1567487338383413250) and its
   test-lines allocation (`2907e656`):
-  [what it changes for this row](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
+  [what it changes for this row](#the-delegate-dispatch-grant-and-this-rows-operator-connection);
+- the incognito fanout refusal and the memory-store maintenance separation (lane
+  `continuation-incognito-fanout-and-memory-maintenance` @ `ae11b29243`, merge `2fe459ab92`; 🌊's go,
+  room msgs 1567643207976886343 and 1567646197517385800; reviewed on karmaterminal/openclaw#1271,
+  comment 6643997194) and its test-lines allocation (`a22bd9c05c`):
+  [what it changes for this row](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation).
 
 This row is gate 3, run by an owner at the merged head (🌊, room msg 1567194866507841678). It was
 first written to j12, then pinned to the refused chain `e9dc1c31` as an interim pin, then to the
-merged head before the grant, `1ab5a73e14309922fa79edf4f93034bdb0acde62`. All three are history:
+merged head before the grant, `1ab5a73e14309922fa79edf4f93034bdb0acde62`, then to the grant's head
+before the incognito fix, `2907e656a892c0efa93821670e9488c07be12c17`. All four are history:
 j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`) is the named baseline, and its receipts stay j12's.
-No case is carried from j12, `e9dc1c31` or `1ab5a73e`, and a record that names any of them is
-MISSING: the row's tests grade such a record and refuse it. No case completed at `1ab5a73e`: the
-row's one-case live smoke there stopped on the delegate's dispatch, before any case receipt
-([below](#the-delegate-dispatch-grant-and-this-rows-operator-connection)).
-Every cite below was re-walked at `2907e656`
+No case is carried from j12, `e9dc1c31`, `1ab5a73e` or `2907e656`, and a record that names any of
+them is MISSING: the row's tests grade such a record and refuse it. No case completed at
+`1ab5a73e`: the row's one-case live smoke there stopped on the delegate's dispatch, before any case
+receipt ([below](#the-delegate-dispatch-grant-and-this-rows-operator-connection)). 🕯's two runs at
+`2907e656` stay that SHA's, and fold nowhere. Every cite below was re-walked at `2907e656`, and every
+cite in a file `a22bd9c05c` changed again at `a22bd9c05c`
 ([the re-walk](#cites-re-walked-at-the-merged-j12)).
 
 Rulings:
@@ -119,6 +141,8 @@ Rulings:
   completion for the proof you were primed for…'** so it matches the priming across turns. Keep the
   exact proof/nonce binding, `PROBE-OK` refusal path, probe-text hash and negatives pinned. Review
   that small successor before 🕯 fires a fresh whole 13; `663fafdc` is not a gate-3 PASS."
+- 🌊, room msg 1567670360353149102 (the re-pin to `a22bd9c05c`): "🕯 should stage the resulting
+  exact product head for the fresh 13. This is a ratchet/candidate go, not a gate-3 or gate-4 pass".
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
@@ -129,6 +153,7 @@ Rulings:
 - [The live run's misses at `2907e656`](#the-live-runs-misses-at-2907e656)
 - [The merged head's other lanes on the row's gateway](#the-merged-heads-other-lanes-on-the-rows-gateway)
 - [The delegate dispatch grant and this row's operator connection](#the-delegate-dispatch-grant-and-this-rows-operator-connection)
+- [The incognito fanout refusal and the memory-store maintenance separation](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)
 - [Cites re-walked at the merged j12′](#cites-re-walked-at-the-merged-j12)
 - [What ClawSweeper asked for, case by case](#what-clawsweeper-asked-for-case-by-case)
 - [Verdict rules](#verdict-rules)
@@ -195,8 +220,8 @@ It does not prove:
   - config `test/vitest/vitest.infra.config.ts`; 66 source paths reverted, 72 test-side paths kept.
 
   Neither the test file nor `continuation-wake.ts` changed from `e9dc1c31`, nor from `1ab5a73e` to
-  `2907e656`; the pin was not re-run at `2907e656`. That is test proof of the wake-stage refusal,
-  **not live proof** (🌊, room msg 1567201185243332681).
+  `2907e656` to `a22bd9c05c`; the pin was re-run at neither. That is test proof of the wake-stage
+  refusal, **not live proof** (🌊, room msg 1567201185243332681).
 - **An enqueue refusal that names a row.** Same reason: `targeting.ts:343-347` and `:369-374`
   refuse a row only when the epoch advances between the router's reads, a window of the same kind.
   The wake-mode cases pin the first read (`:277-280`), which refuses before any row.
@@ -221,6 +246,21 @@ It does not prove:
   - `src/auto-reply/continuation/work-recipient-authority.incognito.test.ts`: the incognito pin from
     `f52dc67e` (`:235`, an incognito election fails visibly and elects nothing) and the bound
     control (`:285`).
+- **The incognito fanout refusal and the memory-store maintenance separation.** They are proven by
+  the product's unit pins, not by this row:
+  - `src/auto-reply/continuation/delegate-recipient-authority.incognito.test.ts`: an incognito
+    election refused and nothing left, `post-compaction` with no fanout, `tree` and `all`, and
+    `normal` `tree` and `all` (`:58-76`); a durable session's `post-compaction` `tree` and `all`
+    fanout still elected and delivered (`:78-104`);
+  - `src/config/sessions/session-actor-memory.test.ts`: an incognito memory store's maintenance keeps
+    a live custody owner past the entry cap without opening the ambient state database (`:458`);
+  - `src/agents/subagents/registry/subagent-registry-maintenance.test.ts`: continuation rows read from
+    the maintained store's state root, never the ambient one (`:159`), and a memory store's live
+    custody owners kept without reading rows or awaiting readiness (`:167`).
+
+  Every case's sessions live in the gateway's durable store, and every delegate case elects one
+  explicit `targetSessionKey`, never a fanout, so no case reaches either path
+  ([what they change for this row](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)).
 - **The grant's refusals.** Revocation (a revoked device), a narrowed scope ceiling, a grant used
   under another session, expiry and a restart are proven by the product's unit pins in
   `src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts` (`:387`, `:398`,
@@ -270,7 +310,8 @@ It does not prove:
   lowered `session.maintenance` would do.
 - **Anything an owner has not run at the docs head.** 🕯's two runs, `rra-88e4fd22f0b122a8` (docs
   `935898d1`, 10/13 PASS-candidate) and the fresh 13 `rra-a4d5318d426ad728` (11/13), are folded
-  nowhere. The row passes only from one run of all thirteen cases.
+  nowhere. Both ran at `2907e656`, which this head refuses, so neither is carried to `a22bd9c05c`.
+  The row passes only from one run of all thirteen cases at the pin.
 - **The early-enqueue ordering as a row claim.** A revoked case's transition that lands before its
   return is enqueued is refused at `stage=enqueue` with no row. That is the product's correct refusal,
   and it is pinned only as a dry-run case of its own, never as the revoked case
@@ -293,8 +334,10 @@ It does not prove:
 
 Byte-read with `git show` / `git grep` at `2907e656`. Files unchanged since `e9dc1c31` are cited at
 their lines there; the six the merge changed by `1ab5a73e`, and the five the grant changed by
-`2907e656`, are cited at their new lines ([the re-walk](#cites-re-walked-at-the-merged-j12)). The
-scenario header (`scenarios/r-cd-recipient-authority.js`) carries the same map.
+`2907e656`, are cited at their new lines. Of the files `a22bd9c05c` changed, the row cites three; they
+were re-read at `a22bd9c05c`, and two cites moved. Every other cited file is byte-identical from
+`2907e656` to `a22bd9c05c` ([the re-walk](#cites-re-walked-at-the-merged-j12)). The scenario header
+(`scenarios/r-cd-recipient-authority.js`) carries the same map.
 
 ### What changes a recipient's authority
 
@@ -1177,7 +1220,9 @@ the row's isolated gateway. None changes one; the setup below rules out the one 
   anchor is not finalized (`work-store.ts:329-334`), so an early probe could only move the refusal
   after the probe (MISSING, never FAIL).
 - **#1544 maintenance custody (`984f4e1f`).** Session-store maintenance now preserves every
-  session that holds live custody (`subagent-registry-maintenance.ts:47-65`): an election's owner,
+  session that holds live custody (`subagent-registry-maintenance.ts:52-75` at `a22bd9c05c`, which
+  reads it from the maintained store's own state root;
+  [below](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation)): an election's owner,
   an admitted child's requester and bound recipients, and any session a pending continuation row is
   addressed to (`session-delivery-queue-storage.ts:687-706`). At its defaults (`enforce`,
   `maxEntries` 5000, `pruneAfter` 30 days, a 10 GiB disk budget, `store-maintenance.ts:26-34`)
@@ -1302,7 +1347,97 @@ and its resident catalog row (`operator-run-recovery.ts:216, 327-330`). That thi
 a grant is read from the bytes above. The one-case smoke at `2907e656` will be the first run of that
 shape.
 
+## The incognito fanout refusal and the memory-store maintenance separation
+
+**What `a22bd9c05c` changes.** It is `2907e656` plus the lane
+`continuation-incognito-fanout-and-memory-maintenance` @ `ae11b29243` (merge `2fe459ab92`; 🌊's go,
+room msgs 1567643207976886343 and 1567646197517385800; reviewed on karmaterminal/openclaw#1271,
+comment 6643997194) and its test-lines allocation. Its non-test product files are
+`subagent-registry-maintenance.ts`, `recipient-authority-binding.ts`, `work-store.ts`,
+`session-accessor.ts`, `session-sharing-store.async.ts` and `store-maintenance-preserve.ts`. It does
+three things:
+
+- **The incognito fanout refusal.** `createContinuationRecipientAuthorityBinding`
+  (`recipient-authority-binding.ts:57-78`) refuses a `tree` or `all` fanout election whose requester is
+  incognito, before any record exists (`:64-69`). It calls `assertSessionRecipientAuthorityOwner`
+  (`session-sharing-store.async.ts:591-600`, exported at `session-accessor.ts:188-191`). That throws
+  the default return's own refusal, "Incognito collaboration command requires its dedicated owner"
+  (`session-sharing-store.async.ts:56-57`, the capture's at `:68`), when the requester's storage
+  owner is a memory owner. That owner exists only for an incognito key
+  (`agent:<id>:(dashboard|subagent|internal-session-effects):incognito-…`,
+  `packages/session-url-contract/src/session-key.ts:6-13`) or an explicit incognito store
+  (`session-actor-storage-binding.ts:119-135`). The binding is its only caller, and the delegate's
+  enqueue is the binding's only caller (`delegate-flow-store.ts:437-442`). The explicit-target path
+  (`recipient-authority-binding.ts:70-77`) is the old `:66-73`, byte for byte.
+- **The memory-store maintenance separation.** `prepareSessionMaintenancePreservation` now hands each
+  provider the maintained store's state environment and whether it is an incognito memory store
+  (`store-maintenance-preserve.ts:76-83`, `:109`). On a memory store, the continuation custody provider
+  (`subagent-registry-maintenance.ts:52-75`) reads no pending rows and waits on no custody readiness
+  (`:58-66`). It keeps only the live owners (`:67-70`).
+- **Custody read from the maintained store's root.** On any other store, the provider reads pending
+  rows, readiness and live owners from that store's `env` (`:60`, `:65`, `:68`;
+  `work-store.ts:827-828`), not from the process's ambient root.
+
+**What it changes for this row: no case's stage or oracle.** Read from the bytes, case by case:
+
+| Case | Through the fix | Stage and oracle at `a22bd9c05c` |
+|---|---|---|
+| `allowed`, `allowed-across-reset`, `allowed-silent` | a durable parent elects one `continue_delegate` with `targetSessionKey` set to a durable target, so the binding takes the explicit-target path (`recipient-authority-binding.ts:70-77`), not the fanout branch | unchanged: adopted and acknowledged once, the epoch unchanged (by the reset too) |
+| `unauthorized-admission` | refused at the tool (`continue-delegate-tool.ts:353-362`) before any enqueue, so it never reaches the binding | unchanged: the policy error, no child |
+| `unauthorized-dispatch` | accepted and bound on the explicit-target path, then refused at dispatch (`delegate-dispatch.ts:268-291`, unchanged) | unchanged: `[continuation:delegate-rejected]`, no child |
+| `revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`, `replay-restart` | bound on the explicit-target path. The park, the witness line and the refusal run through files `a22bd9c05c` did not change (`subagent-announce.continuation-return.ts`, `targeting.ts`, `session-system-events.ts`, `session-system-event-adoption.ts`, `server-restart-sentinel-delivery.ts`, `session-reset-cleanup.ts`) | unchanged: `stage=prompt-drain`, or `stage=replay` (`reassigned` may be either; `replay-restart` on the replacement), and the same absence |
+| `wake-revoked-visibility`, `wake-reassigned` | bound on the explicit-target path, refused at the router's first read (`targeting.ts:277-280`, unchanged) | unchanged: `stage=enqueue`, no `deliveryId`, no `Delivered to` |
+| `work-revoked-visibility` | a `continue_work` election binds through `work-operator-continuation.ts:34-52` -> `work-recipient-authority.ts:63-67`, never through `createContinuationRecipientAuthorityBinding`. The handoff refusal (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) is in unchanged files. The `work-store.ts` lines it rests on are byte-identical: the claim (`:213-313`), the failed record never claimed again (`:226, 260`) and the failure (`:639-655`). Only `listLiveContinuationCustodyOwners` (`:827-828`) changed | unchanged: `stage=wake`, one election, no wake turn |
+
+No case reaches either half of the fix:
+
+- **The fanout refusal.** Every delegate case elects one explicit `targetSessionKey`. The tool
+  refuses a `fanoutMode` beside one (`continue-delegate-tool.ts:328-334`), and the scenario credits
+  only a dispatch whose arguments carry the case's own target (`findDelegateDispatch`). Any other
+  delegate call is a deviation, MISSING, as before. No row key is incognito: the scenario creates
+  `agent:main:r-cd-ra-<kind>-<nonce>` with `sessions.create` and no incognito flag.
+- **The maintenance separation.** On the row's gateway every maintained store is in the gateway's
+  durable store, under the isolated state root the control starts it with (`OPENCLAW_STATE_DIR`). A
+  store's `env` is that process environment with its state root resolved
+  (`session-accessor.sqlite-scope.ts:352-362`), so the root the provider now reads is the one it read
+  at `2907e656`. `memory` is false, because the store is not the incognito database
+  (`openclaw-agent-db.paths.ts:69-85`), so it still reads rows and readiness. The sessions it
+  protects are unchanged, and at the defaults maintenance reaches no row session anyway
+  ([above](#the-merged-heads-other-lanes-on-the-rows-gateway)).
+
+The fix is proven by the product's unit pins, not by this row (under "does not prove").
+
 ## Cites re-walked at the merged j12′
+
+### At `a22bd9c05c`, the incognito fanout refusal and the memory-store maintenance separation
+
+Every product file the row cites (this doc, the scenario header, the lib, the control, the tests and
+the manifest, at docs `8897ef7b`) was checked against `git diff --name-only 2907e656 a22bd9c05c`.
+Every cite in a changed file was re-read at `a22bd9c05c` in a detached worktree. The fix changed six
+non-test product files. The row cites three of them:
+
+| File | Cite (at `2907e656`) | At `a22bd9c05c` | What it affects |
+|---|---|---|---|
+| `src/auto-reply/continuation/recipient-authority-binding.ts` | `:56-74` (scenario header, section 2: the binding captured before the custody record) | **moved** to `:57-78` by an import (`:4`) and the fanout refusal (`:64-69`). The explicit-target capture the row reads, `:70-77`, is the old `:66-73`, unchanged in meaning. The function **gained** the incognito fanout refusal | none: no case elects a fanout, and no row session is incognito |
+| `src/agents/subagents/registry/subagent-registry-maintenance.ts` | `:47-65` (#1544: maintenance preserves every session that holds live custody) | **moved and changed in meaning** to `:52-75`. On a durable store it preserves the same holders, now read from the maintained store's root (`:60`, `:65`, `:68`). On a memory store it keeps the live owners only (`:58-66`) | none: the row's stores are durable and in the gateway's own root, and the setup pin (maintenance at its defaults) stands |
+| `src/auto-reply/continuation/work-store.ts` | `:97-146`, `:213-313`, `:226, 260`, `:273-282`, `:315-365`, `:329-334`, `:335-345`, `:639-655`: 15 cites, 4 in the scenario header, 2 in the lib and 9 here | **unchanged**. The file changed only at `:821-828` (`listLiveContinuationCustodyOwners` takes an `env`), after every cited line, and each cited range is byte-identical | none |
+
+The row had no cite to re-walk in the other three non-test files the fix changed:
+`session-accessor.ts`, `session-sharing-store.async.ts` and `store-maintenance-preserve.ts`. The
+`session-accessor.sqlite-*.ts` files the row cites are other, unchanged files. On the test side the
+fix added three unit-pin files (`delegate-recipient-authority.incognito.test.ts`,
+`session-actor-memory.test.ts`, `subagent-registry-maintenance.test.ts`), the test-lines allocation
+and one Vitest routing line. The row cited none of them, and now cites the unit pins under "does not
+prove". The fix's own lines are cited in
+[its section](#the-incognito-fanout-refusal-and-the-memory-store-maintenance-separation).
+
+Every other product file the row cites is byte-identical from `2907e656` to `a22bd9c05c`, so its
+cites stand as re-walked at `2907e656` and were skipped. Among them are `targeting.ts`,
+`continuation-wake.ts`, `continue-delegate-tool.ts`, `delegate-flow-store.ts`, `delegate-dispatch.ts`,
+`work-dispatch.ts`, `work-recipient-authority.ts`, `subagent-announce.continuation-return.ts`,
+`server-restart-sentinel-delivery.ts` and `session-reset-cleanup.ts`. The sections that read bytes at
+`2907e656` stand for the same reason ([the fresh 13's misses](#the-fresh-13s-misses-at-2907e656),
+[the live run's misses](#the-live-runs-misses-at-2907e656)).
 
 ### At `2907e656`, the delegate dispatch grant
 
@@ -1395,8 +1530,8 @@ refusal becomes provable.
 
 `lib/recipient-authority-row.mjs` grades each case record, and the row from all of them:
 
-- A record that is not this row's, names another candidate than j12′ at `2907e656` (j12, the
-  interim `e9dc1c31` and the pre-grant `1ab5a73e` included), lacks a gate (j12′ build, isolated
+- A record that is not this row's, names another candidate than j12′ at `a22bd9c05c` (j12, the
+  interim `e9dc1c31`, the pre-grant `1ab5a73e` and the grant's head `2907e656` included), lacks a gate (j12′ build, isolated
   state, model sign-in, cross-session policy enabled, gateway started by the control), whose
   listener was not the control's own process at every 500 ms sample and case boundary, or whose
   evidence is not bound to the control's run is **MISSING-candidate**, and nothing else about it is
@@ -1493,15 +1628,16 @@ refusal becomes provable.
 
 ## Operator procedure
 
-For the owner who runs it on an isolated proof gateway at the merged j12′, `2907e656`. Never
-against a live seat, and never at the pre-grant `1ab5a73e` or the interim `e9dc1c31`.
+For the owner who runs it on an isolated proof gateway at the merged j12′, `a22bd9c05c`. Never
+against a live seat, and never at the grant's head `2907e656`, the pre-grant `1ab5a73e` or the
+interim `e9dc1c31`.
 
-1. **Stage j12′.** Build a validated stage-only runtime at `2907e656a892c0efa93821670e9488c07be12c17`
+1. **Stage j12′.** Build a validated stage-only runtime at `a22bd9c05c4a7a9c86e72a132cb7939e399104cb`
    (its `dist/build-info.json` commit must be j12′) on your own architecture.
 2. **Set up the isolated gateway** with frond-scribe `scripts/proof-gw/composite-launcher.sh`:
-   `setup 2907e656a892c0efa93821670e9488c07be12c17 2907e656a892c0efa93821670e9488c07be12c17`, then
+   `setup a22bd9c05c4a7a9c86e72a132cb7939e399104cb a22bd9c05c4a7a9c86e72a132cb7939e399104cb`, then
    `login` and `login-finish` (or `adopt-auth` from a previous isolated gateway). It lives at
-   `$HOME/proof-gw/comp-2907e656`. Its `receipts/isolated-auth-status.json` must show an OpenAI
+   `$HOME/proof-gw/comp-a22bd9c0`. Its `receipts/isolated-auth-status.json` must show an OpenAI
    profile under its own state.
 3. **Enable continuation and cross-session targeting** in that gateway's own `openclaw.json`
    (`agents.defaults.continuation.enabled: true`, `crossSessionTargeting: "enabled"`), and leave
@@ -1511,8 +1647,8 @@ against a live seat, and never at the pre-grant `1ab5a73e` or the interim `e9dc1
    `config.patch` and restore it. **Leave `session.maintenance` at its defaults**: a lowered entry
    cap, prune age or disk budget could evict a row session that holds no custody
    ([above](#the-merged-heads-other-lanes-on-the-rows-gateway)).
-4. **Stop it**: `composite-launcher.sh stop 2907e656a892c0efa93821670e9488c07be12c17
-   2907e656a892c0efa93821670e9488c07be12c17`. The control refuses a running unit or a busy port, and
+4. **Stop it**: `composite-launcher.sh stop a22bd9c05c4a7a9c86e72a132cb7939e399104cb
+   a22bd9c05c4a7a9c86e72a132cb7939e399104cb`. The control refuses a running unit or a busy port, and
    starts the gateway itself.
 5. **Make an observer key** outside `$HOME/proof-gw`, mode 0600, at least 32 characters. The gateway
    never sees it.
@@ -1520,9 +1656,9 @@ against a live seat, and never at the pre-grant `1ab5a73e` or the interim `e9dc1
 
    ```bash
    node tools/k6-proofs/scripts/run-recipient-authority-row.mjs \
-     --proof-gw-dir "$HOME/proof-gw/comp-2907e656" \
+     --proof-gw-dir "$HOME/proof-gw/comp-a22bd9c0" \
      --stage-dir <j12′-stage> \
-     --candidate 2907e656a892c0efa93821670e9488c07be12c17 \
+     --candidate a22bd9c05c4a7a9c86e72a132cb7939e399104cb \
      --docs-sha <40-hex docs SHA> \
      --artifact-dir "$HOME/proof-runs/rra-<UTC>/public" \
      --observer-key-file <key> --seat <seat> --json
@@ -1551,7 +1687,7 @@ against a live seat, and never at the pre-grant `1ab5a73e` or the interim `e9dc1
 8. **Grade the row**: `node tools/k6-proofs/scripts/run-recipient-authority-row.mjs --grade-row
    <artifact-dir> --observer-key-file <key>`. Exit 0 only for PASS-candidate.
 9. **Publish the public directory only**, copied to
-   `PROOFS/2907e656a892c0efa93821670e9488c07be12c17/R-CD-RECIPIENT-AUTHORITY/<seat>/authority-row-<UTC>/`.
+   `PROOFS/a22bd9c05c4a7a9c86e72a132cb7939e399104cb/R-CD-RECIPIENT-AUTHORITY/<seat>/authority-row-<UTC>/`.
    The artifact directory lives outside the repository
    because `<artifact-dir>.private` sits beside it: raw evidence, gateway logs, session keys,
    delivery ids and flow ids, never part of the corpus. Folding is a reviewed coordinator step at j12′.
@@ -1571,6 +1707,6 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, the parked copy's witness before a parked case's transition phase, restart, signed receipts, `--grade-row` |
 | `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the parked-copy witness's bytes, the early-enqueue pins, the j12′ reason matchers, the probe text with its text test and pinned hash, transcript observation and verdict rules (`allowed`'s two paths included) |
-| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, gates, signed receipts |
-| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording |
+| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, every former pin (`e9dc1c31`, `1ab5a73e`, `2907e656`) refused by the grade, the control's preflight and `--grade-row`, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, gates, signed receipts |
+| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. It refuses `2907e656` as a candidate before it sends a frame. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

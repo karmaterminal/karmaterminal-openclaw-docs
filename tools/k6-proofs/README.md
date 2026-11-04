@@ -826,7 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
-| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 2907e656) | 11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61` (🌊's room msg 1567623059727458526: a parked case's transition sent only once the control witnessed its return's queued copy, the early-enqueue ordering pinned apart as a dry-run case; `allowed`'s probe-mediated fallback only after a woken run with no ack; 🌊's room msg 1567656724549075047: the probe's condition the target's context, as the priming's is); `663fafdc` was not a gate-3 PASS; owner fires a fresh whole 13 after 🌿's review; MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ a22bd9c05c) | re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿's review. At `2907e656`: 11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61` (🌊's room msg 1567623059727458526: a parked case's transition sent only once the control witnessed its return's queued copy, the early-enqueue ordering pinned apart as a dry-run case; `allowed`'s probe-mediated fallback only after a woken run with no ack; 🌊's room msg 1567656724549075047: the probe's condition the target's context, as the priming's is); `663fafdc` was not a gate-3 PASS. MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -920,10 +920,12 @@ is old-process restoration, never fresh-successor proof. Raw process output stay
 
 🌊's rulings (room msgs 1567077062139838485 and 1567104742604406896, 2026-11-03; docs#536): a live,
 isolated-gateway row, separate from the restart control above and from the fixture matrix, pinned to
-the merged j12′, the explicit-refusal successor with the delegate dispatch grant
-(`2907e656a892c0efa93821670e9488c07be12c17`, gate 3 at the merged head; j12 `352f56029dc9` is the
-named baseline only, the refused chain `e9dc1c31` the row's former interim pin, and `1ab5a73e`, the
-merged head before the grant, its former pin). On one disposable gateway that
+the merged j12′, the explicit-refusal successor with the delegate dispatch grant and the incognito
+fanout refusal (`a22bd9c05c4a7a9c86e72a132cb7939e399104cb`, gate 3 at the merged head; j12
+`352f56029dc9` is the named baseline only, the refused chain `e9dc1c31` the row's former interim pin,
+`1ab5a73e`, the merged head before the grant, a former pin, and `2907e656`, the grant's head, the pin
+before this one; 🕯, room msg 1567674372905505001, and 🌊, room msg 1567670360353149102). The control,
+the scenario and the grade refuse every one of them. On one disposable gateway that
 `scripts/run-recipient-authority-row.mjs` starts and owns, twelve cases each drive a real
 `continue_delegate` with `targetSessionKey` from a model turn and change the target's authority
 through a public RPC between dispatch and return. `allowed` and `allowed-across-reset` must be
@@ -954,13 +956,17 @@ or enqueue), no `Delivered to` line for the return once its transition settled, 
 in the probe run or any later run, wake or final effect. j12's `recipient authority changed` lines never
 count. The thirteenth, `work-revoked-visibility`, elects a `continue_work` wake, which j12′ binds to
 its session's authority, narrows that session's visibility once the election is captured, and must
-show j12′'s `[continuation:work-refused]` line at `stage=wake` and no wake turn or adoption. At
+show j12′'s `[continuation:work-refused]` line at `stage=wake` and no wake turn or adoption. Since
 `2907e656` each fired delegate spawns under the k6 operator's bounded dispatch grant, captured at
 election (`delegate-flow-store.ts:443-451`) and restored at dispatch
 (`delegate-dispatch.ts:449-484`), so the k6 connection need not outlive it. That the row's
 shared-token owner client gets a grant is read from the bytes; no product test pins that shape, and
 the row cannot tell a grant spawn from one under its open connection. The grant changes no case's
 stage or oracle, and its revocation, ceiling and expiry are the product's unit pins, not this row's.
+`a22bd9c05c` refuses an incognito requester's `tree`/`all` fanout election at the binding, before any
+record, and keeps incognito memory-store maintenance off the durable state database. No case reaches
+either: every case's sessions are durable and every delegate case elects one explicit target. So no
+case's stage or oracle moves, and both are the product's unit pins, not this row's.
 The control refuses a candidate other than j12′, a non-disposable or live-overlapping target, a
 missing isolated model sign-in, a disabled cross-session policy and any gateway it did not start; the
 live-run guard refuses the manifest (`orchestration-required`). Every case stays MISSING until an

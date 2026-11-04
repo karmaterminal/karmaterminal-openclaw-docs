@@ -1,7 +1,7 @@
 // R-CD-RECIPIENT-AUTHORITY dry run against the mock-gateway pattern (helpers/k6-node-runtime.mjs).
 //
 // The real case driver (scenarios/r-cd-recipient-authority.js) runs in Node against a scripted
-// gateway shaped like the public surface of the merged j12′ (2907e656): hello-ok, sessions.*,
+// gateway shaped like the public surface of the merged j12′ (a22bd9c05c): hello-ok, sessions.*,
 // session.visibility.set, session.members.*, config.get/patch, chat.history with Tool Search
 // dispatch_action rows for continue_delegate and continue_work. The control's own
 // assembleCaseRecord then joins the evidence with scripted j12′ gateway log lines (the router's
@@ -1099,9 +1099,11 @@ test('dry run: a continue_work capture not seen before the transition, or a seco
 });
 
 test('dry run: outside the control the scenario refuses before it sends a frame', async () => {
-  for (const env of [{ OPENCLAW_RCD_RA_RUN: '' }, { OPENCLAW_CANDIDATE_SHA: 'f15237ec921879d918482cdf372b0718d4c1aab9' }, { OPENCLAW_RCD_RA_CASE: 'stale' }, { OPENCLAW_RCD_RA_PHASE: 'observe' }]) {
+  // 2907e656 is the grant's head, the row's pin until a22bd9c05c: history, refused like any other SHA.
+  for (const env of [{ OPENCLAW_RCD_RA_RUN: '' }, { OPENCLAW_CANDIDATE_SHA: 'f15237ec921879d918482cdf372b0718d4c1aab9' }, { OPENCLAW_CANDIDATE_SHA: '2907e656a892c0efa93821670e9488c07be12c17' }, { OPENCLAW_RCD_RA_CASE: 'stale' }, { OPENCLAW_RCD_RA_PHASE: 'observe' }]) {
     const { evidence, frames } = await fire('revoked-visibility', {}, { env });
     assert.ok(evidence.refusals.length > 0, JSON.stringify(env));
+    if (env.OPENCLAW_CANDIDATE_SHA) assert.deepEqual(evidence.refusals, ['candidate is not j12′'], JSON.stringify(env));
     assert.equal(frames.length, 0, JSON.stringify(env));
   }
 });

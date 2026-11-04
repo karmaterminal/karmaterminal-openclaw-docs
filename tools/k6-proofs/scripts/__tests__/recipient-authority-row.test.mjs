@@ -120,11 +120,17 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   for (const old of [INTERIM, PRE_GRANT]) {
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
-  // The status line: the owner's one run at the merged head, and the three cases it left open.
-  assert.match(docs, /^Status: \*\*10\/13 PASS-candidate at `2907e656` \(run `rra-88e4fd22f0b122a8`\); 3 open, owner re-runs at\s+the new docs head\.\*\* In no corpus\./m);
+  // The status line: the owner's one run at the merged head, the three cases it left open now fixed,
+  // and what the owner runs next.
+  assert.match(docs, /^Status: \*\*10\/13 PASS-candidate at `2907e656` \(run `rra-88e4fd22f0b122a8`\); fixes landed; owner\s+re-runs the three, then a fresh full 13\.\*\* In no corpus\./m);
   const status = docs.slice(0, docs.indexOf('## What it proves'));
   for (const open of ['`wake-reassigned`', '`reassigned`', '`allowed-silent`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
-  assert.match(status, /held for 🌊/);
+  assert.doesNotMatch(status, /held for 🌊/, 'allowed-silent is ruled, no longer held');
+  // 🌊's ruling (a), quoted, and the oracle it sets.
+  assert.match(docs, /1567556038281007235/);
+  assert.match(docs, /"TARGET-ACK\s+on the probe\s+turn, bound to this case's nonce and the target's priming\./);
+  assert.match(docs, /### `allowed-silent`: the probe run's `TARGET-ACK`/);
+  assert.match(docs, /a model that does not give it reads MISSING \(`probe-ack-unobserved`\), never FAIL/i);
   for (const caseId of RRA_CASE_IDS) assert.match(docs, new RegExp(`\`${caseId}\``), caseId);
   // The case table pins one stage per refused return.
   for (const caseId of RRA_CASE_IDS.filter((id) => ['return-refused', 'work-refused'].includes(RRA_CASES[id].reasonKind))) {

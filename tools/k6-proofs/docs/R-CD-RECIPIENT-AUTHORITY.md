@@ -1,25 +1,33 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **10/13 PASS-candidate at `2907e656` (run `rra-88e4fd22f0b122a8`); 3 open, owner re-runs at
-the new docs head.** In no corpus. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned
-product: j12′, the merged head with the delegate dispatch grant, karmaterminal/openclaw
-`2907e656a892c0efa93821670e9488c07be12c17` (branch `codeagent/j12prime-candidate`).
+Status: **10/13 PASS-candidate at `2907e656` (run `rra-88e4fd22f0b122a8`); fixes landed; owner
+re-runs the three, then a fresh full 13.** In no corpus. Bound issue:
+karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head with the
+delegate dispatch grant, karmaterminal/openclaw `2907e656a892c0efa93821670e9488c07be12c17` (branch
+`codeagent/j12prime-candidate`).
 
 🕯's run (emeric, owner shape, docs `935898d1`, private run `rra-20261104T1401Z`) graded 10 of 13
-cases PASS-candidate and correlated all nine spawned delegates' Tempo traces. The three open cases,
-and what the docs head after `935898d1` does about each
+cases PASS-candidate and correlated all nine spawned delegates' Tempo traces. The three cases it left
+open, and what the docs head after `935898d1` does about each
 ([the misses](#the-live-runs-misses-at-2907e656)):
 
 - `wake-reassigned`: a harness label collision, fixed. Re-run.
 - `reassigned`: refused at `stage=prompt-drain`. The bytes allow that ordering only when a pending
   sweep armed the parked row while the delete was in flight. It is now accepted with its own bytes
   and that witness line. Re-run; 🕯's private gateway log shows whether the first run had the line.
-- `allowed-silent`: **open, held for 🌊.** The product writes no adoption marker for a
-  `sessions.send` probe turn, at every pin. The case cannot pass as written.
+- `allowed-silent`: fixed by 🌊's ruling (a). The product writes no adoption marker for a
+  `sessions.send` probe turn, at every pin, so the case passed on nothing it could ever show. It now
+  passes on the primed target's `TARGET-ACK <nonce>` in the probe's own run, sent after the return
+  reached the target ([the oracle](#allowed-silent-the-probe-runs-target-ack)). Re-run.
 
 The collector now reads each case's own mode, so traces are collected from the committed manifest.
-The ten PASS cases' "no adoption marker" observation is vacuous for a `sessions.send` probe (see
-`allowed-silent`). Each refusal is still bound to its row by the product's reason line.
+The refusal cases' absence is now "no `TARGET-ACK` in the probe run", which `allowed-silent` shows
+the same probe giving when the return is allowed. Their old "no adoption marker" was vacuous for a
+`sessions.send` probe. Each refusal is still bound to its row first by the product's reason line.
+The other cases keep every rule they had. Their absence also reads the probe run's own acks now,
+an ack-marker reply with another nonce leaves it MISSING (`ack-nonce-mismatch`), and the probe
+settles before its final read (`OPENCLAW_RCD_RA_PROBE_SETTLE_MS`). So the owner's fresh run of all 13
+is every case's receipt.
 
 **The pin.** The merged j12′ is the refused chain (`e9dc1c31`) plus:
 
@@ -62,6 +70,11 @@ Rulings:
   under a bounded grant captured at election. Prove the disconnect and the ceiling and revocation
   cases in source and test before re-pinning the row, and keep the 13 cases held until that gate and
   the one-case smoke pass.
+- 🌊, room msg 1567556038281007235 (ruling (a), on `allowed-silent`): "TARGET-ACK on the probe
+  turn, bound to this case's nonce and the target's priming. Remove the impossible
+  `sessionDeliveryAckIds` requirement for `sessions.send`; keep the refusal lines as the negative
+  evidence. The oracle should reject a pre-return or wrong-nonce ACK, so it proves this return
+  reached this probe turn without SQLite access. … this is a row correction, not a product change."
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
@@ -99,9 +112,14 @@ shape) is:
     at **prompt drain**, when a pending sweep re-queued its copy inside the delete
     ([its two orderings](#the-live-runs-misses-at-2907e656)).
 
-  In each refusal there is no adoption marker, ack, wake turn, return marker or parent landing, and
-  no `Delivered to` line for the return once its transition has settled. A wake-mode return refused
-  at enqueue leaves no `Delivered to` line at all.
+  In each refusal there is no `TARGET-ACK` in the probe run or any later run, no wake turn, return
+  marker or parent landing, and no `Delivered to` line for the return once its transition has
+  settled. A wake-mode return refused at enqueue leaves no `Delivered to` line at all.
+
+`allowed-silent` is the control for that absence: the same parked silent return and the same probe,
+not revoked. Its probe turn adopts the return, and the primed target acknowledges it once in the
+probe's own run, after the router delivered it. So the row proves the return reached the probe turn
+through the model's ack, without reading SQLite.
 
 And a kept `continue_work` wake, which the merged head binds to its session's recipient authority,
 is refused once that authority moves (`work-revoked-visibility`). The session elects its own wake,
@@ -275,7 +293,7 @@ receipt (`return-refusal.ts:53-66`).
 | Prompt drain | `reply/session-system-events.ts:192-207`; final adoption re-checks under writer admission (`session-system-event-adoption.ts:191-211, 248-270`) | refused before formatting | `stage=prompt-drain deliveryId=<row>` |
 | Durable replay (45-75 s pending sweep, boot recovery) | `server-restart-sentinel-delivery.ts:263-281, 307-329` -> `refuseStaleAuthorityReplay` (`server-restart-sentinel-delivery.ts:50-76`); sweep `session-delivery-queue-runtime.ts:52-66, 143-160`; boot `server-restart-sentinel.ts:80-97, 138-153` | **defers** while the row has a queued copy in memory (`server-restart-sentinel-delivery.ts:61-65`); otherwise refused and dead-lettered with its receipt kept (`server-restart-sentinel-delivery.ts:72-75`) | `stage=replay deliveryId=<row>` (`server-restart-sentinel-delivery.ts:66-71`), plus the sweep's `dead-letter decision for entry <row>` warn (`session-delivery-queue-recovery.ts:164-166`) |
 | Settlement | `session-delivery-queue-recovery.ts:152-215` | refused: `moved-to-failed` with a bounded receipt (`:161-180, 208-213`); adopted: `recovered` (`:156-160`) | none public: health's failed count excludes the receipt (`delivery-queue-sqlite.kernel.ts:397-429`) |
-| Adoption | the turn input carries the ids (`managed-delivery-turn-lifecycle.ts:107-111`), written to the row as `__openclaw.sessionDeliveryAckIds` (`src/sessions/user-turn-transcript.metadata.ts:102-104`); read back at `session-system-event-adoption.ts:53-71` | n/a | `chat.history` hides the wake's own rows, so a wake's adoption is read from the primed target's `TARGET-ACK`, and a probe turn's from the marker on its visible row (`chat-display-projection.sanitize.ts:442-475`) |
+| Adoption | the turn input carries the ids (`managed-delivery-turn-lifecycle.ts:107-111`), written to the row as `__openclaw.sessionDeliveryAckIds` (`src/sessions/user-turn-transcript.metadata.ts:102-104`); read back at `session-system-event-adoption.ts:53-71`. A `sessions.send` turn stages its input before the drain (`chat-send-input-dispatch.ts:330-350`), its recorder refuses the ids (`user-turn-transcript.ts:130-140`), and it adopts without a receipt (`session-system-event-adoption.ts:287-296`) | n/a | `chat.history` hides the wake's own rows, and no `sessions.send` row carries the marker, so every adoption is read from the primed target's `TARGET-ACK`: a wake's in its own run, the probe turn's in the probe run ([below](#allowed-silent-the-probe-runs-target-ack)) |
 
 ### Where a kept `continue_work` wake is bound, checked and refused
 
@@ -302,14 +320,14 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 |---|---|---|---|---|---|
 | `allowed` | none | silent-wake | n/a | n/a | n/a: exactly one `TARGET-ACK <nonce>` from a non-priming target run; none in the parent; epoch unchanged |
 | `allowed-across-reset` | `sessions.reset` after capture, then re-prime | silent-wake | n/a | n/a | as `allowed`, and the epoch unchanged by the reset |
-| `allowed-silent` | none; the silent return parks, then the probe turn adopts it | silent | n/a | n/a | n/a: the product's adoption marker on the visible probe row and the ack in the probe run, no wake. The positive control for the refusal cases' absence. **Open, held for 🌊:** no pin writes that marker for a `sessions.send` turn ([below](#allowed-silent-the-marker-a-sessionssend-turn-never-carries)) |
-| `unauthorized-admission` | `config.patch` policy disabled before dispatch, then restored | silent-wake | admission | the continue_delegate policy error | no child, no target ack, no woken target run, no parent landing |
+| `allowed-silent` | none; the silent return parks, then the probe turn adopts it | silent | n/a | n/a | n/a: exactly one `TARGET-ACK <nonce>` in the probe's own run, sent after the router's `Delivered to <target> from <child>` line, none in a priming run, no other-nonce ack, no wake. The child spawned, bound and done, one acceptance, no scenario refusal. The positive control for the refusal cases' absence: it proves the return reached the probe turn, through the model's ack, without SQLite ([the oracle](#allowed-silent-the-probe-runs-target-ack)) |
+| `unauthorized-admission` | `config.patch` policy disabled before dispatch, then restored | silent-wake | admission | the continue_delegate policy error | no child, no target ack (the probe run's included), no woken target run, no parent landing |
 | `unauthorized-dispatch` | `config.patch` policy disabled after the `scheduled` result, then restored | silent-wake | dispatch | `[continuation:delegate-rejected] policy.cross_session_targeting` for the dispatcher | as above |
-| `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | `stage=prompt-drain`: the sweep defers to the queued copy (`server-restart-sentinel-delivery.ts:61-65`), and the probe turn's drain refuses it (`session-system-events.ts:192-207` -> `session-system-event-adoption.ts:118-147`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the probe was sent | no `Delivered to` for it once the transition settled, no adoption marker, no ack, no woken run, no return marker, an answered probe turn, no parent landing |
+| `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | `stage=prompt-drain`: the sweep defers to the queued copy (`server-restart-sentinel-delivery.ts:61-65`), and the probe turn's drain refuses it (`session-system-events.ts:192-207` -> `session-system-event-adoption.ts:118-147`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the probe was sent | no `Delivered to` for it once the transition settled, no `TARGET-ACK` in the probe run or any later run, no woken run, no return marker, an answered probe turn, no parent landing |
 | `revoked-membership` | `session.members.add` before dispatch, `session.members.remove` after the return parked | silent | `stage=prompt-drain`, as above | as above | as above |
 | `revoked-owner` | the `sessions` tool `assign_owner` (agent `main`) from an operator session, after the return parked | silent | `stage=prompt-drain`, as above | as above | as above |
 | `reassigned` | `sessions.delete` then `sessions.create` of the same key, after the return parked | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:202-203`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`). **Or** `stage=prompt-drain`, when a pending sweep replayed the row between that consume and the deletion's epoch commit and re-queued the copy (`server-restart-sentinel-delivery.ts:263-274, 307-314`) ([the two orderings](#reassigned-two-orderings-each-with-its-bytes)) | `[continuation:return-refused]` for the target, with a `deliveryId`: after the transition at `replay`, after the probe was sent at `prompt-drain` | as above |
-| `wake-revoked-visibility` | `session.visibility.set` to `read-only` after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`: the router's first authority read refuses it before any row (`targeting.ts:277-280`) | `[continuation:return-refused]` for the target, with **no** `deliveryId`, after the transition | no `Delivered to` line for it at all, and the rest as above: no adoption, ack, wake turn or final effect |
+| `wake-revoked-visibility` | `session.visibility.set` to `read-only` after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`: the router's first authority read refuses it before any row (`targeting.ts:277-280`) | `[continuation:return-refused]` for the target, with **no** `deliveryId`, after the transition | no `Delivered to` line for it at all, and the rest as above: no ack in the probe run or later, no wake turn or final effect |
 | `wake-reassigned` | `sessions.delete` then `sessions.create` of the same key, after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`, as above | as above | as above |
 | `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); once the election is captured, `session.visibility.set` to `read-only` on that session, before the wake is due | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), no adoption marker, an answered probe turn |
 | `replay-restart` | `session.visibility.set` after the return parked, then a supervised restart before any prompt | silent | `stage=replay` on the replacement: no copy survives the restart, so its boot recovery refuses the row (`server-restart-sentinel.ts:138-153` -> `server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | as `reassigned`, from the replacement generation, after the restart | as above, on the replacement |
@@ -364,19 +382,24 @@ stage, another row, or a row-less line where the stage writes one leaves the cas
 `work-revoked-visibility`, every line must be `stage=wake` and name the one election
 (`refusal-stage-mismatch`, `reason-flow-id-ambiguous`).
 
-**How absence is observed.** `chat.history` hides the wake's own rows, but it keeps the product's
-adoption marker, `__openclaw.sessionDeliveryAckIds`, on a visible row
-(`session-system-event-adoption.ts:53-71`; `chat-display-projection.sanitize.ts:442-475` strips only
-named private keys). A parked return adopted into the probe turn would put its delivery id on the
-probe's row whether or not the model acknowledges it. `allowed-silent` is the control: the same park
-and probe, where the marker must show. Without it the row cannot pass, because the refusal cases'
-"no marker" would be unproven. A wake turn's own rows stay hidden, so a wake is read from its
-visible assistant rows (a woken run that is neither priming nor probe).
+**How absence is observed.** The target is primed before each case: "On a later turn, only if an
+internal task completion for proof <suffix> is in your context, reply exactly `TARGET-ACK <nonce>`"
+(the scenario's `prime()`). Nothing else the harness sends names the ack or the nonce: the probe asks
+only for `PROBE-OK <probeNonce>`, and the delegate's task carries the nonce but never the ack. So
+an ack in the probe
+run is the primed target answering a return its turn drained, and a refused return, which never
+reaches the target, leaves the probe run with nothing to ack. The absence is read from the probe run
+(`probeAckRows`, bound by the run id `sessions.send` returned for the probe) and from every later
+non-priming run (`ackRuns`). `allowed-silent` is the control: the same park and the same probe, where
+the ack must show. Without it the row cannot pass, because the refusal cases' "no ack" would be
+unproven. A wake turn's own rows stay hidden, so a wake is read from its visible assistant rows (a
+woken run that is neither priming nor probe).
 
-**The marker premise is open (held for 🌊).** 🕯's run found no marker on `allowed-silent`'s probe
-row, and the bytes say none is written there at any pin
-([below](#allowed-silent-the-marker-a-sessionssend-turn-never-carries)). Until 🌊 rules on the
-oracle, the paragraph above describes what the grade checks, not what the product does.
+The product's adoption marker, `__openclaw.sessionDeliveryAckIds`, is no part of this. No pin writes
+it on a `sessions.send` turn's row
+([the bytes](#allowed-silent-the-marker-a-sessionssend-turn-never-carries)), so it is 0 whether or
+not the probe turn adopted the return. The grade still counts it: a marked row in a refusal case
+would be FAIL (`refused-return-adopted`). It is never the evidence of an adoption or of an absence.
 
 For `work-revoked-visibility`, the electing run plays the priming run's part: it is the one run
 excluded, because the model may quote its own reason there. Any other assistant run but the
@@ -526,20 +549,101 @@ The rest are byte-identical at j12 as well: `sessions-messaging.ts`, `chat-send-
 The delegate dispatch grant touches no return, adoption or chat-send file. The silent mode requests
 no wake (`subagent-announce.continuation-return.ts:175`, `targeting.ts:395`).
 
-So `adoptedDeliveryRows=0` is the correct product result, and `allowed-silent` cannot pass as written.
-The refusal cases' "no marker" observation shows nothing either way. Each still binds its refusal to
-the row through the product's reason line, which the drain logs only after it retired the row
-(`session-system-event-adoption.ts:125-146`).
+So `adoptedDeliveryRows=0` is the correct product result, and `allowed-silent` could not pass as
+written. The refusal cases' "no marker" observation showed nothing either way. Each still binds its
+refusal to the row through the product's reason line, which the drain logs only after it retired the
+row (`session-system-event-adoption.ts:125-146`).
 
-Choosing another adoption oracle changes what the row proves, so it is 🌊's decision (TROUBLE posted
-from this lane). The options:
+This lane posted the choice as a TROUBLE. 🌊 ruled (a), room msg 1567556038281007235: "TARGET-ACK
+on the probe turn, bound to this case's nonce and the target's priming. Remove the impossible
+`sessionDeliveryAckIds` requirement for `sessions.send`; keep the refusal lines as the negative
+evidence. The oracle should reject a pre-return or wrong-nonce ACK, so it proves this return reached
+this probe turn without SQLite access. … this is a row correction, not a product change."
 
-- the probe run's `TARGET-ACK`, which depends on the model;
-- a read-only read of the delivery queue row, which the row does not read today;
-- accepting the product's own `unknown`.
+### `allowed-silent`: the probe run's `TARGET-ACK`
 
-The grade, the scenario and the dry run's scripted marker are unchanged meanwhile. The dry run's
-marker on the probe's row models no pin's behaviour for a `sessions.send` probe.
+The oracle, from the bytes at `2907e656`:
+
+- **The probe run.** `sessions.send` answers with the run id of the turn it started, which is the
+  send's idempotency key (`chat-send-session.ts:225`; the answer `{ runId, status: "started" }`,
+  `chat-send-input-dispatch.ts:556-559, 573`). The probe's
+  key is `R-CD-RECIPIENT-AUTHORITY-PROBE-<probeNonce>`, which no priming key can equal, and the
+  observation also drops a probe run id that names a priming run. The probe run's rows are the target's
+  assistant rows stamped with that run id (`__openclaw.runId`, read by `messageRunId`). 🕯's run
+  already bound `PROBE-OK` this way.
+- **The return reached the target first.** The anchor is the router's line
+  `[continuation:targeted-return] Delivered to <target> from <child>`
+  (`subagent-announce.continuation-return.ts:199-203`), naming this case's target among its
+  recipients and this case's child as its source: `park.deliveredFromChildAtMs`, the child being the
+  session `sessions.list` shows spawned by the case's parent, whose first user row carries the case's
+  task marker. The router logs it only for a key in `deliveredSessionKeys`. `targeting.ts:409` adds a
+  key there only after the return's in-memory event, carrying the row's ack id, was queued under a
+  current authority (`:313-341`, `enqueueSystemEvent` at `:339`) and the authority was re-read as
+  still current (`:356-375`). A silent return requests no wake (`subagent-announce.continuation-return.ts:175`,
+  `targeting.ts:395-403`), so the target's next turn is the first to drain it: its admission adopts
+  the prepared drain (`get-reply-run-admission.ts:235` -> `adoptPreparedSystemEvents`,
+  `session-system-event-adoption.ts:277-314`), after the drain's stale pre-filter
+  (`session-system-events.ts:192-207`) found it current. The product
+  pins that such a turn's model sees the return though no row names it
+  (`continuation-wake.test.ts:878-920`; the inbound context at `:911`, no marker at `:917`). The probe
+  must be sent after that line (`probeSentAtMs > deliveredFromChildAtMs`). The control stamps a log
+  line when it reads it (`run-recipient-authority-row.mjs:356`), never earlier than the product wrote
+  it, so the comparison errs toward MISSING.
+- **The child's completion is required too, but is not the anchor.** A child that completed proves
+  nothing about routing; the `Delivered to` line does.
+
+PASS-candidate needs all of:
+
+- exactly one row in the probe run carrying `TARGET-ACK <rowNonce>` (`probeAckRows === 1`; a
+  `heartbeat_respond` receipt in that run counts as one);
+- the probe sent after the `Delivered to` line from the child;
+- no ack row in a priming run (`primingAckRows === 0`) and no ack-marker row with another nonce in
+  any other run (`wrongNonceAckRows === 0`);
+- no woken run: no assistant run but the priming runs and the probe's (`foreignRuns === 0`);
+- the rest of the chain, as before: the child spawned, bound and done, one accepted dispatch of mode
+  `silent` and no other `continue_delegate` call, no scenario refusal, the target primed, the epoch
+  unchanged, no ack in the parent, cleanup and the trace.
+
+The `adoptedDeliveryRows` requirement is gone for this probe shape. The count stays in the record as a
+contradiction check: two marked rows would still be FAIL (`duplicate-adoption`).
+
+What it rejects, each pinned by a dry-run negative in `tests/recipient-authority-dry-run.test.mjs`:
+
+| Shape | Verdict | Code |
+|---|---|---|
+| no ack in the probe run (the model's miss) | MISSING | `probe-ack-unobserved` |
+| a marked probe row with no ack (a product no pin is) | MISSING | `probe-ack-unobserved` |
+| pre-return: the probe sent before (or with no) `Delivered to` line from the child | MISSING | `probe-not-after-return`, `return-not-routed-from-child` |
+| an ack before any return, in a priming run | MISSING | `ack-before-return` |
+| an ack with another nonce, alone or beside the right one | MISSING | `ack-nonce-mismatch` (and `probe-ack-unobserved` when alone) |
+| two ack rows in the probe run | MISSING | `probe-ack-duplicated` |
+| an ack in a foreign (woken) run | FAIL | `silent-return-woke-target` |
+| acks in a foreign run and the probe run | FAIL | `duplicate-adoption`, `silent-return-woke-target` |
+
+**Its limits.** The ack is model-mediated:
+
+- A model that does not give it reads MISSING (`probe-ack-unobserved`), never FAIL. The probe asks
+  for exactly `PROBE-OK <probeNonce>`, and the ack depends on the model also applying its priming's
+  instruction on that turn. The probe text was not changed. It is the same stimulus every refusal
+  case gets, and it must never name the ack or the nonce. If the owner's re-run reads
+  `probe-ack-unobserved`, rewording the probe is the next lever. That changes every case's stimulus,
+  so it is 🌊's call.
+- A model that acks unconditionally would also ack in the refusal cases' probe runs and fail them
+  (`refused-return-adopted`), where the product refused correctly. The refusal lines, read first,
+  show such a FAIL for what it is. An ack in the priming run, before anything was dispatched, leaves
+  `allowed-silent` MISSING for the same reason. A refusal case reads only the probe run and later
+  runs, because the priming instruction quotes the ack and a model may echo it there.
+- The ack shows the return reached the probe turn's context. It does not show the row settled; no
+  public surface reads that ([above](#the-product-path-at-j12)).
+
+### The refusal cases' absence: no ack in the probe run
+
+The same priming and the same probe make the refusal cases' absence real. A refused return never
+reaches the target, so the target has nothing to ack: an ack of the nonce in the probe run
+(`probeAckRows`) or any later run (`ackRuns`) is FAIL (`refused-return-adopted`), and an ack-marker
+reply with another nonce leaves the absence unread, so the case is MISSING (`ack-nonce-mismatch`). The
+refusal line stays the primary evidence, as 🌊 ruled. The dry run pins an ack in each refusal case's
+probe run, with no marker on the row, as FAIL, and the same probe answered with no ack as PASS.
 
 ### The collector and each case's mode
 
@@ -790,7 +894,7 @@ refusal becomes provable.
 | Security: prove stale recipient rejection before final effects | every refusal case: the reason at its pinned stage and no adoption, ack, wake or final effect. `work-revoked-visibility` answers it for the other durable election j12′ binds, a kept `continue_work` wake (no ClawSweeper item names `continue_work`, so it is listed here and claimed for no returns item) |
 | P1: durable returns outliving admission; rejection unproven at prompt, wake, delivery, restart replay | prompt: `revoked-visibility`, `revoked-membership`, `revoked-owner` (`stage=prompt-drain`); wake: `wake-revoked-visibility`, `wake-reassigned` (a wake-mode return refused at `stage=enqueue`, never woken, no `Delivered to`); delivery: `reassigned` (`stage=replay` by the sweep), `unauthorized-dispatch` (accepted, then refused at dispatch); restart replay: `replay-restart` (`stage=replay` on the replacement) |
 | P1: accepted-child survival, reset | `allowed-across-reset` (reset is not an authority edge at j12′; re-derived at the merged head, where a reset keeps queued elections) |
-| Allowed delivery through prompt adoption | `allowed-silent` (adopted by a prompt drain, with the product's marker), `allowed` and `allowed-across-reset` (adopted by the wake) |
+| Allowed delivery through prompt adoption | `allowed-silent` (adopted by the probe turn's drain, read from the primed target's `TARGET-ACK` in the probe run), `allowed` and `allowed-across-reset` (adopted by the wake) |
 | Unauthorized recipient | `unauthorized-admission`, `unauthorized-dispatch`: the only admission refusal j12′ has |
 | Not answered here | a return refused at the wake handoff itself (`stage=wake`, see "does not prove"); a kept wake refused at replay or adoption, or by another handover; "settled as refused" from the record (no public reader); compaction, session-id rollover and late materialization; fresh install and upgrade |
 
@@ -819,13 +923,22 @@ refusal becomes provable.
     epoch before it committed, so delivering then is correct;
   - a revoked or reassigned return already acknowledged, woken or marked adopted when the
     transition was sent (the scenario reads the target just before it).
-- A contradiction is **FAIL-candidate**: a refused return adopted (the product's marker),
-  acknowledged, woken, repeated in the target, or logged `Delivered to` once its transition had
-  settled (the target named, or j12's empty list from its child); an allowed wake-mode return routed but never
-  woken; a return in the parent; an unauthorized delegate spawned or accepted; an allowed return
-  adopted twice; or `sessions.reset` advancing the epoch. A woken target that never typed the exact
-  ack is MISSING (`woken-without-ack`): the miss may be the model's. `allowed-silent` is decided by
-  the product's marker on the probe row; its model is asked only for `PROBE-OK`.
+- A contradiction is **FAIL-candidate**: a refused return acknowledged (in the probe run or any
+  later run), marked adopted by the product, woken, repeated in the target, or logged `Delivered to`
+  once its transition had settled (the target named, or j12's empty list from its child); an allowed
+  wake-mode return routed but never woken; a return in the parent; an unauthorized delegate spawned or
+  accepted; an allowed return adopted twice; a silent `allowed-silent` return that woke the target;
+  or `sessions.reset` advancing the epoch. A woken target that never typed the exact ack is MISSING
+  (`woken-without-ack`): the miss may be the model's.
+- `allowed-silent` is decided by the primed target's ack in the probe run (🌊's ruling (a)): exactly
+  one `TARGET-ACK <nonce>` row in the run `sessions.send` started for the probe, sent after the
+  router's `Delivered to` line naming the target from the case's child. The ack is the model's, so
+  each way it can be wrong is MISSING, never FAIL: none (`probe-ack-unobserved`), two in the probe run
+  (`probe-ack-duplicated`), another nonce anywhere outside priming (`ack-nonce-mismatch`), one in a
+  priming run (`ack-before-return`), or a probe sent before that line or with no such line
+  (`probe-not-after-return`, `return-not-routed-from-child`). The product's marker is not required.
+- A refusal case's ack-marker reply with another nonce leaves its absence unread: MISSING
+  (`ack-nonce-mismatch`).
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
   reason, or without the observed absence (transcripts read, router lines read, probe turn answered,
   every target row attributable to a run), is MISSING, never PASS. For a refused return the reason
@@ -903,8 +1016,10 @@ against a live seat, and never at the pre-grant `1ab5a73e` or the interim `e9dc1
    `OPENCLAW_RCD_RA_DELAY_SECONDS` (30), `_PARK_MS` (15000), `_SWEEP_WAIT_MS` (160000, two sweep
    periods), `_WINDOW_MS`, `_POLL_MS`, `_BOOT_WAIT_MS`, `_DUPLICATE_WAIT_MS`, `_SAMPLE_GAP_MS`
    (2000, also the wake-mode cases' wait before their transition, which must stay well inside the
-   delay) and `_CAPTURE_WAIT_MS` (8000, `work-revoked-visibility`'s wait after its `scheduled`
-   result for the election's capture, which must also stay well inside the delay). A refusal prints
+   delay), `_CAPTURE_WAIT_MS` (8000, `work-revoked-visibility`'s wait after its `scheduled`
+   result for the election's capture, which must also stay well inside the delay) and
+   `_PROBE_SETTLE_MS` (10000, the wait after the probe run's first answer before the final read, so a
+   later ack row of that run is counted). A refusal prints
    the refusal JSON and exits 2 before anything starts. The control reads the gateway's console,
    where the router's line and both refusal lines land at their default levels.
 7. **Collect each fired delegate's trace** with `collect-continuation-trace.mjs --run-dir
@@ -938,5 +1053,5 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, restart, signed receipts, `--grade-row` |
 | `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matchers, transcript observation and verdict rules |
 | `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, gates, signed receipts |
-| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id |
+| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id; its probe turn writes no marker and the primed model acks in the probe run, with a negative for each ack `allowed-silent` and the refusal cases reject |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

@@ -107,8 +107,15 @@
  *    - adoption: the adopting transcript row carries __openclaw.sessionDeliveryAckIds (the turn input
  *      src/auto-reply/reply/managed-delivery-turn-lifecycle.ts:107-111, written to the row by
  *      src/sessions/user-turn-transcript.metadata.ts:102-104; read back at
- *      session-system-event-adoption.ts:53-71); chat.history hides the wake's own rows (see
- *      lib/wake-turn-receipt.mjs), so a wake's adoption is read from the primed target's TARGET-ACK;
+ *      session-system-event-adoption.ts:53-71) only when the turn's recorder can take the ids. A
+ *      sessions.send turn stages its input before the drain
+ *      (src/gateway/server-methods/chat-send-input-dispatch.ts:330-350), the staged recorder refuses
+ *      them (src/sessions/user-turn-transcript.ts:130-140), and the return is adopted without a
+ *      receipt (session-system-event-adoption.ts:287-296), its model seeing it all the same
+ *      (src/auto-reply/continuation/continuation-wake.test.ts:878-920). chat.history hides the wake's
+ *      own rows (see lib/wake-turn-receipt.mjs). So every adoption this row reads, a wake's or the
+ *      probe turn's, is the primed target's TARGET-ACK, bound to its run (🌊's ruling (a), room msg
+ *      1567556038281007235);
  *    - sessions.delete (and sessions.reset) consume the session's queued events
  *      (src/gateway/server-methods/sessions-delete.ts:454-470 -> src/gateway/session-lifecycle-cleanup.ts:74-92
  *      -> src/gateway/session-reset-runtime-cleanup.ts:77-93 -> src/gateway/session-reset-runtime-state.ts:11-51
@@ -601,7 +608,8 @@ export default function () {
         // The control samples the epoch every 500 ms; leave it a sample of the captured epoch
         // before the reset, so a reset that advanced it would show.
         if (spec.transition === 'sessions.reset') return later(numberEnv('OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 2000), () => resetTarget(() => prime(waitForAck)));
-        // allowed-silent: the silent return parks un-adopted, and the probe turn adopts it.
+        // allowed-silent: the silent return parks un-adopted, and the probe turn adopts it: the primed
+        // target acks it in the probe's own run.
         if (spec.probeAdopts) return waitForChild(() => later(parkMs, probeThenFinal));
         return waitForAck();
       }
@@ -739,15 +747,20 @@ export default function () {
     }
 
     function probeThenFinal() {
+      // The probe never names the ack or the row nonce: an ack in its run is the primed target
+      // answering a return its turn drained, never an echo of this text.
       const instruction = `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
-      // A prompt-drain refusal must come from this turn's drain, so it is timed against the send.
+      // A prompt-drain refusal must come from this turn's drain, and allowed-silent's ack must follow
+      // the return's Delivered to line, so both are timed against the send.
       evidence.probe_sent_at_ms = Date.now();
       send(keys.target, instruction, `${RRA_ROW}-PROBE-${probeNonce}`, (r) => {
         evidence.probe_run_id = r.payload?.runId || null;
         evidence.probe_ran = Boolean(r.ok && evidence.probe_run_id);
         if (!evidence.probe_ran) return finalReads();
+        // Once the probe run has answered, let it finish: an ack (or a second one) may follow its
+        // first row, and the final read counts every row of the run.
         pollHistory(keys.target, (messages) => messages.some((m) => messageRunId(m) === evidence.probe_run_id &&
-          String(m.role).toLowerCase() === 'assistant'), attempts(windowMs), () => finalReads());
+          String(m.role).toLowerCase() === 'assistant'), attempts(windowMs), () => later(numberEnv('OPENCLAW_RCD_RA_PROBE_SETTLE_MS', 10000), finalReads));
       });
     }
 

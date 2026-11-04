@@ -289,6 +289,9 @@ function completeRecord(caseId) {
       probeSentAtMs: refusal ? 59_000 : null,
       probeReplied: refusal,
       ackRuns: refusal ? 0 : 1,
+      probeAckRows: 0,
+      primingAckRows: 0,
+      wrongNonceAckRows: 0,
       foreignRuns: refusal ? 0 : 1,
       unattributedAssistantRows: 0,
       returnMarkerRows: 0,
@@ -297,8 +300,11 @@ function completeRecord(caseId) {
     parent: { ackRows: 0 },
     preTransition: durable ? { ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 0 } : null,
     transition: { method: spec.transition, ok: spec.transition ? true : null, requestedAtMs: spec.transition ? 5000 : null, settledAtMs: spec.transition ? 5100 : null },
-    // A parked return was routed before its transition; a wake-mode one never was.
-    park: { deliveredToTargetAtMs: spec.timing === 'before-return' ? null : 4000 },
+    // A parked return was routed before its transition, from the case's child; a wake-mode one
+    // never was.
+    park: spec.timing === 'before-return'
+      ? { deliveredToTargetAtMs: null, deliveredFromChildAtMs: null }
+      : { deliveredToTargetAtMs: 4000, deliveredFromChildAtMs: 4000 },
     routing: durable ? { duringTransition: 0, afterTransition: 0 } : null,
     sweep: durable ? { armedInTransition: 0 } : null,
     epochs: { captured: H('a'), afterTransition: spec.transition ? (durable ? H('b') : H('a')) : null, final: durable ? H('b') : H('a') },
@@ -308,9 +314,19 @@ function completeRecord(caseId) {
     cleanup: { gatewayStopped: true, residue: false },
   };
   if (spec.probeAdopts) {
-    // The probe turn adopts the parked silent return: the product's marker on its row. The model
-    // answers the probe as asked; an ack is not required of it.
-    record.target = { ...record.target, probeRan: true, probeReplied: true, ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 1 };
+    // 🌊's ruling (a): the probe turn adopts the parked silent return, and the primed target acks it
+    // once in the probe's own run, sent after the router's Delivered to line from the child. As at
+    // every pin for a sessions.send turn, no row carries the product's marker.
+    record.target = {
+      ...record.target,
+      probeRan: true,
+      probeSentAtMs: 20_000,
+      probeReplied: true,
+      ackRuns: 1,
+      probeAckRows: 1,
+      foreignRuns: 0,
+      adoptedDeliveryRows: 0,
+    };
   }
   if (caseId === 'unauthorized-admission') {
     record.dispatch = { accepted: false, status: 'error', capturedAtMs: null, reasonHash: 'abcdef0123456789', reasonLength: 120, delegateMode: spec.mode, resultMode: null, resultDelaySeconds: null, otherDelegateCalls: 0 };
@@ -866,20 +882,107 @@ test('a deviation by the model or the setup is MISSING, never a product FAIL', (
   }
 });
 
-test('allowed-silent is the control for the refusal cases\' absence: the product marker must show', () => {
-  const unseen = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.adoptedDeliveryRows = 0; }));
-  assert.equal(unseen.verdict, 'MISSING-candidate');
-  assert.ok(unseen.missing.includes('adoption-marker-unobserved'));
-  // The model answering the probe as asked, without any ack, is a PASS: the product's marker decides.
-  assert.equal(gradeRecipientAuthorityCase(completeRecord('allowed-silent')).verdict, 'PASS-candidate');
-  const woke = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.foreignRuns = 1; }));
+// 🌊's ruling (a), room msg 1567556038281007235: "TARGET-ACK on the probe turn, bound to this case's
+// nonce and the target's priming. Remove the impossible sessionDeliveryAckIds requirement for
+// sessions.send; keep the refusal lines as the negative evidence. The oracle should reject a
+// pre-return or wrong-nonce ACK".
+test('allowed-silent: exactly one ack of its nonce in the probe run, after the return reached the target, and no marker needed', () => {
+  const silent = () => completeRecord('allowed-silent');
+  const graded = (fn) => gradeRecipientAuthorityCase(mutate(silent(), fn));
+  // The product's real shape at every pin: no marker on the sessions.send probe row, the ack in the
+  // probe run. PASS (at 432e2c3e: MISSING adoption-marker-unobserved).
+  assert.equal(silent().target.adoptedDeliveryRows, 0);
+  assert.deepEqual(gradeRecipientAuthorityCase(silent()), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  // The marker alone is no evidence any more: a marked probe row whose model never acked is MISSING
+  // (at 432e2c3e: PASS, on the marker alone).
+  const markerOnly = graded((r) => { r.target.adoptedDeliveryRows = 1; r.target.ackRuns = 0; r.target.probeAckRows = 0; });
+  assert.equal(markerOnly.verdict, 'MISSING-candidate');
+  assert.deepEqual(markerOnly.missing, ['probe-ack-unobserved']);
+  // The model never acked: MISSING, never FAIL (the oracle is model-mediated).
+  const noAck = graded((r) => { r.target.ackRuns = 0; r.target.probeAckRows = 0; });
+  assert.deepEqual([noAck.verdict, noAck.missing, noAck.contradictions], ['MISSING-candidate', ['probe-ack-unobserved'], []]);
+  // Pre-return: the probe was sent before (or at) the router's Delivered to line from the child.
+  for (const sentAt of [4000, 3999, null]) {
+    const early = graded((r) => { r.target.probeSentAtMs = sentAt; });
+    assert.equal(early.verdict, 'MISSING-candidate', String(sentAt));
+    assert.deepEqual(early.missing, ['probe-not-after-return'], String(sentAt));
+  }
+  // The anchor is this case's delivery: a Delivered to line for the target from another source, or
+  // none, anchors nothing.
+  for (const park of [{ deliveredToTargetAtMs: 4000, deliveredFromChildAtMs: null }, { deliveredToTargetAtMs: 4000 }]) {
+    const unanchored = graded((r) => { r.park = park; });
+    assert.equal(unanchored.verdict, 'MISSING-candidate', JSON.stringify(park));
+    assert.deepEqual(unanchored.missing, ['return-not-routed-from-child'], JSON.stringify(park));
+  }
+  // Pre-return in the priming run: an ack before any return existed is never credited, and the
+  // probe ack beside it proves nothing.
+  const primed = graded((r) => { r.target.primingAckRows = 1; });
+  assert.deepEqual([primed.verdict, primed.missing], ['MISSING-candidate', ['ack-before-return']]);
+  const primedOnly = graded((r) => { r.target.primingAckRows = 1; r.target.ackRuns = 0; r.target.probeAckRows = 0; });
+  assert.deepEqual([primedOnly.verdict, primedOnly.missing], ['MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return']]);
+  // Wrong nonce: alone, or beside the right one.
+  const wrong = graded((r) => { r.target.ackRuns = 0; r.target.probeAckRows = 0; r.target.wrongNonceAckRows = 1; });
+  assert.deepEqual([wrong.verdict, wrong.missing], ['MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch']]);
+  const mixed = graded((r) => { r.target.wrongNonceAckRows = 1; });
+  assert.deepEqual([mixed.verdict, mixed.missing], ['MISSING-candidate', ['ack-nonce-mismatch']]);
+  // Two acks in the probe run: the model's, MISSING.
+  const doubled = graded((r) => { r.target.probeAckRows = 2; });
+  assert.deepEqual([doubled.verdict, doubled.missing, doubled.contradictions], ['MISSING-candidate', ['probe-ack-duplicated'], []]);
+  // An ack in a foreign run is the silent return waking the target: FAIL, with or without the probe's.
+  const foreign = graded((r) => { r.target.ackRuns = 1; r.target.probeAckRows = 0; r.target.foreignRuns = 1; });
+  assert.equal(foreign.verdict, 'FAIL-candidate');
+  assert.deepEqual(foreign.contradictions, ['silent-return-woke-target']);
+  const both = graded((r) => { r.target.ackRuns = 2; r.target.foreignRuns = 1; });
+  assert.equal(both.verdict, 'FAIL-candidate');
+  assert.deepEqual(both.contradictions.sort(), ['duplicate-adoption', 'silent-return-woke-target']);
+  // The rest of the chain stays required: a spawned, bound, done child; one acceptance; no refusal.
+  for (const [code, fn] of [
+    ['child-spawn-unobserved', (r) => { r.child.spawned = null; }],
+    ['child-not-bound', (r) => { r.child.done = false; }],
+    ['dispatch-not-accepted', (r) => { r.dispatch.accepted = false; }],
+    ['extra-delegate-calls', (r) => { r.dispatch.otherDelegateCalls = 1; }],
+    ['scenario-refused', (r) => { r.scenario.refusals = ['scenario window elapsed']; }],
+    ['probe-turn-unobserved', (r) => { r.target.probeRan = false; }],
+    ['transcript-not-read', (r) => { r.target.probeAckRows = undefined; }],
+    ['transcript-not-read', (r) => { r.target.primingAckRows = null; }],
+    ['transcript-not-read', (r) => { r.target.wrongNonceAckRows = -1; }],
+  ]) {
+    const result = graded(fn);
+    assert.equal(result.verdict, 'MISSING-candidate', code);
+    assert.ok(result.missing.includes(code), `${code}: ${result.missing}`);
+  }
+  // A woken target is FAIL whether or not it acked.
+  const woke = graded((r) => { r.target.foreignRuns = 1; });
   assert.equal(woke.verdict, 'FAIL-candidate');
   assert.ok(woke.contradictions.includes('silent-return-woke-target'));
-  const unprobed = gradeRecipientAuthorityCase(mutate(completeRecord('allowed-silent'), (r) => { r.target.probeRan = false; }));
-  assert.equal(unprobed.verdict, 'MISSING-candidate');
-  // Without the control the row cannot be PASS: the refusal cases' marker absence would be unproven.
+  // Without the control the row cannot be PASS: the refusal cases' absence of an ack would be unproven.
   const rows = RRA_CASE_IDS.filter((caseId) => caseId !== 'allowed-silent').map((caseId) => ({ record: completeRecord(caseId), verified: true }));
   assert.equal(gradeRecipientAuthorityRow(rows).verdict, 'MISSING-candidate');
+  assert.equal(gradeRecipientAuthorityRow([...rows, { record: mutate(silent(), (r) => { r.target.probeAckRows = 0; r.target.ackRuns = 0; }), verified: true }]).verdict, 'MISSING-candidate');
+});
+
+test('the refusal cases\' absence is no ack in the probe run; the marker is a check, never the evidence', () => {
+  for (const caseId of refusalCases) {
+    // An ack of the nonce in the probe run is the refused return adopted into the probe turn: FAIL,
+    // with no marker on the row (the product's real shape for a sessions.send probe).
+    const acked = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeAckRows = 1; r.target.ackRuns = 1; }));
+    assert.equal(acked.verdict, 'FAIL-candidate', caseId);
+    assert.ok(acked.contradictions.includes('refused-return-adopted'), caseId);
+    // probeAckRows decides on its own, whatever ackRuns says.
+    const probeOnly = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeAckRows = 1; }));
+    assert.ok(probeOnly.contradictions.includes('refused-return-adopted'), caseId);
+    // An ack-shaped reply with another nonce leaves the absence unread: MISSING.
+    const ambiguous = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.wrongNonceAckRows = 1; }));
+    assert.deepEqual([ambiguous.verdict, ambiguous.missing], ['MISSING-candidate', ['ack-nonce-mismatch']], caseId);
+    // The marker check stays: a marked row would still be FAIL.
+    assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.adoptedDeliveryRows = 1; })).verdict, 'FAIL-candidate', caseId);
+    // An unread probe-run count is MISSING, never a clean absence.
+    const unread = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeAckRows = null; }));
+    assert.ok(unread.missing.includes('transcript-not-read'), caseId);
+    // A priming-run ack is the model echoing its instruction before anything was dispatched; a
+    // refusal case's absence is read from the probe run and later runs only.
+    assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.primingAckRows = 1; })).verdict, 'PASS-candidate', caseId);
+  }
 });
 
 test('the row stays MISSING until every case has a verified receipt, and moves only down', () => {
@@ -1025,20 +1128,55 @@ test('target transcript: priming runs never count, any later ack does, and a hea
     say(`PROBE-OK probe-1`, 'run-probe'),
   ];
   const quiet = observeTargetTranscript(messages, { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe', probeNonce: 'probe-1' });
-  assert.deepEqual(quiet, { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 });
+  assert.deepEqual(quiet, {
+    ackRuns: 0,
+    probeAckRows: 0,
+    primingAckRows: 1,
+    wrongNonceAckRows: 0,
+    foreignRuns: 0,
+    unattributedAssistantRows: 0,
+    returnMarkerRows: 0,
+    probeReplied: true,
+    adoptedDeliveryRows: 0,
+  }, 'the priming run\'s ack is counted apart, never as an ack of the return');
   const marked = [...messages, { role: 'user', content: [{ type: 'text', text: 'probe' }], __openclaw: { sessionDeliveryAckIds: ['q-1'] } }];
-  assert.equal(observeTargetTranscript(marked, { nonce, primingRunIds: ['run-prime'] }).adoptedDeliveryRows, 1, 'the product marker counts without any ack');
+  assert.equal(observeTargetTranscript(marked, { nonce, primingRunIds: ['run-prime'] }).adoptedDeliveryRows, 1, 'the product marker is still counted, as a contradiction check');
   const woken = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-wake')], { nonce, primingRunIds: ['run-prime'] });
   assert.equal(woken.ackRuns, 1);
+  assert.equal(woken.probeAckRows, 0, 'no probe run, no probe ack');
   assert.equal(woken.foreignRuns, 2, 'the probe run is foreign without a probeRunId');
-  const inProbe = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe')], { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe', probeNonce: 'probe-1' });
+  const probeOpts = { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe', probeNonce: 'probe-1' };
+  const inProbe = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe')], probeOpts);
   assert.equal(inProbe.ackRuns, 1, 'an ack in the probe run is the return adopted into the probe turn');
+  assert.equal(inProbe.probeAckRows, 1);
+  assert.equal(inProbe.foreignRuns, 0);
+  // Two ack rows in the probe run are two rows, one run.
+  const twice = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe'), say(`TARGET-ACK ${nonce}`, 'run-probe')], probeOpts);
+  assert.equal(twice.probeAckRows, 2);
+  assert.equal(twice.ackRuns, 1);
+  // An ack in a wake run is not the probe run's.
+  const elsewhere = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-wake')], probeOpts);
+  assert.deepEqual([elsewhere.ackRuns, elsewhere.probeAckRows, elsewhere.foreignRuns], [1, 0, 1]);
+  // Another nonce after the marker, or none, is never this case's ack; it is counted apart.
+  for (const text of ['TARGET-ACK probe-1', 'TARGET-ACK RCDRA-1-abcd', 'TARGET-ACK', `TARGET-ACK ${nonce}\nTARGET-ACK RCDRA-2-xyz`]) {
+    const other = observeTargetTranscript([...messages, say(text, 'run-probe')], probeOpts);
+    assert.equal(other.wrongNonceAckRows, 1, text);
+    assert.equal(other.probeAckRows, text.includes(`${nonce}\n`) ? 1 : 0, text);
+  }
+  assert.equal(observeTargetTranscript([...messages, say(`TARGET-ACKED ${nonce}`, 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'another word is no ack');
+  assert.equal(observeTargetTranscript([...messages, say(`[k6-proof-harness] TARGET-ACK x`, 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'a quoted harness prompt is no ack');
+  // A probe run id that is also a priming run's names no probe run: nothing in it is the probe's.
+  const shared = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-prime')], { ...probeOpts, probeRunId: 'run-prime' });
+  assert.deepEqual([shared.probeAckRows, shared.primingAckRows, shared.probeReplied], [0, 2, false]);
   const heartbeat = [
     ...messages,
     { role: 'assistant', content: [{ type: 'toolCall', id: 'hb-1', name: 'heartbeat_respond', arguments: { outcome: 'done', notify: true, summary: `TARGET-ACK ${nonce}` } }], __openclaw: { runId: 'run-hb' } },
     { role: 'toolResult', toolCallId: 'hb-1', toolName: 'heartbeat_respond', content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', summary: `TARGET-ACK ${nonce}` }) }], __openclaw: { runId: 'run-hb' } },
   ];
   assert.equal(observeTargetTranscript(heartbeat, { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe' }).ackRuns, 1);
+  // A heartbeat_respond receipt in the probe run is one probe ack.
+  const probeHeartbeat = heartbeat.map((row) => (row.__openclaw?.runId === 'run-hb' ? { ...row, __openclaw: { runId: 'run-probe' } } : row));
+  assert.equal(observeTargetTranscript(probeHeartbeat, probeOpts).probeAckRows, 1);
   assert.equal(observeTargetTranscript([...messages, say('hello')], { nonce, primingRunIds: ['run-prime'] }).unattributedAssistantRows, 1);
   assert.equal(observeTargetTranscript([...messages, say(`RCDRA-RETURN ${nonce}`, 'run-probe')], { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe' }).returnMarkerRows, 1);
   assert.equal(countParentAcks([say(`TARGET-ACK ${nonce}`, 'run-d')], nonce), 1);
@@ -1301,12 +1439,12 @@ function revokedEvidence() {
     target_primed: true,
     dispatch: { status: 'scheduled', accepted: true, result_mode: 'silent', result_delay_seconds: 30, observed_at_ms: 1_000 },
     other_delegate_calls: 0,
-    pre_transition_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
+    pre_transition_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, wrongNonceAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
     child: { spawned: true, bound: true, done: true, key: CHILD_KEY },
     transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
     probe_ran: true,
     probe_sent_at_ms: 59_000,
-    target_obs: { ackRuns: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
+    target_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, wrongNonceAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
     parent_ack_rows: 0,
     refusals: [],
     preflight: { ok: true },
@@ -1349,6 +1487,7 @@ test('the control assembles a case record from scenario evidence, product log li
     startedAtMs: 500,
   });
   assert.equal(record.park.deliveredToTargetAtMs, 3_000);
+  assert.equal(record.park.deliveredFromChildAtMs, 3_000, 'the park line names the target and comes from the case\'s child');
   assert.deepEqual(record.routing, { duringTransition: 0, afterTransition: 0 }, 'the park line precedes the transition');
   assert.equal(record.target.probeSentAtMs, 59_000);
   assert.deepEqual(record.reason, {
@@ -1428,7 +1567,7 @@ test('a sample taken after the transition is never read as the captured epoch', 
     keys: { parent: 'agent:main:r-cd-ra-allowed-across-reset-parent-abc', target, ops: null },
     transition: { method: 'sessions.reset', ok: true, requested_at_ms: 1_500, settled_at_ms: 1_600 },
     probe_ran: false,
-    target_obs: { ackRuns: 1, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
+    target_obs: { ackRuns: 1, probeAckRows: 0, primingAckRows: 0, wrongNonceAckRows: 0, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
   };
   const advanced = '22222222-2222-4222-8222-222222222222';
   const record = assembleCaseRecord({

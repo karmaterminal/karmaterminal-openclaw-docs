@@ -644,6 +644,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     reason = findReason(logEntries, spec.reasonKind, { targetKey: keys.target, parentKey: keys.parent }, transition.requested_at_ms ?? startedAtMs);
   }
   const target = final.target_obs ?? {};
+  const childKey = final.child?.key ?? evidence?.child?.key ?? null;
   return {
     schema: RRA_CASE_SCHEMA,
     row: RRA_ROW,
@@ -690,6 +691,9 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       probeSentAtMs: final.probe_sent_at_ms ?? null,
       probeReplied: target.probeReplied === true,
       ackRuns: target.ackRuns ?? null,
+      probeAckRows: target.probeAckRows ?? null,
+      primingAckRows: target.primingAckRows ?? null,
+      wrongNonceAckRows: target.wrongNonceAckRows ?? null,
       foreignRuns: target.foreignRuns ?? null,
       unattributedAssistantRows: target.unattributedAssistantRows ?? null,
       returnMarkerRows: target.returnMarkerRows ?? null,
@@ -710,12 +714,17 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       settledAtMs: transition.settled_at_ms ?? null,
       ...(spec.transition === 'sessions.delete+sessions.create' ? { deleteSettledAtMs: transition.delete_settled_at_ms ?? null } : {}),
     },
-    park: { deliveredToTargetAtMs: findRouted(logEntries, keys.target) },
+    // The router's first line naming the target, and the first that also comes from this case's
+    // child: allowed-silent's probe must follow that one (its return had reached the target).
+    park: {
+      deliveredToTargetAtMs: findRouted(logEntries, keys.target),
+      deliveredFromChildAtMs: findRouted(logEntries, keys.target, { childKey }),
+    },
     // Router lines for this return, the target named or its child as the source (the child key
     // stays private): while the transition RPC was in flight, and once it had settled. A refused
     // return must leave none after the settle at j12′.
     routing: spec.family === 'refusal' && spec.expectChild !== false
-      ? routingAround(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition)
+      ? routingAround(logEntries, { targetKey: keys.target, childKey }, transition)
       : null,
     // The gateway's pending-sweep lines while the transition (for a delete and re-create, the
     // delete) was in flight; they name no session.

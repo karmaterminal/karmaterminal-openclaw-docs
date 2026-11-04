@@ -32,12 +32,24 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
 });
 
 /**
- * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, noIdentity,
- * workWake, wakeElects, probeElects, retry }. Allowed cases get the woken target's ack after their (last) priming; refused
+ * A scripted j12′-shaped gateway. world: { caseId, ack: 'wake'|'none', adoptOnProbe, markerOnly,
+ * probeAck, probeMarker, primingAck, wakeAck, noIdentity, workWake, wakeElects, probeElects, retry }.
+ * Allowed cases get the woken target's ack after their (last) priming; refused
  * cases spawn a child only when the delegate would have fired. The continue_work case's session
  * answers its election with a scheduled result, and with `workWake` a wake turn shows once the
  * probe was sent. `sessions` is the gateway's session store: pass one store to several cases to
  * run them on one gateway, as the control does, where a label one case holds refuses another's.
+ *
+ * The probe turn, as j12′ runs a sessions.send turn: its drain adopts a parked return it can see
+ * (allowed-silent's, or with `adoptOnProbe` a refused one the product failed to refuse), but its
+ * input was staged before the drain, so its row never carries __openclaw.sessionDeliveryAckIds
+ * (chat-send-input-dispatch.ts:330-350, user-turn-transcript.ts:130-140,
+ * session-system-event-adoption.ts:287-296). The primed model acks what it saw, in the probe run.
+ * `probeAck` overrides the model's answer: 'ack' (one row: the ack and PROBE-OK), 'none' (PROBE-OK
+ * only), 'wrong-nonce' (the ack with the probe's nonce), 'twice' (two ack rows). `probeMarker`, and
+ * `adoptOnProbe` by default, put the marker on the probe row: a product no pin is, kept so the
+ * marker check stays covered. `markerOnly` keeps the old meaning: the marker and no ack.
+ * `primingAck` adds an ack row to the priming run; `wakeAck` a woken run that acks before the probe.
  */
 function gatewayFor(world, sessions = {}) {
   const spec = RRA_CASES[world.caseId];
@@ -89,14 +101,18 @@ function gatewayFor(world, sessions = {}) {
           const runId = `run-prime-${primes++}`;
           push(p.key, user(message));
           push(p.key, say(`TARGET-READY ${nonce}`, runId));
+          if (world.primingAck) push(p.key, say(`TARGET-ACK ${nonce}`, runId));
           return ok({ runId });
         }
         const probe = /probe (\S+):/.exec(message);
         if (probe) {
-          // A parked return adopted into the probe turn: the product's marker on the visible user row
-          // (managed-delivery-turn-lifecycle.ts:107-111, written by user-turn-transcript.metadata.ts
-          // :102-104) and the primed target's ack in the probe run.
+          // A parked return the probe turn's drain adopts: the primed target acks it in the probe run,
+          // and no marker reaches the row (see above).
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
+          const marker = world.probeMarker ?? world.adoptOnProbe === true;
+          const answer = world.probeAck ?? (adopts && !world.markerOnly ? 'ack' : 'none');
+          // A silent return that woke the target anyway, and whose wake acked it.
+          if (world.wakeAck) push(p.key, say(`TARGET-ACK ${nonce}`, 'run-wake'));
           // A refused kept wake that ran anyway: its turn's row, from a run of its own, and with
           // `wakeElects` that wake turn electing again.
           if (world.workWake) {
@@ -105,8 +121,13 @@ function gatewayFor(world, sessions = {}) {
           }
           // The model electing in the probe turn: a new election after the transition.
           if (world.probeElects) push(p.key, toolCall('w8', 'continue_work', { reason: 'probe', delaySeconds: 0 }, 'run-probe'));
-          push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(adopts ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
-          push(p.key, say(world.adoptOnProbe && !world.markerOnly ? `TARGET-ACK ${nonce}` : `PROBE-OK ${probe[1]}`, 'run-probe'));
+          push(p.key, { ...user(message), __openclaw: { runId: 'run-probe', ...(marker ? { sessionDeliveryAckIds: ['q-1'] } : {}) } });
+          if (answer === 'ack') push(p.key, say(`TARGET-ACK ${nonce}\nPROBE-OK ${probe[1]}`, 'run-probe'));
+          else if (answer === 'wrong-nonce') push(p.key, say(`TARGET-ACK ${probe[1]}\nPROBE-OK ${probe[1]}`, 'run-probe'));
+          else if (answer === 'twice') {
+            push(p.key, say(`TARGET-ACK ${nonce}`, 'run-probe'));
+            push(p.key, say(`TARGET-ACK ${nonce}\nPROBE-OK ${probe[1]}`, 'run-probe'));
+          } else push(p.key, say(`PROBE-OK ${probe[1]}`, 'run-probe'));
           return ok({ runId: 'run-probe' });
         }
         if (message.includes('Call the continue_work tool')) {
@@ -206,8 +227,10 @@ const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${messa
  * captureLate (the session's authority row first appears after the transition was requested).
  * sweepInTransition: the pending sweep's arming line while the delete was in flight
  * ('after-delete': after the delete's response, while the create was in flight).
+ * routedAfterProbe: the router's Delivered to line lands only after the probe was sent;
+ * routedFrom: the source that line names, in place of the case's child.
  */
-function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, sweepInTransition = false } = {}) {
+function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, sweepInTransition = false, routedAfterProbe = false, routedFrom = CHILD } = {}) {
   const spec = RRA_CASES[caseId];
   const { target, parent } = drive.keys;
   const transition = drive.transition || {};
@@ -220,7 +243,8 @@ function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reas
   // A parked or allowed return is routed while current: before the transition. A wake-mode
   // refusal is refused by the router itself, which logs no Delivered to line.
   if (spec.expectChild !== false && spec.timing !== 'before-return') {
-    logEntries.push({ atMs: transitionAt - 1, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
+    const routedAt = routedAfterProbe ? final.probe_sent_at_ms + 1 : transitionAt - 1;
+    logEntries.push({ atMs: routedAt, text: `[continuation:targeted-return] Delivered to ${target} from ${routedFrom}`, generation: 0 });
   }
   if (reason && spec.reasonKind === 'dispatch-policy') {
     logEntries.push({ atMs: transitionAt + 3, text: `[continuation:delegate-rejected] policy.cross_session_targeting task=RCDRA session=${parent}`, generation: 0 });
@@ -388,6 +412,66 @@ test('dry run: a refused return adopted into the probe turn is FAIL-candidate, w
       assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} markerOnly=${markerOnly}`);
       assert.ok(graded.contradictions.includes('refused-return-adopted'), caseId);
     }
+  }
+});
+
+// 🌊's ruling (a), room msg 1567556038281007235: allowed-silent passes on the probe turn's TARGET-ACK,
+// bound to this case's nonce and the target's priming; the marker a sessions.send turn never
+// carries is no longer required, and the oracle rejects a pre-return or wrong-nonce ack.
+test('dry run: allowed-silent passes on its probe run\'s ack, after the router delivered its return, with no marker', async () => {
+  const { drive, record, graded } = await grade('allowed-silent');
+  assert.deepEqual(drive.refusals, []);
+  assert.equal(record.target.adoptedDeliveryRows, 0, 'no pin writes the marker on a sessions.send probe row');
+  assert.equal(record.target.probeAckRows, 1);
+  assert.equal(record.target.ackRuns, 1);
+  assert.equal(record.target.foreignRuns, 0);
+  assert.equal(record.target.primingAckRows, 0);
+  assert.ok(record.park.deliveredFromChildAtMs < record.target.probeSentAtMs, JSON.stringify({ park: record.park, sent: record.target.probeSentAtMs }));
+  assert.deepEqual([record.child.spawned, record.child.bound, record.child.done], [true, true, true]);
+  // At 432e2c3e this graded MISSING (adoption-marker-unobserved): the product's own shape never passed.
+  assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+});
+
+test('dry run: allowed-silent rejects a pre-return, wrong-nonce, priming, foreign or doubled ack, and a missing one', async () => {
+  const cases = [
+    // [label, world, harness options, verdict, missing, contradictions]
+    ['the model never acked', { probeAck: 'none' }, {}, 'MISSING-candidate', ['probe-ack-unobserved'], []],
+    ['marker on the row, no ack (a product no pin is)', { probeAck: 'none', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved'], []],
+    ['pre-return: the probe was sent before the Delivered to line', {}, { routedAfterProbe: true }, 'MISSING-candidate', ['probe-not-after-return'], []],
+    ['the Delivered to line came from another child', {}, { routedFrom: 'agent:main:subagent:continuation-other' }, 'MISSING-candidate', ['return-not-routed-from-child'], []],
+    ['wrong nonce', { probeAck: 'wrong-nonce' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch'], []],
+    ['wrong nonce, with the marker', { probeAck: 'wrong-nonce', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch'], []],
+    ['an ack in the priming run only', { primingAck: true, probeAck: 'none' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return'], []],
+    ['an ack in the priming run beside the probe\'s', { primingAck: true }, {}, 'MISSING-candidate', ['ack-before-return'], []],
+    ['two acks in the probe run', { probeAck: 'twice' }, {}, 'MISSING-candidate', ['probe-ack-duplicated'], []],
+    ['an ack in a foreign run only', { wakeAck: true, probeAck: 'none' }, {}, 'FAIL-candidate', ['probe-ack-unobserved'], ['silent-return-woke-target']],
+    ['two acks: a foreign run and the probe run', { wakeAck: true }, {}, 'FAIL-candidate', [], ['duplicate-adoption', 'silent-return-woke-target']],
+  ];
+  for (const [label, world, options, verdict, missingCodes, contradictionCodes] of cases) {
+    const { graded } = await grade('allowed-silent', world, options);
+    assert.equal(graded.verdict, verdict, `${label}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.missing, missingCodes, `${label}: ${JSON.stringify(graded)}`);
+    assert.deepEqual([...graded.contradictions].sort(), contradictionCodes, `${label}: ${JSON.stringify(graded)}`);
+  }
+});
+
+const delegateRefusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'refusal' && !RRA_CASES[caseId].tool);
+
+test('dry run: an ack of the nonce in a refusal case\'s probe run fails it, with no marker on the row', async () => {
+  for (const caseId of delegateRefusalCases) {
+    const { record, graded } = await grade(caseId, { probeAck: 'ack' });
+    assert.equal(record.target.adoptedDeliveryRows, 0, caseId);
+    assert.equal(record.target.probeAckRows, 1, caseId);
+    assert.equal(graded.verdict, 'FAIL-candidate', `${caseId}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.contradictions, ['refused-return-adopted'], caseId);
+    // An ack-shaped reply with another nonce leaves the absence unread.
+    const other = await grade(caseId, { probeAck: 'wrong-nonce' });
+    assert.equal(other.graded.verdict, 'MISSING-candidate', `${caseId}: ${JSON.stringify(other.graded)}`);
+    assert.deepEqual(other.graded.missing, ['ack-nonce-mismatch'], caseId);
+    // Their own probe, answered with no ack, is the real absence: PASS.
+    const quiet = await grade(caseId, { probeAck: 'none' });
+    assert.equal(quiet.record.target.probeAckRows, 0, caseId);
+    assert.equal(quiet.graded.verdict, 'PASS-candidate', `${caseId}: ${JSON.stringify(quiet.graded)}`);
   }
 });
 

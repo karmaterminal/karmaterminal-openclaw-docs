@@ -107,7 +107,9 @@ export const RRA_CASES = Object.freeze({
     mode: 'silent',
     transition: null,
     // The positive control for every refusal case's absence: the same parked silent return, the
-    // same probe turn, and the product's adoption marker must show on the visible probe row.
+    // same probe turn, and the primed target's TARGET-ACK in the probe's own run (🌊's ruling (a),
+    // room msg 1567556038281007235). No pin writes the product's adoption marker on a
+    // sessions.send turn's row, so the marker is never this case's evidence.
     probeAdopts: true,
     clawSweeper: 'allowed delivery ... through prompt adoption (the control for the refusal cases\' absence)',
   }),
@@ -579,10 +581,15 @@ export function findWorkRefusals(entries, sessionKey, afterMs = 0) {
   return found;
 }
 
-/** The first router line that delivered this case's return to its target. */
-export function findRouted(entries, targetKey) {
+/**
+ * The first router line that delivered this case's return to its target; with `childKey`, only a
+ * line that also names that child as its source (`Delivered to <keys> from <child>`).
+ */
+export function findRouted(entries, targetKey, { childKey } = {}) {
+  if (childKey !== undefined && (typeof childKey !== 'string' || !childKey)) return null;
   for (const entry of Array.isArray(entries) ? entries : []) {
-    if (typeof entry?.atMs === 'number' && routedToTarget(entry.text, targetKey)) return entry.atMs;
+    if (typeof entry?.atMs !== 'number' || !routedToTarget(entry.text, targetKey)) continue;
+    if (childKey === undefined || routedFromChild(entry.text, childKey)) return entry.atMs;
   }
   return null;
 }
@@ -623,32 +630,65 @@ function roleOf(message) {
   return String(message?.role || '').toLowerCase();
 }
 
+const HARNESS_MARKER = '[k6-proof-harness]';
+
+/**
+ * Whether `text` carries the ack marker anywhere without this case's nonce after it: another
+ * nonce, or none. Text that quotes the harness prompt is no ack at all (hasExactSentinelText).
+ */
+function hasOtherNonceAck(text, nonce) {
+  if (typeof text !== 'string' || !text || text.includes(HARNESS_MARKER)) return false;
+  const marker = new RegExp(`(?:^|[^A-Za-z0-9_-])${escapeRegex(RRA_ACK_MARKER)}(?![A-Za-z0-9_-])`, 'gu');
+  const exact = typeof nonce === 'string' && nonce ? new RegExp(`^\\s+${escapeRegex(nonce)}(?=$|[^A-Za-z0-9_-])`, 'u') : null;
+  for (let match = marker.exec(text); match; match = marker.exec(text)) {
+    if (!exact || !exact.test(text.slice(match.index + match[0].length))) return true;
+  }
+  return false;
+}
+
 /**
  * What the target's transcript (chat.history, oldest to newest) shows about the return.
  * chat.history hides the wake's own user row and the runtime-context row that carries the
  * delivered return (the R-CD-4 finding, lib/wake-turn-receipt.mjs), so adoption is read from the
  * primed target's answer: `TARGET-ACK <nonce>` as assistant text or as a heartbeat_respond receipt,
- * in a run other than a priming run.
+ * in a run other than a priming run. The priming turn asks for it on a later turn, and only if this
+ * proof's task completion is in the model's context; nothing else the harness sends names it.
  * - ackRuns: distinct non-priming runs that acknowledged the return (the probe run included: the
  *   probe never names the ack, so an ack there is the return adopted into the probe turn).
+ * - probeAckRows: rows of the probe run that carry the exact ack (assistant text rows, plus one per
+ *   heartbeat_respond receipt). The probe run is the one sessions.send started for the probe, by its
+ *   run id; a run id that is also a priming run's names no probe run.
+ * - primingAckRows: assistant rows of a priming run that carry the exact ack, given before any
+ *   return existed. Never an ack of the return; allowed-silent reads one as a model that acks
+ *   unprompted.
+ * - wrongNonceAckRows: assistant rows outside the priming runs that carry the ack marker without
+ *   this case's nonce after it.
  * - foreignRuns: distinct assistant runs that are neither priming nor the probe (a wake).
  * - unattributedAssistantRows: assistant rows with no run id; they cannot be placed, so a case
  *   that has any is MISSING.
  * - returnMarkerRows: assistant rows that repeat the child's return marker.
  * - probeReplied: the probe run answered `PROBE-OK <probeNonce>`.
  * - adoptedDeliveryRows: rows carrying the product's adoption marker,
- *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:53-71 at j12′). chat.history
- *   keeps it on a visible row (chat-display-projection.sanitize.ts:442-475 strips only named private
- *   keys), so a parked return adopted into the probe turn shows here even if the model never acks.
+ *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:53-71 at j12′), which
+ *   chat.history keeps (chat-display-projection.sanitize.ts:455-462). No pin writes it for a
+ *   sessions.send turn: the turn's input is staged before its drain
+ *   (chat-send-input-dispatch.ts:330-350), the staged recorder refuses the ids
+ *   (src/sessions/user-turn-transcript.ts:130-140) and the return is adopted without a receipt
+ *   (session-system-event-adoption.ts:287-296). So a probe turn that adopted the return leaves 0
+ *   here; the count is a contradiction check only, never evidence of adoption or of its absence.
  */
 export function observeTargetTranscript(messages, { nonce, primingRunIds = [], probeRunId = null, probeNonce = null } = {}) {
   const list = Array.isArray(messages) ? messages : [];
   const priming = new Set(primingRunIds.filter((id) => typeof id === 'string' && id));
+  const probe = typeof probeRunId === 'string' && probeRunId && !priming.has(probeRunId) ? probeRunId : null;
   const ackRuns = new Set();
   const foreignRuns = new Set();
   let unattributedAssistantRows = 0;
   let returnMarkerRows = 0;
   let probeReplied = false;
+  let probeAckRows = 0;
+  let primingAckRows = 0;
+  let wrongNonceAckRows = 0;
   let adoptedDeliveryRows = 0;
   for (const message of list) {
     const ackIds = message?.__openclaw?.sessionDeliveryAckIds;
@@ -660,10 +700,17 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
       unattributedAssistantRows += 1;
       continue;
     }
-    if (!priming.has(runId) && runId !== probeRunId) foreignRuns.add(runId);
-    if (!priming.has(runId) && hasExactSentinelText(text, RRA_ACK_MARKER, nonce)) ackRuns.add(runId);
+    const acked = hasExactSentinelText(text, RRA_ACK_MARKER, nonce);
+    if (priming.has(runId)) {
+      if (acked) primingAckRows += 1;
+    } else {
+      if (runId !== probeRunId) foreignRuns.add(runId);
+      if (acked) ackRuns.add(runId);
+      if (hasOtherNonceAck(text, nonce)) wrongNonceAckRows += 1;
+    }
+    if (probe && runId === probe && acked) probeAckRows += 1;
     if (hasExactSentinelText(text, RRA_RETURN_MARKER, nonce)) returnMarkerRows += 1;
-    if (probeRunId && runId === probeRunId && probeNonce && hasExactSentinelText(text, RRA_PROBE_MARKER, probeNonce)) {
+    if (probe && runId === probe && probeNonce && hasExactSentinelText(text, RRA_PROBE_MARKER, probeNonce)) {
       probeReplied = true;
     }
   }
@@ -679,10 +726,14 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     });
     if (!receipt) break;
     ackRuns.add(receipt.runId);
+    if (probe && receipt.runId === probe) probeAckRows += 1;
     afterIndex = receipt.index;
   }
   return {
     ackRuns: ackRuns.size,
+    probeAckRows,
+    primingAckRows,
+    wrongNonceAckRows,
     foreignRuns: foreignRuns.size,
     unattributedAssistantRows,
     returnMarkerRows,
@@ -884,10 +935,15 @@ function isHash(value) {
  * - an observation that is absent or not of its type is MISSING;
  * - a residual condition (config not restored, cleanup incomplete) is PARTIAL;
  * - otherwise PASS-candidate. A refusal case is PASS only with BOTH the product reason and the
- *   observed absence of adoption, ack, wake and final effect. A refused return's reason is its
- *   j12′ line naming the target, first at the case's pinned stage, naming a row exactly when that
- *   stage writes one; another stage, a j12-only line or two rows is MISSING. A `Delivered to` line
- *   for the return once its transition settled is FAIL; one while it was in flight is MISSING.
+ *   observed absence of ack (in the probe run or any later one), wake and final effect. A refused
+ *   return's reason is its j12′ line naming the target, first at the case's pinned stage, naming a
+ *   row exactly when that stage writes one; another stage, a j12-only line or two rows is MISSING.
+ *   A `Delivered to` line for the return once its transition settled is FAIL; one while it was in
+ *   flight is MISSING.
+ * - allowed-silent, the control for that absence, is PASS only with exactly one ack of its nonce in
+ *   the probe's own run, sent after the router's `Delivered to` line from its child, and none before
+ *   (🌊's ruling (a), room msg 1567556038281007235). The ack is the model's, so a missing, doubled or
+ *   other-nonce ack is MISSING; a wake turn is FAIL.
  */
 export function gradeRecipientAuthorityCase(record) {
   const missing = [];
@@ -935,7 +991,8 @@ export function gradeRecipientAuthorityCase(record) {
   if (!Array.isArray(record.scenario?.refusals) || record.scenario.refusals.length > 0) missing.push('scenario-refused');
   if (record.scenario?.preflightOk !== true) missing.push('preflight-not-ok');
   const counted = need(
-    ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows'].every((key) => isCount(target[key])) && isCount(parent.ackRows),
+    ['ackRuns', 'probeAckRows', 'primingAckRows', 'wrongNonceAckRows', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows']
+      .every((key) => isCount(target[key])) && isCount(parent.ackRows),
     'transcript-not-read',
   );
   if (counted && target.unattributedAssistantRows > 0) missing.push('unattributable-target-rows');
@@ -1060,11 +1117,33 @@ export function gradeRecipientAuthorityCase(record) {
         else missing.push('woken-without-ack');
       }
       if (target.adoptedDeliveryRows > 1) contradict('duplicate-adoption');
-      if (spec.probeAdopts) {
-        // The probe turn must adopt it (the product's marker on the visible row) and the silent
-        // return must not have woken the target first.
-        need(target.probeRan === true, 'probe-turn-unobserved');
-        if (target.adoptedDeliveryRows === 0) missing.push('adoption-marker-unobserved');
+    }
+    if (spec.probeAdopts) {
+      // 🌊's ruling (a), room msg 1567556038281007235: the probe turn's adoption is read from the
+      // primed target's TARGET-ACK in the probe's own run. The product's marker is not evidence: no
+      // pin writes it on a sessions.send turn's row (observeTargetTranscript, adoptedDeliveryRows).
+      need(child.spawned === true, 'child-spawn-unobserved');
+      need(target.probeRan === true, 'probe-turn-unobserved');
+      // The return reached the target at the router's `Delivered to` line naming it and coming from
+      // this case's child (subagent-announce.continuation-return.ts:199-203). The router logs it only
+      // for a recipient whose event is queued in memory, carrying the row's ack id, and still current
+      // (targeting.ts:313-341, 356-375, 409). A silent return wakes no one (:395-403), so the target's
+      // next turn drains it and its model sees it (continuation-wake.test.ts:878-920, at :911). A probe
+      // sent before that line started a turn that could not drain it, so its ack proves nothing.
+      const deliveredAt = record.park?.deliveredFromChildAtMs;
+      if (need(isTime(deliveredAt), 'return-not-routed-from-child')) {
+        need(isTime(target.probeSentAtMs) && target.probeSentAtMs > deliveredAt, 'probe-not-after-return');
+      }
+      if (counted) {
+        // Exactly one ack of this case's nonce, in the probe run. The ack is the model's: a model that
+        // does not give it, gives it twice in one turn or gives another nonce is MISSING, never FAIL.
+        if (target.probeAckRows === 0) missing.push('probe-ack-unobserved');
+        if (target.probeAckRows > 1) missing.push('probe-ack-duplicated');
+        if (target.wrongNonceAckRows > 0) missing.push('ack-nonce-mismatch');
+        // An ack before any return existed: the model acks unprompted, and its probe ack proves nothing.
+        if (target.primingAckRows > 0) missing.push('ack-before-return');
+        // The silent return must not have woken the target: any run but priming and the probe's is FAIL,
+        // an ack there included (and an ack in two runs is duplicate-adoption, above).
         if (target.foreignRuns > 0) contradict('silent-return-woke-target');
       }
     }
@@ -1138,7 +1217,13 @@ export function gradeRecipientAuthorityCase(record) {
     }
     need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
     if (counted) {
-      if (target.ackRuns > 0 || target.adoptedDeliveryRows > 0) contradict('refused-return-adopted');
+      // The absence: no ack of this case's nonce in the probe run (probeAckRows) or any later run
+      // (ackRuns). The primed target acks a return that reaches its turn, as allowed-silent shows on
+      // the same probe; a refused return never reaches it. The product's marker is never written for
+      // a sessions.send probe, so its count stays a contradiction check, never the absence's evidence.
+      if (target.ackRuns > 0 || target.probeAckRows > 0 || target.adoptedDeliveryRows > 0) contradict('refused-return-adopted');
+      // An ack-shaped reply with another nonce leaves that absence unread.
+      if (target.wrongNonceAckRows > 0) missing.push('ack-nonce-mismatch');
       if (target.foreignRuns > 0) contradict('target-woken');
       if (target.returnMarkerRows > 0) contradict('return-reached-target');
       if (parent.ackRows > 0) contradict('return-landed-in-parent');

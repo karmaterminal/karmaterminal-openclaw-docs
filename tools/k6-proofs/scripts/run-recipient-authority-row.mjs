@@ -2,8 +2,9 @@
 /**
  * run-recipient-authority-row.mjs: the control for R-CD-RECIPIENT-AUTHORITY, the live isolated-gateway
  * row (🌊's ruling, room msg 1567077062139838485; docs#536), pinned to j12′
- * 1ab5a73e14309922fa79edf4f93034bdb0acde62, the merged head (🌊's ruling, room msg 1567104742604406896;
- * gate 3, room msg 1567194866507841678).
+ * 2907e656a892c0efa93821670e9488c07be12c17, the merged head with the delegate dispatch grant (🌊's
+ * ruling, room msg 1567104742604406896; gate 3, room msg 1567194866507841678; the grant, ruling A,
+ * room msg 1567487338383413250).
  *
  * It owns one disposable gateway that frond-scribe scripts/proof-gw/composite-launcher.sh set up,
  * signed in (login) and stopped:

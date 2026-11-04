@@ -1,7 +1,7 @@
 // R-CD-RECIPIENT-AUTHORITY dry run against the mock-gateway pattern (helpers/k6-node-runtime.mjs).
 //
 // The real case driver (scenarios/r-cd-recipient-authority.js) runs in Node against a scripted
-// gateway shaped like the public surface of the merged j12′ (1ab5a73e): hello-ok, sessions.*,
+// gateway shaped like the public surface of the merged j12′ (2907e656): hello-ok, sessions.*,
 // session.visibility.set, session.members.*, config.get/patch, chat.history with Tool Search
 // dispatch_action rows for continue_delegate and continue_work. The control's own
 // assembleCaseRecord then joins the evidence with scripted j12′ gateway log lines (the router's

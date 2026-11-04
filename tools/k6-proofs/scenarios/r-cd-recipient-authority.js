@@ -14,12 +14,12 @@
  * refuses from setup() and from default(). It never decides a verdict: it prints evidence, and
  * lib/recipient-authority-row.mjs grades the control's case record.
  *
- * Product path at j12′, karmaterminal/openclaw 1ab5a73e14309922fa79edf4f93034bdb0acde62 (the merged
- * head), every anchor re-walked with git show / git grep at that commit. j12
- * 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only, and the refused chain
- * e9dc1c31 the row's former interim pin. Sections 1-4 and 6 read files that are j12's own or whose
- * cited lines j12′ only moved; section 5 is j12′'s return refusal and section 7 its continue_work
- * binding.
+ * Product path at j12′, karmaterminal/openclaw 2907e656a892c0efa93821670e9488c07be12c17 (the merged
+ * head with the delegate dispatch grant), every anchor re-walked with git show / git grep at that
+ * commit. j12 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only, the refused chain
+ * e9dc1c31 the row's former interim pin, and 1ab5a73e (the merged head before the grant) its former
+ * pin. Sections 1-4 and 6 read files that are j12's own or whose cited lines j12′ only moved;
+ * section 5 is j12′'s return refusal, section 7 its continue_work binding and section 8 the grant.
  *
  * 1. Authority. One UUID epoch per logical session key in session_recipient_authority (per-agent
  *    database). A binding is current only while the stored epoch equals the captured one
@@ -28,9 +28,9 @@
  *    src/config/sessions/session-sharing-store.worker.ts:170-174).
  *
  * 2. Bound. continue_delegate with targetSessionKey (src/agents/tools/continue-delegate-tool.ts:319-339)
- *    enqueues the delegate (:424-434 -> src/auto-reply/continuation/delegate-store.ts:204-218), and the
+ *    enqueues the delegate (:424-434 -> src/auto-reply/continuation/delegate-store.ts:205-224), and the
  *    custody record is created only after the binding is captured
- *    (src/auto-reply/continuation/delegate-flow-store.ts:426-437 ->
+ *    (src/auto-reply/continuation/delegate-flow-store.ts:432-452, the binding at :435-442 ->
  *    src/auto-reply/continuation/recipient-authority-binding.ts:56-74). The tool's "scheduled" result
  *    (continue-delegate-tool.ts:436-449) is therefore after capture. The child carries the binding
  *    (src/auto-reply/continuation/delegate-dispatch-request.ts:65-66,
@@ -68,7 +68,7 @@
  *    (src/agents/tools/continue-delegate-tool.ts:353-362), and for a delegate accepted before the policy changed, a
  *    rejection at dispatch: log `[continuation:delegate-rejected] policy.cross_session_targeting
  *    ... session=<dispatcher>`, terminal custody failure, an owner notice and a continuation.disabled
- *    span (src/auto-reply/continuation/delegate-dispatch.ts:267-290). The policy is read at each
+ *    span (src/auto-reply/continuation/delegate-dispatch.ts:268-291). The policy is read at each
  *    decision (config.ts:84-92), and agents.defaults.continuation.* reloads hot
  *    (src/gateway/config-reload.prepared-model-runtime.test.ts:74-96), so config.patch
  *    (src/gateway/server-methods/config.ts:798-980) changes it without a restart. j12′ has no per-target
@@ -137,7 +137,7 @@
  *    docs/design/continue-work-signal-v2.md "Kept continue_work wakes and recipient authority"):
  *    - the tool only queues the request and answers `scheduled` (src/agents/tools/continue-work-tool.ts:84-110,
  *      src/auto-reply/reply/agent-runner-embedded-candidate.ts:222-224); the turn schedules it after the
- *      attempt (src/auto-reply/reply/agent-runner-continuation-signal.ts:463 ->
+ *      attempt (src/auto-reply/reply/agent-runner-continuation-signal.ts:467 ->
  *      src/auto-reply/continuation/work-dispatch.ts:631-740), whose election captures the epoch first
  *      (:662-665 -> work-operator-continuation.ts:34-52 -> work-recipient-authority.ts:63-67,
  *      insert-if-absent). So the capture comes AFTER the scheduled toolResult; the control reads it
@@ -152,7 +152,7 @@
  *      `[continuation:work-refused] stage=wake reason=recipient-authority-changed session=<key> flowId=<id>`
  *      from the subsystem continuation/work-refused (src/auto-reply/continuation/return-refusal.ts:38-46);
  *      a failed record is never claimed again (work-store.ts:226, 260);
- *    - the only earlier boundary, the replay sweep, runs at custody boot (custody-boot.ts:107-114 ->
+ *    - the only earlier boundary, the replay sweep, runs at custody boot (custody-boot.ts:114-121 ->
  *      work-recipient-authority.ts:159-171); a later one, adoption (work-dispatch-execution.ts:267, 450),
  *      refuses a wake only if the handoff could not read the authority (work-recipient-authority.ts:116-124)
  *      or the authority moved after the handoff's read.

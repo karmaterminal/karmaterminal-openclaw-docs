@@ -12,13 +12,16 @@
  * (scenarios/r-cd-recipient-authority.js), the control (scripts/run-recipient-authority-row.mjs)
  * and the tests share it. Plain ESM with no Node or k6 imports, so k6 can load it.
  *
- * The product path at j12′ (karmaterminal/openclaw 1ab5a73e14309922fa79edf4f93034bdb0acde62, the
+ * The product path at j12′ (karmaterminal/openclaw 2907e656a892c0efa93821670e9488c07be12c17, the
  * merged head: the refused chain, keeps-queued-2, the continue_work authority binding, the turn-start
- * fence, wake admission and #1544 maintenance custody), with path:line anchors, is in the scenario
- * header and in docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below rest on:
+ * fence, wake admission, #1544 maintenance custody and the delegate dispatch grant), with path:line
+ * anchors, is in the scenario header and in docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below
+ * rest on:
  * - The binding is captured when the continue_delegate tool call is accepted, before its
- *   "scheduled" result (continue-delegate-tool.ts:424-449 -> delegate-flow-store.ts:426-437). A
- *   transition after that toolResult is a change between dispatch and return.
+ *   "scheduled" result (continue-delegate-tool.ts:424-449 -> delegate-flow-store.ts:432-452, the
+ *   binding at :435-442). A transition after that toolResult is a change between dispatch and return.
+ *   The same step captures the electing operator's dispatch grant (:443-451), which the delegate's
+ *   spawn runs under; it changes no case's stage or oracle.
  * - Every refused return logs one line, `[continuation:return-refused] stage=<stage>
  *   reason=recipient-authority-changed session=<key>[ deliveryId=<id>]`
  *   (src/auto-reply/continuation/return-refusal.ts:16-36), at whichever boundary sees it first:
@@ -39,11 +42,12 @@ import { hasExactSentinelText, heartbeatAckFromHistory, messageRunId } from './w
 
 export const RRA_ROW = 'R-CD-RECIPIENT-AUTHORITY';
 /**
- * j12′: the product this row is pinned to, the merged head (karmaterminal/openclaw
- * codeagent/j12prime-candidate). Every cite was re-walked here. The refused chain it merged
- * (e9dc1c31) was the row's interim pin and is history: no record may name it.
+ * j12′: the product this row is pinned to, the merged head with the delegate dispatch grant
+ * (karmaterminal/openclaw codeagent/j12prime-candidate). Every cite was re-walked here. The refused
+ * chain it merged (e9dc1c31) was the row's interim pin, and the merged head before the grant
+ * (1ab5a73e) its pin until the grant; both are history: no record may name either.
  */
-export const RRA_J12P = '1ab5a73e14309922fa79edf4f93034bdb0acde62';
+export const RRA_J12P = '2907e656a892c0efa93821670e9488c07be12c17';
 export const RRA_PIN_STATUS = 'merged';
 /** j12: the presentation product the row was first written to. The named baseline, never a pin. */
 export const RRA_J12 = '352f56029dc95c60149ab4aaa127226a861d0b3d';
@@ -226,7 +230,7 @@ export const RRA_CASES = Object.freeze({
     family: 'refusal',
     tool: 'continue_work',
     refusedAt: 'wake',
-    refusedAtBytes: 'work-dispatch.ts:529 (the handoff, after consumePendingWork claims the due record and before the busy and fold branches at 573-627) -> work-recipient-authority.ts:102-152 -> return-refusal.ts:38-46; the one earlier boundary, the replay sweep, runs only at custody boot (custody-boot.ts:107-114)',
+    refusedAtBytes: 'work-dispatch.ts:529 (the handoff, after consumePendingWork claims the due record and before the busy and fold branches at 573-627) -> work-recipient-authority.ts:102-152 -> return-refusal.ts:38-46; the one earlier boundary, the replay sweep, runs only at custody boot (custody-boot.ts:114-121)',
     timing: 'before-wake',
     flowId: true,
     transition: 'session.visibility.set',
@@ -283,7 +287,7 @@ export function lowerVerdict(a, b) {
  * author; a gateway log line counts only when it also names the case's own disposable session key.
  * - admission-policy: the continue_delegate toolResult error (continue-delegate-tool.ts:353-362).
  * - dispatch-policy: `[continuation:delegate-rejected] policy.cross_session_targeting ...
- *   session=<parent>` (delegate-dispatch.ts:267-277).
+ *   session=<parent>` (delegate-dispatch.ts:268-278), before the spawn's grant is restored.
  * - return-refused: a refused return's line (return-refusal.ts:27-36), read by
  *   parseReturnRefusedLine. j12's `session event delivery skipped: recipient authority changed`
  *   is gone at j12′ and never counts.
@@ -708,7 +712,7 @@ export function countDelegateCalls(messages, { inRuns } = {}) {
  * { status, toolCallId, delaySeconds } or null; status null while no result is recorded, 'error'
  * for an error result. The `scheduled` result is written before the election is captured: the
  * tool only queues the request (continue-work-tool.ts:84-110, agent-runner-embedded-candidate.ts
- * :222-224), and the turn schedules it after the attempt (agent-runner-continuation-signal.ts:463 ->
+ * :222-224), and the turn schedules it after the attempt (agent-runner-continuation-signal.ts:467 ->
  * work-dispatch.ts:662-668). So the capture is read from the store, never from this result.
  */
 export function findWorkElection(messages, { reasonMarker }) {

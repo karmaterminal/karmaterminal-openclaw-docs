@@ -1,6 +1,6 @@
 // R-CD-RECIPIENT-AUTHORITY: a live, isolated-gateway row (🌊's ruling, room msg
-// 1567077062139838485; docs#536), pinned to the merged j12′ 1ab5a73e (msg 1567104742604406896;
-// gate 3, msg 1567194866507841678). Registration, the live-run guard's refusal, the verdict rules
+// 1567077062139838485; docs#536), pinned to the merged j12′ with the delegate dispatch grant 2907e656
+// (msg 1567104742604406896; gate 3, msg 1567194866507841678; the grant, msg 1567487338383413250). Registration, the live-run guard's refusal, the verdict rules
 // over fixture receipts (each case, each missing observation is never PASS, each stage pinned),
 // j12′'s refusal-line matchers (j12's lines never count), the continue_work case, the control's
 // refusals and its public-safe, signed case receipts.
@@ -63,10 +63,12 @@ const RUN = 'rra-0123456789abcdef';
 const H = (c) => c.repeat(64);
 const TRACE_ID = '0123456789abcdef0123456789abcdef';
 const COMP = `comp-${RRA_PINNED.slice(0, 8)}`;
-/** The merged j12′ every record must name. */
-const MERGED_J12P = '1ab5a73e14309922fa79edf4f93034bdb0acde62';
+/** The merged j12′ with the delegate dispatch grant, which every record must name. */
+const MERGED_J12P = '2907e656a892c0efa93821670e9488c07be12c17';
 /** The refused chain e9dc1c31, the row's former interim pin: history, graded only, never fired. */
 const INTERIM = 'e9dc1c318a2f73fd01755fc4682fa3349e8a0e94';
+/** The merged j12′ before the delegate dispatch grant, the row's former pin: history, graded only, never fired. */
+const PRE_GRANT = '1ab5a73e14309922fa79edf4f93034bdb0acde62';
 const WORK_CASE = 'work-revoked-visibility';
 const sha256Hex = (value) => createHash('sha256').update(value).digest('hex');
 
@@ -88,6 +90,7 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.equal(manifest.invocation.pinStatus, RRA_PIN_STATUS);
   assert.equal(RRA_PIN_STATUS, 'merged');
   assert.doesNotMatch(JSON.stringify(manifest), /INTERIM/, 'no interim pin left in the manifest');
+  assert.notEqual(manifest.invocation.pinnedCandidate, PRE_GRANT, 'the pre-grant head is history, never the pin');
   assert.equal(manifest.invocation.baselineCandidate, RRA_J12, 'j12 is the named baseline, never the pin');
   assert.deepEqual(manifest.invocation.cases, RRA_CASE_IDS);
   assert.equal(Object.hasOwn(manifest, 'verdictCap'), false, 'a disposable real process needs no cap');
@@ -108,10 +111,12 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.match(docs, new RegExp(`proof-gw/comp-${MERGED_J12P.slice(0, 8)}`));
   assert.match(docs, new RegExp(`PROOFS/${MERGED_J12P}/R-CD-RECIPIENT-AUTHORITY/`));
   assert.match(docs, new RegExp(`--candidate ${MERGED_J12P}`));
-  for (const stale of [`comp-${INTERIM.slice(0, 8)}`, `PROOFS/${INTERIM}`, `--candidate ${INTERIM}`]) assert.ok(!docs.includes(stale), stale);
+  for (const old of [INTERIM, PRE_GRANT]) {
+    for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
+  }
   // The status line: every case MISSING until an owner runs it at the merged head.
   assert.match(docs, /^Status: \*\*catalogued, every case MISSING, never fired, in no corpus\.\*\*/m);
-  assert.match(docs, /an owner runs it at `1ab5a73e`/);
+  assert.match(docs, /an owner runs it at `2907e656`/);
   for (const caseId of RRA_CASE_IDS) assert.match(docs, new RegExp(`\`${caseId}\``), caseId);
   // The case table pins one stage per refused return.
   for (const caseId of RRA_CASE_IDS.filter((id) => ['return-refused', 'work-refused'].includes(RRA_CASES[id].reasonKind))) {
@@ -121,7 +126,8 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.match(docs, /5442236054/);
   const readme = readFileSync(path.join(k6Root, 'README.md'), 'utf8');
   const readmeLine = /^\| R-CD-RECIPIENT-AUTHORITY \| `run-recipient-authority-row\.mjs` \| [^\n]*$/m.exec(readme)?.[0] ?? '';
-  assert.match(readmeLine, /j12′ 1ab5a73e/);
+  assert.match(readmeLine, /j12′ 2907e656/);
+  assert.doesNotMatch(readmeLine, /1ab5a73e/);
   assert.doesNotMatch(readmeLine, /interim/i);
   const readmeSection = /### R-CD-RECIPIENT-AUTHORITY [^\n]*\n[\s\S]*?(?=\n### )/.exec(readme)?.[0] ?? '';
   assert.match(readmeSection, new RegExp(MERGED_J12P));
@@ -129,8 +135,8 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   const pipeline = readFileSync(path.join(k6Root, 'k6-proofs-pipeline.xml'), 'utf8');
   assert.match(pipeline, /<Row id="R-CD-RECIPIENT-AUTHORITY" [^>]*issue="docs#536"/);
   const pipelineRow = /<Row id="R-CD-RECIPIENT-AUTHORITY" [\s\S]*?<\/Row>/.exec(pipeline)?.[0] ?? '';
-  assert.match(pipelineRow, /1ab5a73e1430/);
-  assert.doesNotMatch(pipelineRow, /INTERIM|e9dc1c318a2f/);
+  assert.match(pipelineRow, /2907e656a892/);
+  assert.doesNotMatch(pipelineRow, /INTERIM|e9dc1c318a2f|1ab5a73e1430/);
   assert.match(pipelineRow, /work-revoked-visibility/);
   assert.match(pipeline, /<Manifest>tools\/k6-proofs\/manifests\/r-cd-recipient-authority\.json<\/Manifest>/);
 });
@@ -144,13 +150,14 @@ test('the scenario header cites the j12′ product path at every boundary the ve
   for (const anchor of [
     'src/config/sessions/session-recipient-authority-types.ts:96-101',
     'src/config/sessions/session-recipient-authority.worker.ts:36-56',
-    'src/auto-reply/continuation/delegate-flow-store.ts:426-437',
+    'src/auto-reply/continuation/delegate-flow-store.ts:432-452, the binding at :435-442',
     'src/config/sessions/session-accessor.sqlite-entry-store.ts:56-69',
     'session-accessor.sqlite-owner.ts:158-182',
     'session-accessor.sqlite-entry-mutation.ts:119-136',
     'session-sharing-store.native.ts:150-195',
     'src/agents/tools/continue-delegate-tool.ts:353-362',
-    'src/auto-reply/continuation/delegate-dispatch.ts:267-290',
+    'src/auto-reply/continuation/delegate-dispatch.ts:268-291',
+    'src/auto-reply/continuation/delegate-store.ts:205-224',
     'src/auto-reply/continuation/return-refusal.ts:16-36',
     'src/auto-reply/continuation/return-refusal.ts:38-46',
     'src/agents/subagent-announce.continuation-return.ts:98-215',
@@ -164,7 +171,8 @@ test('the scenario header cites the j12′ product path at every boundary the ve
     'src/cli/gateway-cli/run-loop.ts:496-551',
     'src/auto-reply/continuation/work-dispatch.ts:631-740',
     'work-dispatch.ts:529 -> work-recipient-authority.ts',
-    'src/auto-reply/reply/agent-runner-continuation-signal.ts:463',
+    'src/auto-reply/reply/agent-runner-continuation-signal.ts:467',
+    'custody-boot.ts:114-121 ->',
   ]) {
     assert.ok(scenario.includes(anchor), anchor);
   }
@@ -173,6 +181,9 @@ test('the scenario header cites the j12′ product path at every boundary the ve
     'targeting.ts:240-254', 'continuation-wake.ts:127-238', 'server-restart-sentinel-delivery.ts:226-243', 'session event delivery skipped',
     'session-recipient-authority-types.ts:87-92', 'session-recipient-authority.worker.ts:35-50', 'return-refusal.ts:15-29',
     'session-reset-cleanup.ts:146-196', 'consumed at :194-196',
+    // and the pre-grant head's for the five files the grant moved.
+    'delegate-flow-store.ts:426-437', 'delegate-dispatch.ts:267-290', 'delegate-store.ts:204-218',
+    'agent-runner-continuation-signal.ts:463', 'custody-boot.ts:107-114',
   ]) {
     assert.ok(!scenario.includes(stale), stale);
   }
@@ -619,9 +630,11 @@ test('a record not about j12′ on a harness-owned gateway is MISSING whatever e
     'candidate-not-pinned': (r) => { r.candidateSha = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
     'candidate-not-pinned (the j12 baseline)': (r) => { r.candidateSha = RRA_J12; },
     'candidate-not-pinned (the interim pin)': (r) => { r.candidateSha = INTERIM; },
+    'candidate-not-pinned (the pre-grant head)': (r) => { r.candidateSha = PRE_GRANT; },
     'gate:buildInfoCommit': (r) => { r.gates.buildInfoCommit = 'f15237ec921879d918482cdf372b0718d4c1aab9'; },
     'gate:buildInfoCommit (a j12 stage)': (r) => { r.gates.buildInfoCommit = RRA_J12; },
     'gate:buildInfoCommit (an interim stage)': (r) => { r.gates.buildInfoCommit = INTERIM; },
+    'gate:buildInfoCommit (a pre-grant stage)': (r) => { r.gates.buildInfoCommit = PRE_GRANT; },
     'gateway-not-harness-owned': (r) => { r.gateway.generations[0].ownedListenerThroughout = false; },
     'gateway-not-harness-owned (none)': (r) => { r.gateway.generations = []; },
     'scenario-not-bound-to-run': (r) => { r.scenario.controlRunId = 'rra-ffffffffffffffff'; },
@@ -1034,8 +1047,12 @@ test('the control refuses: another candidate, a non-j12′ build, a live-overlap
     ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: 'f15237ec921879d918482cdf372b0718d4c1aab9' }), {}],
     // j12 is the named baseline: neither its SHA nor its stage runs this row.
     ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: RRA_J12 }), {}],
+    // Nor do the interim pin or the merged head before the delegate dispatch grant.
+    ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: INTERIM }), {}],
+    ['candidate-not-pinned', {}, (o) => ({ ...o, candidateSha: PRE_GRANT }), {}],
     ['stage-build-mismatch', { buildCommit: 'f15237ec921879d918482cdf372b0718d4c1aab9' }, (o) => o, {}],
     ['stage-build-mismatch', { buildCommit: RRA_J12 }, (o) => o, {}],
+    ['stage-build-mismatch', { buildCommit: PRE_GRANT }, (o) => o, {}],
     ['state-dir-overlaps-live', { stateLink: true }, (o) => o, {}],
     ['config-cross-session-disabled', { crossSession: 'disabled' }, (o) => o, {}],
     ['port-in-use', {}, (o) => o, { portListening: () => true }],
@@ -1355,8 +1372,8 @@ test('work-revoked-visibility: a kept continue_work wake refused at the handoff,
   // Its wake never fires, so it owes no trace receipt.
   assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.trace = null; })).verdict, 'PASS-candidate');
   assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.cleanup.residue = true; })).verdict, 'PARTIAL-candidate');
-  // The row's gates come first: a record of the interim pin is not about j12′.
-  for (const fn of [(r) => { r.candidateSha = INTERIM; }, (r) => { r.gates.buildInfoCommit = INTERIM; }]) {
+  // The row's gates come first: a record of the interim pin or the pre-grant head is not about j12′.
+  for (const fn of [INTERIM, PRE_GRANT].flatMap((old) => [(r) => { r.candidateSha = old; }, (r) => { r.gates.buildInfoCommit = old; }])) {
     const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { fn(r); r.target.foreignRuns = 1; }));
     assert.equal(graded.verdict, 'MISSING-candidate');
     assert.deepEqual(graded.contradictions, []);

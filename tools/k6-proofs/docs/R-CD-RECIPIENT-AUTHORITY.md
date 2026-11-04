@@ -1,9 +1,9 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
 Status: **catalogued, every case MISSING, never fired, in no corpus.** Each case stays MISSING until
-an owner runs it at `1ab5a73e`. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned
-product: j12′, the merged head, karmaterminal/openclaw `1ab5a73e14309922fa79edf4f93034bdb0acde62`
-(branch `codeagent/j12prime-candidate`).
+an owner runs it at `2907e656`. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned
+product: j12′, the merged head with the delegate dispatch grant, karmaterminal/openclaw
+`2907e656a892c0efa93821670e9488c07be12c17` (branch `codeagent/j12prime-candidate`).
 
 **The pin.** The merged j12′ is the refused chain (`e9dc1c31`) plus:
 
@@ -12,13 +12,20 @@ product: j12′, the merged head, karmaterminal/openclaw `1ab5a73e14309922fa79ed
 - the turn-start fence (`0b22be19`) and the burning annex;
 - wake admission and the fence drain (`c25d1a77`);
 - annex crash gating (`9cb07314`);
-- #1544 maintenance custody (`984f4e1f`) and the test-lines allocation (`1ab5a73e`).
+- #1544 maintenance custody (`984f4e1f`) and the test-lines allocation (`1ab5a73e`);
+- #1544's test routing (`583e0526`, tests only);
+- the delegate dispatch grant (`da8851c5`, 🌊's ruling A, room msg 1567487338383413250) and its
+  test-lines allocation (`2907e656`). [What it changes for this row](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
 
 This row is gate 3, run by an owner at the merged head (🌊, room msg 1567194866507841678). It was
-first written to j12 and then pinned to the refused chain `e9dc1c31` as an interim pin. Both are
-history: j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`) is the named baseline, and its receipts
-stay j12's. No case is carried from j12 or from `e9dc1c31`, and a record that names either is
-MISSING. Every cite below was re-walked at `1ab5a73e`
+first written to j12, then pinned to the refused chain `e9dc1c31` as an interim pin, then to the
+merged head before the grant, `1ab5a73e14309922fa79edf4f93034bdb0acde62`. All three are history:
+j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`) is the named baseline, and its receipts stay j12's.
+No case is carried from j12, `e9dc1c31` or `1ab5a73e`, and a record that names any of them is
+MISSING: the row's tests grade such a record and refuse it. The row never ran at `1ab5a73e`; its
+one-case live smoke there stopped on the delegate's dispatch, before any case receipt
+([below](#the-delegate-dispatch-grant-and-this-rows-operator-connection)).
+Every cite below was re-walked at `2907e656`
 ([the re-walk](#cites-re-walked-at-the-merged-j12)).
 
 Rulings:
@@ -34,6 +41,10 @@ Rulings:
   head.
 - 🌊, room msg 1567201185243332681: stage=wake stays NOT PROVEN by this public-surface row. Cite the
   deterministic pin instead.
+- 🌊, room msg 1567487338383413250 (ruling A): a delegate elected by a Gateway operator dispatches
+  under a bounded grant captured at election. Prove the disconnect and the ceiling and revocation
+  cases in source and test before re-pinning the row, and keep the 13 cases held until that gate and
+  the one-case smoke pass.
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
@@ -41,6 +52,7 @@ Rulings:
 - [The product path at j12′](#the-product-path-at-j12)
 - [The cases](#the-cases)
 - [The merged head's other lanes on the row's gateway](#the-merged-heads-other-lanes-on-the-rows-gateway)
+- [The delegate dispatch grant and this row's operator connection](#the-delegate-dispatch-grant-and-this-rows-operator-connection)
 - [Cites re-walked at the merged j12′](#cites-re-walked-at-the-merged-j12)
 - [What ClawSweeper asked for, case by case](#what-clawsweeper-asked-for-case-by-case)
 - [Verdict rules](#verdict-rules)
@@ -97,14 +109,15 @@ It does not prove:
     (`pnpm-lock.yaml` sha256 `a4623b23…` equal);
   - config `test/vitest/vitest.infra.config.ts`; 66 source paths reverted, 72 test-side paths kept.
 
-  Neither the test file nor `continuation-wake.ts` changed from `e9dc1c31`. That is test proof of
-  the wake-stage refusal, **not live proof** (🌊, room msg 1567201185243332681).
+  Neither the test file nor `continuation-wake.ts` changed from `e9dc1c31`, nor from `1ab5a73e` to
+  `2907e656`; the pin was not re-run at `2907e656`. That is test proof of the wake-stage refusal,
+  **not live proof** (🌊, room msg 1567201185243332681).
 - **An enqueue refusal that names a row.** Same reason: `targeting.ts:343-347` and `:369-374`
   refuse a row only when the epoch advances between the router's reads, a window of the same kind.
   The wake-mode cases pin the first read (`:277-280`), which refuses before any row.
 - **A kept `continue_work` wake refused at replay or adoption, by any other transition, or allowed.**
   `work-revoked-visibility` pins `stage=wake` with a visibility narrowing on a live gateway. The
-  replay sweep runs only at custody boot (`custody-boot.ts:107-114`). The adoption check refuses a
+  replay sweep runs only at custody boot (`custody-boot.ts:114-121`). The adoption check refuses a
   wake only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`)
   or the authority moved after the handoff's read (`work-recipient-authority.reset.test.ts:316-334`).
   That window is the claim-to-turn span, and the case's transition settles long before the wake is
@@ -177,10 +190,10 @@ It does not prove:
 
 ## The product path at j12′
 
-Byte-read with `git show` / `git grep` at `1ab5a73e`. Files the merge did not change since
-`e9dc1c31` are cited at their lines there; the six it changed are cited at their new lines
-([the re-walk](#cites-re-walked-at-the-merged-j12)). The scenario header
-(`scenarios/r-cd-recipient-authority.js`) carries the same map.
+Byte-read with `git show` / `git grep` at `2907e656`. Files unchanged since `e9dc1c31` are cited at
+their lines there; the six the merge changed by `1ab5a73e`, and the five the grant changed by
+`2907e656`, are cited at their new lines ([the re-walk](#cites-re-walked-at-the-merged-j12)). The
+scenario header (`scenarios/r-cd-recipient-authority.js`) carries the same map.
 
 ### What changes a recipient's authority
 
@@ -194,8 +207,8 @@ and doctor's canonical-key repair (`src/commands/doctor-session-recipient-author
 
 | Public RPC | Effect on the target's epoch | Path at j12′ |
 |---|---|---|
-| `continue_delegate` (model turn), capture | insert-if-absent for any key, before the `scheduled` toolResult | `continue-delegate-tool.ts:424-449`, `delegate-flow-store.ts:426-437`, `session-recipient-authority.worker.ts:36-56` |
-| `continue_work` (model turn), capture | insert-if-absent for the electing session, **after** the `scheduled` toolResult: the tool only queues the request, and the turn schedules the election after its attempt, capturing first | `continue-work-tool.ts:84-110`, `agent-runner-embedded-candidate.ts:222-224`, `agent-runner-continuation-signal.ts:463` -> `work-dispatch.ts:662-668` -> `work-operator-continuation.ts:34-52` -> `work-recipient-authority.ts:63-67` |
+| `continue_delegate` (model turn), capture | insert-if-absent for any key, before the `scheduled` toolResult | `continue-delegate-tool.ts:424-449`, `delegate-flow-store.ts:432-452` (the binding at `:435-442`), `session-recipient-authority.worker.ts:36-56` |
+| `continue_work` (model turn), capture | insert-if-absent for the electing session, **after** the `scheduled` toolResult: the tool only queues the request, and the turn schedules the election after its attempt, capturing first | `continue-work-tool.ts:84-110`, `agent-runner-embedded-candidate.ts:222-224`, `agent-runner-continuation-signal.ts:467` -> `work-dispatch.ts:662-668` -> `work-operator-continuation.ts:34-52` -> `work-recipient-authority.ts:63-67` |
 | `sessions.delete` | advances (every deletion owner); the epoch row outlives the session, so `sessions.create` of the same key keeps the advanced epoch. It also consumes the session's queued events and cancels its own custody | `session-accessor.sqlite-entry-store.ts:56-69`, `server-methods/sessions-delete.ts:589`; queued events: `sessions-delete.ts:454-470` -> `session-lifecycle-cleanup.ts:74-92` (reason `delete`, `:90`) -> `session-reset-runtime-cleanup.ts:77-93` -> `session-reset-runtime-state.ts:11-51` -> `session-reset-cleanup.ts:149-227` (custody cancelled at `:171-175`, events consumed at `:202-203`) |
 | `session.visibility.set` (narrowing) | advances, for every writer; rank shared > suggest > read-only > draft | `session-accessor.sqlite-entry-mutation.ts:119-136`, `sessions-sharing.ts:527-610`, `session-recipient-authority-types.ts:75-108` |
 | `session.members.remove` | advances | `session-sharing-store.native.ts:150-195`, `sessions-sharing.ts:337-423, 616` |
@@ -222,7 +235,7 @@ receipt (`return-refusal.ts:53-66`).
 | Boundary | Path at j12′ | On a stale or unauthorized return | Observable reason |
 |---|---|---|---|
 | Admission (tool) | `continue-delegate-tool.ts:353-362` | ToolInputError, nothing accepted | the toolResult text: "cross-session continuation targeting is disabled ..." |
-| Dispatch | `continuation/delegate-dispatch.ts:267-290` | custody failed, owner notice, no child | log `[continuation:delegate-rejected] policy.cross_session_targeting ... session=<dispatcher>`; `continuation.disabled` span with `disabledReason` |
+| Dispatch | `continuation/delegate-dispatch.ts:268-291`, before the spawn's grant is restored (`:449-484`) | custody failed, owner notice, no child | log `[continuation:delegate-rejected] policy.cross_session_targeting ... session=<dispatcher>`; `continuation.disabled` span with `disabledReason` |
 | Routing | `subagent-announce.continuation-return.ts:98-215` | delivers to the current recipients only; wakes them unless the mode is silent (`:175`) | `[continuation:targeted-return] Delivered to <keys> from <child>` names only delivered recipients, and is **not logged at all** when every recipient was refused (`:189-203`) |
 | Enqueue, before the row | `continuation/targeting.ts:277-280` (reporter `:261-276`) | refused, no row, no wake | `stage=enqueue`, **no** `deliveryId` |
 | Enqueue, after the row | `targeting.ts:313-347`, `358-374` (refused at `:343-347`, `:369-374`); a current return queues an adoption-scoped event (`:322-341`) and requests a wake (`:395-403`) | row retired as a `failed` receipt, queued event removed | `stage=enqueue deliveryId=<row>` |
@@ -244,7 +257,7 @@ the console behind the `[continuation/work-refused]` tag, with the same fields i
 | Boundary | Path at j12′ | On a stale binding | Observable reason |
 |---|---|---|---|
 | Election (capture) | `work-dispatch.ts:631-740`; the capture at `:662-665` precedes `electedAt` (`:667`) and the due time (`:668`); an election inside its turn is anchored to the turn's finalization (`work-store.ts:315-365`) | a failed capture elects nothing | none |
-| Replay (custody boot) | `custody-boot.ts:107-114` -> `work-recipient-authority.ts:159-171` | refused before startup recovery drives it | `stage=replay` |
+| Replay (custody boot) | `custody-boot.ts:114-121` -> `work-recipient-authority.ts:159-171` | refused before startup recovery drives it | `stage=replay` |
 | Wake handoff | the work timer drives the dispatcher with no busy check first (`work-dispatch.ts:169-199`), which claims the due record (`work-store.ts:213-313`) and refuses a stale binding at `work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`, before the busy, fold and grant branches (`work-dispatch.ts:573-627`) | the record fails with no notice (`work-recipient-authority.ts:133-141` -> `work-store.ts:639-655`) and its custody is released; it is never claimed again (`work-store.ts:226, 260`) | `stage=wake` |
 | Adoption | `work-dispatch-execution.ts:267, 450`, before the turn-start fence (`:270-276`) and the fold note | refused; a stale wake reaches it only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`) or the authority moved after the handoff's read | `stage=adoption` |
 
@@ -378,6 +391,33 @@ the row's isolated gateway. None changes one; the setup below rules out the one 
 
 ## Cites re-walked at the merged j12′
 
+### At `2907e656`, the delegate dispatch grant
+
+Every product file this doc, the scenario header, the lib, the control, the tests and the manifest
+cite was diffed from `1ab5a73e` to `2907e656` (`git diff`), and every cite in a changed file was
+re-read with `git show`. The grant changed twelve non-test product files. Five of them are cited
+here; the rest of the cited files are byte-identical, so their cites stand as re-walked at
+`1ab5a73e` ([below](#from-e9dc1c31-to-1ab5a73e)). On the test side only the grant's new unit pins
+(`subagent-spawn.continuation-operator-grant.test.ts`), the test-lines allocation and #1544's test
+routing changed; the row cites none of them as a pin.
+
+| File | Cite (at `1ab5a73e`) | At `2907e656` | What it affects |
+|---|---|---|---|
+| `src/auto-reply/continuation/custody-boot.ts` | `:107-114` (the `continue_work` replay sweep runs only at custody boot) | **moved** to `:114-121`; unchanged in meaning. The file now hands the booting Gateway to delegate recovery so a recovered operator delegate can restore its grant (`:66-67`, `:85-87`, `:92`, `:105`) | nothing: no case restarts with a pending delegate (`replay-restart` restarts after its delegate fired) and `work-revoked-visibility` restarts nothing |
+| `src/auto-reply/continuation/delegate-flow-store.ts` | `:426-437` (the binding is captured before the custody record exists) | **moved and changed in meaning** to `:432-452`: the binding is still captured first (`:435-442`), and the same step now captures the electing operator's dispatch grant (`:443-451`, `pending` delegates only), so a failed grant capture, like a failed binding capture, commits no record. `createdAt` moved up to `:431` for the grant's due time | the `scheduled` toolResult still follows both captures (`continue-delegate-tool.ts:434-449`), so every case's capture sample and transition order holds. A failed capture gives no `scheduled` result: MISSING (`continue_delegate was not accepted`), never FAIL |
+| `src/auto-reply/continuation/delegate-dispatch.ts` | `:267-290` (the policy rejection at dispatch), and the lib's `:267-277` | **moved** by one line (an import at `:32`) to `:268-291` and `:268-278`; unchanged in meaning. The file **gained** the spawn under the grant (`:449-484`), after the policy check and the spawn fence (`:437-448`) | `unauthorized-dispatch`: none; the policy refuses before any grant is restored, with the same line and no child |
+| `src/auto-reply/continuation/delegate-store.ts` | `:204-218` (`enqueuePendingDelegate`) | **moved** to `:205-224`; it gained an `electingOperatorAuthority` option (`:208-211`, passed on at `:222`) | none: the `continue_delegate` tool passes no elector (`continue-delegate-tool.ts:434`), so its grant is captured from the tool call's own operator |
+| `src/auto-reply/reply/agent-runner-continuation-signal.ts` | `:463` (the turn schedules the `continue_work` election after its attempt) | **moved** to `:467`; unchanged in meaning. The file changed only in the bracket-token delegate's enqueue (`:251-274`), which now passes the run's admitted operator as the elector (`:273`) | none: the row drives no token form, and `work-revoked-visibility`'s election path is unchanged |
+| `src/auto-reply/continuation/types.ts` | **not cited** by the row (`session-recipient-authority-types.ts`, which it cites, is another, unchanged file) | the file gained `PendingContinuationDelegate.dispatchGrant` and `ContinuationDelegateDispatchGrant` (`:129-140`) | none |
+
+The other six non-test files the grant changed are not cited:
+`subagent-announce.continuation.runtime.ts` (a sub-agent's own delegates spawn under their grant),
+`delegate-dispatch-contract.ts`, `delegate-dispatch-grant.ts` (new),
+`delegate-dispatch-hedge.ts`, `delegate-flow-state.ts` and `server-runtime-services.ts`. The grant's
+own lines are cited in [its section](#the-delegate-dispatch-grant-and-this-rows-operator-connection).
+
+### From `e9dc1c31` to `1ab5a73e`
+
 Every `path:line` cite in this doc, the scenario header and the lib was re-read at `1ab5a73e` with
 `git show` / `git grep`. Only six cited files changed from `e9dc1c31`:
 
@@ -440,11 +480,12 @@ refusal becomes provable.
 
 `lib/recipient-authority-row.mjs` grades each case record, and the row from all of them:
 
-- A record that is not this row's, names another candidate than j12′ (j12 and the interim
-  `e9dc1c31` included), lacks a gate (j12′ build, isolated state, model sign-in, cross-session
-  policy enabled, gateway started by the control), whose listener was not the control's own process
-  at every 500 ms sample and case boundary, or whose evidence is not bound to the control's run is
-  **MISSING-candidate**, and nothing else about it is judged. So is a case whose scenario recorded
+- A record that is not this row's, names another candidate than j12′ at `2907e656` (j12, the
+  interim `e9dc1c31` and the pre-grant `1ab5a73e` included), lacks a gate (j12′ build, isolated
+  state, model sign-in, cross-session policy enabled, gateway started by the control), whose
+  listener was not the control's own process at every 500 ms sample and case boundary, or whose
+  evidence is not bound to the control's run is **MISSING-candidate**, and nothing else about it is
+  judged. So is a case whose scenario recorded
   any refusal or whose methods were not all advertised.
 - A transition that did not take effect (its RPC failed, or a revocation left the epoch unchanged)
   is MISSING, and nothing the return then did is judged a contradiction: adopting a still-current
@@ -503,15 +544,15 @@ refusal becomes provable.
 
 ## Operator procedure
 
-For the owner who runs it on an isolated proof gateway at the merged j12′, `1ab5a73e`. Never
-against a live seat, and never at the interim `e9dc1c31`.
+For the owner who runs it on an isolated proof gateway at the merged j12′, `2907e656`. Never
+against a live seat, and never at the pre-grant `1ab5a73e` or the interim `e9dc1c31`.
 
-1. **Stage j12′.** Build a validated stage-only runtime at `1ab5a73e14309922fa79edf4f93034bdb0acde62`
+1. **Stage j12′.** Build a validated stage-only runtime at `2907e656a892c0efa93821670e9488c07be12c17`
    (its `dist/build-info.json` commit must be j12′) on your own architecture.
 2. **Set up the isolated gateway** with frond-scribe `scripts/proof-gw/composite-launcher.sh`:
-   `setup 1ab5a73e14309922fa79edf4f93034bdb0acde62 1ab5a73e14309922fa79edf4f93034bdb0acde62`, then
+   `setup 2907e656a892c0efa93821670e9488c07be12c17 2907e656a892c0efa93821670e9488c07be12c17`, then
    `login` and `login-finish` (or `adopt-auth` from a previous isolated gateway). It lives at
-   `$HOME/proof-gw/comp-1ab5a73e`. Its `receipts/isolated-auth-status.json` must show an OpenAI
+   `$HOME/proof-gw/comp-2907e656`. Its `receipts/isolated-auth-status.json` must show an OpenAI
    profile under its own state.
 3. **Enable continuation and cross-session targeting** in that gateway's own `openclaw.json`
    (`agents.defaults.continuation.enabled: true`, `crossSessionTargeting: "enabled"`), and leave
@@ -521,8 +562,8 @@ against a live seat, and never at the interim `e9dc1c31`.
    `config.patch` and restore it. **Leave `session.maintenance` at its defaults**: a lowered entry
    cap, prune age or disk budget could evict a row session that holds no custody
    ([above](#the-merged-heads-other-lanes-on-the-rows-gateway)).
-4. **Stop it**: `composite-launcher.sh stop 1ab5a73e14309922fa79edf4f93034bdb0acde62
-   1ab5a73e14309922fa79edf4f93034bdb0acde62`. The control refuses a running unit or a busy port, and
+4. **Stop it**: `composite-launcher.sh stop 2907e656a892c0efa93821670e9488c07be12c17
+   2907e656a892c0efa93821670e9488c07be12c17`. The control refuses a running unit or a busy port, and
    starts the gateway itself.
 5. **Make an observer key** outside `$HOME/proof-gw`, mode 0600, at least 32 characters. The gateway
    never sees it.
@@ -530,9 +571,9 @@ against a live seat, and never at the interim `e9dc1c31`.
 
    ```bash
    node tools/k6-proofs/scripts/run-recipient-authority-row.mjs \
-     --proof-gw-dir "$HOME/proof-gw/comp-1ab5a73e" \
+     --proof-gw-dir "$HOME/proof-gw/comp-2907e656" \
      --stage-dir <j12′-stage> \
-     --candidate 1ab5a73e14309922fa79edf4f93034bdb0acde62 \
+     --candidate 2907e656a892c0efa93821670e9488c07be12c17 \
      --docs-sha <40-hex docs SHA> \
      --artifact-dir "$HOME/proof-runs/rra-<UTC>/public" \
      --observer-key-file <key> --seat <seat> --json
@@ -554,7 +595,7 @@ against a live seat, and never at the interim `e9dc1c31`.
 8. **Grade the row**: `node tools/k6-proofs/scripts/run-recipient-authority-row.mjs --grade-row
    <artifact-dir> --observer-key-file <key>`. Exit 0 only for PASS-candidate.
 9. **Publish the public directory only**, copied to
-   `PROOFS/1ab5a73e14309922fa79edf4f93034bdb0acde62/R-CD-RECIPIENT-AUTHORITY/<seat>/authority-row-<UTC>/`.
+   `PROOFS/2907e656a892c0efa93821670e9488c07be12c17/R-CD-RECIPIENT-AUTHORITY/<seat>/authority-row-<UTC>/`.
    The artifact directory lives outside the repository
    because `<artifact-dir>.private` sits beside it: raw evidence, gateway logs, session keys,
    delivery ids and flow ids, never part of the corpus. Folding is a reviewed coordinator step at j12′.

@@ -826,7 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
-| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 1ab5a73e) | MISSING until an owner runs all thirteen cases at j12′; PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 2907e656) | MISSING until an owner runs all thirteen cases at j12′; PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -920,9 +920,10 @@ is old-process restoration, never fresh-successor proof. Raw process output stay
 
 🌊's rulings (room msgs 1567077062139838485 and 1567104742604406896, 2026-11-03; docs#536): a live,
 isolated-gateway row, separate from the restart control above and from the fixture matrix, pinned to
-the merged j12′, the explicit-refusal successor (`1ab5a73e14309922fa79edf4f93034bdb0acde62`, gate 3
-at the merged head; j12 `352f56029dc9` is the named baseline only, and the refused chain `e9dc1c31`
-the row's former interim pin). On one disposable gateway that
+the merged j12′, the explicit-refusal successor with the delegate dispatch grant
+(`2907e656a892c0efa93821670e9488c07be12c17`, gate 3 at the merged head; j12 `352f56029dc9` is the
+named baseline only, the refused chain `e9dc1c31` the row's former interim pin, and `1ab5a73e`, the
+merged head before the grant, its former pin). On one disposable gateway that
 `scripts/run-recipient-authority-row.mjs` starts and owns, twelve cases each drive a real
 `continue_delegate` with `targetSessionKey` from a model turn and change the target's authority
 through a public RPC between dispatch and return. `allowed`, `allowed-across-reset` and

@@ -20,6 +20,7 @@ import {
   RRA_J12P,
   RRA_PINNED,
   RRA_PIN_STATUS,
+  RRA_PROBE_CONDITION,
   RRA_ROW,
   countDelegateCalls,
   countParentAcks,
@@ -45,6 +46,8 @@ import {
   parseWorkRefusedLine,
   routedFromChild,
   routedToTarget,
+  rraProbeText,
+  rraProbeTextProblems,
   traceCorrelationMatches,
 } from '../../lib/recipient-authority-row.mjs';
 import {
@@ -122,10 +125,18 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   }
   // The status line: the owner's one run at the merged head, the three cases it left open now fixed,
   // and what the owner runs next.
-  assert.match(docs, /^Status: \*\*10\/13 PASS-candidate at `2907e656` \(run `rra-88e4fd22f0b122a8`\); fixes landed; owner\s+re-runs the three, then a fresh full 13\.\*\* In no corpus\./m);
+  assert.match(docs, /^Status: \*\*10\/13 PASS-candidate at `2907e656` \(run `rra-88e4fd22f0b122a8`\); fixes landed, the probe\s+now conditional; owner fires the three at the new head, then the fresh 13\.\*\* In no corpus\./m);
   const status = docs.slice(0, docs.indexOf('## What it proves'));
   for (const open of ['`wake-reassigned`', '`reassigned`', '`allowed-silent`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
   assert.doesNotMatch(status, /held for 🌊/, 'allowed-silent is ruled, no longer held');
+  // 🌊's conditional-probe ruling, quoted; the probe text as sent; the old receipt never upgraded.
+  assert.match(status, /stays MISSING `probe-ack-unobserved` and is never upgraded/);
+  assert.match(docs, /1567590902694936678 \(the conditional probe\)/);
+  const flat = docs.replace(/\s+/g, ' ');
+  assert.ok(flat.includes(`'${RRA_PROBE_CONDITION} Otherwise reply exactly PROBE-OK ‹probe nonce›.'`), 'the ruling, quoted');
+  assert.ok(flat.includes('The old receipt remains `probe-ack-unobserved`, not PASS."'), 'the ruling, quoted');
+  assert.ok(docs.includes(`\n${rraProbeText('<probeNonce>')}\n`), 'the probe text as sent');
+  assert.match(docs, /### The conditional probe/);
   // 🌊's ruling (a), quoted, and the oracle it sets.
   assert.match(docs, /1567556038281007235/);
   assert.match(docs, /"TARGET-ACK\s+on the probe\s+turn, bound to this case's nonce and the target's priming\./);
@@ -322,12 +333,13 @@ function completeRecord(caseId) {
   if (spec.probeAdopts) {
     // 🌊's ruling (a): the probe turn adopts the parked silent return, and the primed target acks it
     // once in the probe's own run, sent after the router's Delivered to line from the child. As at
-    // every pin for a sessions.send turn, no row carries the product's marker.
+    // every pin for a sessions.send turn, no row carries the product's marker. The conditional probe
+    // hands that turn to the priming, so the ack comes without PROBE-OK (room msg 1567590902694936678).
     record.target = {
       ...record.target,
       probeRan: true,
       probeSentAtMs: 20_000,
-      probeReplied: true,
+      probeReplied: false,
       ackRuns: 1,
       probeAckRows: 1,
       foreignRuns: 0,
@@ -988,6 +1000,73 @@ test('the refusal cases\' absence is no ack in the probe run; the marker is a ch
     // A priming-run ack is the model echoing its instruction before anything was dispatched; a
     // refusal case's absence is read from the probe run and later runs only.
     assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.primingAckRows = 1; })).verdict, 'PASS-candidate', caseId);
+  }
+});
+
+// 🌊's ruling, room msg 1567590902694936678: "make the probe conditional: 'If this turn includes the
+// internal task completion for the proof you were primed for, follow that priming instruction
+// instead. Otherwise reply exactly PROBE-OK ‹probe nonce›.' Keep `TARGET-ACK` and the row nonce out
+// of the probe".
+test('the probe text: 🌊\'s conditional wording with its own nonce, and the text test refuses the ack, the row nonce or other wording', () => {
+  const rowNonce = 'RCDRA-1800000000010-abcdefgh';
+  const probeNonce = 'RCDRA-PROBE-1800000000020-ijklmnop';
+  const ruled = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
+  assert.equal(RRA_PROBE_CONDITION, ruled);
+  const text = rraProbeText(probeNonce);
+  assert.equal(text, `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: ${ruled} Otherwise reply exactly PROBE-OK ${probeNonce}.`);
+  const options = { rowNonce, probeNonce };
+  assert.deepEqual(rraProbeTextProblems(text, options), []);
+  // Only the probe nonce differs between two probes.
+  assert.equal(rraProbeText('N2').replaceAll('N2', '<n>'), text.replaceAll(probeNonce, '<n>'));
+  for (const [label, bad, codes] of [
+    ['the ack marker', `${text} TARGET-ACK`, ['probe-names-ack', 'probe-not-conditional-wording']],
+    ['the ack marker, any case', text.replace('priming instruction', 'Target-Ack instruction'), ['probe-names-ack', 'probe-not-conditional-wording']],
+    ['the ack constant', `${text} (RRA_ACK_MARKER)`, ['probe-names-ack', 'probe-not-conditional-wording']],
+    ['the row nonce', `${text} ${rowNonce}`, ['probe-names-row-nonce', 'probe-not-conditional-wording']],
+    ['the row nonce, lower case', `${text} ${rowNonce.toLowerCase()}`, ['probe-names-row-nonce', 'probe-not-conditional-wording']],
+    ['the proof id the priming names', text.replace('the proof you were primed for', `proof ${rowNonce.slice(-16)}`), ['probe-names-row-nonce', 'probe-not-conditional-wording']],
+    ['the ack and the row nonce, as the priming asks', `${text} TARGET-ACK ${rowNonce}`, ['probe-names-ack', 'probe-names-row-nonce', 'probe-not-conditional-wording']],
+    ['the unconditional probe at 4f86dd78', `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: reply exactly PROBE-OK ${probeNonce}.`, ['probe-not-conditional-wording']],
+    ['🌊\'s wording without the harness header', `${ruled} Otherwise reply exactly PROBE-OK ${probeNonce}.`, ['probe-not-conditional-wording']],
+    ['another probe\'s nonce', rraProbeText('RCDRA-PROBE-other'), ['probe-nonce-missing', 'probe-not-conditional-wording']],
+  ]) {
+    assert.deepEqual(rraProbeTextProblems(bad, options), codes, label);
+  }
+  assert.deepEqual(rraProbeTextProblems(text, { probeNonce }), ['row-nonce-unknown'], 'no row nonce: its absence cannot be shown');
+  assert.deepEqual(rraProbeTextProblems(text, { rowNonce }), ['probe-nonce-missing', 'probe-not-conditional-wording']);
+  for (const nothing of ['', null, undefined, 42]) assert.deepEqual(rraProbeTextProblems(nothing, options), ['probe-text-missing'], String(nothing));
+  // The scenario sends the probe through both, and refuses a text that fails the text test.
+  const scenario = readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8');
+  assert.match(scenario, /const instruction = rraProbeText\(probeNonce\);\s+const problems = rraProbeTextProblems\(instruction, \{ rowNonce, probeNonce \}\);\s+if \(problems\.length\) \{\s+refuse\(/);
+  assert.doesNotMatch(scenario, /reply exactly \$\{RRA_PROBE_MARKER\}/, 'the unconditional probe is gone');
+});
+
+// 🌊, same ruling: "an allowed-silent return → exactly one ACK/no forced PROBE-OK. … The old receipt
+// remains `probe-ack-unobserved`, not PASS."
+test('the conditional probe\'s grading: a refusal on PROBE-OK and no ack, allowed-silent on the ack, never both required, and the old receipt stays probe-ack-unobserved', () => {
+  // allowed-silent: the ack alone passes, and so does the ack beside PROBE-OK.
+  for (const probeReplied of [false, true]) {
+    const silent = mutate(completeRecord('allowed-silent'), (r) => { r.target.probeReplied = probeReplied; });
+    assert.deepEqual(gradeRecipientAuthorityCase(silent), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, String(probeReplied));
+  }
+  // 🕯's allowed-silent receipt (rra-88e4fd22f0b122a8): the probe ran and answered PROBE-OK, and no
+  // run acked. Under the conditional probe's grade it is MISSING probe-ack-unobserved, never upgraded.
+  const old = mutate(completeRecord('allowed-silent'), (r) => {
+    Object.assign(r.target, { probeRan: true, probeReplied: true, ackRuns: 0, probeAckRows: 0, foreignRuns: 0, adoptedDeliveryRows: 0 });
+  });
+  assert.deepEqual(gradeRecipientAuthorityCase(old), { verdict: 'MISSING-candidate', missing: ['probe-ack-unobserved'], contradictions: [], partial: [] });
+  // Every refusal, the continue_work case's included: PROBE-OK and no ack passes; no PROBE-OK is the
+  // probe turn unobserved; an ack, with or without PROBE-OK, is the refused return adopted.
+  for (const caseId of RRA_CASE_IDS.filter((id) => RRA_CASES[id].family === 'refusal')) {
+    assert.equal(gradeRecipientAuthorityCase(completeRecord(caseId)).verdict, 'PASS-candidate', caseId);
+    const silentProbe = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeReplied = false; }));
+    assert.deepEqual([silentProbe.verdict, silentProbe.missing], ['MISSING-candidate', ['probe-turn-unobserved']], caseId);
+    if (RRA_CASES[caseId].tool) continue;
+    for (const probeReplied of [true, false]) {
+      const acked = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeReplied = probeReplied; r.target.probeAckRows = 1; r.target.ackRuns = 1; }));
+      assert.equal(acked.verdict, 'FAIL-candidate', `${caseId} ${probeReplied}`);
+      assert.deepEqual(acked.contradictions, ['refused-return-adopted'], `${caseId} ${probeReplied}`);
+    }
   }
 });
 

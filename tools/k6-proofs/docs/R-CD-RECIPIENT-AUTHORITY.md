@@ -1,7 +1,7 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **10/13 PASS-candidate at `2907e656` (run `rra-88e4fd22f0b122a8`); fixes landed; owner
-re-runs the three, then a fresh full 13.** In no corpus. Bound issue:
+Status: **10/13 PASS-candidate at `2907e656` (run `rra-88e4fd22f0b122a8`); fixes landed, the probe
+now conditional; owner fires the three at the new head, then the fresh 13.** In no corpus. Bound issue:
 karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head with the
 delegate dispatch grant, karmaterminal/openclaw `2907e656a892c0efa93821670e9488c07be12c17` (branch
 `codeagent/j12prime-candidate`).
@@ -15,15 +15,23 @@ open, and what the docs head after `935898d1` does about each
 - `reassigned`: refused at `stage=prompt-drain`. The bytes allow that ordering only when a pending
   sweep armed the parked row while the delete was in flight. It is now accepted with its own bytes
   and that witness line. Re-run; 🕯's private gateway log shows whether the first run had the line.
-- `allowed-silent`: fixed by 🌊's ruling (a). The product writes no adoption marker for a
-  `sessions.send` probe turn, at every pin, so the case passed on nothing it could ever show. It now
-  passes on the primed target's `TARGET-ACK <nonce>` in the probe's own run, sent after the return
-  reached the target ([the oracle](#allowed-silent-the-probe-runs-target-ack)). Re-run.
+- `allowed-silent`: fixed by 🌊's ruling (a), then by 🌊's conditional probe. The product writes no
+  adoption marker for a `sessions.send` probe turn, at every pin, so the case passed on nothing it
+  could ever show. It now passes on the primed target's `TARGET-ACK <nonce>` in the probe's own run,
+  sent after the return reached the target ([the oracle](#allowed-silent-the-probe-runs-target-ack)).
+  🕯's receipt then showed that probe could not get the ack: `probe_ran: true`, `probeReplied: true`,
+  `target_obs.ackRuns: 0` (room msg 1567590581796868168). The probe's unconditional
+  `reply exactly PROBE-OK` won over the priming's conditional ack. 🌊 ruled the probe conditional
+  (room msg 1567590902694936678; [the conditional probe](#the-conditional-probe)). That receipt
+  stays MISSING `probe-ack-unobserved` and is never upgraded. Re-run at the new head.
 
 The collector now reads each case's own mode, so traces are collected from the committed manifest.
 The delegate refusal cases' absence is now "no `TARGET-ACK` in the probe run", which
 `allowed-silent` shows the same probe giving when the return is allowed. Their old "no adoption marker" was vacuous for a
-`sessions.send` probe. Each refusal is still bound to its row first by the product's reason line.
+`sessions.send` probe. Under the unconditional probe `allowed-silent` could not show it either, so
+no run has yet shown that absence able to fail. Every case now sends the same conditional probe,
+and the fresh 13 is the first run that can show it. Each refusal is still bound to its row first by
+the product's reason line.
 The other cases keep every rule they had. The delegate refusal cases' absence also reads the probe
 run's own acks now, an ack the case cannot credit leaves it MISSING (`ack-uncredited`), and every
 case's probe
@@ -76,6 +84,15 @@ Rulings:
   `sessionDeliveryAckIds` requirement for `sessions.send`; keep the refusal lines as the negative
   evidence. The oracle should reject a pre-return or wrong-nonce ACK, so it proves this return
   reached this probe turn without SQLite access. … this is a row correction, not a product change."
+- 🌊, room msg 1567590902694936678 (the conditional probe), on 🕯's `allowed-silent` receipt (room
+  msg 1567590581796868168): "the probe's unconditional `reply exactly PROBE-OK` conflicts with the
+  primed target's conditional return instruction. In 🌿's #620 writer lane, make the probe
+  conditional: 'If this turn includes the internal task completion for the proof you were primed
+  for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK ‹probe nonce›.'
+  Keep `TARGET-ACK` and the row nonce **out of the probe**; the ACK must still originate from
+  priming and be counted only in the probe's returned run, after `Delivered to`. Pin a refusal with
+  no return → PROBE-OK/no ACK, and an allowed-silent return → exactly one ACK/no forced PROBE-OK. …
+  The old receipt remains `probe-ack-unobserved`, not PASS."
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
@@ -385,8 +402,10 @@ stage, another row, or a row-less line where the stage writes one leaves the cas
 
 **How absence is observed.** The target is primed before each case: "On a later turn, only if an
 internal task completion for proof <suffix> is in your context, reply exactly `TARGET-ACK <nonce>`"
-(the scenario's `prime()`). Nothing else the harness sends names the ack: the probe asks only for
-`PROBE-OK <probeNonce>`, and the delegate's task carries the nonce but never the ack marker. So an
+(the scenario's `prime()`). Nothing else the harness sends names the ack: the probe names neither
+the ack nor the row nonce ([the conditional probe](#the-conditional-probe)), and the delegate's task
+carries the nonce but never the ack marker. The probe tells a turn that includes the task completion
+to follow its priming instead, and any other to reply `PROBE-OK <probeNonce>`. So an
 ack in the probe
 run is the primed target answering a return its turn drained, and a refused return, which never
 reaches the target, leaves the probe run with nothing to ack. The absence is read from the probe run
@@ -627,12 +646,11 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
 
 **Its limits.** The ack is model-mediated:
 
-- A model that does not give it reads MISSING (`probe-ack-unobserved`), never FAIL. The probe asks
-  for exactly `PROBE-OK <probeNonce>`, and the ack depends on the model also applying its priming's
-  instruction on that turn. The probe text was not changed. It is the same stimulus every refusal
-  case gets, and it must never name the ack or the nonce. If the owner's re-run reads
-  `probe-ack-unobserved`, rewording the probe is the next lever. That changes every case's stimulus,
-  so it is 🌊's call.
+- A model that does not give it reads MISSING (`probe-ack-unobserved`), never FAIL. The ack depends
+  on the model applying its priming's instruction on the probe turn. The probe at `4f86dd78` asked
+  only for `PROBE-OK <probeNonce>`, and that won: 🕯's receipt has the probe answered and no ack. 🌊
+  then reworded the probe for every case ([the conditional probe](#the-conditional-probe)). It is
+  still the same stimulus every refusal case gets, and it still names neither the ack nor the nonce.
 - A model that acks unconditionally would also ack in the refusal cases' probe runs and fail them
   (`refused-return-adopted`), where the product refused correctly. The refusal lines, read first,
   show such a FAIL for what it is. An ack in the priming run, before anything was dispatched, leaves
@@ -646,8 +664,86 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
   asks that later turn for the ack too, so a model that follows it would show a woken run.
 - It does not show the row settled; no public surface reads that
   ([above](#the-product-path-at-j12)).
-- Whether 🕯's run already had an ack in `allowed-silent`'s probe run is not in the notes this lane
-  read. That receipt's `target.ackRuns` would show it. The re-run decides.
+- 🕯's run had no ack in `allowed-silent`'s probe run. Its receipt reads `probe_ran: true`,
+  `probeReplied: true` and `target_obs.ackRuns: 0` (room msg 1567590581796868168), and it stays
+  MISSING `probe-ack-unobserved`.
+
+### The conditional probe
+
+🌊's ruling, room msg 1567590902694936678, is quoted in full in the rulings list above: "the probe's
+unconditional `reply exactly PROBE-OK` conflicts with the primed target's conditional return
+instruction". The priming asks for `TARGET-ACK <nonce>` only on a later turn that holds this
+proof's task completion. The probe asked every turn for `PROBE-OK <probeNonce>` and nothing else,
+and on `allowed-silent`'s turn that won.
+
+Every case that probes now sends this text (`rraProbeText` in `lib/recipient-authority-row.mjs`),
+the same but for its own nonce:
+
+```text
+[k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK <probeNonce>.
+```
+
+- **The wording.** After the header, the text is 🌊's two sentences, word for word, with the probe's
+  own nonce in `PROBE-OK ‹probe nonce›`.
+- **The header.** The header is the one the probe had before. Its `[k6-proof-harness]` tag matters:
+  `hasExactSentinelText` credits no sentinel in text that carries it, so a model that echoes the
+  probe is never credited with its `PROBE-OK`. The header names the row and the probe nonce, never
+  the ack or the row nonce.
+- **Which cases probe.** `allowed` and `allowed-across-reset` read the wake's own ack and send no
+  probe. Every other case sends exactly one, `replay-restart` from its observe phase.
+- **The text test.** `rraProbeTextProblems` refuses a probe that:
+  - names the ack (`TARGET-ACK` in any case, or `RRA_ACK_MARKER`);
+  - names the row nonce, or the proof id the priming names (its last 16 characters);
+  - lacks `PROBE-OK <probeNonce>`;
+  - is not exactly that text.
+
+  The scenario runs the text test before it sends, and a probe that fails it is never sent: the case
+  records a refusal and reads MISSING.
+
+How the probe's reply is graded. One of two answers counts, never both:
+
+| Case | What its probe turn holds | PASS needs | Otherwise |
+|---|---|---|---|
+| each delegate refusal | no return | `PROBE-OK <probeNonce>` in the probe run, and no `TARGET-ACK` in it or later | an ack, with or without `PROBE-OK`: FAIL `refused-return-adopted`; no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved` |
+| `work-revoked-visibility` | no return, no priming | `PROBE-OK <probeNonce>`, and no wake turn | as for the delegate refusals: MISSING `probe-turn-unobserved` |
+| `allowed-silent` | the return, drained by that turn | exactly one `TARGET-ACK <nonce>` in the probe run, after `Delivered to` from its child ([the oracle](#allowed-silent-the-probe-runs-target-ack), unchanged) | `PROBE-OK` alone: MISSING `probe-ack-unobserved`, the old run's shape. `PROBE-OK` beside the ack is neither required nor refused |
+
+The ACK oracle is the one `4f86dd78` set, unchanged: the grade itself did not move. A `PROBE-OK`
+naming another nonce, the row nonce included, is credited to no case.
+
+**The old receipt.** 🕯's `allowed-silent` receipt (`rra-88e4fd22f0b122a8`) stays MISSING
+`probe-ack-unobserved` and is never upgraded:
+
+- its own counts say so (`probeReplied: true`, `ackRuns: 0`), and the grade reads them the same way
+  at this head;
+- the receipt names the docs head that sent the unconditional probe;
+- the row grades one run's receipts together (`receipts-from-different-runs`), so none of that run's
+  receipts joins a run at the new head.
+
+The pins, as dry-run tests through the real case driver (`tests/recipient-authority-dry-run.test.mjs`).
+The scripted model reads the probe it is sent. An unconditional `PROBE-OK` wins over its priming, as
+in 🕯's run. 🌊's condition hands a turn holding the return back to the priming. Before this lane
+that model answered the ack and `PROBE-OK` in one row whatever the probe said, which is why the dry
+run passed `allowed-silent` while the live run could not.
+
+| Pin | Shape | At this head | At `4f86dd78` |
+|---|---|---|---|
+| (a) | every refusal case, no return: the conditional probe, answered `PROBE-OK <probeNonce>`, no ack | PASS-candidate | RED: the case's grade was PASS there too, but its probe was the unconditional text |
+| (b) | `allowed-silent`, the return in the probe turn: exactly one ack, no `PROBE-OK` | PASS-candidate | RED: MISSING `probe-ack-unobserved`, 🕯's shape |
+| (c) | `allowed-silent` answered `PROBE-OK` only | MISSING `probe-ack-unobserved` | the same; a pin of the old run's shape, new here |
+| (d) | `PROBE-OK` with another probe's nonce, or the row nonce: every refusal case, and `allowed-silent` | MISSING (`probe-turn-unobserved`; `probe-ack-unobserved`) | the same; a pin, new here |
+| (e) | every probing case sends one text, 🌊's wording with its own nonce, which passes the text test; that text with `TARGET-ACK`, `RRA_ACK_MARKER`, the row nonce or its proof id added fails it | passes | RED: the probe was the unconditional text; the text test is new |
+
+The unit tests in `scripts/__tests__/recipient-authority-row.test.mjs` pin the text test's codes and
+the grade of each answer at record level, 🕯's receipt shape included.
+
+Its limits:
+
+- The ack is still the model's. A model that follows neither sentence reads MISSING, as before.
+- A model that acks with no return in its turn fails a refusal case (`refused-return-adopted`). The
+  refusal line, read first, shows such a FAIL for what it is.
+- The dry run's model shows what the driver sends and how each answer grades. It is not evidence that
+  a real model follows the condition. The owner's run at the new head is.
 
 ### The refusal cases' absence: no ack in the probe run
 
@@ -660,8 +756,9 @@ nonce in the probe run (`probeAckRows`) or any later run (`ackRuns`) is FAIL
 `heartbeat_respond` call no accepted result binds) leaves the absence unread, so the case is MISSING
 (`ack-uncredited`). A model that echoes its priming prompt in the probe turn never reads PASS: a verbatim echo carries
 the harness marker and reads MISSING, and a paraphrase that types the exact ack reads FAIL. The refusal line stays the primary evidence, as 🌊 ruled. The dry run pins an
-ack in each delegate refusal case's probe run, with no marker on the row, as FAIL, and the same probe
-answered with no ack as PASS.
+ack in each delegate refusal case's probe run, with no marker on the row and with or without
+`PROBE-OK` beside it, as FAIL, and the same probe answered `PROBE-OK <probeNonce>` with no ack as
+PASS.
 
 ### The collector and each case's mode
 
@@ -954,7 +1051,13 @@ refusal becomes provable.
   each way it can be wrong is MISSING, never FAIL: none (`probe-ack-unobserved`), two in the probe run
   (`probe-ack-duplicated`), an ack outside priming the case cannot credit (`ack-uncredited`), one in
   a priming run (`ack-before-return`), or a probe sent before that line or with no such line
-  (`probe-not-after-return`, `return-not-routed-from-child`). The product's marker is not required.
+  (`probe-not-after-return`, `return-not-routed-from-child`). The product's marker is not required,
+  and neither is `PROBE-OK`: the probe tells a turn holding the return to follow its priming instead.
+- Every case that probes sends the same conditional probe (🌊, room msg 1567590902694936678;
+  [the conditional probe](#the-conditional-probe)), and a text that fails the text test is never
+  sent. Its reply is graded as one of two answers, never both: a refusal needs
+  `PROBE-OK <probeNonce>` and no ack, and `allowed-silent` needs the ack. A `PROBE-OK` naming another
+  nonce is never credited.
 - A delegate refusal case's ack it cannot credit leaves its absence unread: MISSING
   (`ack-uncredited`).
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
@@ -1069,7 +1172,7 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 | `manifests/r-cd-recipient-authority.json` | the row manifest (orchestration-required, `disposable-real-process`, the merged pin, cases, receipts) |
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, restart, signed receipts, `--grade-row` |
-| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matchers, transcript observation and verdict rules |
-| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, gates, signed receipts |
-| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id; its probe turn writes no marker and the primed model acks in the probe run, with a negative for each ack `allowed-silent` and the refusal cases reject |
+| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matchers, the probe text and its text test, transcript observation and verdict rules |
+| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, gates, signed receipts |
+| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. Its probe turn writes no marker, and its primed model reads the probe (an unconditional `PROBE-OK` wins over the priming, 🌊's condition hands a turn holding the return back to it). It has a negative for each ack `allowed-silent` and the refusal cases reject, and the conditional probe's pins (a)-(e) |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

@@ -826,7 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
-| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 2907e656) | 10/13 PASS-candidate at j12′ (run `rra-88e4fd22f0b122a8`); fixes landed (`allowed-silent` on its probe run's `TARGET-ACK`, 🌊's ruling (a)); owner re-runs the three, then a fresh full 13; MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 2907e656) | 10/13 PASS-candidate at j12′ (run `rra-88e4fd22f0b122a8`); fixes landed (`allowed-silent` on its probe run's `TARGET-ACK`, 🌊's ruling (a); every case's probe conditional, 🌊's room msg 1567590902694936678, the old `allowed-silent` receipt staying MISSING `probe-ack-unobserved`); owner fires the three at the new head, then the fresh 13; MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -930,7 +930,11 @@ through a public RPC between dispatch and return. `allowed` and `allowed-across-
 adopted and acknowledged exactly once. `allowed-silent`, the control for the refusal cases' absence,
 must be acknowledged exactly once by the primed target in the probe's own run, sent after the router
 delivered its return (🌊's ruling (a), room msg 1567556038281007235: no `sessions.send` row carries
-the product's adoption marker, so the marker is never required).
+the product's adoption marker, so the marker is never required). Every case that probes sends the
+same conditional probe (🌊, room msg 1567590902694936678): a turn holding the return follows its
+priming and acks, any other replies `PROBE-OK <probeNonce>`, and the probe names neither the ack nor
+the row nonce. A refusal passes on that `PROBE-OK` and no ack, `allowed-silent` on the ack, and
+neither needs both.
 `unauthorized-admission` and `unauthorized-dispatch` must show the cross-session policy refusal.
 `revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`,
 `wake-revoked-visibility`, `wake-reassigned` and `replay-restart` must each show j12′'s

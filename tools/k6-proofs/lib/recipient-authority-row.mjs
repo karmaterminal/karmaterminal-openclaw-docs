@@ -81,7 +81,9 @@ export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
  * `before-wake` after the election was captured and before its wake is due. `deliveryId` says
  * whether that line names the refused row (`true`) or no row was written (`false`); `flowId` that
  * the work line names the refused election. `laterStages` names the only stages a later line for
- * the same row may carry, and why. `tool` is `continue_work` for the one case that elects a kept
+ * the same row may carry, and why. `otherFirstStages` names another first stage the bytes give the
+ * case under an ordering the harness can neither prevent nor observe, each with its own bytes and
+ * later stages; only `reassigned` has one. `tool` is `continue_work` for the one case that elects a kept
  * wake instead of a delegate (graded by gradeWorkRefusalCase). `clawSweeper` quotes the open item
  * on openclaw/openclaw#129388 (comment 5442236054) it answers.
  */
@@ -182,11 +184,23 @@ export const RRA_CASES = Object.freeze({
     clawSweeper: 'reassigned recipient (owner) refused before final effects',
   }),
   // sessions.delete consumes the target's queued events (session-reset-cleanup.ts:202-203), so
-  // the parked row has no copy left in memory and the pending sweep refuses it.
+  // the parked row has no copy left in memory and the pending sweep refuses it. The delete
+  // consumes before it commits the epoch advance, so a sweep that replays the row in between
+  // re-queues a copy while the epoch is still current, and the probe's drain refuses that copy.
+  // No harness step can keep a sweep out of that window or see it, so the case accepts that
+  // ordering too, with its own bytes (otherFirstStages).
   reassigned: Object.freeze({
     family: 'refusal',
     refusedAt: 'replay',
-    refusedAtBytes: 'sessions-delete.ts:454 -> session-reset-cleanup.ts:202-203 drops the queued copy; the sweep (session-delivery-queue-runtime.ts:59-66) -> server-restart-sentinel-delivery.ts:271-281 -> 66-71',
+    refusedAtBytes: 'sessions-delete.ts:454 -> session-reset-cleanup.ts:202-203 drops the queued copy, before the epoch advance the deletion commits (sessions-delete.ts:514 -> session-accessor.sqlite-entry-store.ts:56-69); the sweep (session-delivery-queue-runtime.ts:59-66, 143-160) -> server-restart-sentinel-delivery.ts:271-281 -> 66-71',
+    otherFirstStages: Object.freeze({
+      'prompt-drain': Object.freeze({
+        // As for the revoked cases: the sweep may load the row just before the probe's drain
+        // retires it, find no copy, and report the same row once more.
+        laterStages: Object.freeze(['replay']),
+        bytes: 'a pending sweep replays the row after the delete consumed its copy (session-reset-cleanup.ts:202-203) and before the deletion commits the epoch advance (sessions-delete.ts:514): it reads the epoch current and re-queues the copy (server-restart-sentinel-delivery.ts:263-274, 307-314); later sweeps defer to that copy (server-restart-sentinel-delivery.ts:61-65; session-delivery-queue-runtime.ts:332-337), so the probe turn\'s drain is the first boundary to see it stale (session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147)',
+      }),
+    }),
     timing: 'parked',
     deliveryId: true,
     mode: 'silent',
@@ -1044,11 +1058,15 @@ export function gradeRecipientAuthorityCase(record) {
       // j12′ has one reason (return-refusal.ts:16); every line for this return must carry it.
       const texts = Array.isArray(reason.reasonTexts) ? reason.reasonTexts : [];
       need(texts.length > 0 && texts.every((text) => text === RRA_REFUSAL_REASON), 'refusal-reason-mismatch');
-      // One stage per case, from the j12′ bytes (RRA_CASES, refusedAtBytes): the first line carries
-      // it, and a later line only a stage the bytes name for the same row (laterStages).
+      // One stage per ordering, from the j12′ bytes (RRA_CASES, refusedAtBytes and otherFirstStages):
+      // the first line carries the pinned stage, or another first stage the bytes name for the case,
+      // and a later line only a stage the bytes name for the same row after that first one.
       const stages = Array.isArray(reason.stages) ? reason.stages : [];
-      const allowed = new Set([spec.refusedAt, ...(spec.laterStages ?? [])]);
-      need(reason.stage === spec.refusedAt && stages.length > 0 && stages.every((stage) => allowed.has(stage)), 'refusal-stage-mismatch');
+      const ordering = reason.stage === spec.refusedAt
+        ? { laterStages: spec.laterStages ?? [] }
+        : (Object.hasOwn(spec.otherFirstStages ?? {}, reason.stage) ? spec.otherFirstStages[reason.stage] : null);
+      const allowed = new Set([reason.stage, ...(ordering?.laterStages ?? [])]);
+      need(ordering !== null && stages.length > 0 && stages.every((stage) => allowed.has(stage)), 'refusal-stage-mismatch');
       // A boundary that retires a written row names it; the router's first read refuses before any row.
       need(isHash(reason.deliveryIdHash) === spec.deliveryId, 'refusal-delivery-id-mismatch');
       // The disposable target receives only this case's return: exactly its one row, on every line,
@@ -1058,7 +1076,8 @@ export function gradeRecipientAuthorityCase(record) {
           (!spec.deliveryId || reason.linesWithoutDeliveryId === 0),
         'reason-delivery-id-ambiguous',
       );
-      if (spec.refusedAt === 'prompt-drain') {
+      // A prompt-drain refusal, pinned or the case's other ordering, comes from the probe turn's drain.
+      if (spec.refusedAt === 'prompt-drain' || reason.stage === 'prompt-drain') {
         need(isTime(target.probeSentAtMs) && reason.observedAtMs > target.probeSentAtMs, 'reason-not-from-probe-drain');
       }
     }

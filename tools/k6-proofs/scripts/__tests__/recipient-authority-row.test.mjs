@@ -501,11 +501,23 @@ test('each refused return pins one stage from the j12′ bytes, and a row only w
     },
     'only a prompt-drain refusal can be followed by the sweep reporting the same row',
   );
+  assert.deepEqual(
+    Object.fromEntries(durableCases.map((caseId) => [caseId, Object.fromEntries(Object.entries(RRA_CASES[caseId].otherFirstStages ?? {}).map(([stage, other]) => [stage, other.laterStages]))])),
+    {
+      'revoked-visibility': {}, 'revoked-membership': {}, 'revoked-owner': {},
+      reassigned: { 'prompt-drain': ['replay'] },
+      'wake-revoked-visibility': {}, 'wake-reassigned': {}, 'replay-restart': {},
+    },
+    'only reassigned has a second ordering: a sweep that re-queues the copy inside the delete',
+  );
   for (const caseId of durableCases) {
     const spec = RRA_CASES[caseId];
     assert.match(spec.refusedAtBytes, /\.ts:\d+/u, caseId);
-    // Any other stage is never PASS: the case's claim is the pinned boundary.
-    for (const stage of ['enqueue', 'replay', 'wake', 'prompt-drain'].filter((value) => value !== spec.refusedAt)) {
+    for (const other of Object.values(spec.otherFirstStages ?? {})) assert.match(other.bytes, /\.ts:\d+/u, caseId);
+    // Any other stage is never PASS: the case's claim is the pinned boundary, or the one other
+    // boundary its bytes name.
+    const firstStages = [spec.refusedAt, ...Object.keys(spec.otherFirstStages ?? {})];
+    for (const stage of ['enqueue', 'replay', 'wake', 'prompt-drain'].filter((value) => !firstStages.includes(value))) {
       const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stage = stage; r.reason.stages = [stage]; }));
       assert.equal(graded.verdict, 'MISSING-candidate', `${caseId} at ${stage}`);
       assert.ok(graded.missing.includes('refusal-stage-mismatch'), `${caseId} at ${stage}`);
@@ -574,6 +586,57 @@ test('each refused return pins one stage from the j12′ bytes, and a row only w
       const unsent = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeSentAtMs = null; }));
       assert.ok(unsent.missing.includes('reason-not-from-probe-drain'), caseId);
     }
+  }
+});
+
+// 🕯's live run at 2907e656 (rra-88e4fd22f0b122a8): reassigned's one line was stage=prompt-drain, 121 ms
+// after the probe was sent, with the delete and create settled 160 s before. The delete consumes the
+// copy before it commits the epoch advance, so a pending sweep that replays the row in between re-queues
+// it while the epoch is still current, and the probe's drain is the first to see it stale.
+test('reassigned: a sweep that re-queued the copy inside the delete leaves a prompt-drain refusal from the probe turn', () => {
+  const spec = RRA_CASES.reassigned;
+  const drained = (fn = () => {}) => mutate(completeRecord('reassigned'), (r) => {
+    r.reason.stage = 'prompt-drain';
+    r.reason.stages = ['prompt-drain'];
+    fn(r);
+  });
+  // The pinned ordering stands: replay, before the probe, with no other line after it.
+  assert.equal(gradeRecipientAuthorityCase(completeRecord('reassigned')).verdict, 'PASS-candidate');
+  // The other ordering: the first line is the probe turn's drain, after the probe was sent.
+  assert.equal(spec.otherFirstStages['prompt-drain'].bytes.includes('server-restart-sentinel-delivery.ts:263-274, 307-314'), true);
+  assert.deepEqual(gradeRecipientAuthorityCase(drained()), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  // The sweep may report the same row once more after the drain retired it.
+  assert.equal(gradeRecipientAuthorityCase(drained((r) => { r.reason.stages = ['prompt-drain', 'replay']; r.reason.lines = 2; })).verdict, 'PASS-candidate');
+  // A drain line before the probe was sent is no probe turn's drain.
+  for (const probeSentAtMs of [61_000, null]) {
+    const early = gradeRecipientAuthorityCase(drained((r) => { r.target.probeSentAtMs = probeSentAtMs; }));
+    assert.equal(early.verdict, 'MISSING-candidate', String(probeSentAtMs));
+    assert.ok(early.missing.includes('reason-not-from-probe-drain'), String(probeSentAtMs));
+  }
+  // A replay refusal leaves no copy for a drain to refuse later, and no ordering puts enqueue or wake
+  // after a drain.
+  for (const stages of [['replay', 'prompt-drain'], ['prompt-drain', 'enqueue'], ['prompt-drain', 'wake']]) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord('reassigned'), (r) => { r.reason.stage = stages[0]; r.reason.stages = stages; r.reason.lines = 2; }));
+    assert.equal(graded.verdict, 'MISSING-candidate', stages.join(' then '));
+    assert.ok(graded.missing.includes('refusal-stage-mismatch'), stages.join(' then '));
+  }
+  // The drain retires a written row: it names it, on every line.
+  const rowless = gradeRecipientAuthorityCase(drained((r) => { r.reason.deliveryIdHash = null; r.reason.distinctDeliveryIds = 0; r.reason.linesWithoutDeliveryId = 1; }));
+  assert.ok(rowless.missing.includes('refusal-delivery-id-mismatch'));
+  // Absence still decides: an adoption, ack or wake after a drain refusal is FAIL.
+  for (const [key, code] of [['ackRuns', 'refused-return-adopted'], ['adoptedDeliveryRows', 'refused-return-adopted'], ['foreignRuns', 'target-woken']]) {
+    const graded = gradeRecipientAuthorityCase(drained((r) => { r.target[key] = 1; }));
+    assert.equal(graded.verdict, 'FAIL-candidate', key);
+    assert.ok(graded.contradictions.includes(code), key);
+  }
+  // The premise is unchanged: a return routed while the delete was in flight is MISSING, never PASS.
+  const during = gradeRecipientAuthorityCase(drained((r) => { r.routing.duringTransition = 1; }));
+  assert.ok(during.missing.includes('return-routed-during-transition'));
+  // No other case gains a first stage.
+  for (const caseId of durableCases.filter((id) => id !== 'reassigned')) {
+    const other = RRA_CASES[caseId].refusedAt === 'prompt-drain' ? 'replay' : 'prompt-drain';
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.reason.stage = other; r.reason.stages = [other]; }));
+    assert.ok(graded.missing.includes('refusal-stage-mismatch'), caseId);
   }
 });
 

@@ -412,13 +412,26 @@ test('dry run: j12\'s reason line alone is no reason at j12′: every refused-re
   }
 });
 
-test('dry run: a refusal at any stage but the pinned one is never PASS', async () => {
+test('dry run: a refusal at any stage but the pinned one, or the one other its bytes name, is never PASS', async () => {
   for (const caseId of refusedReturnCases) {
-    const wrong = RRA_CASES[caseId].refusedAt === 'prompt-drain' ? 'replay' : 'prompt-drain';
-    const { graded } = await grade(caseId, {}, { stage: wrong });
-    assert.notEqual(graded.verdict, 'PASS-candidate', caseId);
-    assert.ok(graded.missing.includes('refusal-stage-mismatch'), `${caseId}: ${JSON.stringify(graded)}`);
+    const spec = RRA_CASES[caseId];
+    const firstStages = [spec.refusedAt, ...Object.keys(spec.otherFirstStages ?? {})];
+    for (const wrong of ['enqueue', 'replay', 'wake', 'prompt-drain'].filter((stage) => !firstStages.includes(stage))) {
+      const { graded } = await grade(caseId, {}, { stage: wrong });
+      assert.notEqual(graded.verdict, 'PASS-candidate', `${caseId} at ${wrong}`);
+      assert.ok(graded.missing.includes('refusal-stage-mismatch'), `${caseId} at ${wrong}: ${JSON.stringify(graded)}`);
+    }
   }
+});
+
+// 🕯's live run at 2907e656 (rra-88e4fd22f0b122a8): reassigned's one refusal line was the probe turn's
+// drain. A sweep that replays the row between the delete's consume and its epoch commit re-queues the
+// copy, so the drain refuses it.
+test('dry run: reassigned refused by the probe turn\'s drain grades PASS-candidate', async () => {
+  const { record, graded } = await grade('reassigned', {}, { stage: 'prompt-drain' });
+  assert.equal(record.reason.stage, 'prompt-drain');
+  assert.ok(record.reason.observedAtMs > record.target.probeSentAtMs);
+  assert.equal(graded.verdict, 'PASS-candidate', JSON.stringify(graded));
 });
 
 test('dry run: a Delivered to line for a refused return after its transition is FAIL-candidate, j12\'s empty list included', async () => {

@@ -201,7 +201,8 @@ export const RRA_CASES = Object.freeze({
         laterStages: Object.freeze(['replay']),
         // The only thing that re-arms a parked row is the pending sweep, which logs each time it
         // arms one (session-delivery-queue-runtime.ts:332-337, 466, 480-484). Without such a line
-        // inside the transition's span, no sweep could have re-queued the copy: MISSING.
+        // between the delete's request and its own response, no sweep could have re-queued the
+        // copy: MISSING. A sweep after the delete committed reads a stale epoch and can only refuse.
         sweepArmedInTransition: true,
         bytes: 'a pending sweep replays the row after the delete consumed its copy (session-reset-cleanup.ts:202-203) and before the deletion commits the epoch advance (sessions-delete.ts:514): it reads the epoch current and re-queues the copy (server-restart-sentinel-delivery.ts:263-274, 307-314); later sweeps defer to that copy (server-restart-sentinel-delivery.ts:61-65; session-delivery-queue-runtime.ts:332-337), so the probe turn\'s drain is the first boundary to see it stale (session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147)',
       }),
@@ -443,7 +444,9 @@ export function parseWorkRefusedLine(line) {
  */
 export const RRA_SWEEP_SUBSYSTEM = 'gateway/session-delivery-recovery';
 const SWEEP_ARMED_MESSAGE = /^session delivery: periodic sweep armed ([1-9]\d*) pending (?:entry|entries) that no runtime had scheduled$/u;
-const SWEEP_ARMED_CONSOLE = /^(?:\S+ )?\[session-delivery-recovery\] (session delivery: periodic sweep armed .*)$/u;
+// Only a timestamp may precede the tag (the product's own timestamp shapes, src/logging/console.ts
+// hasTimestampPrefix): another subsystem's line that quotes the tag is not the sweep's.
+const SWEEP_ARMED_CONSOLE = /^(?:(?:\d{2}:\d{2}:\d{2}(?:\.\d+)?|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?) )?\[session-delivery-recovery\] (session delivery: periodic sweep armed .*)$/u;
 
 function sweepArmedFromMessage(message) {
   const match = typeof message === 'string' ? SWEEP_ARMED_MESSAGE.exec(message.trim()) : null;
@@ -1127,7 +1130,7 @@ export function gradeRecipientAuthorityCase(record) {
         need(isTime(target.probeSentAtMs) && reason.observedAtMs > target.probeSentAtMs, 'reason-not-from-probe-drain');
       }
       // The other ordering holds only if the product line that makes it possible was seen: a sweep
-      // that armed the parked row while the transition was in flight.
+      // that armed the parked row while the delete was in flight (record.sweep, from the control).
       if (ordering?.sweepArmedInTransition === true) {
         const armed = record.sweep?.armedInTransition;
         need(isCount(armed) && armed > 0, 'no-sweep-armed-in-transition');

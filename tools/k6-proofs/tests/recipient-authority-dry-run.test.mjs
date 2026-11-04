@@ -204,7 +204,8 @@ const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${messa
  * (the line lands after the probe was sent), returnLineInstead (a return-refused line naming the
  * session instead of the work line), secondFlow (a second line naming another election),
  * captureLate (the session's authority row first appears after the transition was requested).
- * sweepInTransition: the pending sweep's arming line while the transition was in flight.
+ * sweepInTransition: the pending sweep's arming line while the delete was in flight
+ * ('after-delete': after the delete's response, while the create was in flight).
  */
 function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, sweepInTransition = false } = {}) {
   const spec = RRA_CASES[caseId];
@@ -249,7 +250,8 @@ function harnessFor(caseId, drive, final, { reason = true, stage = null, j12Reas
     if (secondFlow) logEntries.push({ atMs: atMs + 1, text: consoleLine('continuation/work-refused', message(`${FLOW}-2`)), generation: 0 });
   }
   if (sweepInTransition) {
-    logEntries.push({ atMs: Math.min(transitionAt + 1, settledAt), text: '[session-delivery-recovery] session delivery: periodic sweep armed 1 pending entry that no runtime had scheduled', generation: 0 });
+    const atMs = sweepInTransition === 'after-delete' ? transition.delete_settled_at_ms + 1 : transitionAt;
+    logEntries.push({ atMs, text: '[session-delivery-recovery] session delivery: periodic sweep armed 1 pending entry that no runtime had scheduled', generation: 0 });
   }
   if (routedAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
   if (emptyListAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to  from ${CHILD}`, generation: 0 });
@@ -437,10 +439,13 @@ test('dry run: reassigned refused by the probe turn\'s drain grades PASS-candida
   assert.ok(record.reason.observedAtMs > record.target.probeSentAtMs);
   assert.deepEqual(record.sweep, { armedInTransition: 1 });
   assert.equal(graded.verdict, 'PASS-candidate', JSON.stringify(graded));
-  const unwitnessed = await grade('reassigned', {}, { stage: 'prompt-drain' });
-  assert.deepEqual(unwitnessed.record.sweep, { armedInTransition: 0 });
-  assert.equal(unwitnessed.graded.verdict, 'MISSING-candidate', JSON.stringify(unwitnessed.graded));
-  assert.deepEqual(unwitnessed.graded.missing, ['no-sweep-armed-in-transition']);
+  assert.ok(record.transition.deleteSettledAtMs > record.transition.requestedAtMs && record.transition.deleteSettledAtMs < record.transition.settledAtMs, JSON.stringify(record.transition));
+  for (const sweepInTransition of [false, 'after-delete']) {
+    const unwitnessed = await grade('reassigned', {}, { stage: 'prompt-drain', sweepInTransition });
+    assert.deepEqual(unwitnessed.record.sweep, { armedInTransition: 0 }, String(sweepInTransition));
+    assert.equal(unwitnessed.graded.verdict, 'MISSING-candidate', JSON.stringify(unwitnessed.graded));
+    assert.deepEqual(unwitnessed.graded.missing, ['no-sweep-armed-in-transition'], String(sweepInTransition));
+  }
   // The pinned replay ordering needs none.
   assert.equal((await grade('reassigned', {})).graded.verdict, 'PASS-candidate');
 });

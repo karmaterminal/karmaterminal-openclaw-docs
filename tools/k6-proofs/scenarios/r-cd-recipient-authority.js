@@ -691,6 +691,8 @@ export default function () {
           return rpc('session.members.remove', { sessionKey: keys.target, identityId: memberIdentity }, (r) => settle(r.ok, r.error?.message));
         case 'sessions.delete+sessions.create':
           return rpc('sessions.delete', { key: keys.target }, (deleted) => {
+            // The delete's own response, before the create: the control's sweep window ends here.
+            evidence.transition.delete_settled_at_ms = Date.now();
             if (!deleted.ok) return settle(false, deleted.error?.message);
             // A label is unique among the agent's sessions (session-create-service.ts:722 ->
             // sessions-patch-display-metadata.ts:52-53), and two cases of one run re-create: the

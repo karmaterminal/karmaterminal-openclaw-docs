@@ -592,12 +592,13 @@ function workEpochs(timeline, key, transition) {
 
 /**
  * Pending-sweep arming lines while the transition RPC was in flight. A parked row's copy can come
- * back after a delete consumed it only through a sweep that armed the row in that span
- * (RRA_CASES.reassigned, otherFirstStages).
+ * back after a delete consumed it only through a sweep that armed the row before the delete
+ * committed (RRA_CASES.reassigned, otherFirstStages), so for a delete and re-create the span ends at
+ * the delete's own response, before the create; a sweep after it can only refuse.
  */
-function sweepAround(logEntries, transition) {
+function sweepAround(logEntries, transition, method) {
   const requested = transition.requested_at_ms;
-  const settled = transition.settled_at_ms;
+  const settled = method === 'sessions.delete+sessions.create' ? transition.delete_settled_at_ms : transition.settled_at_ms;
   if (!Number.isFinite(requested) || !Number.isFinite(settled) || settled < requested) return { armedInTransition: null };
   return { armedInTransition: countSweepsArmed(logEntries, requested, settled) };
 }
@@ -707,6 +708,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       ok: transition.ok ?? null,
       requestedAtMs: transition.requested_at_ms ?? null,
       settledAtMs: transition.settled_at_ms ?? null,
+      ...(spec.transition === 'sessions.delete+sessions.create' ? { deleteSettledAtMs: transition.delete_settled_at_ms ?? null } : {}),
     },
     park: { deliveredToTargetAtMs: findRouted(logEntries, keys.target) },
     // Router lines for this return, the target named or its child as the source (the child key
@@ -715,8 +717,9 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     routing: spec.family === 'refusal' && spec.expectChild !== false
       ? routingAround(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition)
       : null,
-    // The gateway's pending-sweep lines while the transition was in flight (no session identity).
-    sweep: spec.family === 'refusal' && spec.expectChild !== false ? sweepAround(logEntries, transition) : null,
+    // The gateway's pending-sweep lines while the transition (for a delete and re-create, the
+    // delete) was in flight; they name no session.
+    sweep: spec.family === 'refusal' && spec.expectChild !== false ? sweepAround(logEntries, transition, spec.transition) : null,
     epochs: spec.tool === 'continue_work'
       ? workEpochs(timeline, keys.target, transition)
       : {

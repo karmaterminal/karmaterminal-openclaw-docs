@@ -464,11 +464,19 @@ So the case accepts both orderings, each with its own rule (`RRA_CASES.reassigne
 | First stage | Must come | Later stage | Row | Witness |
 |---|---|---|---|---|
 | `replay` | after the transition | `replay` only | named on every line | none |
-| `prompt-drain` | after the probe was sent (`reason-not-from-probe-drain`) | `replay` only | named on every line | a sweep arming line while the transition was in flight (`record.sweep.armedInTransition`), else MISSING (`no-sweep-armed-in-transition`) |
+| `prompt-drain` | after the probe was sent (`reason-not-from-probe-drain`) | `replay` only | named on every line | a sweep arming line while the delete was in flight (`record.sweep.armedInTransition`), else MISSING (`no-sweep-armed-in-transition`) |
 
-The witness window is the transition's own span, request to settle, so a sweep that armed just
-before the delete was requested does not count. That is conservative: such a case is MISSING and
-re-run, never PASS. Every other first stage, a `prompt-drain` after a `replay`, an `enqueue` or `wake`
+The witness window runs from the delete's request to the delete's own response, before the create
+(`transition.deleteSettledAtMs`, recorded by the scenario). A sweep armed while the create is in
+flight reads an epoch the delete already advanced, so it can only refuse. A sweep armed just before
+the delete was requested does not count either. Both are conservative: such a case is MISSING and
+re-run, never PASS.
+
+Only a timestamp may precede the console tag, so another subsystem's line that quotes the sweep's
+line does not count. One residual exposure is shared with the refusal-line matchers: the control
+splits the console on newlines. So a multi-line entry from another subsystem whose continuation line
+begins with the exact tag and message would still read as a sweep. The structured file log would
+close that; the control does not read it today. Every other first stage, a `prompt-drain` after a `replay`, an `enqueue` or `wake`
 line, a row-less line, and every premise and absence rule still leave the case MISSING or FAIL as
 before. A repeat of the first stage's own line is not told apart, as for the revoked cases (the
 record keeps distinct stages, not their order).
@@ -503,11 +511,13 @@ durable receipt as unknown, though its model saw it") asserts
 `not.toHaveProperty("sessionDeliveryAckIds")` (`:917`) and consumption `unknown` (`:918`). The same
 test is at j12 `352f5602` `:848-890`.
 
-Every file named here is byte-identical at `1ab5a73e`. Two of them differ at j12, and neither in a
-way that matters here:
+Every file named here is byte-identical at `1ab5a73e`. Four of them differ at j12, none in a way
+that matters here:
 
 - `session-system-event-adoption.ts` already had `adoptedWithoutReceipt` at j12 (`:282`, `:88`);
-- `continuation-wake.test.ts` already had the same test at j12.
+- `continuation-wake.test.ts` already had the same test at j12;
+- `subagent-announce.continuation-return.ts` and `targeting.ts`: a silent return still requests no
+  wake at j12 (`:175` and `:366`).
 
 The rest are byte-identical at j12 as well: `sessions-messaging.ts`, `chat-send-input-dispatch.ts`,
 `chat-send-agent-dispatch.ts`, `get-reply-run-execute.ts`, `src/sessions/user-turn-transcript.ts`,

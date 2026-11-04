@@ -1753,6 +1753,8 @@ test('the pending sweep\'s arming line is read from the console or the structure
   for (const line of [
     `[session-delivery-recovery] ${message}`,
     `08:00:00.000 [session-delivery-recovery] ${message}`,
+    `08:00:00 [session-delivery-recovery] ${message}`,
+    `2026-11-04T14:23:17.500+00:00 [session-delivery-recovery] ${message}`,
     `\u001b[90m08:00:00.000\u001b[39m \u001b[36m[session-delivery-recovery]\u001b[39m \u001b[36m${message}\u001b[39m`,
     JSON.stringify({ time: '2026-11-04T14:23:17.500Z', level: 'info', subsystem: 'gateway/session-delivery-recovery', message }),
     JSON.stringify({ 0: JSON.stringify({ subsystem: 'gateway/session-delivery-recovery' }), 1: message, _meta: { name: JSON.stringify({ subsystem: 'gateway/session-delivery-recovery' }), logLevelName: 'INFO' } }),
@@ -1761,6 +1763,10 @@ test('the pending sweep\'s arming line is read from the console or the structure
   for (const line of [
     // Another subsystem quoting the text, a reply echoing it, a partial or a zero count.
     `[gateway] ${message}`,
+    // Another subsystem's line that quotes the sweep's whole console line: only a timestamp may
+    // precede the tag (review finding).
+    `[agent/embedded] [session-delivery-recovery] ${message}`,
+    `reply: [session-delivery-recovery] ${message}`,
     `[agent/embedded] reply: "${message}"`,
     `[session-delivery-recovery] session delivery: periodic sweep armed 1 pending entry`,
     `[session-delivery-recovery] session delivery: periodic sweep armed 0 pending entries that no runtime had scheduled`,
@@ -1784,4 +1790,15 @@ test('the control counts sweep arming lines only while the transition was in fli
   const unsettled = assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: { ...evidence, transition: { ...evidence.transition, settled_at_ms: null } }, logEntries: [sweepLine(requested)], timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
   assert.deepEqual(unsettled.sweep, { armedInTransition: null }, 'no span, no count');
   assert.equal(assembleCaseRecord({ caseId: 'allowed', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence, logEntries: [], timeline: [], generations: [], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 }).sweep, null, 'an allowed case records none');
+  // A delete and re-create: the span ends at the delete's own response. A sweep while the create is
+  // in flight reads an epoch the delete already advanced, so it can only refuse (review finding).
+  const reassign = (deleteSettled, lines) => assembleCaseRecord({ caseId: 'reassigned', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: { ...evidence, transition: { ...evidence.transition, method: 'sessions.delete+sessions.create', delete_settled_at_ms: deleteSettled } }, logEntries: [...harness.logEntries, ...lines], timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
+  const deleteSettled = requested + 50;
+  assert.ok(deleteSettled < settled);
+  assert.deepEqual(reassign(deleteSettled, [sweepLine(requested + 20)]).sweep, { armedInTransition: 1 }, 'a sweep inside the delete');
+  assert.deepEqual(reassign(deleteSettled, [sweepLine(deleteSettled)]).sweep, { armedInTransition: 1 }, 'up to the delete\'s response');
+  assert.deepEqual(reassign(deleteSettled, [sweepLine(deleteSettled + 1), sweepLine(settled)]).sweep, { armedInTransition: 0 }, 'a sweep during the create does not count');
+  assert.deepEqual(reassign(undefined, [sweepLine(requested + 20)]).sweep, { armedInTransition: null }, 'no delete response recorded, no count');
+  assert.equal(reassign(deleteSettled, []).transition.deleteSettledAtMs, deleteSettled);
+  assert.equal(Object.hasOwn(assemble([]).transition, 'deleteSettledAtMs'), false, 'only a delete and re-create records it');
 });

@@ -622,6 +622,22 @@ Its limits:
   never claims the wake turn's ack.
 - `allowed-across-reset` keeps the direct-wake path only. 🌊's fallback is `allowed`'s.
 
+### The pins, at this head and at `53c1c192`
+
+🌊 asked for both of `allowed`'s paths to be pinned before another 13. Every pin below is a dry-run test
+through the real case driver (`tests/recipient-authority-dry-run.test.mjs`), with record-level twins in
+`scripts/__tests__/recipient-authority-row.test.mjs`. The RED column is those same tests run against
+the lib, scenario, control and manifest at `53c1c192`, the head this lane started from.
+
+| Pin | Shape | At this head | At `53c1c192` |
+|---|---|---|---|
+| (p) parked copy | every parked case sends its transition only in its transition phase, after the control's witness, and passes with it. Without the witness no transition is sent: MISSING `parked-copy-unwitnessed` | GREEN | RED: the drive sent the transition itself after `_PARK_MS`, with no handoff and no witness, and a parked record with no witness graded PASS |
+| (q) enqueue refusal | an enqueue refusal offered as the parked-copy case | MISSING, with `parked-copy-unwitnessed` | RED as a pin: the code did not exist. The verdict was already MISSING (`return-not-parked-before-transition`, `refusal-stage-mismatch`), never PASS |
+| (r) early enqueue | each revoked case's early-enqueue ordering is its own pin, graded PASS by its own rules and never the parked-copy case | GREEN | RED: no pin existed |
+| (w) direct wake | `allowed`'s woken run acks: PASS, no probe sent, receipt labelled `direct-wake`; never woken is still FAIL with no probe | GREEN | RED on the label only: the verdict was already PASS, and never woken was already FAIL |
+| (f) fallback | `allowed`'s woken run gives no ack: one conditional probe; one ack in its own run after the delivered return, none in a wake turn: PASS, labelled `probe-mediated` | GREEN | RED: no probe was sent, MISSING `woken-without-ack` (🕯's shape) |
+| (g) fallback negatives | a duplicate across the wake turn and the fallback, a probe the read did not allow, a pre-return, priming or wrong-nonce ack, a doubled ack, a wrong or missing label, another probe text, and no ack at all: each MISSING, never FAIL | GREEN | RED: no probe was sent. At record level, an ack only in a probe run with no label graded PASS, and an ack in a wake turn and a probe run graded FAIL `duplicate-adoption` |
+
 ## The live run's misses at `2907e656`
 
 🕯's run (`rra-88e4fd22f0b122a8`, room msgs 1567548452395683961 and 1567548672252579929) left three

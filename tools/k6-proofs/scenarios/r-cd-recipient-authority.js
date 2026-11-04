@@ -390,7 +390,7 @@ export default function () {
       const wanted = [keys.parent, keys.target, keys.ops].filter(Boolean);
       const next = (index) => {
         if (index >= wanted.length) return afterCreate();
-        rpc('sessions.create', { key: wanted[index], label: `k6 ${RRA_ROW} ${control.caseId}` }, (r) => {
+        rpc('sessions.create', { key: wanted[index], label: `k6 ${RRA_ROW} ${control.caseId} ${index}` }, (r) => {
           if (!r.ok) {
             refuse(`sessions.create rejected: ${boundedText(r.error?.message)}`);
             return finish();

@@ -57,7 +57,11 @@ function gatewayFor(world) {
     const ok = (payload) => [{ type: 'res', id: frame.id, ok: true, payload }];
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: ALL_METHODS } });
-      case 'sessions.create': sessions[p.key] = { messages: [] }; return ok({ key: p.key });
+      case 'sessions.create': {
+        if (Object.values(sessions).some((session) => session.label === p.label)) return fail('label already in use');
+        sessions[p.key] = { label: p.label, messages: [] };
+        return ok({ key: p.key });
+      }
       // The sharing methods' params are closed objects keyed by sessionKey at j12′ (unchanged from j12)
       // (packages/gateway-protocol/src/schema/sessions-sharing.ts:29-37, 62, 115-120).
       case 'session.members.list': case 'session.members.add': case 'session.members.remove': case 'session.visibility.set': {

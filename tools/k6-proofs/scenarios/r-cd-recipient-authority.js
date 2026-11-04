@@ -390,7 +390,7 @@ export default function () {
       const wanted = [keys.parent, keys.target, keys.ops].filter(Boolean);
       const next = (index) => {
         if (index >= wanted.length) return afterCreate();
-        rpc('sessions.create', { key: wanted[index], label: `k6 ${RRA_ROW} ${control.caseId} ${index}` }, (r) => {
+        rpc('sessions.create', { key: wanted[index], label: `k6 ${RRA_ROW} ${control.caseId} ${control.runId} ${index}` }, (r) => {
           if (!r.ok) {
             refuse(`sessions.create rejected: ${boundedText(r.error?.message)}`);
             return finish();
@@ -668,7 +668,7 @@ export default function () {
         case 'sessions.delete+sessions.create':
           return rpc('sessions.delete', { key: keys.target }, (deleted) => {
             if (!deleted.ok) return settle(false, deleted.error?.message);
-            rpc('sessions.create', { key: keys.target, label: `k6 ${RRA_ROW} reassigned` }, (created) => settle(created.ok, created.error?.message));
+            rpc('sessions.create', { key: keys.target, label: `k6 ${RRA_ROW} reassigned ${control.runId}` }, (created) => settle(created.ok, created.error?.message));
           });
         case 'sessions.assignOwner': {
           const instruction =

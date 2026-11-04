@@ -717,20 +717,28 @@ How the probe's reply is graded. One of two answers counts, never both:
 The ACK oracle is the one `4f86dd78` set, unchanged: the grade itself did not move. A `PROBE-OK`
 naming another nonce, the row nonce included, is credited to no case.
 
-**The old receipt.** 🕯's `allowed-silent` receipt (`rra-88e4fd22f0b122a8`) stays MISSING
+**The old receipt.** 🕯's `allowed-silent` receipt (`rra-88e4fd22f0b122a8`) stays
 `probe-ack-unobserved` and is never upgraded:
 
-- its own counts say so (`probeReplied: true`, `ackRuns: 0`), and the grade reads them the same way
-  at this head;
-- it names no probe text, so at this head it also reads `probe-text-unbound`;
+- its counts are that shape: the probe answered `PROBE-OK` (`probeReplied: true`) and no run acked
+  (`ackRuns: 0`). A probe run with no ack grades MISSING `probe-ack-unobserved`, at `4f86dd78` and at
+  this head;
+- as sealed it reads MISSING for more than that. The control at docs `935898d1` sealed no
+  `probeAckRows`, `primingAckRows` or `uncreditedAckRows`, and the grade has needed them since
+  `8b3b68b7` (`transcript-not-read`). It sealed no probe hash either (`probe-text-unbound`). Either
+  way it is never PASS;
 - the receipt names the docs head that sent the unconditional probe;
 - the row grades one run's receipts together (`receipts-from-different-runs`), so none of that run's
   receipts joins a run at the new head.
 
-The rest of that run is affected too. Re-graded at this head (`--grade-row` grades each receipt
-again), each of its eleven probing receipts reads MISSING `probe-text-unbound`. Only `allowed` and
-`allowed-across-reset` send no probe. Its 10/13 is that run's grade at its own docs head, and the
-fresh 13 replaces it.
+The rest of that run re-grades the same way (`--grade-row` grades each receipt again).
+
+- Its twelve delegate receipts lack those three counts, so every head since `8b3b68b7` reads them
+  MISSING `transcript-not-read`.
+- At this head, every receipt whose probe ran also reads `probe-text-unbound`.
+- `wake-reassigned`'s probe never ran: its re-create failed, and the scenario then skips the probe.
+
+Its 10/13 is that run's grade at its own docs head, and the fresh 13 replaces it.
 
 The pins, as dry-run tests through the real case driver (`tests/recipient-authority-dry-run.test.mjs`).
 The scripted model reads the probe it is sent. An unconditional `PROBE-OK` wins over its priming, as
@@ -749,10 +757,11 @@ run passed `allowed-silent` while the live run could not.
 The unit tests in `scripts/__tests__/recipient-authority-row.test.mjs` pin three things:
 
 - the text test's codes, and the hash against `node:crypto`;
-- the grade of each answer at record level, 🕯's receipt included, both its counts and as it was
-  sealed;
+- the grade of each answer at record level, 🕯's receipt included: its counts, the same with no hash,
+  and the shape the `935898d1` control sealed;
 - the binding: an unbound probe, or the unconditional one, is MISSING `probe-text-unbound` in every
-  probing case, while an unbound refusal that acked is still FAIL.
+  probing case. A contradiction is still FAIL when unbound: an acked refusal, a woken
+  `allowed-silent` and a woken `work-revoked-visibility`.
 
 With the binding's three grade lines removed, an unbound `allowed-silent` receipt grades PASS and
 those pins go RED.

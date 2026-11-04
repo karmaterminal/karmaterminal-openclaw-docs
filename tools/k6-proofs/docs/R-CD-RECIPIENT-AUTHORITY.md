@@ -1,17 +1,25 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **catalogued, every case MISSING, never fired, in no corpus.** Bound issue:
-karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, karmaterminal/openclaw
-`e9dc1c318a2f73fd01755fc4682fa3349e8a0e94`, **INTERIM**.
+Status: **catalogued, every case MISSING, never fired, in no corpus.** Each case stays MISSING until
+an owner runs it at `1ab5a73e`. Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned
+product: j12′, the merged head, karmaterminal/openclaw `1ab5a73e14309922fa79edf4f93034bdb0acde62`
+(branch `codeagent/j12prime-candidate`).
 
-**The interim pin.** j12′ is not cut yet. It will merge this refused chain (`e9dc1c31`),
-`keeps-queued-2` and the `continue_work` authority binding. This row is gate 3 and runs only after
-the merged head is reviewed (🌊, room msg 1567194866507841678). The refusal strings, stages and
-failed receipt this row reads are final at `e9dc1c31`, and the later lanes don't touch them. The cites
-on the reset path and on `continue_work` change in those lanes and are re-walked at the merged head
-([listed below](#cites-re-walked-at-the-merged-j12)). The named baseline is j12,
-`352f56029dc95c60149ab4aaa127226a861d0b3d`: the row was first written to it, and j12's receipts
-stay j12's. No case is carried from j12.
+**The pin.** The merged j12′ is the refused chain (`e9dc1c31`) plus:
+
+- `continuation-reset-keeps-queued-2`;
+- the `continue_work` recipient-authority binding and its incognito pin (`f52dc67e`);
+- the turn-start fence (`0b22be19`) and the burning annex;
+- wake admission and the fence drain (`c25d1a77`);
+- annex crash gating (`9cb07314`);
+- #1544 maintenance custody (`984f4e1f`) and the test-lines allocation (`1ab5a73e`).
+
+This row is gate 3, run by an owner at the merged head (🌊, room msg 1567194866507841678). It was
+first written to j12 and then pinned to the refused chain `e9dc1c31` as an interim pin. Both are
+history: j12 (`352f56029dc95c60149ab4aaa127226a861d0b3d`) is the named baseline, and its receipts
+stay j12's. No case is carried from j12 or from `e9dc1c31`, and a record that names either is
+MISSING. Every cite below was re-walked at `1ab5a73e`
+([the re-walk](#cites-re-walked-at-the-merged-j12)).
 
 Rulings:
 
@@ -22,12 +30,17 @@ Rulings:
 - 🌊, room msg 1567104742604406896: fix before presenting. j12′ gives a reason at enqueue, at
   replay or wake, and at prompt drain, and logs no `Delivered to` for an empty recipient set. A
   silent park or the sweep is not wake proof.
+- 🌊, room msg 1567194866507841678: the gate list. This row is gate 3, run by an owner at the merged
+  head.
+- 🌊, room msg 1567201185243332681: stage=wake stays NOT PROVEN by this public-surface row. Cite the
+  deterministic pin instead.
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
 - [Its own row](#its-own-row)
 - [The product path at j12′](#the-product-path-at-j12)
 - [The cases](#the-cases)
+- [The merged head's other lanes on the row's gateway](#the-merged-heads-other-lanes-on-the-rows-gateway)
 - [Cites re-walked at the merged j12′](#cites-re-walked-at-the-merged-j12)
 - [What ClawSweeper asked for, case by case](#what-clawsweeper-asked-for-case-by-case)
 - [Verdict rules](#verdict-rules)
@@ -58,9 +71,16 @@ shape) is:
   no `Delivered to` line for the return once its transition has settled. A wake-mode return refused
   at enqueue leaves no `Delivered to` line at all.
 
+And a kept `continue_work` wake, which the merged head binds to its session's recipient authority,
+is refused once that authority moves (`work-revoked-visibility`). The session elects its own wake,
+its visibility narrows after the election is captured, and the dispatcher's handoff refuses the
+wake when it is due. It logs
+`[continuation:work-refused] stage=wake reason=recipient-authority-changed session=<key> flowId=<id>`,
+and no wake turn runs, nothing is adopted and no notice reaches the session.
+
 It does not prove:
 
-- **A refusal at the wake handoff (`stage=wake`).** j12′ emits one
+- **A refusal at the wake handoff of a return (`stage=wake`).** j12′ emits one
   (`continuation-wake.ts:233-243` -> `session-system-event-adoption.ts:118-147`), but only for an
   epoch that advances inside the 250 ms between the enqueue's last authority read
   (`targeting.ts:358-374`) and the handoff's read (`continuation-wake.ts:41, 106, 163-171`). A public
@@ -69,40 +89,75 @@ It does not prove:
   sometimes be refused at enqueue and sometimes adopted while still current, and could pin no stage.
   **Covered instead, deterministically and not live,** by the product's own pin:
   `src/auto-reply/continuation/continuation-wake.test.ts:654` asserts
-  `[continuation:return-refused] stage=wake reason=recipient-authority-changed …`. It is revert-proven at
-  `e9dc1c31` against j12 `352f5602` (`oc-focused --revert-proof`: 19 pass, 1 RED reverted). That is test
-  proof of the wake-stage refusal, **not live proof** (🌊, room msg 1567201185243332681).
+  `[continuation:return-refused] stage=wake reason=recipient-authority-changed …` in the test at
+  `:633`, "refuses a return whose recipient authority an owner change advanced". The pin was
+  re-verified at the merged head with `oc-focused --revert-proof` against j12 `352f5602`:
+  - **PROVEN**: GREEN 19 passed (19), RED 1 failed | 18 passed (19), the one red being that test;
+  - run in a detached worktree at `1ab5a73e`, with deps linked from `openclaw-j12-deps`
+    (`pnpm-lock.yaml` sha256 `a4623b23…` equal);
+  - config `test/vitest/vitest.infra.config.ts`; 66 source paths reverted, 72 test-side paths kept.
+
+  Neither the test file nor `continuation-wake.ts` changed from `e9dc1c31`. That is test proof of
+  the wake-stage refusal, **not live proof** (🌊, room msg 1567201185243332681).
 - **An enqueue refusal that names a row.** Same reason: `targeting.ts:343-347` and `:369-374`
   refuse a row only when the epoch advances between the router's reads, a window of the same kind.
   The wake-mode cases pin the first read (`:277-280`), which refuses before any row.
+- **A kept `continue_work` wake refused at replay or adoption, by any other transition, or allowed.**
+  `work-revoked-visibility` pins `stage=wake` with a visibility narrowing on a live gateway. The
+  replay sweep runs only at custody boot (`custody-boot.ts:107-114`). The adoption check sees a wake
+  only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`). A
+  Gateway delete cancels the wake instead of refusing it. An owner change needs a second model
+  turn, and a member removal needs a known identity. No case elects an allowed `continue_work` wake,
+  so the row has no positive control of its own showing that a work wake turn's rows appear in
+  `chat.history`. The case's absence rests on the product line, which is logged only after the
+  record failed (`work-recipient-authority.ts:133-141`), on a failed record never being claimed
+  again (`work-store.ts:226, 260`), and on the same transcript projection that shows the allowed
+  cases' woken runs. These are covered by unit pins instead, deterministic and not live:
+  - `src/auto-reply/continuation/work-recipient-authority.reset.test.ts`: every handover (owner
+    change, visibility narrowing, member removal, delete and recreate) at the wake and replay
+    stages, for bound and unbound records (`:270-288`); the Gateway delete cancelling the wake
+    (`:290`); the adoption boundary (`:308-374`); a same-owner `/new` and `/reset` keeping the
+    bound wake (`:246-266`); and an unbound wake (`:376-406`);
+  - `src/auto-reply/continuation/work-recipient-authority.incognito.test.ts`: the incognito pin from
+    `f52dc67e` (`:235`, an incognito election fails visibly and elects nothing) and the bound
+    control (`:285`).
 - **"Settled as refused" from the record.** j12′ retires a refused row as a bounded `failed`
-  receipt, never `recovered` (`return-refusal.ts:36-49`; the sweep's settlement,
+  receipt, never `recovered` (`return-refusal.ts:53-66`; the sweep's settlement,
   `session-delivery-queue-recovery.ts:161-180, 208-213`). But no public surface reads that receipt:
   the gateway health's failed count leaves it out on purpose (`delivery-queue-sqlite.kernel.ts:397-429`,
   the filter at `:413-420`, surfaced by `gateway/health/collector.ts:640-654`), and the receipt
   lookup has internal callers only. The row never reads SQLite for it. Refusal is read from the
-  reason line and the absence of adoption.
+  reason line and the absence of adoption. A refused work record fails with
+  `failureReason` `recipient-authority-changed` (`work-store.ts:639-655`); no public surface reads
+  that either.
 - **The delivery id's derivation.** The id is `sha256` of
   `continuation-return:v1:<child>:<childRunId>:<target>`
   (`announce-idempotency.ts:11-16`, `subagent-announce.continuation-return.ts:174`,
-  `targeting.ts:291`, `session-delivery-queue-storage.ts:274-279`). The child run id the announce
+  `targeting.ts:291`, `session-delivery-queue-storage.ts:275-280`). The child run id the announce
   uses is not on a surface the row can read with certainty, so the row does not recompute it. It
   binds the line's id to the case another way: the line names the case's own disposable target,
   which only this case's return ever reaches, and every line for that target names the same row.
-  The receipt publishes the id as SHA-256 only.
+  The receipt publishes the id as SHA-256 only, and a work refusal's `flowId` too.
 - **A per-target addressability check.** j12′ has none, as j12 had none: the binding is captured
-  for any key, existing session or not (`session-recipient-authority.worker.ts:35-50`).
+  for any key, existing session or not (`session-recipient-authority.worker.ts:36-56`).
   "Unauthorized" here is the `crossSessionTargeting` policy, the only admission refusal j12′ has.
-- **Refusal telemetry.** j12′ counts a refusal on `continuation.queue.drain` (`queue.refused_count`,
-  `refusal.reason`) and on `continuation.queue.fanout` (`fanout.refused_count`, `refusal.reason`;
-  only for a fanout mode or several recipients, `targeting.ts:413-427`), with no session identity
-  (`continuation-tracer.ts:178-204`). The control collects no spans, so the row claims none.
+- **Refusal telemetry.** j12′ counts a refusal on `continuation.queue.drain`
+  (`queue.refused_count`, `refusal.reason`, with no session identity; a refused `continue_work`
+  wake too, `work-recipient-authority.ts:142-148`). It also counts one on
+  `continuation.queue.fanout` (`fanout.refused_count`, `refusal.reason`, and 12-hex SHA-256
+  prefixes of the recipient keys), but only for a fanout mode or several recipients, which no case
+  drives (`targeting.ts:413-427`; `continuation-tracer.ts:178-204`, the hashes at `:194-197` and
+  `:1000-1010`). The control collects no spans, so the row claims none.
 - **The supervised-restart claim.** That is `R-CD-RETURN-COVENANT-AUTHORITY`'s. `replay-restart`
   uses the same supervised branch to replay a parked return; it never reads or feeds that row.
 - **Multi-recipient fanout, cross-agent recipients, the bracket-token form, explicit revocation.**
   `tree`/`all` fanout and recipients of another agent are outside the cases. The token form is not
   driven (R-CD-TOKEN covers targeted bracket returns). j12′ has no explicit revocation API.
 - **Fresh install or upgrade.** Proposed separately (docs#619, `R-CD-FRESH-INSTALL`).
+- **Session maintenance that evicts a row session.** At its defaults (`store-maintenance.ts:26-34`)
+  maintenance cannot reach any row session in a run
+  ([below](#the-merged-heads-other-lanes-on-the-rows-gateway)). The row does not prove what a
+  lowered `session.maintenance` would do.
 - **Anything until an owner runs it.** No case here has run.
 - **Listener ownership between samples.** The control checks it every 500 ms and at every case
   boundary, not continuously. It stops its gateway's whole process group on success, on error and
@@ -120,26 +175,29 @@ It does not prove:
 
 ## The product path at j12′
 
-Byte-read with `git show` / `git grep` at `e9dc1c318a2f`, with the j12 bytes as the baseline. The
-files in the first table did not change from j12 to j12′, and each cite was re-read at j12′. The
-second table is j12′'s own. The scenario header (`scenarios/r-cd-recipient-authority.js`) carries the
-same map.
+Byte-read with `git show` / `git grep` at `1ab5a73e`. Files the merge did not change since
+`e9dc1c31` are cited at their lines there; the six it changed are cited at their new lines
+([the re-walk](#cites-re-walked-at-the-merged-j12)). The scenario header
+(`scenarios/r-cd-recipient-authority.js`) carries the same map.
 
 ### What changes a recipient's authority
 
 Authority is one UUID epoch per logical session key in `session_recipient_authority` (per-agent
 database). A captured binding is current only while the stored epoch equals it
-(`src/config/sessions/session-recipient-authority-types.ts:87-92`).
+(`src/config/sessions/session-recipient-authority-types.ts:96-101`). Only five sites write an epoch:
+the four advances below and the first capture
+(`session-accessor.sqlite-recipient-authority.ts:17-37` and its callers).
 
 | Public RPC | Effect on the target's epoch | Path at j12′ |
 |---|---|---|
-| `continue_delegate` (model turn), capture | insert-if-absent for any key, before the `scheduled` toolResult | `continue-delegate-tool.ts:424-449`, `delegate-flow-store.ts:426-437`, `session-recipient-authority.worker.ts:35-50` |
-| `sessions.delete` | advances (every deletion owner); the epoch row outlives the session, so `sessions.create` of the same key keeps the advanced epoch. It also consumes the session's queued events | `session-accessor.sqlite-entry-store.ts:56-69`, `server-methods/sessions-delete.ts:589`; queued events: `sessions-delete.ts:454-470` -> `session-lifecycle-cleanup.ts:74-92` -> `session-reset-runtime-cleanup.ts:77-93` -> `session-reset-runtime-state.ts:11-51` -> `session-reset-cleanup.ts:146-196` (consumed at `:194-196`) |
-| `session.visibility.set` (narrowing) | advances, for every writer; rank shared > suggest > read-only > draft | `session-accessor.sqlite-entry-mutation.ts:119-136`, `sessions-sharing.ts:527-610`, `session-recipient-authority-types.ts:66-99` |
+| `continue_delegate` (model turn), capture | insert-if-absent for any key, before the `scheduled` toolResult | `continue-delegate-tool.ts:424-449`, `delegate-flow-store.ts:426-437`, `session-recipient-authority.worker.ts:36-56` |
+| `continue_work` (model turn), capture | insert-if-absent for the electing session, **after** the `scheduled` toolResult: the tool only queues the request, and the turn schedules the election after its attempt, capturing first | `continue-work-tool.ts:84-110`, `agent-runner-embedded-candidate.ts:222-224`, `agent-runner-continuation-signal.ts:463` -> `work-dispatch.ts:662-668` -> `work-operator-continuation.ts:34-52` -> `work-recipient-authority.ts:63-67` |
+| `sessions.delete` | advances (every deletion owner); the epoch row outlives the session, so `sessions.create` of the same key keeps the advanced epoch. It also consumes the session's queued events and cancels its own custody | `session-accessor.sqlite-entry-store.ts:56-69`, `server-methods/sessions-delete.ts:589`; queued events: `sessions-delete.ts:454-470` -> `session-lifecycle-cleanup.ts:74-92` (reason `delete`, `:90`) -> `session-reset-runtime-cleanup.ts:77-93` -> `session-reset-runtime-state.ts:11-51` -> `session-reset-cleanup.ts:149-227` (custody cancelled at `:171-175`, events consumed at `:202-203`) |
+| `session.visibility.set` (narrowing) | advances, for every writer; rank shared > suggest > read-only > draft | `session-accessor.sqlite-entry-mutation.ts:119-136`, `sessions-sharing.ts:527-610`, `session-recipient-authority-types.ts:75-108` |
 | `session.members.remove` | advances | `session-sharing-store.native.ts:150-195`, `sessions-sharing.ts:337-423, 616` |
-| `sessions.assignOwner` (owner changes) | advances. It refuses a caller that is neither an agent runtime nor a human profile, so only the agent's `sessions` tool `assign_owner` can drive it here | `session-accessor.sqlite-owner.ts:158-182`, `sessions-mutations.ts:343-470` (`:362-374`), `agents/tools/sessions-tool.ts:384-419` |
-| `sessions.reset` | **none**: rotates the session in place; only an incognito reset deletes | `sessions-mutations.ts:593-678`, `gateway/session-reset-service.ts:651-737, 751, 1032-1043` |
-| `config.patch` `agents.defaults.continuation.crossSessionTargeting` | none; it is the admission policy, default disabled, read at each decision, reloaded hot | `continuation/config.ts:84-92, 128-129`, `server-methods/config.ts:798-850`, `config-reload.prepared-model-runtime.test.ts:74-96` |
+| `sessions.assignOwner` (owner changes) | advances. It refuses a caller that is neither an agent runtime nor a human profile, so only the agent's `sessions` tool `assign_owner` can drive it here | `session-accessor.sqlite-owner.ts:158-182`, `sessions-mutations.ts:343-518` (`:362-374`), `agents/tools/sessions-tool.ts:384-419` |
+| `sessions.reset` | **none**: rotates the session in place; only an incognito reset deletes. At j12′ its runtime cleanup ends only the replaced head's own custody and keeps its queued elections | `sessions-mutations.ts:593-678`, `gateway/session-reset-service.ts:651-741, 751, 1032-1043`; cleanup reason at `:560-566` -> `session-reset-cleanup.ts:171-175` (`retireReplacedHeadContinuations`) |
+| `config.patch` `agents.defaults.continuation.crossSessionTargeting` | none; it is the admission policy, default disabled, read at each decision, reloaded hot | `continuation/config.ts:84-92, 128-129`, `server-methods/config.ts:798-980`, `config-reload.prepared-model-runtime.test.ts:74-96` |
 
 Sharing mutations need the session owner or `operator.admin` (`sessions-sharing-authority.ts:144-156`).
 A loopback backend client with the shared token keeps the scopes it asks for
@@ -149,13 +207,13 @@ A loopback backend client with the shared token keeps the scopes it asks for
 ### Where a targeted return is bound, checked, enqueued, woken and adopted, and what a refusal leaves
 
 Every refusal of a return goes through one reporter
-(`src/auto-reply/continuation/return-refusal.ts:15-29`, subsystem `continuation/return-refused`).
+(`src/auto-reply/continuation/return-refusal.ts:16-36`, subsystem `continuation/return-refused`).
 It logs `[continuation:return-refused] stage=<stage> reason=recipient-authority-changed
 session=<key>[ deliveryId=<id>]`. On the console that line follows the
 `[continuation/return-refused]` tag (`src/logging/subsystem.ts:158-194`), and the structured file log
 keeps `stage`, `reason`, `sessionKey` and `deliveryId` as fields beside the message
-(`return-refusal.ts:26-28`; `subsystem.ts:317-330`). A written row is retired as a bounded `failed`
-receipt (`return-refusal.ts:36-49`).
+(`return-refusal.ts:33-35`; `subsystem.ts:317-330`). A written row is retired as a bounded `failed`
+receipt (`return-refusal.ts:53-66`).
 
 | Boundary | Path at j12′ | On a stale or unauthorized return | Observable reason |
 |---|---|---|---|
@@ -163,17 +221,28 @@ receipt (`return-refusal.ts:36-49`).
 | Dispatch | `continuation/delegate-dispatch.ts:267-290` | custody failed, owner notice, no child | log `[continuation:delegate-rejected] policy.cross_session_targeting ... session=<dispatcher>`; `continuation.disabled` span with `disabledReason` |
 | Routing | `subagent-announce.continuation-return.ts:98-215` | delivers to the current recipients only; wakes them unless the mode is silent (`:175`) | `[continuation:targeted-return] Delivered to <keys> from <child>` names only delivered recipients, and is **not logged at all** when every recipient was refused (`:189-203`) |
 | Enqueue, before the row | `continuation/targeting.ts:277-280` (reporter `:261-276`) | refused, no row, no wake | `stage=enqueue`, **no** `deliveryId` |
-| Enqueue, after the row | `targeting.ts:313-347`, `358-374` (refused at `:343-347`, `:369-374`) | row retired as a `failed` receipt, queued event removed | `stage=enqueue deliveryId=<row>` |
+| Enqueue, after the row | `targeting.ts:313-347`, `358-374` (refused at `:343-347`, `:369-374`); a current return queues an adoption-scoped event (`:322-341`) and requests a wake (`:395-403`) | row retired as a `failed` receipt, queued event removed | `stage=enqueue deliveryId=<row>` |
 | Wake handoff | `continuation-wake.ts:127-256`; 250 ms after the request (`:41`, `:106`); authority read `:163-171` | `settleStaleSystemEventAuthority` retires it (`:233-243` -> `session-system-event-adoption.ts:118-147`) | `stage=wake deliveryId=<row>` |
 | Prompt drain | `reply/session-system-events.ts:192-207`; final adoption re-checks under writer admission (`session-system-event-adoption.ts:191-211, 248-270`) | refused before formatting | `stage=prompt-drain deliveryId=<row>` |
-| Durable replay (45-75 s pending sweep, boot recovery) | `server-restart-sentinel-delivery.ts:263-281, 307-329` -> `refuseStaleAuthorityReplay` `:50-76`; sweep `session-delivery-queue-runtime.ts:52-66, 143-149`; boot `server-restart-sentinel.ts:80-97, 138-153` | **defers** while the row has a queued copy in memory (`:61-65`); otherwise refused and dead-lettered with its receipt kept (`:72-75`) | `stage=replay deliveryId=<row>` (`:66-71`), plus the sweep's `dead-letter decision for entry <row>` warn (`session-delivery-queue-recovery.ts:164-166`) |
+| Durable replay (45-75 s pending sweep, boot recovery) | `server-restart-sentinel-delivery.ts:263-281, 307-329` -> `refuseStaleAuthorityReplay` (`server-restart-sentinel-delivery.ts:50-76`); sweep `session-delivery-queue-runtime.ts:52-66, 143-160`; boot `server-restart-sentinel.ts:80-97, 138-153` | **defers** while the row has a queued copy in memory (`server-restart-sentinel-delivery.ts:61-65`); otherwise refused and dead-lettered with its receipt kept (`server-restart-sentinel-delivery.ts:72-75`) | `stage=replay deliveryId=<row>` (`server-restart-sentinel-delivery.ts:66-71`), plus the sweep's `dead-letter decision for entry <row>` warn (`session-delivery-queue-recovery.ts:164-166`) |
 | Settlement | `session-delivery-queue-recovery.ts:152-215` | refused: `moved-to-failed` with a bounded receipt (`:161-180, 208-213`); adopted: `recovered` (`:156-160`) | none public: health's failed count excludes the receipt (`delivery-queue-sqlite.kernel.ts:397-429`) |
-| Adoption | `managed-delivery-turn-lifecycle.ts:107-111` writes `__openclaw.sessionDeliveryAckIds`; read back at `session-system-event-adoption.ts:53-71` | n/a | `chat.history` hides the wake's own rows, so a wake's adoption is read from the primed target's `TARGET-ACK`, and a probe turn's from the marker on its visible row (`chat-display-projection.sanitize.ts:442-475`) |
+| Adoption | the turn input carries the ids (`managed-delivery-turn-lifecycle.ts:107-111`), written to the row as `__openclaw.sessionDeliveryAckIds` (`src/sessions/user-turn-transcript.metadata.ts:102-104`); read back at `session-system-event-adoption.ts:53-71` | n/a | `chat.history` hides the wake's own rows, so a wake's adoption is read from the primed target's `TARGET-ACK`, and a probe turn's from the marker on its visible row (`chat-display-projection.sanitize.ts:442-475`) |
 
-j12's `session event delivery skipped: recipient authority changed` and `... wake skipped ...` lines,
-and its empty-list `Delivered to  from <child>` line, are gone at j12′. The row's matcher refuses
-them (tests in `scripts/__tests__/recipient-authority-row.test.mjs` and
-`tests/recipient-authority-dry-run.test.mjs`).
+### Where a kept `continue_work` wake is bound, checked and refused
+
+A refused kept wake has its own reporter: `return-refusal.ts:38-46`, subsystem
+`continuation/work-refused`. It logs `[continuation:work-refused] stage=<replay|wake|adoption>
+reason=<recipient-authority-changed|recipient-authority-unverifiable> session=<key> flowId=<id>` on
+the console behind the `[continuation/work-refused]` tag, with the same fields in the file log
+(`:45`). `recipient-authority-unverifiable` is only for a record elected before the binding existed
+(`work-recipient-authority.ts:69-93`); a bound one is refused as changed.
+
+| Boundary | Path at j12′ | On a stale binding | Observable reason |
+|---|---|---|---|
+| Election (capture) | `work-dispatch.ts:631-740`; the capture at `:662-665` precedes `electedAt` (`:667`) and the due time (`:668`); an election inside its turn is anchored to the turn's finalization (`work-store.ts:315-365`) | a failed capture elects nothing | none |
+| Replay (custody boot) | `custody-boot.ts:107-114` -> `work-recipient-authority.ts:159-171` | refused before startup recovery drives it | `stage=replay` |
+| Wake handoff | the work timer drives the dispatcher with no busy check first (`work-dispatch.ts:169-199`), which claims the due record (`work-store.ts:213-313`) and refuses a stale binding at `work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`, before the busy, fold and grant branches (`work-dispatch.ts:573-627`) | the record fails with no notice (`work-recipient-authority.ts:133-141` -> `work-store.ts:639-655`) and its custody is released; it is never claimed again (`work-store.ts:226, 260`) | `stage=wake` |
+| Adoption | `work-dispatch-execution.ts:267, 450`, before the turn-start fence (`:270-276`) and the fold note | refused; reached only when the handoff could not read the authority (`work-recipient-authority.ts:116-124`) | `stage=adoption` |
 
 ## The cases
 
@@ -190,16 +259,20 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 | `revoked-visibility` | `session.visibility.set` to `read-only` after the return parked | silent | `stage=prompt-drain`: the sweep defers to the queued copy (`server-restart-sentinel-delivery.ts:61-65`), and the probe turn's drain refuses it (`session-system-events.ts:192-207` -> `session-system-event-adoption.ts:118-147`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the probe was sent | no `Delivered to` for it once the transition settled, no adoption marker, no ack, no woken run, no return marker, an answered probe turn, no parent landing |
 | `revoked-membership` | `session.members.add` before dispatch, `session.members.remove` after the return parked | silent | `stage=prompt-drain`, as above | as above | as above |
 | `revoked-owner` | the `sessions` tool `assign_owner` (agent `main`) from an operator session, after the return parked | silent | `stage=prompt-drain`, as above | as above | as above |
-| `reassigned` | `sessions.delete` then `sessions.create` of the same key, after the return parked | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:194-196`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the transition | as above |
+| `reassigned` | `sessions.delete` then `sessions.create` of the same key, after the return parked | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:202-203`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | `[continuation:return-refused]` for the target, with a `deliveryId`, after the transition | as above |
 | `wake-revoked-visibility` | `session.visibility.set` to `read-only` after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`: the router's first authority read refuses it before any row (`targeting.ts:277-280`) | `[continuation:return-refused]` for the target, with **no** `deliveryId`, after the transition | no `Delivered to` line for it at all, and the rest as above: no adoption, ack, wake turn or final effect |
 | `wake-reassigned` | `sessions.delete` then `sessions.create` of the same key, after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`, as above | as above | as above |
+| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); once the election is captured, `session.visibility.set` to `read-only` on that session, before the wake is due | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), no adoption marker, an answered probe turn |
 | `replay-restart` | `session.visibility.set` after the return parked, then a supervised restart before any prompt | silent | `stage=replay` on the replacement: no copy survives the restart, so its boot recovery refuses the row (`server-restart-sentinel.ts:138-153` -> `server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | as `reassigned`, from the replacement generation, after the restart | as above, on the replacement |
 
 "Parked" means the router's `Delivered to <target>` line precedes the transition: the return was
 admitted while current and sits un-adopted (mode silent does not wake). A wake-mode case is the
 opposite: its transition settles before the delegate's delay ends, so its return is never routed.
 The control samples the epoch every 500 ms: captured after the `scheduled` toolResult and strictly
-before the transition, again after it, and at the end.
+before the transition, again after it, and at the end. For `work-revoked-visibility` the capture
+follows the `scheduled` toolResult. Only the capture and the case's own transition write that
+session's row, so the first sample holding it is the capture, and the sample before it, without the
+row, bounds it from below.
 
 **One stage per case.** Each refused return's stage comes from where its queued copy is when its
 epoch advances. The bytes allow exactly one first refusal per case:
@@ -207,14 +280,22 @@ epoch advances. The bytes allow exactly one first refusal per case:
 - `revoked-visibility`, `revoked-membership`, `revoked-owner`: none of these RPCs touches the
   target's queued events (`sessions-sharing.ts`, `session-accessor.sqlite-owner.ts`), so the sweep
   defers to the copy and only a prompt drain can see it. The disposable target has no turn until
-  the probe.
+  the probe. Nothing the merge added drains it earlier: wake admission refuses only work wakes, and
+  the reset's re-arm and maintenance never touch a return another session owes this one.
 - `reassigned`: the delete consumes the copy, so no drain can see it and the sweep refuses the row.
+  At j12′ a delete still cancels the session's own custody and consumes its queued events
+  (`session-reset-cleanup.ts:171-175, 202-203`); only `/new` and `/reset` keep queued elections.
   The scenario waits two sweep periods (`OPENCLAW_RCD_RA_SWEEP_WAIT_MS`, 160 s) before its probe.
   A sweep that came later would still refuse at `replay`.
 - `wake-revoked-visibility`, `wake-reassigned`: the epoch has advanced before the child returns,
   so the router's first read refuses it.
+- `work-revoked-visibility`: the replay sweep runs only at custody boot, and no restart comes
+  between election and wake. The handoff reads the authority before any busy, fold, admission or
+  fence decision. So the first boundary to see the wake is the handoff, and once refused the record
+  is failed and seen by no later boundary.
 - `replay-restart`: the old generation never prompts the target, and its sweep defers to the copy,
-  so the first boundary to see the row is the replacement's boot recovery.
+  so the first boundary to see the row is the replacement's boot recovery. Custody boot's new
+  `continue_work` replay sweep reads only work records, and the case has none.
 
 The first line naming the target must carry that stage. One later line is possible, and only in
 the prompt-drain cases: a `replay` line naming the same row. The pending sweep may load the row
@@ -223,7 +304,9 @@ event before it reports (`session-system-event-adoption.ts:125-146`). `refuseSta
 checks only the queued copy (`server-restart-sentinel-delivery.ts:61-71`), so the sweep then reports
 the row once more. The lib names this as `laterStages: ['replay']` for those three cases. Any other
 first stage, any other later stage, another row, or a row-less line where the stage writes one
-leaves the case MISSING (`refusal-stage-mismatch`, `reason-delivery-id-ambiguous`).
+leaves the case MISSING (`refusal-stage-mismatch`, `reason-delivery-id-ambiguous`). For
+`work-revoked-visibility`, every line must be `stage=wake` and name the one election
+(`refusal-stage-mismatch`, `reason-flow-id-ambiguous`).
 
 **How absence is observed.** `chat.history` hides the wake's own rows, but it keeps the product's
 adoption marker, `__openclaw.sessionDeliveryAckIds`, on a visible row
@@ -234,19 +317,98 @@ and probe, where the marker must show. Without it the row cannot pass, because t
 "no marker" would be unproven. A wake turn's own rows stay hidden, so a wake is read from its
 visible assistant rows (a woken run that is neither priming nor probe).
 
+For `work-revoked-visibility`, the electing run plays the priming run's part: it is the one run
+excluded, because the model may quote its own reason there. Any other assistant run but the
+probe's is a wake turn. The wake's reason asks for `RCDRA-WOKE <nonce>`, so a wake that ran would
+leave a visible row. That marker is counted nowhere, so a model repeating it in the probe turn
+decides nothing. Adoption into the probe turn is ruled out by the bytes, not by a marker: the work
+line is logged only after the record failed, a failed record is never claimed again, and the line
+must precede the probe (`reason-not-before-probe`).
+
+## The merged head's other lanes on the row's gateway
+
+The six lanes merged after `e9dc1c31` were checked for any change to a case's outcome or oracle on
+the row's isolated gateway. None changes one; the setup below rules out the one that could.
+
+- **keeps-queued-2 (`/new` and `/reset` keep queued elections).** The reset's runtime cleanup now
+  ends only the replaced head's custody (`retireReplacedHeadContinuations`,
+  `session-reset-cleanup.ts:171-175`; reason passed at `session-reset-service.ts:560-566`) and re-arms
+  what it kept (`session-reset-continuation-retention.ts`, `rearmKeptContinuations`). Both read
+  custody by `ownerSessionKey`, and a row target owns none: the delegate's custody is the parent's.
+  So `allowed-across-reset` is unchanged: no epoch writer is on the reset path, the return is still
+  adopted by the re-primed successor, and its oracle (epoch unchanged, one ack) holds. A delete is
+  unchanged (`cancelSessionContinuations`, queued events consumed), so `reassigned` and
+  `wake-reassigned` keep their stages.
+- **The turn-start fence (`0b22be19`).** It is written only for a claimed `continue_work` wake that
+  passed the handoff and adoption checks (`work-dispatch-execution.ts:266-276`,
+  `work-store.ts:97-146`). No delegate case elects a work wake, and `work-revoked-visibility`'s wake
+  is refused at the handoff before any fence. It changes no case.
+- **Wake admission (a busy session refuses a work wake, `c25d1a77`).** Reply admission refuses only
+  `continuationTrigger === "work-wake"` (`get-reply-run-admission.ts:513-522`). That trigger is set
+  only by the work dispatcher (`work-dispatch-execution.ts:327`) and by a generated-media completion
+  the row never drives. A delegate return wakes as `delegate-return`, and a probe is an ordinary
+  `sessions.send`, so the probe turn can make no case's wake refused. The only work wake in the row
+  is refused at the handoff first (`work-dispatch.ts:529`), whether or not its session is busy. Its
+  probe is still sent only after the wake was due: while any turn of that session is active, the
+  anchor is not finalized (`work-store.ts:329-334`), so an early probe could only move the refusal
+  after the probe (MISSING, never FAIL).
+- **#1544 maintenance custody (`984f4e1f`).** Session-store maintenance now preserves every
+  session that holds live custody (`subagent-registry-maintenance.ts:47-65`): an election's owner,
+  an admitted child's requester and bound recipients, and any session a pending continuation row is
+  addressed to (`session-delivery-queue-storage.ts:687-706`). At its defaults (`enforce`,
+  `maxEntries` 5000, `pruneAfter` 30 days, a 10 GiB disk budget, `store-maintenance.ts:26-34`)
+  maintenance cannot evict a row session: a fresh isolated state holds a few dozen entries, and a
+  run lasts under an hour. With a lowered `session.maintenance`, a session that holds no custody at
+  the time (a target before its child is admitted, a target after its row settled, an ops session)
+  could be evicted. That deletion would advance its epoch. Every such case fails a premise (an
+  allowed case `epoch-advanced-premise-broken`, a parked case `refusal-stage-mismatch`) and is
+  MISSING, never FAIL. **Pinned setup:** the operator procedure leaves `session.maintenance` at its
+  defaults.
+- **The burning annex and annex crash gating (`9cb07314`).** They change how a reset's kept
+  delegates are re-armed and how claims a crash left unresolved end
+  (`delegate-dispatch-recovery.ts`, `rearmPendingContinuationDelegates`), both keyed by the owner
+  session. No case resets a parent or crashes a gateway (`replay-restart` is a supervised restart
+  after the delegate fired).
+
 ## Cites re-walked at the merged j12′
 
-These depend on the reset path or on `continue_work`, which `keeps-queued-2` and the `continue_work`
-authority binding change. 🌿 re-walks them at the merged head:
+Every `path:line` cite in this doc, the scenario header and the lib was re-read at `1ab5a73e` with
+`git show` / `git grep`. Only six cited files changed from `e9dc1c31`:
 
-- `allowed-across-reset` and every `sessions.reset` cite: `sessions-mutations.ts:593-678`,
-  `session-reset-service.ts:651-737, 751, 1032-1043`, and the reset's consumption of queued events
-  (`session-reset-runtime-state.ts:11-51`, `session-reset-cleanup.ts:146-196`, shared with
-  `sessions.delete`, so also `reassigned` and `wake-reassigned`).
-- The reset hold on a return written while a reset replaces the head: `targeting.ts:319-321, 348-356`
-  and the replay's `server-restart-sentinel-delivery.ts:238-262`.
-- `continue_work`: the row drives no `continue_work`, and none of its cites are on it. Recheck that
-  this still holds once the authority binding lands.
+- `return-refusal.ts`
+- `session-reset-cleanup.ts`
+- `session-recipient-authority-types.ts`
+- `session-recipient-authority.worker.ts`
+- `session-reset-service.ts`
+- `session-delivery-queue-storage.ts`
+
+The rest are byte-identical. The re-read also found ranges in unchanged files that never covered
+their claim; those are corrected here and marked as such.
+
+| Cite (at `e9dc1c31`) | At `1ab5a73e` | What it affects |
+|---|---|---|
+| `return-refusal.ts:15-29` (reporter), `:16`, `:18`, `:20-29`, `:26-28`, `:28`, `:15` | **moved** to `:16-36`, `:17`, `:24`, `:27-36`, `:33-35`, `:35`, `:16`; the line, its subsystem and its fields are unchanged | nothing: the matcher reads the same line. The file **gained** the `continue_work` reporter `:38-46` (subsystem `continuation/work-refused`), which the new case reads |
+| `return-refusal.ts:36-49` (failed receipt) | **moved** to `:53-66` | nothing |
+| `session-reset-cleanup.ts:146-196`, consumed at `:194-196` | **moved** to `:149-227`, consumed at `:202-203`; **changed in meaning** for `/new` and `/reset`: they end only the replaced head's custody (`:171-175`) | `allowed-across-reset`: none (the target owns no custody; no epoch writer). `reassigned`, `wake-reassigned`: none (a delete still cancels and consumes) |
+| `session-reset-service.ts:651-737, 751, 1032-1043` | **unchanged** lines; the incognito block runs to `:741` (range corrected). The file changed at `:392` and `:560-566`: the cleanup takes the entry and the reason `delete` for an incognito reset | `allowed-across-reset`: none; rotation is still `resetSessionEntryLifecycle` with no epoch writer |
+| `sessions-mutations.ts:593-678` (`sessions.reset`) | **unchanged** | none |
+| `session-reset-runtime-state.ts:11-51` | **unchanged**; it passes the cleanup reason through (`:36-43`) | none |
+| `targeting.ts:319-321, 348-356` (reset hold) | **unchanged** | none |
+| `server-restart-sentinel-delivery.ts:238-262` (reset hold at replay) | **unchanged** | none |
+| `session-recipient-authority-types.ts:87-92` (match), `:66-99` (rank) | **moved** to `:96-101`, `:75-108`; the row type gained `createdAt`/`updatedAt` (`:66-73`) for unbound work records | none for returns: `withCurrentSessionRecipientAuthority` now wraps the verdict reader with the same rule (`session-recipient-authority-current.ts:174-187`) |
+| `session-recipient-authority.worker.ts:35-50` (capture) | **moved** to `:36-56`; the read returns the row's write times | none |
+| `session-delivery-queue-storage.ts:274-279` (row id) | **moved** to `:275-280` | none |
+| `sessions-mutations.ts:343-470` (`sessions.assignOwner`) | unchanged file; range **corrected** to `:343-518` (the writer call is at `:473-486`) | none |
+| `server-methods/config.ts:798-850` (`config.patch`) | unchanged file; range **corrected** to `:798-980` (the write is at `:955-979`) | none |
+| `session-delivery-queue-runtime.ts:143-149` (sweep) | unchanged file; range **corrected** to `:143-160` (the 45-75 s delay is at `:150-151`) | none |
+| `register-restart-handoff.ts:42-61` | unchanged file; range **corrected** to `:41-74` (the consume call is at `:62`) | none |
+| `targeting.ts:395-403` ("queues an event and requests a wake") | unchanged file; **corrected**: the event is queued at `:322-341`, the wake requested at `:395-403` | none |
+| `managed-delivery-turn-lifecycle.ts:107-111` ("writes the marker") | unchanged file; **corrected**: it builds the turn input; the marker is written by `src/sessions/user-turn-transcript.metadata.ts:102-104` | none |
+| `continuation-tracer.ts:178-204` ("with no session identity") | unchanged file; **corrected**: the drain span has none, the fanout span carries 12-hex SHA-256 prefixes of recipient keys (`:194-197`, `:1000-1010`) | none: no case drives a fanout span and the control collects none |
+| bare `:61-65`, `:66-71`, `:72-75` in the durable-replay row; bare `:436-449` in the scenario header | they resolved to the wrong file; now named (`server-restart-sentinel-delivery.ts`, `continue-delegate-tool.ts`) | none |
+| `continuation-wake.test.ts:654` (stage=wake pin) | **unchanged**; re-proven at `1ab5a73e` (above) | none |
+| every other cite | **unchanged** (file byte-identical since `e9dc1c31`, lines re-read) | none |
+| `continue_work` | the row cited none at `e9dc1c31`; it now cites the binding (the tables above) and drives one case | `work-revoked-visibility` |
 
 ## What ClawSweeper asked for, case by case
 
@@ -254,30 +416,30 @@ ClawSweeper's standing review on openclaw/openclaw#129388 (comment 5442236054) a
 "allowed-recipient and revoked/reassigned-recipient proof, including restart replay", and under
 Security: "allowed delivery and rejection after revocation or reassignment still need evidence
 through prompt adoption, wake, and restart replay". The map on docs#536 (comment 6597622114) lists
-the items. Its update (comment 6599896374) records the j12 finding behind j12′, that a wake-path
-refusal had no reason to observe, and says the row re-anchors to j12′, where the wake-mode refusal
-becomes provable.
+the items. Its update (comment 6599896374) records the j12 finding behind j12′: a wake-path refusal
+had no reason to observe. It also records that the row re-anchors to j12′, where the wake-mode
+refusal becomes provable.
 
 | ClawSweeper item | Cases |
 |---|---|
 | Real behavior proof: allowed vs revoked/reassigned recipients, incl. restart replay, through adoption, wake, final effects | `allowed`, `revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`, `wake-revoked-visibility`, `wake-reassigned`, `replay-restart` |
-| Security: prove stale recipient rejection before final effects | every refusal case: the reason at its pinned stage and no adoption, ack, wake or final effect |
+| Security: prove stale recipient rejection before final effects | every refusal case: the reason at its pinned stage and no adoption, ack, wake or final effect. `work-revoked-visibility` answers it for the other durable election j12′ binds, a kept `continue_work` wake (no ClawSweeper item names `continue_work`, so it is listed here and claimed for no returns item) |
 | P1: durable returns outliving admission; rejection unproven at prompt, wake, delivery, restart replay | prompt: `revoked-visibility`, `revoked-membership`, `revoked-owner` (`stage=prompt-drain`); wake: `wake-revoked-visibility`, `wake-reassigned` (a wake-mode return refused at `stage=enqueue`, never woken, no `Delivered to`); delivery: `reassigned` (`stage=replay` by the sweep), `unauthorized-dispatch` (accepted, then refused at dispatch); restart replay: `replay-restart` (`stage=replay` on the replacement) |
-| P1: accepted-child survival, reset | `allowed-across-reset` (reset is not an authority edge at j12′; re-walked at the merged head) |
+| P1: accepted-child survival, reset | `allowed-across-reset` (reset is not an authority edge at j12′; re-derived at the merged head, where a reset keeps queued elections) |
 | Allowed delivery through prompt adoption | `allowed-silent` (adopted by a prompt drain, with the product's marker), `allowed` and `allowed-across-reset` (adopted by the wake) |
 | Unauthorized recipient | `unauthorized-admission`, `unauthorized-dispatch`: the only admission refusal j12′ has |
-| Not answered here | a refusal at the wake handoff itself (`stage=wake`, see "does not prove"); "settled as refused" from the record (no public reader); compaction, session-id rollover and late materialization; fresh install and upgrade |
+| Not answered here | a return refused at the wake handoff itself (`stage=wake`, see "does not prove"); a kept wake refused at replay or adoption, or by another handover; "settled as refused" from the record (no public reader); compaction, session-id rollover and late materialization; fresh install and upgrade |
 
 ## Verdict rules
 
 `lib/recipient-authority-row.mjs` grades each case record, and the row from all of them:
 
-- A record that is not this row's, names another candidate than j12′ (j12 included), lacks a gate
-  (j12′ build, isolated state, model sign-in, cross-session policy enabled, gateway started by the
-  control), whose listener was not the control's own process at every 500 ms sample and case
-  boundary, or whose evidence is not bound to the control's run is **MISSING-candidate**, and
-  nothing else about it is judged. So is a case whose scenario recorded any refusal or whose methods
-  were not all advertised.
+- A record that is not this row's, names another candidate than j12′ (j12 and the interim
+  `e9dc1c31` included), lacks a gate (j12′ build, isolated state, model sign-in, cross-session
+  policy enabled, gateway started by the control), whose listener was not the control's own process
+  at every 500 ms sample and case boundary, or whose evidence is not bound to the control's run is
+  **MISSING-candidate**, and nothing else about it is judged. So is a case whose scenario recorded
+  any refusal or whose methods were not all advertised.
 - A transition that did not take effect (its RPC failed, or a revocation left the epoch unchanged)
   is MISSING, and nothing the return then did is judged a contradiction: adopting a still-current
   return is correct.
@@ -311,42 +473,60 @@ becomes provable.
   `replay-restart`. j12's lines are no reason. So is a revoked
   case whose return was not parked before the transition, or whose transition did not advance the
   epoch.
+- `work-revoked-visibility` has its own rules (`gradeWorkRefusalCase`), after the same gates:
+  - **MISSING**, never FAIL, when its premise fails: no electing run recorded, another
+    `continue_work` or a `continue_delegate` call, no capture seen in the store
+    (`capture-unobserved`) or none before the transition (`capture-not-before-transition`), a
+    transition that settled after the earliest due time (the sample before the capture plus the
+    reported delay less one second, `transition-not-before-wake`), an epoch the transition did not
+    advance, or a wake turn already before the transition;
+  - **MISSING** without its reason: j12′'s work line for the session after the transition, at
+    `stage=wake` on every line, with `recipient-authority-changed` (an unbound record's
+    `recipient-authority-unverifiable` is not this case's), naming one election, logged before the
+    probe was sent; or without an answered probe;
+  - **FAIL** once the premise holds: a wake turn (`target-woken`) or an adoption marker
+    (`refused-work-adopted`). It fires nothing, so it owes no trace.
 - A residual condition is **PARTIAL-candidate**: a policy change not restored, cleanup incomplete,
   or a fired delegate's Tempo trace not correlated (`trace-receipt-pending`). The trace counts only
   from a `continuation-trace-correlation.json` of this row whose reason hash and length are the
   case's and whose `traceJson` names its own `traceId`. The collector does not sign it, so the fold
   review checks the trace file itself.
-- The row is the minimum over all twelve cases. A case without a verified receipt is MISSING, so
+- The row is the minimum over all thirteen cases. A case without a verified receipt is MISSING, so
   the row is MISSING until every case runs. Receipts from different runs are MISSING, and an
   unverified receipt or two disagreeing receipts of one case cap it at PARTIAL.
 
 ## Operator procedure
 
-For the owner who runs it on an isolated proof gateway after j12′ deploys, once the merged j12′
-replaces the interim pin. Never against a live seat.
+For the owner who runs it on an isolated proof gateway at the merged j12′, `1ab5a73e`. Never
+against a live seat, and never at the interim `e9dc1c31`.
 
-1. **Stage j12′.** Build a validated stage-only runtime at `e9dc1c318a2f73fd01755fc4682fa3349e8a0e94`
+1. **Stage j12′.** Build a validated stage-only runtime at `1ab5a73e14309922fa79edf4f93034bdb0acde62`
    (its `dist/build-info.json` commit must be j12′) on your own architecture.
 2. **Set up the isolated gateway** with frond-scribe `scripts/proof-gw/composite-launcher.sh`:
-   `setup <j12′> <j12′>`, then `login` and `login-finish` (or `adopt-auth` from a previous isolated
-   gateway). Its `receipts/isolated-auth-status.json` must show an OpenAI profile under its own state.
+   `setup 1ab5a73e14309922fa79edf4f93034bdb0acde62 1ab5a73e14309922fa79edf4f93034bdb0acde62`, then
+   `login` and `login-finish` (or `adopt-auth` from a previous isolated gateway). It lives at
+   `$HOME/proof-gw/comp-1ab5a73e`. Its `receipts/isolated-auth-status.json` must show an OpenAI
+   profile under its own state.
 3. **Enable continuation and cross-session targeting** in that gateway's own `openclaw.json`
    (`agents.defaults.continuation.enabled: true`, `crossSessionTargeting: "enabled"`), and leave
    `gateway.reload.mode` anything but `off`: with reload off, `config.patch` saves the policy without
    applying it (`config-write-flow.ts:214-226`). The control refuses a disabled policy and reload
    off. It never edits the file itself, and the unauthorized cases change the policy only through
-   `config.patch` and restore it.
-4. **Stop it**: `composite-launcher.sh stop <j12′> <j12′>`. The control refuses a running unit or a
-   busy port, and starts the gateway itself.
+   `config.patch` and restore it. **Leave `session.maintenance` at its defaults**: a lowered entry
+   cap, prune age or disk budget could evict a row session that holds no custody
+   ([above](#the-merged-heads-other-lanes-on-the-rows-gateway)).
+4. **Stop it**: `composite-launcher.sh stop 1ab5a73e14309922fa79edf4f93034bdb0acde62
+   1ab5a73e14309922fa79edf4f93034bdb0acde62`. The control refuses a running unit or a busy port, and
+   starts the gateway itself.
 5. **Make an observer key** outside `$HOME/proof-gw`, mode 0600, at least 32 characters. The gateway
    never sees it.
 6. **Run the control** from a clean docs checkout at the reviewed docs SHA, with k6 v2.0.0 on PATH:
 
    ```bash
    node tools/k6-proofs/scripts/run-recipient-authority-row.mjs \
-     --proof-gw-dir "$HOME/proof-gw/comp-e9dc1c31" \
+     --proof-gw-dir "$HOME/proof-gw/comp-1ab5a73e" \
      --stage-dir <j12′-stage> \
-     --candidate e9dc1c318a2f73fd01755fc4682fa3349e8a0e94 \
+     --candidate 1ab5a73e14309922fa79edf4f93034bdb0acde62 \
      --docs-sha <40-hex docs SHA> \
      --artifact-dir "$HOME/proof-runs/rra-<UTC>/public" \
      --observer-key-file <key> --seat <seat> --json
@@ -356,35 +536,37 @@ replaces the interim pin. Never against a live seat.
    `OPENCLAW_RCD_RA_DELAY_SECONDS` (30), `_PARK_MS` (15000), `_SWEEP_WAIT_MS` (160000, two sweep
    periods), `_WINDOW_MS`, `_POLL_MS`, `_BOOT_WAIT_MS`, `_DUPLICATE_WAIT_MS`, `_SAMPLE_GAP_MS`
    (2000, also the wake-mode cases' wait before their transition, which must stay well inside the
-   delay). A refusal prints the refusal JSON and exits 2 before anything starts. The control reads
-   the gateway's console, where both the router's line and the refused-return line land at their
-   default levels.
+   delay) and `_CAPTURE_WAIT_MS` (8000, `work-revoked-visibility`'s wait after its `scheduled`
+   result for the election's capture, which must also stay well inside the delay). A refusal prints
+   the refusal JSON and exits 2 before anything starts. The control reads the gateway's console,
+   where the router's line and both refusal lines land at their default levels.
 7. **Collect each fired delegate's trace** with `collect-continuation-trace.mjs --run-dir
    <artifact-dir>.private/<case> --manifest tools/k6-proofs/manifests/r-cd-recipient-authority.json
    --seat <seat>` (the case's `evidence.jsonl` is there), and copy `continuation-trace-correlation.json`
-   and the public trace into `<artifact-dir>/<case>/`.
+   and the public trace into `<artifact-dir>/<case>/`. The unauthorized cases and
+   `work-revoked-visibility` fire nothing and owe none.
 8. **Grade the row**: `node tools/k6-proofs/scripts/run-recipient-authority-row.mjs --grade-row
    <artifact-dir> --observer-key-file <key>`. Exit 0 only for PASS-candidate.
 9. **Publish the public directory only**, copied to
-   `PROOFS/e9dc1c318a2f73fd01755fc4682fa3349e8a0e94/R-CD-RECIPIENT-AUTHORITY/<seat>/authority-row-<UTC>/`
-   (at the merged j12′ SHA once the pin moves). The artifact directory lives outside the repository
-   because `<artifact-dir>.private` sits beside it: raw evidence, gateway logs, session keys and
-   delivery ids, never part of the corpus. Folding is a reviewed coordinator step at j12′.
+   `PROOFS/1ab5a73e14309922fa79edf4f93034bdb0acde62/R-CD-RECIPIENT-AUTHORITY/<seat>/authority-row-<UTC>/`.
+   The artifact directory lives outside the repository
+   because `<artifact-dir>.private` sits beside it: raw evidence, gateway logs, session keys,
+   delivery ids and flow ids, never part of the corpus. Folding is a reviewed coordinator step at j12′.
 10. **Shred** with `composite-launcher.sh shred` when the review no longer needs the state.
 
-If a case is MISSING for a setup reason (no member identity to add for `revoked-membership`, a model
-that never made the call, a wake-mode transition that settled after the fire), fix the setup and
-rerun the whole row. Each run is a new run id, and the row needs every case from one run: receipts
-from different runs grade it MISSING (`receipts-from-different-runs`). `--cases` runs a subset for
-diagnosis only.
+If a case is MISSING for a setup reason, fix the setup and rerun the whole row. Examples: no member
+identity to add for `revoked-membership`, a model that never made the call, a wake-mode transition
+that settled after the fire, or a `continue_work` capture not seen before its transition. Each run
+is a new run id, and the row needs every case from one run: receipts from different runs grade it
+MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis only.
 
 ## Files
 
 | File | Role |
 |---|---|
-| `manifests/r-cd-recipient-authority.json` | the row manifest (orchestration-required, `disposable-real-process`, interim pin, cases, receipts) |
+| `manifests/r-cd-recipient-authority.json` | the row manifest (orchestration-required, `disposable-real-process`, the merged pin, cases, receipts) |
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, restart, signed receipts, `--grade-row` |
-| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matcher, transcript observation and verdict rules |
-| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, gates, signed receipts |
+| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matchers, transcript observation and verdict rules |
+| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, gates, signed receipts |
 | `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway |

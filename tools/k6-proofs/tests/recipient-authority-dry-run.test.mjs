@@ -88,7 +88,8 @@ function gatewayFor(world) {
         const probe = /probe (\S+):/.exec(message);
         if (probe) {
           // A parked return adopted into the probe turn: the product's marker on the visible user row
-          // (managed-delivery-turn-lifecycle.ts:107-111) and the primed target's ack in the probe run.
+          // (managed-delivery-turn-lifecycle.ts:107-111, written by user-turn-transcript.metadata.ts
+          // :102-104) and the primed target's ack in the probe run.
           const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
           // A refused kept wake that ran anyway: its turn's row, from a run of its own.
           if (world.workWake) push(p.key, say(`RCDRA-WOKE ${nonce}`, 'run-work-wake'));

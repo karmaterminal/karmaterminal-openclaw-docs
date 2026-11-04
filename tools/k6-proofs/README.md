@@ -826,7 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
-| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at j12′, interim pin) | MISSING until an owner runs all twelve cases at j12′; PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 1ab5a73e) | MISSING until an owner runs all thirteen cases at j12′; PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -920,24 +920,28 @@ is old-process restoration, never fresh-successor proof. Raw process output stay
 
 🌊's rulings (room msgs 1567077062139838485 and 1567104742604406896, 2026-11-03; docs#536): a live,
 isolated-gateway row, separate from the restart control above and from the fixture matrix, pinned to
-j12′, the explicit-refusal successor (`e9dc1c318a2f73fd01755fc4682fa3349e8a0e94`, an INTERIM pin
-until the merged j12′ is cut; j12 `352f56029dc9` is the named baseline only). On one disposable
-gateway that `scripts/run-recipient-authority-row.mjs` starts and owns, twelve cases each drive a
-real `continue_delegate` with `targetSessionKey` from a model turn and change the target's
-authority through a public RPC between dispatch and return. `allowed`, `allowed-across-reset` and
+the merged j12′, the explicit-refusal successor (`1ab5a73e14309922fa79edf4f93034bdb0acde62`, gate 3
+at the merged head; j12 `352f56029dc9` is the named baseline only, and the refused chain `e9dc1c31`
+the row's former interim pin). On one disposable gateway that
+`scripts/run-recipient-authority-row.mjs` starts and owns, twelve cases each drive a real
+`continue_delegate` with `targetSessionKey` from a model turn and change the target's authority
+through a public RPC between dispatch and return. `allowed`, `allowed-across-reset` and
 `allowed-silent` (the control for the refusal cases' absence) must be adopted exactly once.
 `unauthorized-admission` and `unauthorized-dispatch` must show the cross-session policy refusal.
-`revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`, `wake-revoked-visibility`,
-`wake-reassigned` and `replay-restart` must each show j12′'s `[continuation:return-refused]` line for
-the target at the case's pinned stage (prompt drain, replay or enqueue), no `Delivered to` line for
-the return once its transition settled, and no adoption (the product's own marker), ack, wake or final
-effect. j12's `recipient authority changed` lines never count. The control refuses a candidate other
-than j12′, a non-disposable or live-overlapping target, a missing isolated model sign-in, a disabled
-cross-session policy and any gateway it did not start; the live-run guard refuses the manifest
-(`orchestration-required`). Every case stays MISSING until an owner runs it. See
-[`docs/R-CD-RECIPIENT-AUTHORITY.md`](docs/R-CD-RECIPIENT-AUTHORITY.md) for the j12′ path table, each
-case's stage and the bytes behind it, the cases mapped to ClawSweeper's items and the operator
-procedure.
+`revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`,
+`wake-revoked-visibility`, `wake-reassigned` and `replay-restart` must each show j12′'s
+`[continuation:return-refused]` line for the target at the case's pinned stage (prompt drain, replay
+or enqueue), no `Delivered to` line for the return once its transition settled, and no adoption (the
+product's own marker), ack, wake or final effect. j12's `recipient authority changed` lines never
+count. The thirteenth, `work-revoked-visibility`, elects a `continue_work` wake, which j12′ binds to
+its session's authority, narrows that session's visibility once the election is captured, and must
+show j12′'s `[continuation:work-refused]` line at `stage=wake` and no wake turn or adoption. The
+control refuses a candidate other than j12′, a non-disposable or live-overlapping target, a missing
+isolated model sign-in, a disabled cross-session policy and any gateway it did not start; the
+live-run guard refuses the manifest (`orchestration-required`). Every case stays MISSING until an
+owner runs it. See [`docs/R-CD-RECIPIENT-AUTHORITY.md`](docs/R-CD-RECIPIENT-AUTHORITY.md) for the
+j12′ path table, each case's stage and the bytes behind it, the cases mapped to ClawSweeper's items
+and the operator procedure.
 
 ### Required preflights: R-CW-5A/6A gate R-CW-5/6
 

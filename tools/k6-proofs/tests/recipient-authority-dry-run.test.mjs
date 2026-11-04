@@ -583,20 +583,18 @@ test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own
   // file needs nothing new.
   const { RRA_PROBE_TEXT_SHA256, rraProbeTextProblems } = await import('../lib/recipient-authority-row.mjs');
   const texts = new Set();
+  const receipts = [];
   for (const caseId of RRA_CASE_IDS) {
     const { drive, final, frames, record } = await grade(caseId, { ack: 'wake' });
     const sent = probeFrames(frames).map((frame) => frame.params.message);
+    receipts.push({ caseId, final, sent, record });
     // allowed and allowed-across-reset read the wake's own ack and send no probe; every other case
     // sends exactly one.
     if (RRA_CASES[caseId].family === 'allowed' && !RRA_CASES[caseId].probeAdopts) {
       assert.deepEqual(sent, [], caseId);
-      assert.equal(record.target.probeTextSha256, null, caseId);
       continue;
     }
     assert.deepEqual(sent, [probeTextFor(final.probe_nonce)], caseId);
-    // The receipt names the probe it sent, by the text's hash with its nonce as the slot.
-    assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, caseId);
-    assert.equal(record.target.probeTextSha256, createHash('sha256').update(sent[0].replaceAll(final.probe_nonce, '<probeNonce>')).digest('hex'), caseId);
     const [text] = sent;
     texts.add(text.replaceAll(final.probe_nonce, '<probe nonce>'));
     const rowNonce = drive.nonce;
@@ -614,6 +612,16 @@ test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own
     }
   }
   assert.equal(texts.size, 1, [...texts].join('\n'));
+  // Each receipt names the probe it sent, by the text's hash with its nonce as the slot; a case that
+  // sends no probe names none.
+  for (const { caseId, final, sent, record } of receipts) {
+    if (sent.length === 0) {
+      assert.equal(record.target.probeTextSha256, null, caseId);
+      continue;
+    }
+    assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, caseId);
+    assert.equal(record.target.probeTextSha256, createHash('sha256').update(sent[0].replaceAll(final.probe_nonce, '<probeNonce>')).digest('hex'), caseId);
+  }
 });
 
 test('dry run: a policy patch the gateway rejected stops the case before dispatch and is never FAIL', async () => {

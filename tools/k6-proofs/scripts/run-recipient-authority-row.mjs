@@ -68,6 +68,7 @@ import {
   RRA_PINNED,
   RRA_ROW,
   countRoutedAfter,
+  countSweepsArmed,
   evaluateContinuationConfig,
   evaluateModelSignIn,
   findReason,
@@ -589,6 +590,18 @@ function workEpochs(timeline, key, transition) {
   };
 }
 
+/**
+ * Pending-sweep arming lines while the transition RPC was in flight. A parked row's copy can come
+ * back after a delete consumed it only through a sweep that armed the row in that span
+ * (RRA_CASES.reassigned, otherFirstStages).
+ */
+function sweepAround(logEntries, transition) {
+  const requested = transition.requested_at_ms;
+  const settled = transition.settled_at_ms;
+  if (!Number.isFinite(requested) || !Number.isFinite(settled) || settled < requested) return { armedInTransition: null };
+  return { armedInTransition: countSweepsArmed(logEntries, requested, settled) };
+}
+
 function routingAround(logEntries, keys, transition) {
   const requested = transition.requested_at_ms;
   const settled = transition.settled_at_ms;
@@ -702,6 +715,8 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     routing: spec.family === 'refusal' && spec.expectChild !== false
       ? routingAround(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition)
       : null,
+    // The gateway's pending-sweep lines while the transition was in flight (no session identity).
+    sweep: spec.family === 'refusal' && spec.expectChild !== false ? sweepAround(logEntries, transition) : null,
     epochs: spec.tool === 'continue_work'
       ? workEpochs(timeline, keys.target, transition)
       : {

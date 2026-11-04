@@ -82,8 +82,8 @@ export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
  * whether that line names the refused row (`true`) or no row was written (`false`); `flowId` that
  * the work line names the refused election. `laterStages` names the only stages a later line for
  * the same row may carry, and why. `otherFirstStages` names another first stage the bytes give the
- * case under an ordering the harness can neither prevent nor observe, each with its own bytes and
- * later stages; only `reassigned` has one. `tool` is `continue_work` for the one case that elects a kept
+ * case under an ordering the harness cannot prevent, each with its own bytes, later stages and the
+ * product line that must witness it (`sweepArmedInTransition`); only `reassigned` has one. `tool` is `continue_work` for the one case that elects a kept
  * wake instead of a delegate (graded by gradeWorkRefusalCase). `clawSweeper` quotes the open item
  * on openclaw/openclaw#129388 (comment 5442236054) it answers.
  */
@@ -187,8 +187,9 @@ export const RRA_CASES = Object.freeze({
   // the parked row has no copy left in memory and the pending sweep refuses it. The delete
   // consumes before it commits the epoch advance, so a sweep that replays the row in between
   // re-queues a copy while the epoch is still current, and the probe's drain refuses that copy.
-  // No harness step can keep a sweep out of that window or see it, so the case accepts that
-  // ordering too, with its own bytes (otherFirstStages).
+  // No harness step can keep a sweep out of that window, but every sweep that arms the parked row
+  // logs it, so the case accepts that ordering only with a sweep seen arming during the transition
+  // (otherFirstStages).
   reassigned: Object.freeze({
     family: 'refusal',
     refusedAt: 'replay',
@@ -198,6 +199,10 @@ export const RRA_CASES = Object.freeze({
         // As for the revoked cases: the sweep may load the row just before the probe's drain
         // retires it, find no copy, and report the same row once more.
         laterStages: Object.freeze(['replay']),
+        // The only thing that re-arms a parked row is the pending sweep, which logs each time it
+        // arms one (session-delivery-queue-runtime.ts:332-337, 466, 480-484). Without such a line
+        // inside the transition's span, no sweep could have re-queued the copy: MISSING.
+        sweepArmedInTransition: true,
         bytes: 'a pending sweep replays the row after the delete consumed its copy (session-reset-cleanup.ts:202-203) and before the deletion commits the epoch advance (sessions-delete.ts:514): it reads the epoch current and re-queues the copy (server-restart-sentinel-delivery.ts:263-274, 307-314); later sweeps defer to that copy (server-restart-sentinel-delivery.ts:61-65; session-delivery-queue-runtime.ts:332-337), so the probe turn\'s drain is the first boundary to see it stale (session-system-events.ts:192-207 -> session-system-event-adoption.ts:118-147)',
       }),
     }),
@@ -348,12 +353,12 @@ function workRefusalFromMessage(message) {
 }
 
 /**
- * One refusal line of `subsystem`, from the console or the structured file log, parsed by
+ * One line of `subsystem`, from the console or the structured file log, parsed by
  * `fromMessage`, else null. A console line opens with the subsystem tag (behind at most a
  * timestamp) and the message is the rest of it. A JSON record must be the subsystem's own, and its
  * structured fields, when present, must agree with its message (`agrees`).
  */
-function parseSubsystemRefusalLine(line, { tag, subsystem, consolePattern, fromMessage, agrees }) {
+function parseSubsystemLogLine(line, { tag, subsystem, consolePattern, fromMessage, agrees }) {
   if (typeof line !== 'string' || !line.includes(tag)) return null;
   const text = line.replace(ANSI, '').trim();
   if (text.startsWith('{')) {
@@ -395,7 +400,7 @@ function parseSubsystemRefusalLine(line, { tag, subsystem, consolePattern, fromM
  * is not a refusal line.
  */
 export function parseReturnRefusedLine(line) {
-  return parseSubsystemRefusalLine(line, {
+  return parseSubsystemLogLine(line, {
     tag: RRA_REASON_TEXT['return-refused'][0],
     subsystem: RRA_REFUSED_SUBSYSTEM,
     consolePattern: REFUSED_CONSOLE,
@@ -417,7 +422,7 @@ export function parseReturnRefusedLine(line) {
  * election's custody record; every work refusal names one.
  */
 export function parseWorkRefusedLine(line) {
-  return parseSubsystemRefusalLine(line, {
+  return parseSubsystemLogLine(line, {
     tag: RRA_REASON_TEXT['work-refused'][0],
     subsystem: RRA_WORK_REFUSED_SUBSYSTEM,
     consolePattern: WORK_REFUSED_CONSOLE,
@@ -429,6 +434,47 @@ export function parseWorkRefusedLine(line) {
       (fields.flowId !== undefined && fields.flowId !== parsed.flowId)
     ),
   });
+}
+
+/**
+ * The pending sweep's logger: the gateway's (`gateway`, server-kernel.ts:36) child
+ * `session-delivery-recovery` (server-runtime-services.ts:441). The console drops the `gateway`
+ * prefix from the tag (src/logging/subsystem.ts:62, 106-120).
+ */
+export const RRA_SWEEP_SUBSYSTEM = 'gateway/session-delivery-recovery';
+const SWEEP_ARMED_MESSAGE = /^session delivery: periodic sweep armed ([1-9]\d*) pending (?:entry|entries) that no runtime had scheduled$/u;
+const SWEEP_ARMED_CONSOLE = /^(?:\S+ )?\[session-delivery-recovery\] (session delivery: periodic sweep armed .*)$/u;
+
+function sweepArmedFromMessage(message) {
+  const match = typeof message === 'string' ? SWEEP_ARMED_MESSAGE.exec(message.trim()) : null;
+  return match ? { armed: Number(match[1]) } : null;
+}
+
+/**
+ * The pending sweep's line for the rows it armed, as { armed }, else null: `session delivery:
+ * periodic sweep armed <n> pending entr(y|ies) that no runtime had scheduled`, logged at info
+ * whenever it arms one (session-delivery-queue-runtime.ts:480-484). A parked row whose copy is in
+ * memory is never re-armed by its own drain (:332-337), so every sweep while it is pending arms it
+ * and logs this line (:466).
+ */
+export function parseSweepArmedLine(line) {
+  return parseSubsystemLogLine(line, {
+    tag: 'session delivery: periodic sweep armed ',
+    subsystem: RRA_SWEEP_SUBSYSTEM,
+    consolePattern: SWEEP_ARMED_CONSOLE,
+    fromMessage: sweepArmedFromMessage,
+    agrees: () => true,
+  });
+}
+
+/** Pending-sweep arming lines at or after `fromMs` and at or before `toMs`. */
+export function countSweepsArmed(entries, fromMs, toMs) {
+  let count = 0;
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (typeof entry?.atMs !== 'number' || entry.atMs < fromMs || entry.atMs > toMs) continue;
+    if (parseSweepArmedLine(entry.text)) count += 1;
+  }
+  return count;
 }
 
 /**
@@ -1080,6 +1126,12 @@ export function gradeRecipientAuthorityCase(record) {
       if (spec.refusedAt === 'prompt-drain' || reason.stage === 'prompt-drain') {
         need(isTime(target.probeSentAtMs) && reason.observedAtMs > target.probeSentAtMs, 'reason-not-from-probe-drain');
       }
+      // The other ordering holds only if the product line that makes it possible was seen: a sweep
+      // that armed the parked row while the transition was in flight.
+      if (ordering?.sweepArmedInTransition === true) {
+        const armed = record.sweep?.armedInTransition;
+        need(isCount(armed) && armed > 0, 'no-sweep-armed-in-transition');
+      }
     }
     need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
     if (counted) {
@@ -1211,7 +1263,8 @@ function gradeWorkRefusalCase(record, spec) {
 
 /**
  * Whether a collect-continuation-trace.mjs receipt (continuation-trace-correlation.json) belongs to
- * this case: the continuation schema, this row, and the reason fingerprint the case dispatched.
+ * this case: the continuation schema, this row, the reason fingerprint the case dispatched, and the
+ * delegate mode it dispatched (the collector records the mode it matched the trace by).
  */
 export function traceCorrelationMatches(record, correlation) {
   const dispatch = record?.dispatch ?? {};
@@ -1219,6 +1272,7 @@ export function traceCorrelationMatches(record, correlation) {
     correlation && typeof correlation === 'object' &&
       correlation.schema === 'openclaw.k6.continuation-trace-correlation.v1' &&
       correlation.row === RRA_ROW &&
+      typeof dispatch.delegateMode === 'string' && correlation.delegate?.mode === dispatch.delegateMode &&
       typeof dispatch.reasonHash === 'string' && dispatch.reasonHash.length > 0 &&
       correlation.reason?.hash === dispatch.reasonHash &&
       Number.isSafeInteger(dispatch.reasonLength) && correlation.reason?.length === dispatch.reasonLength &&

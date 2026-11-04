@@ -41,6 +41,7 @@ import {
   matchReasonLine,
   observeTargetTranscript,
   parseReturnRefusedLine,
+  parseSweepArmedLine,
   parseWorkRefusedLine,
   routedFromChild,
   routedToTarget,
@@ -299,6 +300,7 @@ function completeRecord(caseId) {
     // A parked return was routed before its transition; a wake-mode one never was.
     park: { deliveredToTargetAtMs: spec.timing === 'before-return' ? null : 4000 },
     routing: durable ? { duringTransition: 0, afterTransition: 0 } : null,
+    sweep: durable ? { armedInTransition: 0 } : null,
     epochs: { captured: H('a'), afterTransition: spec.transition ? (durable ? H('b') : H('a')) : null, final: durable ? H('b') : H('a') },
     reason: durable ? refusedReason(spec, { observedAtMs: 60000, generation: 0 }) : null,
     config: null,
@@ -600,6 +602,8 @@ test('reassigned: a sweep that re-queued the copy inside the delete leaves a pro
   const drained = (fn = () => {}) => mutate(completeRecord('reassigned'), (r) => {
     r.reason.stage = 'prompt-drain';
     r.reason.stages = ['prompt-drain'];
+    // A pending sweep armed the parked row while the delete was in flight.
+    r.sweep = { armedInTransition: 1 };
     fn(r);
   });
   // The pinned ordering stands: replay, before the probe, with no other line after it.
@@ -607,6 +611,18 @@ test('reassigned: a sweep that re-queued the copy inside the delete leaves a pro
   // The other ordering: the first line is the probe turn's drain, after the probe was sent.
   assert.equal(spec.otherFirstStages['prompt-drain'].bytes.includes('server-restart-sentinel-delivery.ts:263-274, 307-314'), true);
   assert.deepEqual(gradeRecipientAuthorityCase(drained()), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  // Without a sweep seen arming the row while the delete was in flight, nothing could have re-queued
+  // the copy: the drain line is not this ordering's. MISSING, never PASS.
+  for (const sweep of [{ armedInTransition: 0 }, { armedInTransition: null }, {}, null, undefined]) {
+    const unwitnessed = gradeRecipientAuthorityCase(drained((r) => { r.sweep = sweep; }));
+    assert.equal(unwitnessed.verdict, 'MISSING-candidate', JSON.stringify(sweep));
+    assert.deepEqual(unwitnessed.missing, ['no-sweep-armed-in-transition'], JSON.stringify(sweep));
+  }
+  // The pinned replay ordering needs no sweep in the delete, and no other case reads it.
+  assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord('reassigned'), (r) => { r.sweep = null; })).verdict, 'PASS-candidate');
+  for (const caseId of ['revoked-visibility', 'revoked-membership', 'revoked-owner', 'replay-restart']) {
+    assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.sweep = null; })).verdict, 'PASS-candidate', caseId);
+  }
   // The sweep may report the same row once more after the drain retired it.
   assert.equal(gradeRecipientAuthorityCase(drained((r) => { r.reason.stages = ['prompt-drain', 'replay']; r.reason.lines = 2; })).verdict, 'PASS-candidate');
   // A drain line before the probe was sent is no probe turn's drain.
@@ -631,9 +647,16 @@ test('reassigned: a sweep that re-queued the copy inside the delete leaves a pro
     assert.equal(graded.verdict, 'FAIL-candidate', key);
     assert.ok(graded.contradictions.includes(code), key);
   }
-  // The premise is unchanged: a return routed while the delete was in flight is MISSING, never PASS.
+  // The premise is unchanged: a return routed while the delete was in flight, routed only after it
+  // was requested, or whose epoch the delete did not advance is MISSING, never PASS.
   const during = gradeRecipientAuthorityCase(drained((r) => { r.routing.duringTransition = 1; }));
   assert.ok(during.missing.includes('return-routed-during-transition'));
+  const lateRoute = gradeRecipientAuthorityCase(drained((r) => { r.park.deliveredToTargetAtMs = 5500; }));
+  assert.equal(lateRoute.verdict, 'MISSING-candidate');
+  assert.ok(lateRoute.missing.includes('return-not-parked-before-transition'));
+  const sameEpoch = gradeRecipientAuthorityCase(drained((r) => { r.epochs.afterTransition = r.epochs.captured; r.epochs.final = r.epochs.captured; }));
+  assert.equal(sameEpoch.verdict, 'MISSING-candidate');
+  assert.ok(sameEpoch.missing.includes('transition-did-not-advance-epoch'));
   // No other case gains a first stage.
   for (const caseId of durableCases.filter((id) => id !== 'reassigned')) {
     const other = RRA_CASES[caseId].refusedAt === 'prompt-drain' ? 'replay' : 'prompt-drain';
@@ -1441,11 +1464,11 @@ test('case receipts are signed; a tampered or foreign-key receipt does not verif
     for (const caseId of RRA_CASE_IDS) {
       mkdirSync(path.join(dir, caseId));
       writeFileSync(path.join(dir, caseId, 'case-receipt.json'), JSON.stringify(sealCaseReceipt({ ...completeRecord(caseId), trace: null }, key)));
-      const correlation = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json` };
+      const correlation = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json`, delegate: { mode: RRA_CASES[caseId].mode } };
       if (RRA_CASES[caseId].expectChild !== false) writeFileSync(path.join(dir, caseId, 'continuation-trace-correlation.json'), JSON.stringify(correlation));
     }
     assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'PASS-candidate');
-    writeFileSync(path.join(dir, 'allowed', 'continuation-trace-correlation.json'), JSON.stringify({ schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'ffffffffffffffff', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json` }));
+    writeFileSync(path.join(dir, 'allowed', 'continuation-trace-correlation.json'), JSON.stringify({ schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'ffffffffffffffff', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json`, delegate: { mode: 'silent-wake' } }));
     assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'PARTIAL-candidate', 'another case\'s trace is no trace');
     rmSync(path.join(dir, 'reassigned'), { recursive: true });
     assert.equal(gradeRowFromArtifacts(dir, key).verdict, 'MISSING-candidate');
@@ -1453,8 +1476,13 @@ test('case receipts are signed; a tampered or foreign-key receipt does not verif
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
-  const good = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json` };
+  const good = { schema: 'openclaw.k6.continuation-trace-correlation.v1', row: RRA_ROW, reason: { hash: 'abcdef0123456789', length: 120 }, traceId: TRACE_ID, traceJson: `tempo-trace-${TRACE_ID.slice(0, 12)}.json`, delegate: { mode: 'silent-wake' } };
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), good), true);
+  // The trace was matched by the mode the case dispatched, never another case's or the manifest's.
+  assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, delegate: { mode: 'silent' } }), false, 'another mode');
+  assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, delegate: undefined }), false, 'no recorded mode');
+  assert.equal(traceCorrelationMatches(completeRecord('revoked-visibility'), { ...good, delegate: { mode: 'silent' } }), true, 'a silent case');
+  assert.equal(traceCorrelationMatches(completeRecord('revoked-visibility'), good), false, 'a silent case collected as silent-wake');
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, row: 'R-CD-4' }), false);
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceId: undefined }), false, 'no trace id, no trace');
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceJson: 'tempo-trace-000000000000.json' }), false, 'a trace file that is not its own');
@@ -1714,4 +1742,46 @@ test('the control assembles the continue_work case: its capture from the store, 
   // A line before the transition is not searched; a return-refused line is not this case's reason.
   assert.equal(assemble({ logEntries: [{ atMs: 4_000, text: workConsole('wake', key), generation: 0 }] }).reason, null);
   assert.equal(assemble({ logEntries: [{ atMs: 32_000, text: refusedConsole('wake', key), generation: 0 }] }).reason, null);
+});
+
+// The witness for reassigned's prompt-drain ordering: the pending sweep's arming line
+// (session-delivery-queue-runtime.ts:480-484 at 2907e656), logged by the gateway's
+// session-delivery-recovery child (server-runtime-services.ts:441; server-kernel.ts:36), whose console
+// tag drops the gateway prefix (src/logging/subsystem.ts:62, 106-120).
+test('the pending sweep\'s arming line is read from the console or the structured file log, and nothing else', () => {
+  const message = 'session delivery: periodic sweep armed 1 pending entry that no runtime had scheduled';
+  for (const line of [
+    `[session-delivery-recovery] ${message}`,
+    `08:00:00.000 [session-delivery-recovery] ${message}`,
+    `\u001b[90m08:00:00.000\u001b[39m \u001b[36m[session-delivery-recovery]\u001b[39m \u001b[36m${message}\u001b[39m`,
+    JSON.stringify({ time: '2026-11-04T14:23:17.500Z', level: 'info', subsystem: 'gateway/session-delivery-recovery', message }),
+    JSON.stringify({ 0: JSON.stringify({ subsystem: 'gateway/session-delivery-recovery' }), 1: message, _meta: { name: JSON.stringify({ subsystem: 'gateway/session-delivery-recovery' }), logLevelName: 'INFO' } }),
+  ]) assert.deepEqual(parseSweepArmedLine(line), { armed: 1 }, line);
+  assert.deepEqual(parseSweepArmedLine('[session-delivery-recovery] session delivery: periodic sweep armed 3 pending entries that no runtime had scheduled'), { armed: 3 });
+  for (const line of [
+    // Another subsystem quoting the text, a reply echoing it, a partial or a zero count.
+    `[gateway] ${message}`,
+    `[agent/embedded] reply: "${message}"`,
+    `[session-delivery-recovery] session delivery: periodic sweep armed 1 pending entry`,
+    `[session-delivery-recovery] session delivery: periodic sweep armed 0 pending entries that no runtime had scheduled`,
+    JSON.stringify({ subsystem: 'gateway/other', message }),
+    JSON.stringify({ 0: JSON.stringify({ subsystem: 'gateway/other' }), 1: message }),
+    '',
+    undefined,
+  ]) assert.equal(parseSweepArmedLine(line), null, String(line));
+});
+
+test('the control counts sweep arming lines only while the transition was in flight', () => {
+  const evidence = revokedEvidence();
+  const harness = revokedHarness(evidence);
+  const sweepLine = (atMs) => ({ atMs, text: '[session-delivery-recovery] session delivery: periodic sweep armed 1 pending entry that no runtime had scheduled', generation: 0 });
+  const { requested_at_ms: requested, settled_at_ms: settled } = evidence.transition;
+  assert.ok(settled > requested);
+  const assemble = (lines) => assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence, logEntries: [...harness.logEntries, ...lines], timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
+  assert.deepEqual(assemble([]).sweep, { armedInTransition: 0 });
+  assert.deepEqual(assemble([sweepLine(requested), sweepLine(settled)]).sweep, { armedInTransition: 2 }, 'both ends count');
+  assert.deepEqual(assemble([sweepLine(requested - 1), sweepLine(settled + 1)]).sweep, { armedInTransition: 0 }, 'before and after do not');
+  const unsettled = assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: { ...evidence, transition: { ...evidence.transition, settled_at_ms: null } }, logEntries: [sweepLine(requested)], timeline: harness.timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
+  assert.deepEqual(unsettled.sweep, { armedInTransition: null }, 'no span, no count');
+  assert.equal(assembleCaseRecord({ caseId: 'allowed', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence, logEntries: [], timeline: [], generations: [], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 }).sweep, null, 'an allowed case records none');
 });

@@ -122,7 +122,9 @@
  *    target, which drops the copy, so the sweep refuses it (stage=replay), unless a sweep replayed
  *    the row between the delete's consume and its epoch commit (sessions-delete.ts:454, 514) and
  *    re-queued the copy while the epoch was current (server-restart-sentinel-delivery.ts:263-274,
- *    307-314), which the probe turn's drain then refuses (RRA_CASES, otherFirstStages); wake-revoked-visibility
+ *    307-314), which the probe turn's drain then refuses; that sweep logs its arming line while the
+ *    delete is in flight (session-delivery-queue-runtime.ts:480-484), the control records it and
+ *    the grade requires it (RRA_CASES, otherFirstStages); wake-revoked-visibility
  *    and wake-reassigned (silent-wake) transition while the delegate waits to fire, so the router's
  *    first read refuses it with no row and no Delivered to line (stage=enqueue); replay-restart
  *    restarts before any prompt, so the replacement's boot replay refuses it (stage=replay).

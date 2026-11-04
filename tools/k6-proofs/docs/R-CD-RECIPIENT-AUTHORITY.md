@@ -11,12 +11,15 @@ and what the docs head after `935898d1` does about each
 ([the misses](#the-live-runs-misses-at-2907e656)):
 
 - `wake-reassigned`: a harness label collision, fixed. Re-run.
-- `reassigned`: refused at `stage=prompt-drain`, an ordering the bytes allow, now accepted with its
-  own bytes. Re-run.
+- `reassigned`: refused at `stage=prompt-drain`. The bytes allow that ordering only when a pending
+  sweep armed the parked row while the delete was in flight. It is now accepted with its own bytes
+  and that witness line. Re-run; 🕯's private gateway log shows whether the first run had the line.
 - `allowed-silent`: **open, held for 🌊.** The product writes no adoption marker for a
   `sessions.send` probe turn, at every pin. The case cannot pass as written.
 
 The collector now reads each case's own mode, so traces are collected from the committed manifest.
+The ten PASS cases' "no adoption marker" observation is vacuous for a `sessions.send` probe (see
+`allowed-silent`). Each refusal is still bound to its row by the product's reason line.
 
 **The pin.** The merged j12′ is the refused chain (`e9dc1c31`) plus:
 
@@ -322,7 +325,8 @@ without the row, bounds it from below.
 
 **One stage per ordering.** Each refused return's stage comes from where its queued copy is when its
 epoch advances. The bytes allow exactly one first refusal per case, except `reassigned`, which has
-two orderings the harness can neither prevent nor see, each with its own stage:
+two orderings the harness cannot prevent, each with its own stage and the second with its own
+witness line:
 
 - `revoked-visibility`, `revoked-membership`, `revoked-owner`: none of these RPCs touches the
   target's queued events (`sessions-sharing.ts`, `session-accessor.sqlite-owner.ts`), so the sweep
@@ -420,7 +424,7 @@ With the copy queued first, the delete runs in this order:
 1. It consumes the target's queued events: `sessions-delete.ts:454` -> `session-lifecycle-cleanup.ts:84`
    -> `session-reset-runtime-cleanup.ts:80` -> `session-reset-runtime-state.ts:36` ->
    `session-reset-cleanup.ts:202-203`. The consume and the router's enqueue use the same queue key
-   (`resolveSystemEventQueueKey`, `system-event-ownership.ts:96-105`).
+   (`resolveSystemEventQueueKey`, `src/infra/system-event-ownership.ts:96-105`).
 2. Then it commits the deletion, which advances the epoch inside its transaction:
    `sessions-delete.ts:514` -> `session-accessor.sqlite-entry-store.ts:66-69`.
 
@@ -440,21 +444,39 @@ thing that re-checks a row whose copy was in memory (`:332-337`). Two orderings 
   `session-system-event-adoption.ts:118-147`). As in the revoked cases, a sweep that loaded the row
   just before the drain retired it may report `replay` once more.
 
-The harness can neither keep a sweep out of that window nor see one in it: a deferral logs nothing at
-the default level (`session-delivery-queue-recovery.ts:181-186`). So the case accepts both orderings,
-each with its own rule (`RRA_CASES.reassigned`, `refusedAt` and `otherFirstStages`):
+The harness cannot keep a sweep out of that window, but it can see one in it. Nothing else re-arms a
+parked row: its own drain leaves it to the sweep (`session-delivery-queue-runtime.ts:332-337`), and
+the other schedulers serve other rows (a full queue, a notice, a reset hold) or a restart. Each sweep
+that arms rows logs it at info, which reaches the console the control reads:
+`[session-delivery-recovery] session delivery: periodic sweep armed <n> pending entr(y|ies) that no
+runtime had scheduled`. The source lines:
 
-| First stage | Must come | Later lines | Row |
-|---|---|---|---|
-| `replay` | after the transition | `replay` only | named on every line |
-| `prompt-drain` | after the probe was sent (`reason-not-from-probe-drain`) | `replay` only | named on every line |
+- the skip and the log, `:466, 480-484`;
+- the logger, the gateway's (`server-kernel.ts:36`) child `session-delivery-recovery`
+  (`server-runtime-services.ts:441`);
+- the console's default level, `info` (`src/logging/console.ts:25-33`), and its tag drops the
+  `gateway` prefix (`src/logging/subsystem.ts:62, 106-120`).
 
-Every other first stage, a `prompt-drain` after a `replay`, an `enqueue` or `wake` line, a row-less
-line, and every premise and absence rule still leave the case MISSING or FAIL as before. Neither
-ordering is a product defect: in both, the refusal carries j12′'s reason and precedes any adoption.
-What the case no longer shows is which ordering ran: a `prompt-drain` line does not tell a sweep
-inside the delete from a delete that left its copy, because no public surface reads the queue in
-memory.
+A deferral itself logs nothing at the default level (`session-delivery-queue-recovery.ts:181-186`).
+So the case accepts both orderings, each with its own rule (`RRA_CASES.reassigned`, `refusedAt` and
+`otherFirstStages`):
+
+| First stage | Must come | Later stage | Row | Witness |
+|---|---|---|---|---|
+| `replay` | after the transition | `replay` only | named on every line | none |
+| `prompt-drain` | after the probe was sent (`reason-not-from-probe-drain`) | `replay` only | named on every line | a sweep arming line while the transition was in flight (`record.sweep.armedInTransition`), else MISSING (`no-sweep-armed-in-transition`) |
+
+The witness window is the transition's own span, request to settle, so a sweep that armed just
+before the delete was requested does not count. That is conservative: such a case is MISSING and
+re-run, never PASS. Every other first stage, a `prompt-drain` after a `replay`, an `enqueue` or `wake`
+line, a row-less line, and every premise and absence rule still leave the case MISSING or FAIL as
+before. A repeat of the first stage's own line is not told apart, as for the revoked cases (the
+record keeps distinct stages, not their order).
+
+Neither ordering is a product defect: in both, the refusal carries j12′'s reason and precedes any
+adoption. A `prompt-drain` line with no sweep inside the delete matches no ordering in the bytes. It
+would mean the delete left its copy, which is a product question, and the case leaves it MISSING
+for 🌊.
 
 ### `allowed-silent`: the marker a `sessions.send` turn never carries
 
@@ -470,17 +492,26 @@ dispatch (`chat-send-input-dispatch.ts:330-350`, `386-389`). It hands that recor
 
 When the probe turn's drain adopts the parked return:
 
-1. The staged recorder refuses the return's ack ids (`user-turn-transcript.ts:130-140`).
+1. The staged recorder refuses the return's ack ids (`src/sessions/user-turn-transcript.ts:130-140`).
 2. Adoption runs with `adoptedWithoutReceipt` (`session-system-event-adoption.ts:287-296`).
 3. Settlement acks the row anyway (`:92`).
 
 No row ever carries `__openclaw.sessionDeliveryAckIds` for this shape, though chat.history would keep
 it (`chat-display-projection.sanitize.ts:455-462`). The product pins it:
-`src/auto-reply/continuation/continuation-wake.test.ts:878-917` ("reports a return adopted without a
+`src/auto-reply/continuation/continuation-wake.test.ts:878-920` ("reports a return adopted without a
 durable receipt as unknown, though its model saw it") asserts
-`not.toHaveProperty("sessionDeliveryAckIds")` and consumption `unknown`. The same test is at j12
-`352f5602` `:848-887`. Every one of these files is byte-identical at `1ab5a73e`, and all but
-`session-system-event-adoption.ts` at j12, which already had `adoptedWithoutReceipt` (`:282`, `:88`).
+`not.toHaveProperty("sessionDeliveryAckIds")` (`:917`) and consumption `unknown` (`:918`). The same
+test is at j12 `352f5602` `:848-890`.
+
+Every file named here is byte-identical at `1ab5a73e`. Two of them differ at j12, and neither in a
+way that matters here:
+
+- `session-system-event-adoption.ts` already had `adoptedWithoutReceipt` at j12 (`:282`, `:88`);
+- `continuation-wake.test.ts` already had the same test at j12.
+
+The rest are byte-identical at j12 as well: `sessions-messaging.ts`, `chat-send-input-dispatch.ts`,
+`chat-send-agent-dispatch.ts`, `get-reply-run-execute.ts`, `src/sessions/user-turn-transcript.ts`,
+`user-turn-transcript.metadata.ts` and `chat-display-projection.sanitize.ts`.
 
 The delegate dispatch grant touches no return, adoption or chat-send file. The silent mode requests
 no wake (`subagent-announce.continuation-return.ts:175`, `targeting.ts:395`).
@@ -508,7 +539,8 @@ though the manifest lists both in `invocation.modes`. `traceContract` now takes 
 its own evidence when the row declares `invocation.modes`. It refuses evidence with no mode or a mode
 the list does not name, and a row with one mode keeps the mismatch check. The manifest checker
 refuses a malformed `invocation.modes`, and the row test binds the list to the case table. No owner
-edits a manifest copy again.
+edits a manifest copy again. On the grade's side, a case's trace counts only from a correlation receipt
+whose recorded `delegate.mode` is the mode the case dispatched (`traceCorrelationMatches`).
 
 ## The merged head's other lanes on the row's gateway
 
@@ -813,7 +845,8 @@ refusal becomes provable.
 - A residual condition is **PARTIAL-candidate**: a policy change not restored, cleanup incomplete,
   or a fired delegate's Tempo trace not correlated (`trace-receipt-pending`). The trace counts only
   from a `continuation-trace-correlation.json` of this row whose reason hash and length are the
-  case's and whose `traceJson` names its own `traceId`. The collector does not sign it, so the fold
+  case's, whose recorded `delegate.mode` is the mode the case dispatched, and whose `traceJson`
+  names its own `traceId`. The collector does not sign it, so the fold
   review checks the trace file itself.
 - The row is the minimum over all thirteen cases. A case without a verified receipt is MISSING, so
   the row is MISSING until every case runs. Receipts from different runs are MISSING, and an

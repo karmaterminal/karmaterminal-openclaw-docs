@@ -693,7 +693,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       ackRuns: target.ackRuns ?? null,
       probeAckRows: target.probeAckRows ?? null,
       primingAckRows: target.primingAckRows ?? null,
-      wrongNonceAckRows: target.wrongNonceAckRows ?? null,
+      uncreditedAckRows: target.uncreditedAckRows ?? null,
       foreignRuns: target.foreignRuns ?? null,
       unattributedAssistantRows: target.unattributedAssistantRows ?? null,
       returnMarkerRows: target.returnMarkerRows ?? null,

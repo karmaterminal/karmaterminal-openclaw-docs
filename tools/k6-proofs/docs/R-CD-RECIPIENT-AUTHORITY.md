@@ -25,8 +25,8 @@ The delegate refusal cases' absence is now "no `TARGET-ACK` in the probe run", w
 `allowed-silent` shows the same probe giving when the return is allowed. Their old "no adoption marker" was vacuous for a
 `sessions.send` probe. Each refusal is still bound to its row first by the product's reason line.
 The other cases keep every rule they had. The delegate refusal cases' absence also reads the probe
-run's own acks now, an ack marker that is not a clean ack of the nonce leaves it MISSING
-(`ack-nonce-mismatch`), and every case's probe
+run's own acks now, an ack the case cannot credit leaves it MISSING (`ack-uncredited`), and every
+case's probe
 settles before its final read (`OPENCLAW_RCD_RA_PROBE_SETTLE_MS`). So the owner's fresh run of all 13
 is every case's receipt.
 
@@ -330,7 +330,7 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 | `reassigned` | `sessions.delete` then `sessions.create` of the same key, after the return parked | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:202-203`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`). **Or** `stage=prompt-drain`, when a pending sweep replayed the row between that consume and the deletion's epoch commit and re-queued the copy (`server-restart-sentinel-delivery.ts:263-274, 307-314`) ([the two orderings](#reassigned-two-orderings-each-with-its-bytes)) | `[continuation:return-refused]` for the target, with a `deliveryId`: after the transition at `replay`, after the probe was sent at `prompt-drain` | as above |
 | `wake-revoked-visibility` | `session.visibility.set` to `read-only` after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`: the router's first authority read refuses it before any row (`targeting.ts:277-280`) | `[continuation:return-refused]` for the target, with **no** `deliveryId`, after the transition | no `Delivered to` line for it at all, and the rest as above: no ack in the probe run or later, no wake turn or final effect |
 | `wake-reassigned` | `sessions.delete` then `sessions.create` of the same key, after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`, as above | as above | as above |
-| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); once the election is captured, `session.visibility.set` to `read-only` on that session, before the wake is due | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), an answered probe turn. Adoption into the probe turn is ruled out by the bytes, not a marker (the work line precedes the probe, [below](#the-cases)); the marker count is a check only |
+| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); once the election is captured, `session.visibility.set` to `read-only` on that session, before the wake is due | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), an answered probe turn. Adoption into the probe turn is ruled out by the bytes, not a marker: the work line precedes the probe (the paragraph after this table); the marker count is a check only |
 | `replay-restart` | `session.visibility.set` after the return parked, then a supervised restart before any prompt | silent | `stage=replay` on the replacement: no copy survives the restart, so its boot recovery refuses the row (`server-restart-sentinel.ts:138-153` -> `server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | as `reassigned`, from the replacement generation, after the restart | as above, on the replacement |
 
 "Parked" means the router's `Delivered to <target>` line precedes the transition: the return was
@@ -598,10 +598,11 @@ PASS-candidate needs all of:
 - exactly one row in the probe run carrying `TARGET-ACK <rowNonce>` (`probeAckRows === 1`; a
   `heartbeat_respond` receipt in that run counts as one);
 - the probe sent after the `Delivered to` line from the child;
-- no ack in a priming run (`primingAckRows === 0`, text or `heartbeat_respond`), and no row in any
-  other run whose text or `heartbeat_respond` call carries the ack marker other than as a clean ack
-  of the nonce: another nonce, none, or in a row that quotes the harness prompt
-  (`wrongNonceAckRows === 0`);
+- no ack in a priming run (`primingAckRows === 0`, text or any `heartbeat_respond` call), and no ack
+  in any other run that the case cannot credit (`uncreditedAckRows === 0`): an ack marker, as text
+  or in a `heartbeat_respond` call, followed by another nonce or none or in a row that quotes the
+  harness prompt, or an exact ack in a `heartbeat_respond` call that no accepted result of its own
+  run binds. Heartbeat acks are counted per call;
 - no woken run: no assistant run but the priming runs and the probe's (`foreignRuns === 0`);
 - the rest of the chain, as before: the child spawned, bound and done, one accepted dispatch of mode
   `silent` and no other `continue_delegate` call, no scenario refusal, the target primed, the epoch
@@ -618,7 +619,8 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
 | a marked probe row with no ack (a product no pin is) | MISSING | `probe-ack-unobserved` |
 | pre-return: the probe sent before (or with no) `Delivered to` line from the child | MISSING | `probe-not-after-return`, `return-not-routed-from-child` |
 | an ack before any return, in a priming run | MISSING | `ack-before-return` |
-| an ack with another nonce (or none, or in a row quoting the harness prompt), alone or beside the right one | MISSING | `ack-nonce-mismatch` (and `probe-ack-unobserved` when alone) |
+| an ack with another nonce (or none, or in a row quoting the harness prompt), alone or beside the right one | MISSING | `ack-uncredited` (and `probe-ack-unobserved` when alone) |
+| an exact ack through a `heartbeat_respond` call the turn refused | MISSING | `ack-uncredited`, `probe-ack-unobserved` |
 | two ack rows in the probe run | MISSING | `probe-ack-duplicated` |
 | an ack in a foreign (woken) run | FAIL | `silent-return-woke-target` |
 | acks in a foreign run and the probe run | FAIL | `duplicate-adoption`, `silent-return-woke-target` |
@@ -639,7 +641,7 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
 - The ack shows the return was in the probe turn's context. That the probe turn's own drain put it
   there rests on two things: the bytes (a silent return requests no wake) and `foreignRuns === 0`.
   `chat.history` hides an assistant row that is only a heartbeat acknowledgement
-  (`chat-display-projection.history.ts:380-390, 437`), so a wrong wake that adopted the return and
+  (`chat-display-projection.history.ts:380-390, 438`), so a wrong wake that adopted the return and
   replied only that would leave no foreign run, and the probe would still see the return. The priming
   asks that later turn for the ack too, so a model that follows it would show a woken run.
 - It does not show the row settled; no public surface reads that
@@ -651,12 +653,13 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
 
 This is the delegate refusal cases' absence. `work-revoked-visibility` has no return to ack and no
 priming; its absence is no wake turn, and the bytes rule out adoption into its probe turn
-([above](#the-cases)). The same priming and the same probe make the delegate refusal
-cases' absence real. A refused return never
-reaches the target, so the target has nothing to ack: an ack of the nonce in the probe run
-(`probeAckRows`) or any later run (`ackRuns`) is FAIL (`refused-return-adopted`), and an ack-marker
-reply that is not a clean ack of the nonce leaves the absence unread, so the case is MISSING
-(`ack-nonce-mismatch`). The refusal line stays the primary evidence, as 🌊 ruled. The dry run pins an
+([above](#the-cases)). The same priming and the same probe make the delegate refusal cases' absence
+real. A refused return never reaches the target, so the target has nothing to ack: an ack of the
+nonce in the probe run (`probeAckRows`) or any later run (`ackRuns`) is FAIL
+(`refused-return-adopted`), and an ack the case cannot credit (another nonce, none, a row quoting the harness prompt, or a
+`heartbeat_respond` call no accepted result binds) leaves the absence unread, so the case is MISSING
+(`ack-uncredited`). A model that echoes its priming prompt in the probe turn reads MISSING this way,
+never PASS. The refusal line stays the primary evidence, as 🌊 ruled. The dry run pins an
 ack in each delegate refusal case's probe run, with no marker on the row, as FAIL, and the same probe
 answered with no ack as PASS.
 
@@ -949,11 +952,11 @@ refusal becomes provable.
   one `TARGET-ACK <nonce>` row in the run `sessions.send` started for the probe, sent after the
   router's `Delivered to` line naming the target from the case's child. The ack is the model's, so
   each way it can be wrong is MISSING, never FAIL: none (`probe-ack-unobserved`), two in the probe run
-  (`probe-ack-duplicated`), an ack marker outside priming that is not a clean ack of the nonce
-  (`ack-nonce-mismatch`), one in a priming run (`ack-before-return`), or a probe sent before that line or with no such line
+  (`probe-ack-duplicated`), an ack outside priming the case cannot credit (`ack-uncredited`), one in
+  a priming run (`ack-before-return`), or a probe sent before that line or with no such line
   (`probe-not-after-return`, `return-not-routed-from-child`). The product's marker is not required.
-- A delegate refusal case's ack marker that is not a clean ack of the nonce leaves its absence
-  unread: MISSING (`ack-nonce-mismatch`).
+- A delegate refusal case's ack it cannot credit leaves its absence unread: MISSING
+  (`ack-uncredited`).
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
   reason, or without the observed absence (transcripts read, router lines read, probe turn answered,
   every target row attributable to a run), is MISSING, never PASS. For a refused return the reason

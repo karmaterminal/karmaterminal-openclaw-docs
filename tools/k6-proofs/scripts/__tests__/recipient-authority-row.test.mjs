@@ -297,7 +297,7 @@ function completeRecord(caseId) {
       ackRuns: refusal ? 0 : 1,
       probeAckRows: 0,
       primingAckRows: 0,
-      wrongNonceAckRows: 0,
+      uncreditedAckRows: 0,
       foreignRuns: refusal ? 0 : 1,
       unattributedAssistantRows: 0,
       returnMarkerRows: 0,
@@ -927,10 +927,10 @@ test('allowed-silent: exactly one ack of its nonce in the probe run, after the r
   const primedOnly = graded((r) => { r.target.primingAckRows = 1; r.target.ackRuns = 0; r.target.probeAckRows = 0; });
   assert.deepEqual([primedOnly.verdict, primedOnly.missing], ['MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return']]);
   // Wrong nonce: alone, or beside the right one.
-  const wrong = graded((r) => { r.target.ackRuns = 0; r.target.probeAckRows = 0; r.target.wrongNonceAckRows = 1; });
-  assert.deepEqual([wrong.verdict, wrong.missing], ['MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch']]);
-  const mixed = graded((r) => { r.target.wrongNonceAckRows = 1; });
-  assert.deepEqual([mixed.verdict, mixed.missing], ['MISSING-candidate', ['ack-nonce-mismatch']]);
+  const wrong = graded((r) => { r.target.ackRuns = 0; r.target.probeAckRows = 0; r.target.uncreditedAckRows = 1; });
+  assert.deepEqual([wrong.verdict, wrong.missing], ['MISSING-candidate', ['probe-ack-unobserved', 'ack-uncredited']]);
+  const mixed = graded((r) => { r.target.uncreditedAckRows = 1; });
+  assert.deepEqual([mixed.verdict, mixed.missing], ['MISSING-candidate', ['ack-uncredited']]);
   // Two acks in the probe run: the model's, MISSING.
   const doubled = graded((r) => { r.target.probeAckRows = 2; });
   assert.deepEqual([doubled.verdict, doubled.missing, doubled.contradictions], ['MISSING-candidate', ['probe-ack-duplicated'], []]);
@@ -951,7 +951,7 @@ test('allowed-silent: exactly one ack of its nonce in the probe run, after the r
     ['probe-turn-unobserved', (r) => { r.target.probeRan = false; }],
     ['transcript-not-read', (r) => { r.target.probeAckRows = undefined; }],
     ['transcript-not-read', (r) => { r.target.primingAckRows = null; }],
-    ['transcript-not-read', (r) => { r.target.wrongNonceAckRows = -1; }],
+    ['transcript-not-read', (r) => { r.target.uncreditedAckRows = -1; }],
   ]) {
     const result = graded(fn);
     assert.equal(result.verdict, 'MISSING-candidate', code);
@@ -978,8 +978,8 @@ test('the refusal cases\' absence is no ack in the probe run; the marker is a ch
     const probeOnly = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeAckRows = 1; }));
     assert.ok(probeOnly.contradictions.includes('refused-return-adopted'), caseId);
     // An ack-shaped reply with another nonce leaves the absence unread: MISSING.
-    const ambiguous = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.wrongNonceAckRows = 1; }));
-    assert.deepEqual([ambiguous.verdict, ambiguous.missing], ['MISSING-candidate', ['ack-nonce-mismatch']], caseId);
+    const ambiguous = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.uncreditedAckRows = 1; }));
+    assert.deepEqual([ambiguous.verdict, ambiguous.missing], ['MISSING-candidate', ['ack-uncredited']], caseId);
     // The marker check stays: a marked row would still be FAIL.
     assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.adoptedDeliveryRows = 1; })).verdict, 'FAIL-candidate', caseId);
     // An unread probe-run count is MISSING, never a clean absence.
@@ -1138,7 +1138,7 @@ test('target transcript: priming runs never count, any later ack does, and a hea
     ackRuns: 0,
     probeAckRows: 0,
     primingAckRows: 1,
-    wrongNonceAckRows: 0,
+    uncreditedAckRows: 0,
     foreignRuns: 0,
     unattributedAssistantRows: 0,
     returnMarkerRows: 0,
@@ -1166,17 +1166,17 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   // Another nonce after the marker, or none, is never this case's ack; it is counted apart.
   for (const text of ['TARGET-ACK probe-1', 'TARGET-ACK RCDRA-1-abcd', 'TARGET-ACK', `TARGET-ACK ${nonce}\nTARGET-ACK RCDRA-2-xyz`]) {
     const other = observeTargetTranscript([...messages, say(text, 'run-probe')], probeOpts);
-    assert.equal(other.wrongNonceAckRows, 1, text);
+    assert.equal(other.uncreditedAckRows, 1, text);
     assert.equal(other.probeAckRows, text.includes(`${nonce}\n`) ? 1 : 0, text);
   }
-  assert.equal(observeTargetTranscript([...messages, say(`TARGET-ACKED ${nonce}`, 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'another word is no ack');
+  assert.equal(observeTargetTranscript([...messages, say(`TARGET-ACKED ${nonce}`, 'run-probe')], probeOpts).uncreditedAckRows, 0, 'another word is no ack');
   // Review finding (target-ack lane): a row quoting the harness prompt is never credited as an ack,
   // so an ack marker in it, with any nonce, is one the case cannot read; it is no longer skipped.
   for (const text of [`[k6-proof-harness] TARGET-ACK x`, `[k6-proof-harness] probe: TARGET-ACK ${nonce}`]) {
     const quoted = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe'), say(text, 'run-probe')], probeOpts);
-    assert.deepEqual([quoted.probeAckRows, quoted.wrongNonceAckRows], [1, 1], text);
+    assert.deepEqual([quoted.probeAckRows, quoted.uncreditedAckRows], [1, 1], text);
   }
-  assert.equal(observeTargetTranscript([...messages, say('[k6-proof-harness] probe: PROBE-OK probe-1', 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'no ack marker, nothing unread');
+  assert.equal(observeTargetTranscript([...messages, say('[k6-proof-harness] probe: PROBE-OK probe-1', 'run-probe')], probeOpts).uncreditedAckRows, 0, 'no ack marker, nothing unread');
   // A probe run id that is also a priming run's names no probe run: nothing in it is the probe's.
   const shared = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-prime')], { ...probeOpts, probeRunId: 'run-prime' });
   assert.deepEqual([shared.probeAckRows, shared.primingAckRows, shared.probeReplied], [0, 2, false]);
@@ -1196,7 +1196,25 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   const otherHeartbeat = inRun(heartbeat, 'run-probe').map((row) => (row.role === 'assistant' && row.__openclaw?.runId === 'run-probe'
     ? { ...row, content: [{ ...row.content[0], arguments: { ...row.content[0].arguments, notificationText: 'TARGET-ACK RCDRA-9-zzz' } }] }
     : row));
-  assert.equal(observeTargetTranscript(otherHeartbeat, probeOpts).wrongNonceAckRows, 1);
+  assert.equal(observeTargetTranscript(otherHeartbeat, probeOpts).uncreditedAckRows, 1);
+  // Re-review finding (target-ack lane): heartbeat acks are counted per call. Two calls in one row, or
+  // two calls before their results, are two acks, never one.
+  const hbCall = (id) => ({ type: 'toolCall', id, name: 'heartbeat_respond', arguments: { outcome: 'done', notify: true, summary: `TARGET-ACK ${nonce}` } });
+  const hbResult = (id, runId, extra = {}) => ({ role: 'toolResult', toolCallId: id, toolName: 'heartbeat_respond', content: [{ type: 'text', text: JSON.stringify({ status: 'accepted', summary: `TARGET-ACK ${nonce}`, ...extra }) }], __openclaw: { runId }, ...(extra.isError ? { isError: true } : {}) });
+  const oneRow = [...messages, { role: 'assistant', content: [hbCall('a'), hbCall('b')], __openclaw: { runId: 'run-probe' } }, hbResult('a', 'run-probe'), hbResult('b', 'run-probe')];
+  assert.deepEqual([observeTargetTranscript(oneRow, probeOpts).probeAckRows, observeTargetTranscript(oneRow, probeOpts).ackRuns], [2, 1]);
+  const interleaved = [...messages, { role: 'assistant', content: [hbCall('a')], __openclaw: { runId: 'run-probe' } }, { role: 'assistant', content: [hbCall('b')], __openclaw: { runId: 'run-probe' } }, hbResult('a', 'run-probe'), hbResult('b', 'run-probe')];
+  assert.equal(observeTargetTranscript(interleaved, probeOpts).probeAckRows, 2);
+  // ... and an exact ack in a call no accepted result binds (an error result, none, or another run's)
+  // is an ack this case cannot credit, never silence.
+  for (const [label, tail] of [
+    ['error result', [hbResult('a', 'run-probe', { isError: true, status: 'error' })]],
+    ['no result', []],
+    ['result from another run', [hbResult('a', 'run-other')]],
+  ]) {
+    const unbound = observeTargetTranscript([...messages, { role: 'assistant', content: [hbCall('a')], __openclaw: { runId: 'run-probe' } }, ...tail], probeOpts);
+    assert.deepEqual([unbound.probeAckRows, unbound.ackRuns, unbound.uncreditedAckRows], [0, 0, 1], label);
+  }
   assert.equal(observeTargetTranscript([...messages, say('hello')], { nonce, primingRunIds: ['run-prime'] }).unattributedAssistantRows, 1);
   assert.equal(observeTargetTranscript([...messages, say(`RCDRA-RETURN ${nonce}`, 'run-probe')], { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe' }).returnMarkerRows, 1);
   assert.equal(countParentAcks([say(`TARGET-ACK ${nonce}`, 'run-d')], nonce), 1);
@@ -1459,12 +1477,12 @@ function revokedEvidence() {
     target_primed: true,
     dispatch: { status: 'scheduled', accepted: true, result_mode: 'silent', result_delay_seconds: 30, observed_at_ms: 1_000 },
     other_delegate_calls: 0,
-    pre_transition_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, wrongNonceAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
+    pre_transition_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, uncreditedAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
     child: { spawned: true, bound: true, done: true, key: CHILD_KEY },
     transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
     probe_ran: true,
     probe_sent_at_ms: 59_000,
-    target_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, wrongNonceAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
+    target_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, uncreditedAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
     parent_ack_rows: 0,
     refusals: [],
     preflight: { ok: true },
@@ -1587,7 +1605,7 @@ test('a sample taken after the transition is never read as the captured epoch', 
     keys: { parent: 'agent:main:r-cd-ra-allowed-across-reset-parent-abc', target, ops: null },
     transition: { method: 'sessions.reset', ok: true, requested_at_ms: 1_500, settled_at_ms: 1_600 },
     probe_ran: false,
-    target_obs: { ackRuns: 1, probeAckRows: 0, primingAckRows: 0, wrongNonceAckRows: 0, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
+    target_obs: { ackRuns: 1, probeAckRows: 0, primingAckRows: 0, uncreditedAckRows: 0, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
   };
   const advanced = '22222222-2222-4222-8222-222222222222';
   const record = assembleCaseRecord({

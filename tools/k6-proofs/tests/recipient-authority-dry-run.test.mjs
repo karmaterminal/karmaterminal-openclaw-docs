@@ -46,7 +46,8 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
  * (chat-send-input-dispatch.ts:330-350, user-turn-transcript.ts:130-140,
  * session-system-event-adoption.ts:287-296). The primed model acks what it saw, in the probe run.
  * `probeAck` overrides the model's answer: 'ack' (one row: the ack and PROBE-OK), 'none' (PROBE-OK
- * only), 'wrong-nonce' (the ack with the probe's nonce), 'twice' (two ack rows). `probeMarker`, and
+ * only), 'wrong-nonce' (the ack with the probe's nonce), 'twice' (two ack rows), 'heartbeat-refused'
+ * (the ack through a heartbeat_respond call the turn refuses, then PROBE-OK). `probeMarker`, and
  * `adoptOnProbe` by default, put the marker on the probe row: a product no pin is, kept so the
  * marker check stays covered. `markerOnly` keeps the old meaning: the marker and no ack.
  * `primingAck` adds an ack row to the priming run; `wakeAck` a woken run that acks before the probe.
@@ -127,6 +128,11 @@ function gatewayFor(world, sessions = {}) {
           else if (answer === 'twice') {
             push(p.key, say(`TARGET-ACK ${nonce}`, 'run-probe'));
             push(p.key, say(`TARGET-ACK ${nonce}\nPROBE-OK ${probe[1]}`, 'run-probe'));
+          } else if (answer === 'heartbeat-refused') {
+            // The ack through heartbeat_respond, which a sessions.send turn does not accept.
+            push(p.key, toolCall('h1', 'heartbeat_respond', { outcome: 'done', notify: false, summary: `TARGET-ACK ${nonce}` }, 'run-probe'));
+            push(p.key, toolResult('h1', 'heartbeat_respond', 'heartbeat_respond is only available in heartbeat turns', 'run-probe', true));
+            push(p.key, say(`PROBE-OK ${probe[1]}`, 'run-probe'));
           } else push(p.key, say(`PROBE-OK ${probe[1]}`, 'run-probe'));
           return ok({ runId: 'run-probe' });
         }
@@ -442,13 +448,14 @@ test('dry run: allowed-silent rejects a pre-return, wrong-nonce, priming, foreig
     ['pre-return: the probe was sent before the Delivered to line', {}, { routedAfterProbe: true }, 'MISSING-candidate', ['probe-not-after-return'], []],
     ['pre-return, with the marker', { probeMarker: true }, { routedAfterProbe: true }, 'MISSING-candidate', ['probe-not-after-return'], []],
     ['the Delivered to line came from another child', {}, { routedFrom: 'agent:main:subagent:continuation-other' }, 'MISSING-candidate', ['return-not-routed-from-child'], []],
-    ['wrong nonce', { probeAck: 'wrong-nonce' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch'], []],
-    ['wrong nonce, with the marker', { probeAck: 'wrong-nonce', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-nonce-mismatch'], []],
+    ['wrong nonce', { probeAck: 'wrong-nonce' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-uncredited'], []],
+    ['wrong nonce, with the marker', { probeAck: 'wrong-nonce', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-uncredited'], []],
     ['an ack in the priming run only', { primingAck: true, probeAck: 'none' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return'], []],
     ['an ack in the priming run only, with the marker', { primingAck: true, probeAck: 'none', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-before-return'], []],
     ['an ack in the priming run beside the probe\'s', { primingAck: true }, {}, 'MISSING-candidate', ['ack-before-return'], []],
     ['two acks in the probe run', { probeAck: 'twice' }, {}, 'MISSING-candidate', ['probe-ack-duplicated'], []],
     ['two acks in the probe run, with the marker', { probeAck: 'twice', probeMarker: true }, {}, 'MISSING-candidate', ['probe-ack-duplicated'], []],
+    ['an ack through a heartbeat_respond call the turn refused', { probeAck: 'heartbeat-refused' }, {}, 'MISSING-candidate', ['probe-ack-unobserved', 'ack-uncredited'], []],
     ['an ack in a foreign run only', { wakeAck: true, probeAck: 'none' }, {}, 'FAIL-candidate', ['probe-ack-unobserved'], ['silent-return-woke-target']],
     ['two acks: a foreign run and the probe run', { wakeAck: true }, {}, 'FAIL-candidate', [], ['duplicate-adoption', 'silent-return-woke-target']],
   ];
@@ -469,10 +476,13 @@ test('dry run: an ack of the nonce in a refusal case\'s probe run fails it, with
     assert.equal(record.target.probeAckRows, 1, caseId);
     assert.equal(graded.verdict, 'FAIL-candidate', `${caseId}: ${JSON.stringify(graded)}`);
     assert.deepEqual(graded.contradictions, ['refused-return-adopted'], caseId);
-    // An ack-shaped reply with another nonce leaves the absence unread.
-    const other = await grade(caseId, { probeAck: 'wrong-nonce' });
-    assert.equal(other.graded.verdict, 'MISSING-candidate', `${caseId}: ${JSON.stringify(other.graded)}`);
-    assert.deepEqual(other.graded.missing, ['ack-nonce-mismatch'], caseId);
+    // An ack-shaped reply with another nonce, or an exact ack through a heartbeat_respond call the
+    // turn refused, leaves the absence unread.
+    for (const probeAck of ['wrong-nonce', 'heartbeat-refused']) {
+      const other = await grade(caseId, { probeAck });
+      assert.equal(other.graded.verdict, 'MISSING-candidate', `${caseId} ${probeAck}: ${JSON.stringify(other.graded)}`);
+      assert.deepEqual(other.graded.missing, ['ack-uncredited'], `${caseId} ${probeAck}`);
+    }
     // Their own probe, answered with no ack, is the real absence: PASS.
     const quiet = await grade(caseId, { probeAck: 'none' });
     assert.equal(quiet.record.target.probeAckRows, 0, caseId);

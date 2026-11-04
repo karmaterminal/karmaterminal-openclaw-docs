@@ -38,7 +38,7 @@
  *   reason and the absence of adoption, never from the row.
  */
 import { toolCallTarget } from './tool-call-identity.mjs';
-import { hasExactSentinelText, heartbeatAckFromHistory, heartbeatRespondCalls, messageRunId } from './wake-turn-receipt.mjs';
+import { hasExactSentinelText, heartbeatRespondCalls, heartbeatRespondResult, messageRunId } from './wake-turn-receipt.mjs';
 
 export const RRA_ROW = 'R-CD-RECIPIENT-AUTHORITY';
 /**
@@ -656,6 +656,39 @@ function rowHasOtherNonceAck(message, text, nonce) {
   return heartbeatRespondCalls(message).some((call) => HEARTBEAT_ACK_FIELDS.some((field) => hasOtherNonceAck(call.args?.[field], nonce)));
 }
 
+function carriesAck(record, nonce) {
+  return HEARTBEAT_ACK_FIELDS.some((field) => hasExactSentinelText(record?.[field], RRA_ACK_MARKER, nonce));
+}
+
+/**
+ * Every heartbeat_respond call (by name or through Tool Search) whose arguments carry the exact ack,
+ * one entry per call, as { runId, accepted }. `accepted` is heartbeatAckFromHistory's binding
+ * (lib/wake-turn-receipt.mjs): the first result with the call's toolCallId is accepted, carries the
+ * ack and is stamped with the call's own run. Counted per call, so two calls in one row, or two calls
+ * before their results, are two (heartbeatAckFromHistory resumes after a receipt's result row and
+ * would skip the second).
+ */
+function heartbeatAckCalls(list, nonce) {
+  const calls = [];
+  for (let i = 0; i < list.length; i += 1) {
+    const runId = messageRunId(list[i]);
+    for (const call of heartbeatRespondCalls(list[i])) {
+      if (!carriesAck(call.args, nonce)) continue;
+      let accepted = false;
+      if (call.id && runId) {
+        for (let j = i + 1; j < list.length; j += 1) {
+          const result = heartbeatRespondResult(list[j]);
+          if (!result || result.toolCallId !== call.id) continue;
+          accepted = !result.isError && result.payload.status === 'accepted' && carriesAck(result.payload, nonce) && messageRunId(list[j]) === runId;
+          break;
+        }
+      }
+      calls.push({ runId, accepted });
+    }
+  }
+  return calls;
+}
+
 /**
  * What the target's transcript (chat.history, oldest to newest) shows about the return.
  * chat.history hides the wake's own user row and the runtime-context row that carries the
@@ -665,15 +698,16 @@ function rowHasOtherNonceAck(message, text, nonce) {
  * proof's task completion is in the model's context; nothing else the harness sends names it.
  * - ackRuns: distinct non-priming runs that acknowledged the return (the probe run included: the
  *   probe never names the ack, so an ack there is the return adopted into the probe turn).
- * - probeAckRows: rows of the probe run that carry the exact ack (assistant text rows, plus one per
- *   heartbeat_respond receipt). The probe run is the one sessions.send started for the probe, by its
- *   run id; a run id that is also a priming run's names no probe run.
- * - primingAckRows: rows of a priming run that carry the exact ack (assistant text rows, plus one per
- *   heartbeat_respond receipt), given before any return existed. Never an ack of the return;
+ * - probeAckRows: acks of the probe run: assistant text rows carrying the exact ack, plus one per
+ *   accepted heartbeat_respond call. The probe run is the one sessions.send started for the probe,
+ *   by its run id; a run id that is also a priming run's names no probe run.
+ * - primingAckRows: acks in a priming run (text rows, plus one per heartbeat_respond call carrying
+ *   the exact ack, accepted or not), given before any return existed. Never an ack of the return;
  *   allowed-silent reads one as a model that acks unprompted.
- * - wrongNonceAckRows: assistant rows outside the priming runs whose text or heartbeat_respond call
- *   carries the ack marker other than as a clean ack of this case's nonce: another nonce, none, or
- *   in text that quotes the harness prompt.
+ * - uncreditedAckRows: acks outside the priming runs this case cannot credit: an assistant row whose
+ *   text or heartbeat_respond call carries the ack marker with another nonce, none, or in text that
+ *   quotes the harness prompt, plus one per heartbeat_respond call carrying the exact ack that no
+ *   accepted result binds.
  * - foreignRuns: distinct assistant runs that are neither priming nor the probe (a wake).
  * - unattributedAssistantRows: assistant rows with no run id; they cannot be placed, so a case
  *   that has any is MISSING.
@@ -699,7 +733,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
   let probeReplied = false;
   let probeAckRows = 0;
   let primingAckRows = 0;
-  let wrongNonceAckRows = 0;
+  let uncreditedAckRows = 0;
   let adoptedDeliveryRows = 0;
   for (const message of list) {
     const ackIds = message?.__openclaw?.sessionDeliveryAckIds;
@@ -717,7 +751,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     } else {
       if (runId !== probeRunId) foreignRuns.add(runId);
       if (acked) ackRuns.add(runId);
-      if (rowHasOtherNonceAck(message, text, nonce)) wrongNonceAckRows += 1;
+      if (rowHasOtherNonceAck(message, text, nonce)) uncreditedAckRows += 1;
     }
     if (probe && runId === probe && acked) probeAckRows += 1;
     if (hasExactSentinelText(text, RRA_RETURN_MARKER, nonce)) returnMarkerRows += 1;
@@ -725,40 +759,22 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
       probeReplied = true;
     }
   }
-  // heartbeat_respond acks: the call and its accepted result in one non-priming run.
-  let afterIndex = -1;
-  for (;;) {
-    const receipt = heartbeatAckFromHistory(list, {
-      marker: RRA_ACK_MARKER,
-      nonce,
-      afterIndex,
-      excludeRunIds: [...priming],
-      requireRunId: true,
-    });
-    if (!receipt) break;
-    ackRuns.add(receipt.runId);
-    if (probe && receipt.runId === probe) probeAckRows += 1;
-    afterIndex = receipt.index;
-  }
-  // heartbeat_respond acks inside a priming run: every other run excluded, so only those bind.
-  const otherRunIds = [...new Set(list.map((message) => messageRunId(message)).filter((id) => id && !priming.has(id)))];
-  for (let from = -1; priming.size > 0;) {
-    const receipt = heartbeatAckFromHistory(list, {
-      marker: RRA_ACK_MARKER,
-      nonce,
-      afterIndex: from,
-      excludeRunIds: otherRunIds,
-      requireRunId: true,
-    });
-    if (!receipt) break;
-    primingAckRows += 1;
-    from = receipt.index;
+  // heartbeat_respond acks, per call. A call with no run id sits in an unattributed row (above).
+  for (const call of heartbeatAckCalls(list, nonce)) {
+    if (!call.runId) continue;
+    if (priming.has(call.runId)) primingAckRows += 1;
+    else if (!call.accepted) uncreditedAckRows += 1;
+    else {
+      // The call and its accepted result in one non-priming run.
+      ackRuns.add(call.runId);
+      if (probe && call.runId === probe) probeAckRows += 1;
+    }
   }
   return {
     ackRuns: ackRuns.size,
     probeAckRows,
     primingAckRows,
-    wrongNonceAckRows,
+    uncreditedAckRows,
     foreignRuns: foreignRuns.size,
     unattributedAssistantRows,
     returnMarkerRows,
@@ -1016,7 +1032,7 @@ export function gradeRecipientAuthorityCase(record) {
   if (!Array.isArray(record.scenario?.refusals) || record.scenario.refusals.length > 0) missing.push('scenario-refused');
   if (record.scenario?.preflightOk !== true) missing.push('preflight-not-ok');
   const counted = need(
-    ['ackRuns', 'probeAckRows', 'primingAckRows', 'wrongNonceAckRows', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows']
+    ['ackRuns', 'probeAckRows', 'primingAckRows', 'uncreditedAckRows', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows']
       .every((key) => isCount(target[key])) && isCount(parent.ackRows),
     'transcript-not-read',
   );
@@ -1164,7 +1180,7 @@ export function gradeRecipientAuthorityCase(record) {
         // does not give it, gives it twice in one turn or gives another nonce is MISSING, never FAIL.
         if (target.probeAckRows === 0) missing.push('probe-ack-unobserved');
         if (target.probeAckRows > 1) missing.push('probe-ack-duplicated');
-        if (target.wrongNonceAckRows > 0) missing.push('ack-nonce-mismatch');
+        if (target.uncreditedAckRows > 0) missing.push('ack-uncredited');
         // An ack before any return existed: the model acks unprompted, and its probe ack proves nothing.
         if (target.primingAckRows > 0) missing.push('ack-before-return');
         // The silent return must not have woken the target: any run but priming and the probe's is FAIL,
@@ -1248,7 +1264,7 @@ export function gradeRecipientAuthorityCase(record) {
       // a sessions.send probe, so its count stays a contradiction check, never the absence's evidence.
       if (target.ackRuns > 0 || target.probeAckRows > 0 || target.adoptedDeliveryRows > 0) contradict('refused-return-adopted');
       // An ack-shaped reply with another nonce leaves that absence unread.
-      if (target.wrongNonceAckRows > 0) missing.push('ack-nonce-mismatch');
+      if (target.uncreditedAckRows > 0) missing.push('ack-uncredited');
       if (target.foreignRuns > 0) contradict('target-woken');
       if (target.returnMarkerRows > 0) contradict('return-reached-target');
       if (parent.ackRows > 0) contradict('return-landed-in-parent');

@@ -206,6 +206,7 @@ import {
   RRA_CASES,
   RRA_EVIDENCE_PREFIX,
   RRA_PINNED,
+  RRA_PROBE_NONCE_SLOT,
   RRA_READY_MARKER,
   RRA_RETURN_MARKER,
   RRA_ROW,
@@ -217,6 +218,7 @@ import {
   findOwnerAssignment,
   findWorkElection,
   observeTargetTranscript,
+  rraProofId,
   rraProbeText,
   rraProbeTextProblems,
   scenarioMethodsFor,
@@ -334,7 +336,7 @@ export default function () {
 
   const prior = control.phase === 'observe' ? JSON.parse(__ENV.OPENCLAW_RCD_RA_STATE || '{}') : null;
   const rowNonce = prior?.nonce || makeNonce('RCDRA');
-  const suffix = rowNonce.slice(-16);
+  const suffix = rraProofId(rowNonce);
   const probeNonce = makeNonce('RCDRA-PROBE');
   // The continue_work case has no parent: its session elects its own wake and is the recipient.
   const keys = prior?.keys || {
@@ -369,6 +371,7 @@ export default function () {
     transition: prior?.transition || { method: spec.transition, ok: spec.transition ? null : true, requested_at_ms: null, settled_at_ms: null, error: null },
     probe_run_id: null,
     probe_sent_at_ms: null,
+    probe_text_sha256: null,
     probe_ran: false,
     pre_transition_obs: prior?.pre_transition_obs ?? null,
     other_delegate_calls: null,
@@ -761,6 +764,9 @@ export default function () {
         refuse(`probe text refused: ${problems.join(', ')}`);
         return finalReads();
       }
+      // The receipt names the probe it sent by its text's hash, its nonce written as the slot
+      // (RRA_PROBE_TEXT_SHA256): a receipt with any other probe, or none, is never PASS.
+      evidence.probe_text_sha256 = crypto.sha256(instruction.replaceAll(probeNonce, RRA_PROBE_NONCE_SLOT), 'hex');
       // A prompt-drain refusal must come from this turn's drain, and allowed-silent's ack must follow
       // the return's Delivered to line, so both are timed against the send.
       evidence.probe_sent_at_ms = Date.now();

@@ -689,6 +689,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       primed: evidence?.target_primed === true,
       probeRan: final.probe_ran === true,
       probeSentAtMs: final.probe_sent_at_ms ?? null,
+      probeTextSha256: final.probe_text_sha256 ?? null,
       probeReplied: target.probeReplied === true,
       ackRuns: target.ackRuns ?? null,
       probeAckRows: target.probeAckRows ?? null,

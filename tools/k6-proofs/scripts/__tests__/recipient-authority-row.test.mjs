@@ -21,6 +21,8 @@ import {
   RRA_PINNED,
   RRA_PIN_STATUS,
   RRA_PROBE_CONDITION,
+  RRA_PROBE_NONCE_SLOT,
+  RRA_PROBE_TEXT_SHA256,
   RRA_ROW,
   countDelegateCalls,
   countParentAcks,
@@ -48,6 +50,7 @@ import {
   routedToTarget,
   rraProbeText,
   rraProbeTextProblems,
+  rraProofId,
   traceCorrelationMatches,
 } from '../../lib/recipient-authority-row.mjs';
 import {
@@ -137,6 +140,7 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.ok(flat.includes('The old receipt remains `probe-ack-unobserved`, not PASS."'), 'the ruling, quoted');
   assert.ok(docs.includes(`\n${rraProbeText('<probeNonce>')}\n`), 'the probe text as sent');
   assert.match(docs, /### The conditional probe/);
+  assert.match(docs, /MISSING `probe-text-unbound`/, 'a receipt names the probe it sent');
   // 🌊's ruling (a), quoted, and the oracle it sets.
   assert.match(docs, /1567556038281007235/);
   assert.match(docs, /"TARGET-ACK\s+on the probe\s+turn, bound to this case's nonce and the target's priming\./);
@@ -304,6 +308,7 @@ function completeRecord(caseId) {
       primed: true,
       probeRan: refusal,
       probeSentAtMs: refusal ? 59_000 : null,
+      probeTextSha256: refusal ? RRA_PROBE_TEXT_SHA256 : null,
       probeReplied: refusal,
       ackRuns: refusal ? 0 : 1,
       probeAckRows: 0,
@@ -339,6 +344,7 @@ function completeRecord(caseId) {
       ...record.target,
       probeRan: true,
       probeSentAtMs: 20_000,
+      probeTextSha256: RRA_PROBE_TEXT_SHA256,
       probeReplied: false,
       ackRuns: 1,
       probeAckRows: 1,
@@ -1029,12 +1035,19 @@ test('the probe text: 🌊\'s conditional wording with its own nonce, and the te
     ['the unconditional probe at 4f86dd78', `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: reply exactly PROBE-OK ${probeNonce}.`, ['probe-not-conditional-wording']],
     ['🌊\'s wording without the harness header', `${ruled} Otherwise reply exactly PROBE-OK ${probeNonce}.`, ['probe-not-conditional-wording']],
     ['another probe\'s nonce', rraProbeText('RCDRA-PROBE-other'), ['probe-nonce-missing', 'probe-not-conditional-wording']],
+    ['the probe nonce run on into another', text.replace(`PROBE-OK ${probeNonce}.`, `PROBE-OK ${probeNonce}x.`), ['probe-nonce-missing', 'probe-not-conditional-wording']],
   ]) {
     assert.deepEqual(rraProbeTextProblems(bad, options), codes, label);
   }
   assert.deepEqual(rraProbeTextProblems(text, { probeNonce }), ['row-nonce-unknown'], 'no row nonce: its absence cannot be shown');
   assert.deepEqual(rraProbeTextProblems(text, { rowNonce }), ['probe-nonce-missing', 'probe-not-conditional-wording']);
   for (const nothing of ['', null, undefined, 42]) assert.deepEqual(rraProbeTextProblems(nothing, options), ['probe-text-missing'], String(nothing));
+  // The proof id is the task marker's suffix, the manifest's {{nonceSuffix16}}.
+  assert.equal(rraProofId(rowNonce), '0000010-abcdefgh');
+  assert.equal(rraProofId('short'), null);
+  // The receipt's binding: the hash of this text, its nonce written as the slot.
+  assert.equal(RRA_PROBE_TEXT_SHA256, createHash('sha256').update(rraProbeText(RRA_PROBE_NONCE_SLOT)).digest('hex'));
+  assert.equal(createHash('sha256').update(text.replaceAll(probeNonce, RRA_PROBE_NONCE_SLOT)).digest('hex'), RRA_PROBE_TEXT_SHA256);
   // The scenario sends the probe through both, and refuses a text that fails the text test.
   const scenario = readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8');
   assert.match(scenario, /const instruction = rraProbeText\(probeNonce\);\s+const problems = rraProbeTextProblems\(instruction, \{ rowNonce, probeNonce \}\);\s+if \(problems\.length\) \{\s+refuse\(/);
@@ -1049,12 +1062,15 @@ test('the conditional probe\'s grading: a refusal on PROBE-OK and no ack, allowe
     const silent = mutate(completeRecord('allowed-silent'), (r) => { r.target.probeReplied = probeReplied; });
     assert.deepEqual(gradeRecipientAuthorityCase(silent), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, String(probeReplied));
   }
-  // 🕯's allowed-silent receipt (rra-88e4fd22f0b122a8): the probe ran and answered PROBE-OK, and no
-  // run acked. Under the conditional probe's grade it is MISSING probe-ack-unobserved, never upgraded.
+  // 🕯's allowed-silent shape (rra-88e4fd22f0b122a8): the probe ran and answered PROBE-OK, and no
+  // run acked. Read again under the conditional probe it is MISSING probe-ack-unobserved, and the
+  // receipt as sealed, naming no probe text, is unbound as well: never upgraded either way.
   const old = mutate(completeRecord('allowed-silent'), (r) => {
     Object.assign(r.target, { probeRan: true, probeReplied: true, ackRuns: 0, probeAckRows: 0, foreignRuns: 0, adoptedDeliveryRows: 0 });
   });
   assert.deepEqual(gradeRecipientAuthorityCase(old), { verdict: 'MISSING-candidate', missing: ['probe-ack-unobserved'], contradictions: [], partial: [] });
+  const sealed = mutate(old, (r) => { delete r.target.probeTextSha256; });
+  assert.deepEqual(gradeRecipientAuthorityCase(sealed), { verdict: 'MISSING-candidate', missing: ['probe-text-unbound', 'probe-ack-unobserved'], contradictions: [], partial: [] });
   // Every refusal, the continue_work case's included: PROBE-OK and no ack passes; no PROBE-OK is the
   // probe turn unobserved; an ack, with or without PROBE-OK, is the refused return adopted.
   for (const caseId of RRA_CASE_IDS.filter((id) => RRA_CASES[id].family === 'refusal')) {
@@ -1067,6 +1083,34 @@ test('the conditional probe\'s grading: a refusal on PROBE-OK and no ack, allowe
       assert.equal(acked.verdict, 'FAIL-candidate', `${caseId} ${probeReplied}`);
       assert.deepEqual(acked.contradictions, ['refused-return-adopted'], `${caseId} ${probeReplied}`);
     }
+  }
+});
+
+// Review finding (conditional-probe lane): no receipt said which probe it sent, and --docs-sha is the
+// operator's word. A probing case's receipt now names its probe by the text's hash.
+test('a probe that ran is bound to the conditional text by its hash: unbound or another probe is never PASS, a contradiction is still FAIL', () => {
+  const unconditional = createHash('sha256').update(`[k6-proof-harness] ${RRA_ROW} probe ${RRA_PROBE_NONCE_SLOT}: reply exactly PROBE-OK ${RRA_PROBE_NONCE_SLOT}.`).digest('hex');
+  const probing = RRA_CASE_IDS.filter((id) => RRA_CASES[id].family === 'refusal' || RRA_CASES[id].probeAdopts);
+  assert.equal(probing.length, 11);
+  for (const caseId of probing) {
+    for (const [label, value] of [['no hash', undefined], ['null', null], ['the unconditional probe', unconditional], ['not a hash', 'abc']]) {
+      const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeTextSha256 = value; }));
+      assert.deepEqual([graded.verdict, graded.missing, graded.contradictions], ['MISSING-candidate', ['probe-text-unbound'], []], `${caseId} ${label}`);
+    }
+    // A probe that never ran is already probe-turn-unobserved; it is not unbound as well.
+    const unrun = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeRan = false; r.target.probeTextSha256 = null; }));
+    assert.ok(unrun.missing.includes('probe-turn-unobserved') && !unrun.missing.includes('probe-text-unbound'), `${caseId}: ${unrun.missing}`);
+  }
+  // The binding only adds MISSING: an unbound refusal that acked is still FAIL.
+  for (const caseId of refusalCases) {
+    const acked = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeTextSha256 = null; r.target.probeAckRows = 1; r.target.ackRuns = 1; }));
+    assert.equal(acked.verdict, 'FAIL-candidate', caseId);
+    assert.deepEqual(acked.contradictions, ['refused-return-adopted'], caseId);
+  }
+  // The cases that read the wake's own ack send no probe and need no binding.
+  for (const caseId of RRA_CASE_IDS.filter((id) => !probing.includes(id))) {
+    assert.equal(completeRecord(caseId).target.probeTextSha256, null, caseId);
+    assert.equal(gradeRecipientAuthorityCase(completeRecord(caseId)).verdict, 'PASS-candidate', caseId);
   }
 });
 
@@ -1561,6 +1605,7 @@ function revokedEvidence() {
     transition: { method: 'session.visibility.set', ok: true, requested_at_ms: 5_000, settled_at_ms: 5_100 },
     probe_ran: true,
     probe_sent_at_ms: 59_000,
+    probe_text_sha256: RRA_PROBE_TEXT_SHA256,
     target_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, uncreditedAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: true, adoptedDeliveryRows: 0 },
     parent_ack_rows: 0,
     refusals: [],
@@ -1607,6 +1652,7 @@ test('the control assembles a case record from scenario evidence, product log li
   assert.equal(record.park.deliveredFromChildAtMs, 3_000, 'the park line names the target and comes from the case\'s child');
   assert.deepEqual(record.routing, { duringTransition: 0, afterTransition: 0 }, 'the park line precedes the transition');
   assert.equal(record.target.probeSentAtMs, 59_000);
+  assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, 'the probe the scenario sent, by its text\'s hash');
   assert.deepEqual(record.reason, {
     kind: 'return-refused',
     stage: 'prompt-drain',

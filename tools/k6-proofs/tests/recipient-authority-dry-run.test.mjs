@@ -10,6 +10,7 @@
 // lib/recipient-authority-row.mjs grades it. No gateway, no model, no network.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
@@ -578,19 +579,24 @@ test('dry run: (d) a PROBE-OK with any nonce but the probe\'s is never credited'
 });
 
 test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own nonce, and the text test refuses one naming TARGET-ACK or the row nonce', async () => {
-  // The text test is new with the conditional probe; the rest of this file needs nothing new.
-  const { rraProbeTextProblems } = await import('../lib/recipient-authority-row.mjs');
+  // The text test and the receipt's binding are new with the conditional probe; the rest of this
+  // file needs nothing new.
+  const { RRA_PROBE_TEXT_SHA256, rraProbeTextProblems } = await import('../lib/recipient-authority-row.mjs');
   const texts = new Set();
   for (const caseId of RRA_CASE_IDS) {
-    const { drive, final, frames } = await grade(caseId, { ack: 'wake' });
+    const { drive, final, frames, record } = await grade(caseId, { ack: 'wake' });
     const sent = probeFrames(frames).map((frame) => frame.params.message);
     // allowed and allowed-across-reset read the wake's own ack and send no probe; every other case
     // sends exactly one.
     if (RRA_CASES[caseId].family === 'allowed' && !RRA_CASES[caseId].probeAdopts) {
       assert.deepEqual(sent, [], caseId);
+      assert.equal(record.target.probeTextSha256, null, caseId);
       continue;
     }
     assert.deepEqual(sent, [probeTextFor(final.probe_nonce)], caseId);
+    // The receipt names the probe it sent, by the text's hash with its nonce as the slot.
+    assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, caseId);
+    assert.equal(record.target.probeTextSha256, createHash('sha256').update(sent[0].replaceAll(final.probe_nonce, '<probeNonce>')).digest('hex'), caseId);
     const [text] = sent;
     texts.add(text.replaceAll(final.probe_nonce, '<probe nonce>'));
     const rowNonce = drive.nonce;

@@ -934,7 +934,8 @@ the product's adoption marker, so the marker is never required). Every case that
 same conditional probe (🌊, room msg 1567590902694936678): a turn holding the return follows its
 priming and acks, any other replies `PROBE-OK <probeNonce>`, and the probe names neither the ack nor
 the row nonce. A refusal passes on that `PROBE-OK` and no ack, `allowed-silent` on the ack, and
-neither needs both.
+neither needs both. Each receipt names the probe it sent by the text's hash, or the case is MISSING
+(`probe-text-unbound`).
 `unauthorized-admission` and `unauthorized-dispatch` must show the cross-session policy refusal.
 `revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`,
 `wake-revoked-visibility`, `wake-reassigned` and `replay-restart` must each show j12′'s

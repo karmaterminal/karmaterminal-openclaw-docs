@@ -670,7 +670,7 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
 
 ### The conditional probe
 
-🌊's ruling, room msg 1567590902694936678, is quoted in full in the rulings list above: "the probe's
+🌊's ruling, room msg 1567590902694936678, is quoted in the rulings list above: "the probe's
 unconditional `reply exactly PROBE-OK` conflicts with the primed target's conditional return
 instruction". The priming asks for `TARGET-ACK <nonce>` only on a later turn that holds this
 proof's task completion. The probe asked every turn for `PROBE-OK <probeNonce>` and nothing else,
@@ -699,13 +699,19 @@ the same but for its own nonce:
 
   The scenario runs the text test before it sends, and a probe that fails it is never sent: the case
   records a refusal and reads MISSING.
+- **The receipt names it.** The scenario hashes the text it sent, with its nonce written
+  `<probeNonce>` (`probe_text_sha256`), and the control carries the hash into the record as
+  `target.probeTextSha256`. The grade needs it to equal `RRA_PROBE_TEXT_SHA256`, the hash of the text
+  above, for every case whose probe ran; otherwise MISSING `probe-text-unbound`. `--docs-sha` is the
+  operator's word, so without this a receipt would not show which probe it sent. The binding only
+  adds MISSING: a contradiction is still FAIL.
 
 How the probe's reply is graded. One of two answers counts, never both:
 
 | Case | What its probe turn holds | PASS needs | Otherwise |
 |---|---|---|---|
 | each delegate refusal | no return | `PROBE-OK <probeNonce>` in the probe run, and no `TARGET-ACK` in it or later | an ack, with or without `PROBE-OK`: FAIL `refused-return-adopted`; no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved` |
-| `work-revoked-visibility` | no return, no priming | `PROBE-OK <probeNonce>`, and no wake turn | as for the delegate refusals: MISSING `probe-turn-unobserved` |
+| `work-revoked-visibility` | no return, no priming | `PROBE-OK <probeNonce>`, and no wake turn | no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved`. An ack is not graded here: the session is never primed |
 | `allowed-silent` | the return, drained by that turn | exactly one `TARGET-ACK <nonce>` in the probe run, after `Delivered to` from its child ([the oracle](#allowed-silent-the-probe-runs-target-ack), unchanged) | `PROBE-OK` alone: MISSING `probe-ack-unobserved`, the old run's shape. `PROBE-OK` beside the ack is neither required nor refused |
 
 The ACK oracle is the one `4f86dd78` set, unchanged: the grade itself did not move. A `PROBE-OK`
@@ -716,9 +722,15 @@ naming another nonce, the row nonce included, is credited to no case.
 
 - its own counts say so (`probeReplied: true`, `ackRuns: 0`), and the grade reads them the same way
   at this head;
+- it names no probe text, so at this head it also reads `probe-text-unbound`;
 - the receipt names the docs head that sent the unconditional probe;
 - the row grades one run's receipts together (`receipts-from-different-runs`), so none of that run's
   receipts joins a run at the new head.
+
+The rest of that run is affected too. Re-graded at this head (`--grade-row` grades each receipt
+again), each of its eleven probing receipts reads MISSING `probe-text-unbound`. Only `allowed` and
+`allowed-across-reset` send no probe. Its 10/13 is that run's grade at its own docs head, and the
+fresh 13 replaces it.
 
 The pins, as dry-run tests through the real case driver (`tests/recipient-authority-dry-run.test.mjs`).
 The scripted model reads the probe it is sent. An unconditional `PROBE-OK` wins over its priming, as
@@ -732,10 +744,18 @@ run passed `allowed-silent` while the live run could not.
 | (b) | `allowed-silent`, the return in the probe turn: exactly one ack, no `PROBE-OK` | PASS-candidate | RED: MISSING `probe-ack-unobserved`, 🕯's shape |
 | (c) | `allowed-silent` answered `PROBE-OK` only | MISSING `probe-ack-unobserved` | the same; a pin of the old run's shape, new here |
 | (d) | `PROBE-OK` with another probe's nonce, or the row nonce: every refusal case, and `allowed-silent` | MISSING (`probe-turn-unobserved`; `probe-ack-unobserved`) | the same; a pin, new here |
-| (e) | every probing case sends one text, 🌊's wording with its own nonce, which passes the text test; that text with `TARGET-ACK`, `RRA_ACK_MARKER`, the row nonce or its proof id added fails it | passes | RED: the probe was the unconditional text; the text test is new |
+| (e) | every probing case sends one text, 🌊's wording with its own nonce, which passes the text test, and its receipt names it by hash; that text with `TARGET-ACK`, `RRA_ACK_MARKER`, the row nonce or its proof id added fails it | passes | RED: the probe was the unconditional text; the text test and the hash are new |
 
-The unit tests in `scripts/__tests__/recipient-authority-row.test.mjs` pin the text test's codes and
-the grade of each answer at record level, 🕯's receipt shape included.
+The unit tests in `scripts/__tests__/recipient-authority-row.test.mjs` pin three things:
+
+- the text test's codes, and the hash against `node:crypto`;
+- the grade of each answer at record level, 🕯's receipt included, both its counts and as it was
+  sealed;
+- the binding: an unbound probe, or the unconditional one, is MISSING `probe-text-unbound` in every
+  probing case, while an unbound refusal that acked is still FAIL.
+
+With the binding's three grade lines removed, an unbound `allowed-silent` receipt grades PASS and
+those pins go RED.
 
 Its limits:
 
@@ -1057,7 +1077,8 @@ refusal becomes provable.
   [the conditional probe](#the-conditional-probe)), and a text that fails the text test is never
   sent. Its reply is graded as one of two answers, never both: a refusal needs
   `PROBE-OK <probeNonce>` and no ack, and `allowed-silent` needs the ack. A `PROBE-OK` naming another
-  nonce is never credited.
+  nonce is never credited. A probe that ran must be named in the receipt by its text's hash, or the
+  case is MISSING (`probe-text-unbound`); a contradiction is still FAIL.
 - A delegate refusal case's ack it cannot credit leaves its absence unread: MISSING
   (`ack-uncredited`).
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
@@ -1172,7 +1193,7 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 | `manifests/r-cd-recipient-authority.json` | the row manifest (orchestration-required, `disposable-real-process`, the merged pin, cases, receipts) |
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, restart, signed receipts, `--grade-row` |
-| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matchers, the probe text and its text test, transcript observation and verdict rules |
+| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the j12′ reason matchers, the probe text with its text test and pinned hash, transcript observation and verdict rules |
 | `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, gates, signed receipts |
 | `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. Its probe turn writes no marker, and its primed model reads the probe (an unconditional `PROBE-OK` wins over the priming, 🌊's condition hands a turn holding the return back to it). It has a negative for each ack `allowed-silent` and the refusal cases reject, and the conditional probe's pins (a)-(e) |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

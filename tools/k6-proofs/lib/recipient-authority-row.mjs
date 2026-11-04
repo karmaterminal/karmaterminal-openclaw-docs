@@ -37,6 +37,7 @@
  *   (delivery-queue-sqlite.kernel.ts:397-429). So "settled as refused" is still read from the
  *   reason and the absence of adoption, never from the row.
  */
+import { TASK_IDENTITY_NONCE_SUFFIX_CHARS } from './row-child-correlation.mjs';
 import { toolCallTarget } from './tool-call-identity.mjs';
 import { hasExactSentinelText, heartbeatRespondCalls, heartbeatRespondResult, messageRunId } from './wake-turn-receipt.mjs';
 
@@ -74,8 +75,15 @@ const HARNESS_MARKER = '[k6-proof-harness]';
  * priming, which alone asks for `TARGET-ACK <row nonce>`.
  */
 export const RRA_PROBE_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
-/** The 16 trailing characters of the row nonce, the proof id the priming names (`for proof <suffix>`). */
-const PROOF_ID_CHARS = 16;
+
+/**
+ * The proof id the priming names (`for proof <id>`) and the delegate's task marker carries
+ * (`RCDRA:<id>`): the row nonce's trailing characters, as the manifest's `{{nonceSuffix16}}` renders
+ * them (lib/row-child-correlation.mjs). Null for a nonce too short to have one.
+ */
+export function rraProofId(rowNonce) {
+  return typeof rowNonce === 'string' && rowNonce.length >= TASK_IDENTITY_NONCE_SUFFIX_CHARS ? rowNonce.slice(-TASK_IDENTITY_NONCE_SUFFIX_CHARS) : null;
+}
 
 /**
  * The one probe text, the same for every case but for its own nonce: the harness header, then
@@ -87,12 +95,23 @@ export function rraProbeText(probeNonce) {
   return `${HARNESS_MARKER} ${RRA_ROW} probe ${probeNonce}: ${RRA_PROBE_CONDITION} Otherwise reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
 }
 
+/** What a receipt hashes in place of its probe's nonce, so every probe of this text hashes alike. */
+export const RRA_PROBE_NONCE_SLOT = '<probeNonce>';
+/**
+ * SHA-256 (hex) of rraProbeText(RRA_PROBE_NONCE_SLOT): the probe every probing case's receipt must
+ * name (target.probeTextSha256). The scenario hashes the text it sent, its own nonce written as the
+ * slot. A receipt naming no probe, or another (the unconditional one before 🌊's ruling), is not
+ * about this probe: `probe-text-unbound`. The unit tests pin it against node:crypto.
+ */
+export const RRA_PROBE_TEXT_SHA256 = 'd6187455fe5d61ff33f4255e6ece5e65fde4cd67d0d452703c4262892292b8cf';
+
 /**
  * The text test: why `text` is not a probe this row may send, as codes, none when it is.
  * - probe-names-ack: it carries the ack marker, in any case, or the constant's name;
- * - probe-names-row-nonce: it carries the row nonce, or the proof id the priming names (its last
- *   16 characters), in any case; without a row nonce to compare, `row-nonce-unknown`;
- * - probe-nonce-missing: it does not ask for `PROBE-OK <probeNonce>`, or there is no probe nonce;
+ * - probe-names-row-nonce: it carries the row nonce, or the proof id the priming names (rraProofId),
+ *   in any case; without a row nonce to compare, `row-nonce-unknown`;
+ * - probe-nonce-missing: it does not ask for `PROBE-OK <probeNonce>`, that nonce whole, or there is
+ *   no probe nonce;
  * - probe-not-conditional-wording: it is not rraProbeText(probeNonce), 🌊's wording.
  * The scenario sends no probe that fails it.
  */
@@ -101,10 +120,12 @@ export function rraProbeTextProblems(text, { rowNonce, probeNonce } = {}) {
   const problems = [];
   const upper = text.toUpperCase();
   if (upper.includes(RRA_ACK_MARKER) || upper.includes('RRA_ACK_MARKER')) problems.push('probe-names-ack');
-  if (typeof rowNonce !== 'string' || rowNonce.length < PROOF_ID_CHARS) problems.push('row-nonce-unknown');
-  else if (upper.includes(rowNonce.toUpperCase()) || upper.includes(rowNonce.slice(-PROOF_ID_CHARS).toUpperCase())) problems.push('probe-names-row-nonce');
+  const proofId = rraProofId(rowNonce);
+  if (!proofId) problems.push('row-nonce-unknown');
+  else if (upper.includes(rowNonce.toUpperCase()) || upper.includes(proofId.toUpperCase())) problems.push('probe-names-row-nonce');
   const nonceOk = typeof probeNonce === 'string' && probeNonce.length > 0;
-  if (!nonceOk || !text.includes(`${RRA_PROBE_MARKER} ${probeNonce}`)) problems.push('probe-nonce-missing');
+  const asked = nonceOk && new RegExp(`(?:^|[^A-Za-z0-9_-])${escapeRegex(RRA_PROBE_MARKER)} ${escapeRegex(probeNonce)}(?=$|[^A-Za-z0-9_-])`, 'u').test(text);
+  if (!asked) problems.push('probe-nonce-missing');
   if (!nonceOk || text !== rraProbeText(probeNonce)) problems.push('probe-not-conditional-wording');
   return problems;
 }
@@ -1032,7 +1053,9 @@ function isHash(value) {
  *   other-nonce ack is MISSING; a wake turn is FAIL.
  * - Every probing case gets the same conditional probe (rraProbeText; 🌊, room msg
  *   1567590902694936678). Its reply is graded as one of two answers, never both required: a refusal
- *   needs `PROBE-OK <probeNonce>` and no ack; allowed-silent needs the ack, PROBE-OK or not.
+ *   needs `PROBE-OK <probeNonce>` and no ack; allowed-silent needs the ack, PROBE-OK or not. A probe
+ *   that ran must be named by its text's hash (RRA_PROBE_TEXT_SHA256), else MISSING
+ *   `probe-text-unbound`.
  */
 export function gradeRecipientAuthorityCase(record) {
   const missing = [];
@@ -1215,6 +1238,7 @@ export function gradeRecipientAuthorityCase(record) {
       // 1567590902694936678) tells a turn that drained the return to follow its priming instead.
       need(child.spawned === true, 'child-spawn-unobserved');
       need(target.probeRan === true, 'probe-turn-unobserved');
+      if (target.probeRan === true) need(target.probeTextSha256 === RRA_PROBE_TEXT_SHA256, 'probe-text-unbound');
       // The return reached the target at the router's `Delivered to` line naming it and coming from
       // this case's child (subagent-announce.continuation-return.ts:199-203). The router logs it only
       // for a recipient whose event is queued in memory, carrying the row's ack id, and still current
@@ -1307,8 +1331,11 @@ export function gradeRecipientAuthorityCase(record) {
       }
     }
     // With no return in its turn, the conditional probe is answered `PROBE-OK <probeNonce>`: that
-    // answer, from the probe's own run, shows the turn whose drain the absence is read after.
+    // answer, from the probe's own run, shows the turn whose drain the absence is read after. The
+    // receipt must name that probe: under another (the unconditional one) the absence of an ack was
+    // never shown able to fail. Unbound, a case is never PASS; a contradiction is still FAIL.
     need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
+    if (target.probeRan === true) need(target.probeTextSha256 === RRA_PROBE_TEXT_SHA256, 'probe-text-unbound');
     if (counted) {
       // The absence: no ack of this case's nonce in the probe run (probeAckRows) or any later run
       // (ackRuns). The primed target acks a return that reaches its turn, as allowed-silent shows on
@@ -1431,6 +1458,7 @@ function gradeWorkRefusalCase(record, spec) {
     need(isTime(target.probeSentAtMs) && reason.observedAtMs < target.probeSentAtMs, 'reason-not-before-probe');
   }
   need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
+  if (target.probeRan === true) need(target.probeTextSha256 === RRA_PROBE_TEXT_SHA256, 'probe-text-unbound');
   if (counted) {
     if (target.foreignRuns > 0) contradict('target-woken');
     if (target.adoptedDeliveryRows > 0) contradict('refused-work-adopted');

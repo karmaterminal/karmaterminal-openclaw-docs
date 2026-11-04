@@ -1170,7 +1170,13 @@ test('target transcript: priming runs never count, any later ack does, and a hea
     assert.equal(other.probeAckRows, text.includes(`${nonce}\n`) ? 1 : 0, text);
   }
   assert.equal(observeTargetTranscript([...messages, say(`TARGET-ACKED ${nonce}`, 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'another word is no ack');
-  assert.equal(observeTargetTranscript([...messages, say(`[k6-proof-harness] TARGET-ACK x`, 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'a quoted harness prompt is no ack');
+  // Review finding (target-ack lane): a row quoting the harness prompt is never credited as an ack,
+  // so an ack marker in it, with any nonce, is one the case cannot read; it is no longer skipped.
+  for (const text of [`[k6-proof-harness] TARGET-ACK x`, `[k6-proof-harness] probe: TARGET-ACK ${nonce}`]) {
+    const quoted = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-probe'), say(text, 'run-probe')], probeOpts);
+    assert.deepEqual([quoted.probeAckRows, quoted.wrongNonceAckRows], [1, 1], text);
+  }
+  assert.equal(observeTargetTranscript([...messages, say('[k6-proof-harness] probe: PROBE-OK probe-1', 'run-probe')], probeOpts).wrongNonceAckRows, 0, 'no ack marker, nothing unread');
   // A probe run id that is also a priming run's names no probe run: nothing in it is the probe's.
   const shared = observeTargetTranscript([...messages, say(`TARGET-ACK ${nonce}`, 'run-prime')], { ...probeOpts, probeRunId: 'run-prime' });
   assert.deepEqual([shared.probeAckRows, shared.primingAckRows, shared.probeReplied], [0, 2, false]);
@@ -1181,8 +1187,16 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   ];
   assert.equal(observeTargetTranscript(heartbeat, { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe' }).ackRuns, 1);
   // A heartbeat_respond receipt in the probe run is one probe ack.
-  const probeHeartbeat = heartbeat.map((row) => (row.__openclaw?.runId === 'run-hb' ? { ...row, __openclaw: { runId: 'run-probe' } } : row));
-  assert.equal(observeTargetTranscript(probeHeartbeat, probeOpts).probeAckRows, 1);
+  const inRun = (rows, runId) => rows.map((row) => (row.__openclaw?.runId === 'run-hb' ? { ...row, __openclaw: { runId } } : row));
+  assert.equal(observeTargetTranscript(inRun(heartbeat, 'run-probe'), probeOpts).probeAckRows, 1);
+  // Review finding (target-ack lane): one in a priming run is a priming ack, never the return's.
+  const primingHeartbeat = observeTargetTranscript(inRun(heartbeat, 'run-prime'), probeOpts);
+  assert.deepEqual([primingHeartbeat.primingAckRows, primingHeartbeat.ackRuns, primingHeartbeat.probeAckRows], [2, 0, 0], 'the text ack and the heartbeat ack of the priming run');
+  // ... and a heartbeat_respond call with another nonce is an unclean ack.
+  const otherHeartbeat = inRun(heartbeat, 'run-probe').map((row) => (row.role === 'assistant' && row.__openclaw?.runId === 'run-probe'
+    ? { ...row, content: [{ ...row.content[0], arguments: { ...row.content[0].arguments, notificationText: 'TARGET-ACK RCDRA-9-zzz' } }] }
+    : row));
+  assert.equal(observeTargetTranscript(otherHeartbeat, probeOpts).wrongNonceAckRows, 1);
   assert.equal(observeTargetTranscript([...messages, say('hello')], { nonce, primingRunIds: ['run-prime'] }).unattributedAssistantRows, 1);
   assert.equal(observeTargetTranscript([...messages, say(`RCDRA-RETURN ${nonce}`, 'run-probe')], { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe' }).returnMarkerRows, 1);
   assert.equal(countParentAcks([say(`TARGET-ACK ${nonce}`, 'run-d')], nonce), 1);
@@ -1631,6 +1645,18 @@ test('case receipts are signed; a tampered or foreign-key receipt does not verif
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, row: 'R-CD-4' }), false);
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceId: undefined }), false, 'no trace id, no trace');
   assert.equal(traceCorrelationMatches(completeRecord('allowed'), { ...good, traceJson: 'tempo-trace-000000000000.json' }), false, 'a trace file that is not its own');
+});
+
+// Review finding (target-ack lane): the scenario read OPENCLAW_RCD_RA_PROBE_SETTLE_MS, but the control
+// builds k6's environment from its own list, so the knob never reached k6.
+test('every timing knob the scenario reads reaches k6 through the control, and only a positive integer', () => {
+  const scenario = readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8');
+  const read = [...new Set([...scenario.matchAll(/numberEnv\('(OPENCLAW_RCD_RA_[A-Z_]+)'/gu)].map((match) => match[1]))].sort();
+  assert.ok(read.includes('OPENCLAW_RCD_RA_PROBE_SETTLE_MS'), read.join(','));
+  const env = Object.fromEntries(read.map((key) => [key, '1234']));
+  assert.deepEqual(Object.keys(parseArgs([], env).timing).sort(), read);
+  assert.throws(() => parseArgs([], { OPENCLAW_RCD_RA_PROBE_SETTLE_MS: '0' }), /positive integer/);
+  assert.throws(() => parseArgs([], { OPENCLAW_RCD_RA_PROBE_SETTLE_MS: '10s' }), /positive integer/);
 });
 
 test('the CLI fails closed with no target and refuses to grade without an observer key', () => {

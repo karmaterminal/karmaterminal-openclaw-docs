@@ -38,7 +38,7 @@
  *   reason and the absence of adoption, never from the row.
  */
 import { toolCallTarget } from './tool-call-identity.mjs';
-import { hasExactSentinelText, heartbeatAckFromHistory, messageRunId } from './wake-turn-receipt.mjs';
+import { hasExactSentinelText, heartbeatAckFromHistory, heartbeatRespondCalls, messageRunId } from './wake-turn-receipt.mjs';
 
 export const RRA_ROW = 'R-CD-RECIPIENT-AUTHORITY';
 /**
@@ -631,19 +631,29 @@ function roleOf(message) {
 }
 
 const HARNESS_MARKER = '[k6-proof-harness]';
+// The heartbeat_respond fields an ack may sit in (lib/wake-turn-receipt.mjs, SENTINEL_FIELDS).
+const HEARTBEAT_ACK_FIELDS = ['notificationText', 'notification_text', 'summary'];
 
 /**
- * Whether `text` carries the ack marker anywhere without this case's nonce after it: another
- * nonce, or none. Text that quotes the harness prompt is no ack at all (hasExactSentinelText).
+ * Whether `text` carries the ack marker anywhere that is not a clean ack of this case's nonce:
+ * another nonce after it, none, or any ack marker in text that quotes the harness prompt, which
+ * hasExactSentinelText never credits.
  */
 function hasOtherNonceAck(text, nonce) {
-  if (typeof text !== 'string' || !text || text.includes(HARNESS_MARKER)) return false;
+  if (typeof text !== 'string' || !text) return false;
+  const quotesHarness = text.includes(HARNESS_MARKER);
   const marker = new RegExp(`(?:^|[^A-Za-z0-9_-])${escapeRegex(RRA_ACK_MARKER)}(?![A-Za-z0-9_-])`, 'gu');
   const exact = typeof nonce === 'string' && nonce ? new RegExp(`^\\s+${escapeRegex(nonce)}(?=$|[^A-Za-z0-9_-])`, 'u') : null;
   for (let match = marker.exec(text); match; match = marker.exec(text)) {
-    if (!exact || !exact.test(text.slice(match.index + match[0].length))) return true;
+    if (quotesHarness || !exact || !exact.test(text.slice(match.index + match[0].length))) return true;
   }
   return false;
+}
+
+/** Whether an assistant row carries an ack marker that is not a clean ack, as text or in a heartbeat_respond call. */
+function rowHasOtherNonceAck(message, text, nonce) {
+  if (hasOtherNonceAck(text, nonce)) return true;
+  return heartbeatRespondCalls(message).some((call) => HEARTBEAT_ACK_FIELDS.some((field) => hasOtherNonceAck(call.args?.[field], nonce)));
 }
 
 /**
@@ -658,11 +668,12 @@ function hasOtherNonceAck(text, nonce) {
  * - probeAckRows: rows of the probe run that carry the exact ack (assistant text rows, plus one per
  *   heartbeat_respond receipt). The probe run is the one sessions.send started for the probe, by its
  *   run id; a run id that is also a priming run's names no probe run.
- * - primingAckRows: assistant rows of a priming run that carry the exact ack, given before any
- *   return existed. Never an ack of the return; allowed-silent reads one as a model that acks
- *   unprompted.
- * - wrongNonceAckRows: assistant rows outside the priming runs that carry the ack marker without
- *   this case's nonce after it.
+ * - primingAckRows: rows of a priming run that carry the exact ack (assistant text rows, plus one per
+ *   heartbeat_respond receipt), given before any return existed. Never an ack of the return;
+ *   allowed-silent reads one as a model that acks unprompted.
+ * - wrongNonceAckRows: assistant rows outside the priming runs whose text or heartbeat_respond call
+ *   carries the ack marker other than as a clean ack of this case's nonce: another nonce, none, or
+ *   in text that quotes the harness prompt.
  * - foreignRuns: distinct assistant runs that are neither priming nor the probe (a wake).
  * - unattributedAssistantRows: assistant rows with no run id; they cannot be placed, so a case
  *   that has any is MISSING.
@@ -670,7 +681,7 @@ function hasOtherNonceAck(text, nonce) {
  * - probeReplied: the probe run answered `PROBE-OK <probeNonce>`.
  * - adoptedDeliveryRows: rows carrying the product's adoption marker,
  *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:53-71 at j12′), which
- *   chat.history keeps (chat-display-projection.sanitize.ts:455-462). No pin writes it for a
+ *   chat.history keeps (chat-display-projection.sanitize.ts:442-475 strips only named private keys). No pin writes it for a
  *   sessions.send turn: the turn's input is staged before its drain
  *   (chat-send-input-dispatch.ts:330-350), the staged recorder refuses the ids
  *   (src/sessions/user-turn-transcript.ts:130-140) and the return is adopted without a receipt
@@ -706,7 +717,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     } else {
       if (runId !== probeRunId) foreignRuns.add(runId);
       if (acked) ackRuns.add(runId);
-      if (hasOtherNonceAck(text, nonce)) wrongNonceAckRows += 1;
+      if (rowHasOtherNonceAck(message, text, nonce)) wrongNonceAckRows += 1;
     }
     if (probe && runId === probe && acked) probeAckRows += 1;
     if (hasExactSentinelText(text, RRA_RETURN_MARKER, nonce)) returnMarkerRows += 1;
@@ -728,6 +739,20 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     ackRuns.add(receipt.runId);
     if (probe && receipt.runId === probe) probeAckRows += 1;
     afterIndex = receipt.index;
+  }
+  // heartbeat_respond acks inside a priming run: every other run excluded, so only those bind.
+  const otherRunIds = [...new Set(list.map((message) => messageRunId(message)).filter((id) => id && !priming.has(id)))];
+  for (let from = -1; priming.size > 0;) {
+    const receipt = heartbeatAckFromHistory(list, {
+      marker: RRA_ACK_MARKER,
+      nonce,
+      afterIndex: from,
+      excludeRunIds: otherRunIds,
+      requireRunId: true,
+    });
+    if (!receipt) break;
+    primingAckRows += 1;
+    from = receipt.index;
   }
   return {
     ackRuns: ackRuns.size,

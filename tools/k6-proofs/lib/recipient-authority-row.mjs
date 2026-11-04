@@ -1269,15 +1269,13 @@ function gradeCaseRecord(record, specs) {
       // from this case's child (RRA_PARKED_COPY_WITNESS_BYTES), the same line the grade reads as the
       // park; the transition was requested after that release. Without it the case shows another
       // ordering or none (a transition before the enqueue is refused at enqueue): MISSING. The witness
-      // only adds MISSING: while the record's own line from the child precedes the transition request,
-      // the ordering it shows still holds, so a contradiction is still FAIL.
+      // only adds MISSING. The ordering premise stays the park before the transition request (above),
+      // so wherever that holds a contradiction is still FAIL, as before the witness.
       const witness = record.witness ?? {};
       if (!(isTime(witness.parkedCopyAtMs) && witness.parkedCopyAtMs === record.park?.deliveredFromChildAtMs &&
         isTime(witness.releasedAtMs) && witness.parkedCopyAtMs <= witness.releasedAtMs &&
         isTime(transition.requestedAtMs) && witness.releasedAtMs <= transition.requestedAtMs)) {
         missing.push('parked-copy-unwitnessed');
-        const fromChild = record.park?.deliveredFromChildAtMs;
-        if (!(isTime(fromChild) && isTime(transition.requestedAtMs) && fromChild < transition.requestedAtMs)) premise = false;
       }
     }
     // A router line while the transition RPC was in flight may have read the epoch before it
@@ -1341,7 +1339,9 @@ function gradeCaseRecord(record, specs) {
     const fallback = spec.fallbackProbe === true && (target.probeRan === true || record.ack?.path === 'probe-mediated');
     if (counted) {
       if (parent.ackRows > 0) contradict('return-landed-in-parent');
-      if (!fallback && target.ackRuns > 1) contradict('duplicate-adoption');
+      // Only allowed's fallback probe, once it ran, puts an ack in a run that is not a wake turn and
+      // is graded apart; a label alone never does, and every other case keeps this rule.
+      if (!(spec.fallbackProbe === true && target.probeRan === true) && target.ackRuns > 1) contradict('duplicate-adoption');
       if (target.foreignRuns > 1) contradict('duplicate-wake');
       if (!spec.probeAdopts && target.ackRuns === 0 && routed && target.unattributedAssistantRows === 0) {
         // Routed and never woken is the product's, probe or no probe; woken without the exact ack may be

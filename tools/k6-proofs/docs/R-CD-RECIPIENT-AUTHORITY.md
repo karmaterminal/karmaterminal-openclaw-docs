@@ -514,14 +514,9 @@ parked case the grade requires:
 - the release at or after it;
 - the transition requested at or after the release.
 
-Otherwise the case is MISSING `parked-copy-unwitnessed`. The witness only adds MISSING:
-
-- while the record's own router line from the child precedes the transition request, the ordering
-  it shows still holds, so an ack, wake or route of the refused return is still FAIL, as at
-  `53c1c192`;
-- with no such line, nothing the return then did is judged, as for the other premises.
-
-Every other rule is unchanged: the park before the transition request,
+Otherwise the case is MISSING `parked-copy-unwitnessed`. The witness only adds MISSING. The
+ordering premise stays the park line before the transition request, so wherever that holds an ack,
+wake or route of the refused return is still FAIL, as at `53c1c192`. Every other rule is unchanged: the park before the transition request,
 no route while it was in flight, the epoch advanced, the reason at the pinned stage, and after the
 probe for `prompt-drain`.
 
@@ -1305,8 +1300,8 @@ refusal becomes provable.
 - A parked case without the control's witness of its queued copy before the transition is MISSING
   (`parked-copy-unwitnessed`, 🌊, room msg 1567623059727458526). The witness is `record.witness`: the
   router's `Delivered to` line from the case's child, the same line read as the park, then the
-  release, then the transition. It only adds MISSING: while the record's own line from the child
-  precedes the transition request, a contradiction is still FAIL. An enqueue refusal never satisfies a
+  release, then the transition. It only adds MISSING: wherever the park before the transition request
+  holds, a contradiction is still FAIL. An enqueue refusal never satisfies a
   parked case. The early-enqueue ordering is graded only as its own dry-run pin
   (`gradeEarlyEnqueuePin`), never as a row case.
 - A contradiction is **FAIL-candidate**: a refused return acknowledged (in the probe run or any

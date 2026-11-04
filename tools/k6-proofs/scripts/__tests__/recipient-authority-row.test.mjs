@@ -1169,33 +1169,30 @@ test('a parked case holds only with the control\'s witness of its return\'s queu
   }
   for (const caseId of parked) {
     const adopted = (r) => { r.target.ackRuns = 1; r.target.probeAckRows = 1; };
-    for (const [label, fn, fromChildFirst] of [
-      ['no witness', (r) => { r.witness = null; }, true],
-      ['the line never seen', (r) => { r.witness = { parkedCopyAtMs: null, releasedAtMs: null }; }, true],
-      ['never released', (r) => { r.witness.releasedAtMs = null; }, true],
-      ['released before the line', (r) => { r.witness.releasedAtMs = 3_999; }, true],
-      ['the transition sent before the release', (r) => { r.witness.releasedAtMs = 5_001; }, true],
-      ['another line than the park', (r) => { r.witness.parkedCopyAtMs = 3_000; }, true],
-      ['no park line from the child', (r) => { r.park.deliveredFromChildAtMs = null; }, false],
-      ['the park line from the child after the transition request', (r) => { r.park.deliveredFromChildAtMs = 5_050; r.witness.parkedCopyAtMs = 5_050; }, false],
+    for (const [label, fn] of [
+      ['no witness', (r) => { r.witness = null; }],
+      ['the line never seen', (r) => { r.witness = { parkedCopyAtMs: null, releasedAtMs: null }; }],
+      ['never released', (r) => { r.witness.releasedAtMs = null; }],
+      ['released before the line', (r) => { r.witness.releasedAtMs = 3_999; }],
+      ['the transition sent before the release', (r) => { r.witness.releasedAtMs = 5_001; }],
+      ['another line than the park', (r) => { r.witness.parkedCopyAtMs = 3_000; }],
+      ['no park line from the child', (r) => { r.park.deliveredFromChildAtMs = null; }],
+      ['the park line from the child after the transition request', (r) => { r.park.deliveredFromChildAtMs = 5_050; r.witness.parkedCopyAtMs = 5_050; }],
     ]) {
       // Without an ack the case is MISSING: the receipt does not show the gate.
       const quiet = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), fn));
       assert.equal(quiet.verdict, 'MISSING-candidate', `${caseId} ${label}: ${JSON.stringify(quiet)}`);
       assert.ok(quiet.missing.includes('parked-copy-unwitnessed'), `${caseId} ${label}: ${quiet.missing}`);
-      // With an ack of the refused return: the witness only adds MISSING. While the record's own line
-      // from the child precedes the transition request, the ordering holds and the ack is still FAIL
-      // (review finding: at 53c1c192 it was FAIL); with no such line nothing is judged.
+      // With an ack of the refused return: the witness only adds MISSING. The park before the
+      // transition request still holds, so the ack is still FAIL, as at 53c1c192 (review finding).
       const graded = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { fn(r); adopted(r); }));
       assert.ok(graded.missing.includes('parked-copy-unwitnessed'), `${caseId} ${label}: ${graded.missing}`);
-      if (fromChildFirst) {
-        assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} ${label}: ${JSON.stringify(graded)}`);
-        assert.deepEqual(graded.contradictions, ['refused-return-adopted'], `${caseId} ${label}`);
-      } else {
-        assert.equal(graded.verdict, 'MISSING-candidate', `${caseId} ${label}: ${JSON.stringify(graded)}`);
-        assert.deepEqual(graded.contradictions, [], `${caseId} ${label}: no line from the child before the transition, not judged`);
-      }
+      assert.equal(graded.verdict, 'FAIL-candidate', `${caseId} ${label}: ${JSON.stringify(graded)}`);
+      assert.deepEqual(graded.contradictions, ['refused-return-adopted'], `${caseId} ${label}`);
     }
+    // With no park before the transition at all, nothing the return did is judged, as before.
+    const unparked = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.park = { deliveredToTargetAtMs: null, deliveredFromChildAtMs: null }; r.witness = null; adopted(r); }));
+    assert.deepEqual([unparked.verdict, unparked.contradictions], ['MISSING-candidate', []], caseId);
     // With the witness, an ack of the refused return is still FAIL.
     const acked = gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.ackRuns = 1; }));
     assert.equal(acked.verdict, 'FAIL-candidate', caseId);
@@ -1281,6 +1278,13 @@ test('allowed: one ack in its woken run (direct wake), or only after a woken run
   ]) {
     const never = gradeRecipientAuthorityCase(mutate(completeRecord('allowed'), fn));
     assert.deepEqual([never.verdict, never.contradictions], ['FAIL-candidate', ['allowed-return-not-adopted']]);
+  }
+  // A label alone never switches off the direct path's duplicate: two ack runs with no probe is FAIL
+  // (re-review finding).
+  for (const wakeAckRuns of [2, null]) {
+    const doubled = gradeRecipientAuthorityCase(mutate(completeRecord('allowed'), (r) => { r.target.ackRuns = 2; r.target.wakeAckRuns = wakeAckRuns; r.ack.path = 'probe-mediated'; }));
+    assert.equal(doubled.verdict, 'FAIL-candidate', `${wakeAckRuns}: ${JSON.stringify(doubled)}`);
+    assert.ok(doubled.contradictions.includes('duplicate-adoption'), String(wakeAckRuns));
   }
   const neverProbed = gradeRecipientAuthorityCase(mutate(fallbackRecord(), (r) => { r.target.probeAckRows = 0; r.target.ackRuns = 0; r.target.foreignRuns = 0; }));
   assert.deepEqual([neverProbed.verdict, neverProbed.contradictions], ['FAIL-candidate', ['allowed-return-not-adopted']]);

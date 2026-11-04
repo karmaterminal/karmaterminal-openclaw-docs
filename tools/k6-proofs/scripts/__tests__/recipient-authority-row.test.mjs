@@ -129,14 +129,31 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   for (const old of [INTERIM, PRE_GRANT]) {
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
-  // The status line: the owner's one run at the merged head, the three cases it left open now fixed,
+  // The status line: the owner's fresh 13 at the merged head, the two cases it left open now fixed,
   // and what the owner runs next.
-  assert.match(docs, /^Status: \*\*10\/13 PASS-candidate at `2907e656` \(run `rra-88e4fd22f0b122a8`\); fixes landed, the probe\s+now conditional; owner fires the three at the new head, then the fresh 13\.\*\* In no corpus\./m);
+  assert.match(docs, /^Status: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed; owner fires a fresh 13\.\*\* In no corpus\./m);
   const status = docs.slice(0, docs.indexOf('## What it proves'));
-  for (const open of ['`wake-reassigned`', '`reassigned`', '`allowed-silent`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
+  for (const open of ['`revoked-owner`', '`allowed`']) assert.match(status, new RegExp(`^- ${open}:`, 'm'), open);
+  assert.match(status, /1567622903074390167/, 'the fresh 13\'s room message');
+  // The run before it is history: its three are fixed, and its allowed-silent receipt never upgraded.
+  assert.match(status.replace(/\s+/gu, ' '), /`rra-88e4fd22f0b122a8` \(docs `935898d1`\), graded 10 of 13/);
   assert.doesNotMatch(status, /held for 🌊/, 'allowed-silent is ruled, no longer held');
   // 🌊's conditional-probe ruling, quoted; the probe text as sent; the old receipt never upgraded.
-  assert.match(status, /stays MISSING `probe-ack-unobserved` and is never upgraded/);
+  assert.match(status.replace(/\s+/gu, ' '), /stays MISSING `probe-ack-unobserved` and is never upgraded/);
+  // 🌊's ordering ruling, quoted; the case table's witness and allowed's two paths.
+  const flatDocs = docs.replace(/\s+/gu, ' ');
+  for (const quote of [
+    'witness the queued/parked copy first, then change owner and prove refusal at probe-drain.',
+    'If the fixture also supports the earlier-enqueue ordering, pin it separately; don\'t let that substitute for the parked-copy claim.',
+    'Credit exactly one nonce-bound ACK in that probe run, after the delivered return, and label the receipt **probe-mediated** rather than claiming an ACK in the wake turn. No ACK remains MISSING, never FAIL.',
+  ]) assert.ok(flatDocs.includes(quote), quote);
+  for (const caseId of ['revoked-visibility', 'revoked-membership', 'revoked-owner']) {
+    assert.match(docs, new RegExp(`^\\| \`${caseId}\` \\|[^\\n]*witness`, 'm'), `${caseId}: the witness in the case table`);
+  }
+  assert.match(docs, /^\| `allowed` \|[^\n]*\*\*Direct wake:\*\*[^\n]*\*\*Probe-mediated fallback\*\*/m);
+  for (const heading of ['### `revoked-*`: the parked copy witnessed before the transition', '### The early-enqueue ordering, pinned apart', '### `allowed`: the direct-wake path and the probe-mediated fallback']) {
+    assert.ok(docs.includes(`\n${heading}\n`), heading);
+  }
   assert.match(docs, /1567590902694936678 \(the conditional probe\)/);
   const flat = docs.replace(/\s+/g, ' ');
   assert.ok(flat.includes(`'${RRA_PROBE_CONDITION} Otherwise reply exactly PROBE-OK ‹probe nonce›.'`), 'the ruling, quoted');

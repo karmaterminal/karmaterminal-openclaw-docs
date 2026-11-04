@@ -826,7 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
-| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 2907e656) | 10/13 PASS-candidate at j12′ (run `rra-88e4fd22f0b122a8`); fixes landed (`allowed-silent` on its probe run's `TARGET-ACK`, 🌊's ruling (a); every case's probe conditional, 🌊's room msg 1567590902694936678, the old `allowed-silent` receipt staying MISSING `probe-ack-unobserved`); owner fires the three at the new head, then the fresh 13; MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ 2907e656) | 11/13 at `rra-a4d5318d426ad728`; fixes landed (🌊's room msg 1567623059727458526: a parked case's transition sent only once the control witnessed its return's queued copy, the early-enqueue ordering pinned apart as a dry-run case; `allowed`'s probe-mediated fallback only after a woken run with no ack); owner fires a fresh 13; MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -935,7 +935,16 @@ same conditional probe (🌊, room msg 1567590902694936678): a turn holding the 
 priming and acks, any other replies `PROBE-OK <probeNonce>`, and the probe names neither the ack nor
 the row nonce. A refusal passes on that `PROBE-OK` and no ack, `allowed-silent` on the ack, and
 neither needs both. A receipt whose probe ran names that probe by the text's hash, or the case is
-MISSING (`probe-text-unbound`).
+MISSING (`probe-text-unbound`). 🌊's room msg 1567623059727458526 adds two rules. A parked case
+(`revoked-*`, `reassigned`, `replay-restart`) sends its transition only once the control has seen the
+router's `Delivered to` line for its target from its child, the one public witness of the return's
+queued copy: its drive ends at the child's return and its transition runs in a phase of its own, else
+MISSING (`parked-copy-unwitnessed`). A transition that beats the enqueue is refused at `stage=enqueue`;
+that ordering is pinned apart as a dry-run case and never satisfies a revoked case. `allowed` passes
+on one ack in its woken run (direct wake); only when that run has no ack does it send the same
+conditional probe, and exactly one ack in the probe's own run, after the delivered return, is credited
+and labelled `probe-mediated`, never as an ack in the wake turn. No ack on either path is MISSING,
+never FAIL.
 `unauthorized-admission` and `unauthorized-dispatch` must show the cross-session policy refusal.
 `revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`,
 `wake-revoked-visibility`, `wake-reassigned` and `replay-restart` must each show j12′'s

@@ -154,8 +154,10 @@ export const RRA_ORDERING_RULING = '1567623059727458526';
 
 /**
  * Why the router's `Delivered to <target> from <child>` line witnesses the return's queued copy at
- * j12′ 2907e656. No gateway RPC reads a session's queued system events (peekSystemEvents and
- * peekSystemEventEntries have test callers only), so this console line is the public witness the
+ * j12′ 2907e656. No gateway RPC reads a session's queued system events: peekSystemEventEntries and
+ * peekSystemEvents (src/infra/system-events.ts:717, 737) have in-process callers only (the reset
+ * cleanup, hook dispatch, session creation, the plugin SDK runtime), and no file under
+ * src/gateway/server-methods but a test names them. So this console line is the public witness the
  * control reads before it releases a parked case's transition.
  */
 export const RRA_PARKED_COPY_WITNESS_BYTES =

@@ -14,15 +14,17 @@
  * refuses from setup() and from default(). It never decides a verdict: it prints evidence, and
  * lib/recipient-authority-row.mjs grades the control's case record.
  *
- * Product path at j12′, karmaterminal/openclaw e9dc1c318a2f73fd01755fc4682fa3349e8a0e94 (INTERIM:
- * the reviewed refused chain; the merged j12′ replaces it), byte-read with git show / git grep at
- * that commit. j12 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only. Sections 1-4
- * and 6 read files j12′ did not change; section 5 is j12′'s own.
+ * Product path at j12′, karmaterminal/openclaw 1ab5a73e14309922fa79edf4f93034bdb0acde62 (the merged
+ * head), every anchor re-walked with git show / git grep at that commit. j12
+ * 352f56029dc95c60149ab4aaa127226a861d0b3d is the named baseline only, and the refused chain
+ * e9dc1c31 the row's former interim pin. Sections 1-4 and 6 read files that are j12's own or whose
+ * cited lines j12′ only moved; section 5 is j12′'s return refusal and section 7 its continue_work
+ * binding.
  *
  * 1. Authority. One UUID epoch per logical session key in session_recipient_authority (per-agent
  *    database). A binding is current only while the stored epoch equals the captured one
- *    (src/config/sessions/session-recipient-authority-types.ts:87-92). Capture is insert-if-absent
- *    for ANY key, existing session or not (src/config/sessions/session-recipient-authority.worker.ts:35-50,
+ *    (src/config/sessions/session-recipient-authority-types.ts:96-101). Capture is insert-if-absent
+ *    for ANY key, existing session or not (src/config/sessions/session-recipient-authority.worker.ts:36-56,
  *    src/config/sessions/session-sharing-store.worker.ts:170-174).
  *
  * 2. Bound. continue_delegate with targetSessionKey (src/agents/tools/continue-delegate-tool.ts:319-339)
@@ -30,7 +32,7 @@
  *    custody record is created only after the binding is captured
  *    (src/auto-reply/continuation/delegate-flow-store.ts:426-437 ->
  *    src/auto-reply/continuation/recipient-authority-binding.ts:56-74). The tool's "scheduled" result
- *    (:436-449) is therefore after capture. The child carries the binding
+ *    (continue-delegate-tool.ts:436-449) is therefore after capture. The child carries the binding
  *    (src/auto-reply/continuation/delegate-dispatch-request.ts:65-66,
  *    src/agents/subagents/spawn/subagent-spawn-request.ts:328, subagent-spawn-continuation.ts:138-159).
  *
@@ -40,12 +42,12 @@
  *      (gateway sessions.delete, src/gateway/server-methods/sessions-delete.ts:589; the epoch row
  *      outlives the session, so sessions.create of the same key keeps the advanced epoch);
  *    - owner change: src/config/sessions/session-accessor.sqlite-owner.ts:158-182 (sessions.assignOwner,
- *      src/gateway/server-methods/sessions-mutations.ts:343-470; it refuses a caller that is neither
+ *      src/gateway/server-methods/sessions-mutations.ts:343-518; it refuses a caller that is neither
  *      an agent runtime nor a human profile, :362-374, so a shared-token client cannot drive it; the
  *      agent's sessions tool action assign_owner can, src/agents/tools/sessions-tool.ts:384-419);
  *    - visibility narrowing, every writer: src/config/sessions/session-accessor.sqlite-entry-mutation.ts:119-136
  *      (session.visibility.set, src/gateway/server-methods/sessions-sharing.ts:527-610; rank
- *      shared 3 > suggest 2 > read-only 1 > draft 0, session-recipient-authority-types.ts:66-99;
+ *      shared 3 > suggest 2 > read-only 1 > draft 0, session-recipient-authority-types.ts:75-108;
  *      every visibility allowed by default, src/gateway/session-sharing-policy.ts:85-100);
  *    - member removal: src/config/sessions/session-sharing-store.native.ts:150-195 (session.members.remove,
  *      sessions-sharing.ts:337-423, 616; members.add accepts only a known identity, :347-361).
@@ -69,14 +71,14 @@
  *    span (src/auto-reply/continuation/delegate-dispatch.ts:267-290). The policy is read at each
  *    decision (config.ts:84-92), and agents.defaults.continuation.* reloads hot
  *    (src/gateway/config-reload.prepared-model-runtime.test.ts:74-96), so config.patch
- *    (src/gateway/server-methods/config.ts:798-850) changes it without a restart. j12′ has no per-target
+ *    (src/gateway/server-methods/config.ts:798-980) changes it without a restart. j12′ has no per-target
  *    addressability check.
  *
  * 5. Checked, enqueued, woken, adopted, and what a refusal leaves (all at j12′):
  *    - every refusal logs `[continuation:return-refused] stage=<enqueue|replay|wake|prompt-drain>
  *      reason=recipient-authority-changed session=<key>[ deliveryId=<id>]` from the subsystem
- *      continuation/return-refused (src/auto-reply/continuation/return-refusal.ts:15-29), and a
- *      written row is retired as a bounded `failed` receipt, never acked (:36-49);
+ *      continuation/return-refused (src/auto-reply/continuation/return-refusal.ts:16-36), and a
+ *      written row is retired as a bounded `failed` receipt, never acked (return-refusal.ts:53-66);
  *    - return routing: src/agents/subagent-announce.continuation-return.ts:98-215. It logs
  *      `[continuation:targeted-return] Delivered to <keys> from <child>` only for the recipients it
  *      delivered, and nothing at all when every recipient was refused (:189-203); it wakes them
@@ -84,8 +86,8 @@
  *    - enqueue: src/auto-reply/continuation/targeting.ts:249-411. Its first authority read refuses a
  *      stale recipient before any row, with no deliveryId (:277-280, through refuseStaleRecipient
  *      :261-276); a row gone stale after its write (:313-347) or after its queueing (:358-374) is
- *      refused with its deliveryId; a current return queues an adoption-scoped event and requests
- *      a wake (:395-403);
+ *      refused with its deliveryId; a current return queues an adoption-scoped event (:322-341)
+ *      and requests a wake (:395-403);
  *    - wake handoff: src/auto-reply/continuation/continuation-wake.ts:127-256, 250 ms after the
  *      request (:41, :106). It re-reads authority (:163-171) and refuses a stale event with
  *      stage=wake (:233-243 -> src/auto-reply/reply/session-system-event-adoption.ts:118-147). No
@@ -94,7 +96,7 @@
  *      stage=prompt-drain before formatting, and final adoption re-checks under writer admission
  *      (session-system-event-adoption.ts:191-211, 248-270);
  *    - durable replay (the 45-75 s pending sweep, src/infra/session-delivery-queue-runtime.ts:52-66,
- *      143-149, and the boot recovery, src/gateway/server-restart-sentinel.ts:80-97, 138-153):
+ *      143-160, and the boot recovery, src/gateway/server-restart-sentinel.ts:80-97, 138-153):
  *      src/gateway/server-restart-sentinel-delivery.ts:263-281 and 307-329 call
  *      refuseStaleAuthorityReplay (:50-76), which DEFERS while the row still has a queued copy in
  *      memory (:61-65) and otherwise logs stage=replay with deliveryId=<row id> (:66-71);
@@ -102,14 +104,18 @@
  *      `recovered` (src/infra/session-delivery-queue-recovery.ts:152-215). No public surface reads
  *      the receipt: the gateway health's failed count leaves it out on purpose
  *      (src/infra/delivery-queue-sqlite.kernel.ts:397-429; src/gateway/health/collector.ts:640-654);
- *    - adoption: the adopting transcript row carries __openclaw.sessionDeliveryAckIds
- *      (src/auto-reply/reply/managed-delivery-turn-lifecycle.ts:107-111; read back at
+ *    - adoption: the adopting transcript row carries __openclaw.sessionDeliveryAckIds (the turn input
+ *      src/auto-reply/reply/managed-delivery-turn-lifecycle.ts:107-111, written to the row by
+ *      src/sessions/user-turn-transcript.metadata.ts:102-104; read back at
  *      session-system-event-adoption.ts:53-71); chat.history hides the wake's own rows (see
  *      lib/wake-turn-receipt.mjs), so a wake's adoption is read from the primed target's TARGET-ACK;
  *    - sessions.delete (and sessions.reset) consume the session's queued events
  *      (src/gateway/server-methods/sessions-delete.ts:454-470 -> src/gateway/session-lifecycle-cleanup.ts:74-92
  *      -> src/gateway/session-reset-runtime-cleanup.ts:77-93 -> src/gateway/session-reset-runtime-state.ts:11-51
- *      -> src/auto-reply/reply/session-reset-cleanup.ts:146-196, consumed at :194-196).
+ *      -> src/auto-reply/reply/session-reset-cleanup.ts:149-227, consumed at :202-203). At j12′ a
+ *      delete still ends the session's own custody (cancelSessionContinuations, :171-175); /new and
+ *      /reset end only the replaced head's (retireReplacedHeadContinuations). Neither touches a
+ *      return another session's delegate owes this one.
  *    So each case's stage (RRA_CASES, refusedAt): revoked-visibility, revoked-membership and
  *    revoked-owner park a silent return whose queued copy survives the transition, so the sweep
  *    defers and the probe turn's prompt drain refuses it (stage=prompt-drain); reassigned deletes the
@@ -122,9 +128,34 @@
  *    (OPENCLAW_SUPERVISOR_MODE=external, src/infra/gateway-supervision.ts:5-12): gateway.restart.request
  *    (operator.admin, src/gateway/methods/core-descriptors.ts:339) closes, writes the restart handoff
  *    and exits 0 (src/cli/gateway-cli/run-loop.ts:496-551); the control consumes it
- *    (`gateway restart-handoff consume --expected-pid`, src/cli/gateway-cli/register-restart-handoff.ts:42-61)
+ *    (`gateway restart-handoff consume --expected-pid`, src/cli/gateway-cli/register-restart-handoff.ts:41-74)
  *    and starts the replacement, whose boot recovery replays the parked row. This reuses the restart
  *    control's branch, not its row: nothing here reads or feeds R-CD-RETURN-COVENANT-AUTHORITY.
+ *
+ * 7. continue_work (work-revoked-visibility). A kept continue_work wake is bound to its session's
+ *    recipient authority (src/auto-reply/continuation/work-recipient-authority.ts, RFC
+ *    docs/design/continue-work-signal-v2.md "Kept continue_work wakes and recipient authority"):
+ *    - the tool only queues the request and answers `scheduled` (src/agents/tools/continue-work-tool.ts:84-110,
+ *      src/auto-reply/reply/agent-runner-embedded-candidate.ts:222-224); the turn schedules it after the
+ *      attempt (src/auto-reply/reply/agent-runner-continuation-signal.ts:463 ->
+ *      src/auto-reply/continuation/work-dispatch.ts:631-740), whose election captures the epoch first
+ *      (:662-665 -> work-operator-continuation.ts:34-52 -> work-recipient-authority.ts:63-67,
+ *      insert-if-absent). So the capture comes AFTER the scheduled toolResult; the control reads it
+ *      from the store, where this session's row first appears with it;
+ *    - the wake is due at the election plus its delay, or at its turn's finalization plus the delay
+ *      (work-dispatch.ts:667-668, work-store.ts:315-365). The timer drives the dispatcher with no
+ *      busy check first (work-dispatch.ts:169-199), which claims the due record (work-store.ts:213-313)
+ *      and at the handoff refuses a stale binding (work-dispatch.ts:529 -> work-recipient-authority.ts
+ *      :102-152) before the busy, fold, admission and turn-start-fence branches (:573-627). The record
+ *      fails with no notice (work-store.ts:639-655) and the refusal logs
+ *      `[continuation:work-refused] stage=wake reason=recipient-authority-changed session=<key> flowId=<id>`
+ *      from the subsystem continuation/work-refused (src/auto-reply/continuation/return-refusal.ts:38-46);
+ *      a failed record is never claimed again (work-store.ts:226, 260);
+ *    - the only earlier boundary, the replay sweep, runs at custody boot (custody-boot.ts:107-114 ->
+ *      work-recipient-authority.ts:159-171); a later one, adoption (work-dispatch-execution.ts:267, 450),
+ *      sees the wake only if the handoff could not read the authority (work-recipient-authority.ts:116-124).
+ *    So the case pins stage=wake: the session elects with a delay, narrows its own visibility after
+ *    the capture, and is probed only after the wake was due.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';
@@ -148,8 +179,10 @@ import {
   RRA_TASK_MARKER,
   countDelegateCalls,
   countParentAcks,
+  countWorkCalls,
   findDelegateDispatch,
   findOwnerAssignment,
+  findWorkElection,
   observeTargetTranscript,
   scenarioMethodsFor,
 } from '../lib/recipient-authority-row.mjs';
@@ -178,6 +211,10 @@ const manifest = loadManifestFromEnv();
 // is rendered the same way (lib/row-child-correlation.mjs).
 const DEFAULT_TASK_TEMPLATE =
   'RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.';
+// The continue_work case's reason. A wake turn, if one ran, would answer it with a visible row; the
+// marker is counted nowhere, so the model repeating it in the probe turn decides nothing.
+const DEFAULT_WORK_REASON_TEMPLATE =
+  'RCDRA:{{nonceSuffix16}} Proof wake {{nonce}}: when this continuation runs, reply exactly RCDRA-WOKE {{nonce}}. Do not mutate files. Do not post to any channel.';
 
 const REFUSAL =
   'R-CD-RECIPIENT-AUTHORITY runs only under tools/k6-proofs/scripts/run-recipient-authority-row.mjs, which starts the disposable gateway at j12′ and passes its run id, case and phase.';
@@ -264,12 +301,14 @@ export default function () {
   const rowNonce = prior?.nonce || makeNonce('RCDRA');
   const suffix = rowNonce.slice(-16);
   const probeNonce = makeNonce('RCDRA-PROBE');
+  // The continue_work case has no parent: its session elects its own wake and is the recipient.
   const keys = prior?.keys || {
-    parent: sessionKeyFor(`${control.caseId}-parent`, suffix),
+    parent: spec.tool === 'continue_work' ? null : sessionKeyFor(`${control.caseId}-parent`, suffix),
     target: sessionKeyFor(`${control.caseId}-target`, suffix),
     ops: spec.transition === 'sessions.assignOwner' ? sessionKeyFor(`${control.caseId}-ops`, suffix) : null,
   };
   const childTask = renderRowTaskTemplate(manifest?.invocation?.promptTemplate || DEFAULT_TASK_TEMPLATE, rowNonce);
+  const workReason = renderRowTaskTemplate(manifest?.invocation?.workReasonTemplate || DEFAULT_WORK_REASON_TEMPLATE, rowNonce);
   const delaySeconds = numberEnv('OPENCLAW_RCD_RA_DELAY_SECONDS', 30);
   const pollMs = numberEnv('OPENCLAW_RCD_RA_POLL_MS', 2000);
   const windowMs = numberEnv('OPENCLAW_RCD_RA_WINDOW_MS', 120000);
@@ -298,6 +337,7 @@ export default function () {
     probe_ran: false,
     pre_transition_obs: prior?.pre_transition_obs ?? null,
     other_delegate_calls: null,
+    other_work_calls: null,
     target_obs: null,
     parent_ack_rows: null,
     child_spawn_observed: null,
@@ -345,7 +385,7 @@ export default function () {
     /* ---------------------------- the case script ---------------------------- */
 
     function createSessions() {
-      const wanted = [keys.parent, keys.target, ...(keys.ops ? [keys.ops] : [])];
+      const wanted = [keys.parent, keys.target, keys.ops].filter(Boolean);
       const next = (index) => {
         if (index >= wanted.length) return afterCreate();
         rpc('sessions.create', { key: wanted[index], label: `k6 ${RRA_ROW} ${control.caseId}` }, (r) => {
@@ -360,6 +400,7 @@ export default function () {
     }
 
     function afterCreate() {
+      if (spec.tool === 'continue_work') return electWork();
       if (spec.transition === 'session.members.remove') return addMember(() => prime(dispatchOrAdmission));
       // A policy that could not be disabled leaves nothing to refuse: stop before dispatching.
       if (control.caseId === 'unauthorized-admission') return prime(() => setPolicy('disabled', dispatchOrAdmission, finalReads));
@@ -464,6 +505,56 @@ export default function () {
           afterDispatch();
         });
       });
+    }
+
+    // continue_work (work-revoked-visibility): the session elects its own kept wake. The electing
+    // run plays the priming run's part: it is the one run the observation excludes, because the
+    // model may quote its own reason there.
+    function electWork() {
+      evidence.reason_hash = crypto.sha256(workReason, 'hex').slice(0, 16);
+      evidence.reason_length = workReason.length;
+      const instruction =
+        `[k6-proof-harness] Call the continue_work tool with args={reason:"${workReason}", delaySeconds:${delaySeconds}}. ` +
+        'If continue_work is deferred, discover it with tool_search and call it through dispatch_action with id from that result. ' +
+        'This is a proof run: perform the call, then no other action.';
+      send(keys.target, instruction, `${RRA_ROW}-WORK-${rowNonce}`, (r) => {
+        const runId = r.payload?.runId || null;
+        if (!r.ok || !runId) {
+          refuse('election turn not accepted with a run id; the electing run cannot be excluded');
+          return finish();
+        }
+        evidence.priming_run_ids.push(runId);
+        evidence.target_primed = true;
+        pollHistory(keys.target, (messages) => {
+          const found = findWorkElection(messages, { reasonMarker: `${RRA_TASK_MARKER}:${suffix}` });
+          return found && found.status ? found : null;
+        }, attempts(windowMs), (found) => {
+          evidence.dispatch = found
+            ? {
+              status: found.status,
+              accepted: found.status === 'scheduled',
+              tool_call_id: found.toolCallId,
+              error_text: null,
+              result_mode: null,
+              result_delay_seconds: found.delaySeconds,
+              observed_at_ms: Date.now(),
+            }
+            : { status: null, accepted: null, tool_call_id: null, error_text: null, result_mode: null, result_delay_seconds: null, observed_at_ms: null };
+          if (found?.status === 'scheduled') evidence.dispatch_accepted_at_ms = evidence.dispatch.observed_at_ms;
+          afterElection();
+        });
+      });
+    }
+
+    function afterElection() {
+      if (evidence.dispatch?.accepted !== true) {
+        refuse('continue_work was not accepted (no scheduled toolResult bound to this case)');
+        return finalReads();
+      }
+      // The scheduled result comes before the capture (the turn schedules the election after its
+      // attempt), so wait for the capture before narrowing: the control reads it from the store. The
+      // probe comes only once the wake was due, after its refusal.
+      later(numberEnv('OPENCLAW_RCD_RA_CAPTURE_WAIT_MS', 8000), () => transition((ok) => (ok ? later(delaySeconds * 1000 + parkMs, probeThenFinal) : finalReads())));
     }
 
     function afterDispatch() {
@@ -628,7 +719,21 @@ export default function () {
       });
     }
 
+    function finalWorkReads() {
+      history(keys.target, (messages) => {
+        evidence.target_obs = messages
+          ? observeTargetTranscript(messages, { nonce: rowNonce, primingRunIds: evidence.priming_run_ids, probeRunId: evidence.probe_run_id, probeNonce })
+          : null;
+        // Every continue_work call beyond the case's own election, and any continue_delegate.
+        const workCalls = messages ? countWorkCalls(messages) : null;
+        evidence.other_work_calls = workCalls === null ? null : workCalls - (evidence.dispatch?.tool_call_id ? 1 : 0);
+        evidence.other_delegate_calls = messages ? countDelegateCalls(messages) : null;
+        finish();
+      });
+    }
+
     function finalReads() {
+      if (spec.tool === 'continue_work') return finalWorkReads();
       rpc('sessions.list', { spawnedBy: keys.parent, limit: 50 }, (listed) => {
         const rows = Array.isArray(listed.payload?.sessions) ? listed.payload.sessions : [];
         const candidates = rows.filter((row) => row && typeof row.key === 'string' && row.key !== keys.parent && row.key !== keys.target);

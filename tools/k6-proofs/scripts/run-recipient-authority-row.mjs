@@ -2,7 +2,8 @@
 /**
  * run-recipient-authority-row.mjs: the control for R-CD-RECIPIENT-AUTHORITY, the live isolated-gateway
  * row (🌊's ruling, room msg 1567077062139838485; docs#536), pinned to j12′
- * e9dc1c318a2f73fd01755fc4682fa3349e8a0e94 (INTERIM; 🌊's ruling, room msg 1567104742604406896).
+ * 1ab5a73e14309922fa79edf4f93034bdb0acde62, the merged head (🌊's ruling, room msg 1567104742604406896;
+ * gate 3, room msg 1567194866507841678).
  *
  * It owns one disposable gateway that frond-scribe scripts/proof-gw/composite-launcher.sh set up,
  * signed in (login) and stopped:
@@ -18,9 +19,10 @@
  *      takes the supervised branch, and a run marker), and refuse to go on unless the listener is
  *      that process: PID and kernel start ticks, before and after every case;
  *   3. run scenarios/r-cd-recipient-authority.js once per case against it, while capturing the
- *      gateway's own console output (where j12′'s `[continuation:return-refused]` line and the
- *      router's `Delivered to` line land) and sampling the session_recipient_authority table
- *      read-only;
+ *      gateway's own console output (where j12′'s `[continuation:return-refused]` and
+ *      `[continuation:work-refused]` lines and the router's `Delivered to` line land) and sampling
+ *      the session_recipient_authority table read-only (the continue_work case's capture is read
+ *      there: it follows the tool's `scheduled` result);
  *   4. for replay-restart, after the drive phase: gateway.restart.request, wait for the old process to
  *      exit 0, consume its restart handoff (`gateway restart-handoff consume --expected-pid`), start
  *      the replacement and run the observe phase;
@@ -70,12 +72,14 @@ import {
   findReason,
   findReturnRefusals,
   findRouted,
+  findWorkRefusals,
   gradeRecipientAuthorityCase,
   gradeRecipientAuthorityRow,
   isAdmissionPolicyRefusal,
   isSha40,
   listenerOwnedBy,
   parseReturnRefusedLine,
+  parseWorkRefusedLine,
   traceCorrelationMatches,
 } from '../lib/recipient-authority-row.mjs';
 import { extractEvidence } from './extract-k6-evidence.mjs';
@@ -90,7 +94,7 @@ const RUN_MARKER_ENV = 'RRA_RUN_MARKER';
 const GATEWAY_ENV_ALLOWED = /^(?:NODE_OPTIONS|OPENCLAW_CODEX_APP_SERVER_BIN)$/u;
 const NODE_OPTIONS_ALLOWED = /^(?:--max-old-space-size=\d+|--inspect=127\.0\.0\.1:\d{4,5})$/u;
 // Case timing the operator may tune; passed to the scenario, recorded in the receipt.
-const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS'];
+const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 'OPENCLAW_RCD_RA_CAPTURE_WAIT_MS'];
 const READY_TIMEOUT_MS = 120_000;
 // Live generations of the current run, so an interrupted CLI can still stop what it started.
 const liveGenerations = new Set();
@@ -429,7 +433,7 @@ export function evaluateRecipientAuthorityTarget(options, platform = defaultPlat
     // Becomes true only once the control's own process owns the listener.
     gatewayStartedByHarness: false,
   };
-  if (!gates.candidatePinned) refuse('candidate-not-pinned', `the candidate must be j12′ ${RRA_PINNED} (interim pin)`);
+  if (!gates.candidatePinned) refuse('candidate-not-pinned', `the candidate must be j12′ ${RRA_PINNED}, the merged head`);
   if (!isSha40(options.docsSha)) refuse('docs-sha-invalid', '--docs-sha must be the 40-hex docs harness commit');
   if (typeof options.artifactDir !== 'string' || !path.isAbsolute(options.artifactDir)) refuse('artifact-dir-invalid', '--artifact-dir must be absolute');
   const disposable = evaluateDisposableTarget({
@@ -529,6 +533,60 @@ function returnRefusalReason(logEntries, targetKey, afterMs) {
   };
 }
 
+/**
+ * A refused kept continue_work wake's reason from its j12′ lines naming the session at or after
+ * `afterMs`: the first line's stage and time, every stage and reason seen, and the refused
+ * election's flowId as SHA-256 (it is a private custody record id). null when no line names it.
+ */
+function workRefusalReason(logEntries, sessionKey, afterMs) {
+  const lines = findWorkRefusals(logEntries, sessionKey, afterMs);
+  if (lines.length === 0) return null;
+  const first = lines[0];
+  return {
+    kind: 'work-refused',
+    stage: first.stage,
+    stages: [...new Set(lines.map((line) => line.stage))],
+    reasonTexts: [...new Set(lines.map((line) => line.reason))],
+    observedAtMs: first.atMs,
+    generation: first.generation,
+    flowIdHash: sha256(first.flowId),
+    distinctFlowIds: new Set(lines.map((line) => line.flowId)).size,
+    lines: lines.length,
+  };
+}
+
+/**
+ * The continue_work case's capture, from the store. Its `scheduled` toolResult is written before the
+ * turn schedules the election and captures the epoch, so the result says nothing about the capture.
+ * Only the capture and the case's own transition write the session's authority row, so the first
+ * readable sample holding it is the capture (byMs), the readable sample before it, without the row,
+ * bounds the capture from below (afterMs), and its epoch is the captured one. The grade checks that
+ * the capture preceded the transition.
+ */
+function captureFromStore(timeline, key) {
+  const samples = (Array.isArray(timeline) ? timeline : []).filter((sample) => sample.state === 'read');
+  const first = samples.findIndex((sample) => Array.isArray(sample.rows) && sample.rows.some((row) => row.session_key === key));
+  if (first < 0) return { afterMs: null, byMs: null, captured: null };
+  const epoch = samples[first].rows.find((row) => row.session_key === key)?.epoch;
+  return {
+    afterMs: first > 0 ? samples[first - 1].atMs : null,
+    byMs: samples[first].atMs,
+    captured: typeof epoch === 'string' ? sha256(epoch) : null,
+  };
+}
+
+/** The continue_work case's epochs: its capture from the store, then as for every case. */
+function workEpochs(timeline, key, transition) {
+  const capture = captureFromStore(timeline, key);
+  return {
+    captured: capture.captured,
+    capturedAfterMs: capture.afterMs,
+    capturedByMs: capture.byMs,
+    afterTransition: Number.isFinite(transition.settled_at_ms) ? epochIn(timeline, key, transition.settled_at_ms) : null,
+    final: epochIn(timeline, key, capture.byMs ?? 0, Infinity, { last: true }),
+  };
+}
+
 function routingAround(logEntries, keys, transition) {
   const requested = transition.requested_at_ms;
   const settled = transition.settled_at_ms;
@@ -564,6 +622,8 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     // only after the restart; an earlier refusal on the old generation leaves none to find.
     const after = spec.restart ? (restartedAtMs ?? Infinity) : (transition.requested_at_ms ?? startedAtMs);
     reason = returnRefusalReason(logEntries, keys.target, after);
+  } else if (spec.reasonKind === 'work-refused') {
+    reason = workRefusalReason(logEntries, keys.target, transition.requested_at_ms ?? startedAtMs);
   } else if (spec.reasonKind) {
     reason = findReason(logEntries, spec.reasonKind, { targetKey: keys.target, parentKey: keys.parent }, transition.requested_at_ms ?? startedAtMs);
   }
@@ -601,6 +661,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
       resultMode: evidence?.dispatch?.result_mode ?? null,
       resultDelaySeconds: evidence?.dispatch?.result_delay_seconds ?? null,
       otherDelegateCalls: final.other_delegate_calls ?? null,
+      ...(spec.tool === 'continue_work' ? { otherWorkCalls: final.other_work_calls ?? null } : {}),
     },
     child: {
       spawned: final.child?.spawned ?? null,
@@ -639,11 +700,13 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, ob
     routing: spec.family === 'refusal' && spec.expectChild !== false
       ? routingAround(logEntries, { targetKey: keys.target, childKey: final.child?.key ?? evidence?.child?.key ?? null }, transition)
       : null,
-    epochs: {
-      captured: Number.isFinite(capturedAt) ? epochIn(timeline, keys.target, capturedAt, capturedUntil) : null,
-      afterTransition: Number.isFinite(transition.settled_at_ms) ? epochIn(timeline, keys.target, transition.settled_at_ms) : null,
-      final: epochIn(timeline, keys.target, Number.isFinite(capturedAt) ? capturedAt : 0, Infinity, { last: true }),
-    },
+    epochs: spec.tool === 'continue_work'
+      ? workEpochs(timeline, keys.target, transition)
+      : {
+          captured: Number.isFinite(capturedAt) ? epochIn(timeline, keys.target, capturedAt, capturedUntil) : null,
+          afterTransition: Number.isFinite(transition.settled_at_ms) ? epochIn(timeline, keys.target, transition.settled_at_ms) : null,
+          final: epochIn(timeline, keys.target, Number.isFinite(capturedAt) ? capturedAt : 0, Infinity, { last: true }),
+        },
     reason,
     config: spec.transition === 'config.patch' ? { restored: evidence?.config?.restored === true } : null,
     trace: null,
@@ -870,9 +933,13 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       for (const value of Object.values(evidence?.keys ?? {})) secrets.push(value);
       // The child's key and every refused row's id stay private too: the record carries hashes only.
       secrets.push(evidence?.child?.key, observeEvidence?.child?.key);
+      // So does a refused election's flowId.
       for (const line of logEntries) {
-        const refusal = line.atMs >= caseStart ? parseReturnRefusedLine(line.text) : null;
+        if (line.atMs < caseStart) continue;
+        const refusal = parseReturnRefusedLine(line.text);
         if (refusal?.deliveryId) secrets.push(refusal.deliveryId);
+        const workRefusal = parseWorkRefusedLine(line.text);
+        if (workRefusal?.flowId) secrets.push(workRefusal.flowId);
       }
     }
   } finally {

@@ -12,16 +12,16 @@
  * (scenarios/r-cd-recipient-authority.js), the control (scripts/run-recipient-authority-row.mjs)
  * and the tests share it. Plain ESM with no Node or k6 imports, so k6 can load it.
  *
- * The product path at j12′ (karmaterminal/openclaw e9dc1c318a2f73fd01755fc4682fa3349e8a0e94, an
- * INTERIM pin: the reviewed refused chain, before keeps-queued-2 and the continue_work authority
- * binding merge into j12′), with path:line anchors, is in the scenario header and in
- * docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below rest on:
+ * The product path at j12′ (karmaterminal/openclaw 1ab5a73e14309922fa79edf4f93034bdb0acde62, the
+ * merged head: the refused chain, keeps-queued-2, the continue_work authority binding, the turn-start
+ * fence, wake admission and #1544 maintenance custody), with path:line anchors, is in the scenario
+ * header and in docs/R-CD-RECIPIENT-AUTHORITY.md. What the rules below rest on:
  * - The binding is captured when the continue_delegate tool call is accepted, before its
  *   "scheduled" result (continue-delegate-tool.ts:424-449 -> delegate-flow-store.ts:426-437). A
  *   transition after that toolResult is a change between dispatch and return.
  * - Every refused return logs one line, `[continuation:return-refused] stage=<stage>
  *   reason=recipient-authority-changed session=<key>[ deliveryId=<id>]`
- *   (src/auto-reply/continuation/return-refusal.ts:15-29), at whichever boundary sees it first:
+ *   (src/auto-reply/continuation/return-refusal.ts:16-36), at whichever boundary sees it first:
  *   enqueue (targeting.ts:261-280, 343-347, 369-374), replay
  *   (server-restart-sentinel-delivery.ts:50-76), wake (continuation-wake.ts:233-243) or prompt
  *   drain (session-system-events.ts:192-207). Which boundary that is depends on where the return
@@ -29,7 +29,7 @@
  * - The router logs `Delivered to <keys>` only for recipients it delivered, and nothing at all
  *   when every recipient was refused (subagent-announce.continuation-return.ts:189-203).
  * - A refused row settles as a bounded `failed` receipt, not `recovered`
- *   (return-refusal.ts:36-49; session-delivery-queue-recovery.ts:161-180), but no public surface
+ *   (return-refusal.ts:53-66; session-delivery-queue-recovery.ts:161-180), but no public surface
  *   reads it: the gateway health's failed count leaves it out on purpose
  *   (delivery-queue-sqlite.kernel.ts:397-429). So "settled as refused" is still read from the
  *   reason and the absence of adoption, never from the row.
@@ -39,12 +39,12 @@ import { hasExactSentinelText, heartbeatAckFromHistory, messageRunId } from './w
 
 export const RRA_ROW = 'R-CD-RECIPIENT-AUTHORITY';
 /**
- * j12′: the product this row is pinned to. INTERIM: the reviewed refused chain. The merged j12′
- * (this chain, keeps-queued-2 and the continue_work authority binding) replaces it, and the reset
- * and continue_work cites are re-walked there.
+ * j12′: the product this row is pinned to, the merged head (karmaterminal/openclaw
+ * codeagent/j12prime-candidate). Every cite was re-walked here. The refused chain it merged
+ * (e9dc1c31) was the row's interim pin and is history: no record may name it.
  */
-export const RRA_J12P = 'e9dc1c318a2f73fd01755fc4682fa3349e8a0e94';
-export const RRA_PIN_STATUS = 'interim';
+export const RRA_J12P = '1ab5a73e14309922fa79edf4f93034bdb0acde62';
+export const RRA_PIN_STATUS = 'merged';
 /** j12: the presentation product the row was first written to. The named baseline, never a pin. */
 export const RRA_J12 = '352f56029dc95c60149ab4aaa127226a861d0b3d';
 /** The candidate every case record must name. */
@@ -61,7 +61,7 @@ export const RRA_PROBE_MARKER = 'PROBE-OK';
 
 const SHA40 = /^[0-9a-f]{40}$/u;
 
-/** The boundaries j12′ names in a refused return's line (return-refusal.ts:16). */
+/** The boundaries j12′ names in a refused return's line (return-refusal.ts:17). */
 export const RRA_REFUSAL_STAGES = Object.freeze(['enqueue', 'replay', 'wake', 'prompt-drain']);
 export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
 
@@ -70,13 +70,16 @@ export const RRA_REFUSAL_REASON = 'recipient-authority-changed';
  * primed target; `refusal` is refused with a product reason and leaves no adoption, ack, wake or
  * final effect. `refusedAt` is where j12′ refuses it, and so which reason it leaves: `admission`
  * and `dispatch` are the cross-session policy; every other value is the one `stage=` its
- * `[continuation:return-refused]` line must carry, and `refusedAtBytes` names the bytes that put
- * it there. `timing` says when the transition lands: `parked` after the return was routed and
- * parked un-adopted (mode silent), `before-return` after the scheduled result and before the
- * delegate fires. `deliveryId` says whether that line names the refused row (`true`) or no row
- * was written (`false`). `laterStages` names the only stages a later line for the same row may
- * carry, and why. `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment
- * 5442236054) it answers.
+ * `[continuation:return-refused]` line must carry (`[continuation:work-refused]` for the
+ * `continue_work` case), and `refusedAtBytes` names the bytes that put it there. `timing` says
+ * when the transition lands: `parked` after the return was routed and parked un-adopted (mode
+ * silent), `before-return` after the scheduled result and before the delegate fires,
+ * `before-wake` after the election was captured and before its wake is due. `deliveryId` says
+ * whether that line names the refused row (`true`) or no row was written (`false`); `flowId` that
+ * the work line names the refused election. `laterStages` names the only stages a later line for
+ * the same row may carry, and why. `tool` is `continue_work` for the one case that elects a kept
+ * wake instead of a delegate (graded by gradeWorkRefusalCase). `clawSweeper` quotes the open item
+ * on openclaw/openclaw#129388 (comment 5442236054) it answers.
  */
 export const RRA_CASES = Object.freeze({
   allowed: Object.freeze({
@@ -174,12 +177,12 @@ export const RRA_CASES = Object.freeze({
     expectChild: true,
     clawSweeper: 'reassigned recipient (owner) refused before final effects',
   }),
-  // sessions.delete consumes the target's queued events (session-reset-cleanup.ts:194-196), so
+  // sessions.delete consumes the target's queued events (session-reset-cleanup.ts:202-203), so
   // the parked row has no copy left in memory and the pending sweep refuses it.
   reassigned: Object.freeze({
     family: 'refusal',
     refusedAt: 'replay',
-    refusedAtBytes: 'sessions-delete.ts:454 -> session-reset-cleanup.ts:194-196 drops the queued copy; the sweep (session-delivery-queue-runtime.ts:59-66) -> server-restart-sentinel-delivery.ts:271-281 -> 66-71',
+    refusedAtBytes: 'sessions-delete.ts:454 -> session-reset-cleanup.ts:202-203 drops the queued copy; the sweep (session-delivery-queue-runtime.ts:59-66) -> server-restart-sentinel-delivery.ts:271-281 -> 66-71',
     timing: 'parked',
     deliveryId: true,
     mode: 'silent',
@@ -213,6 +216,22 @@ export const RRA_CASES = Object.freeze({
     reasonKind: 'return-refused',
     expectChild: true,
     clawSweeper: 'reassigned recipient refused before the wake (wake-mode refusal with a reason)',
+  }),
+  // A kept continue_work wake (j12′'s binding, work-recipient-authority.ts): the session elects its
+  // own wake, its visibility narrows while the wake waits, and the dispatcher's handoff refuses it
+  // before any busy, fold, admission or turn-start-fence decision. There is no parent, child or
+  // router line: the electing session is the recipient.
+  'work-revoked-visibility': Object.freeze({
+    family: 'refusal',
+    tool: 'continue_work',
+    refusedAt: 'wake',
+    refusedAtBytes: 'work-dispatch.ts:529 (the handoff, after consumePendingWork claims the due record and before the busy and fold branches at 573-627) -> work-recipient-authority.ts:102-152 -> return-refusal.ts:38-46; the one earlier boundary, the replay sweep, runs only at custody boot (custody-boot.ts:107-114)',
+    timing: 'before-wake',
+    flowId: true,
+    transition: 'session.visibility.set',
+    reasonKind: 'work-refused',
+    expectChild: false,
+    clawSweeper: 'Security: stale recipient rejection before final effects, for the other durable election j12′ binds (no item names continue_work)',
   }),
   // After a supervised restart there is no copy in memory: the replacement's boot recovery
   // replays the parked row and refuses it.
@@ -264,19 +283,22 @@ export function lowerVerdict(a, b) {
  * - admission-policy: the continue_delegate toolResult error (continue-delegate-tool.ts:353-362).
  * - dispatch-policy: `[continuation:delegate-rejected] policy.cross_session_targeting ...
  *   session=<parent>` (delegate-dispatch.ts:267-277).
- * - return-refused: a refused return's line (return-refusal.ts:20-29), read by
+ * - return-refused: a refused return's line (return-refusal.ts:27-36), read by
  *   parseReturnRefusedLine. j12's `session event delivery skipped: recipient authority changed`
  *   is gone at j12′ and never counts.
+ * - work-refused: a refused kept continue_work wake's line (return-refusal.ts:38-46), read by
+ *   parseWorkRefusedLine. A return-refused line is never a work refusal, nor the reverse.
  */
 export const RRA_REASON_TEXT = Object.freeze({
   'admission-policy': Object.freeze(['cross-session continuation targeting is disabled']),
   'dispatch-policy': Object.freeze(['[continuation:delegate-rejected] policy.cross_session_targeting']),
   'return-refused': Object.freeze(['[continuation:return-refused]']),
+  'work-refused': Object.freeze(['[continuation:work-refused]']),
 });
 /** The router's line for a return it delivered: `Delivered to <keys> from <child>` (subagent-announce.continuation-return.ts:199-203). */
 export const RRA_ROUTED_TEXT = '[continuation:targeted-return] Delivered to ';
 
-/** The subsystem that logs a refused return (return-refusal.ts:18). */
+/** The subsystem that logs a refused return (return-refusal.ts:24). */
 export const RRA_REFUSED_SUBSYSTEM = 'continuation/return-refused';
 const REFUSED_MESSAGE = /^\[continuation:return-refused\] stage=(\S+) reason=(\S+) session=(\S+?)(?: deliveryId=(\S+))?$/u;
 // The console prints `[<subsystem>] <message>` behind an optional one-token timestamp
@@ -295,19 +317,25 @@ function refusalFromMessage(message) {
   return { stage: match[1], reason: match[2], session: match[3], deliveryId: match[4] ?? null };
 }
 
+/** The subsystem that logs a refused kept continue_work wake (return-refusal.ts:25). */
+export const RRA_WORK_REFUSED_SUBSYSTEM = 'continuation/work-refused';
+const WORK_REFUSED_MESSAGE = /^\[continuation:work-refused\] stage=(\S+) reason=(\S+) session=(\S+) flowId=(\S+)$/u;
+const WORK_REFUSED_CONSOLE = /^(?:\S+ )?\[continuation\/work-refused\] (\[continuation:work-refused\] .*)$/u;
+
+function workRefusalFromMessage(message) {
+  const match = typeof message === 'string' ? WORK_REFUSED_MESSAGE.exec(message.trim()) : null;
+  if (!match) return null;
+  return { stage: match[1], reason: match[2], session: match[3], flowId: match[4] };
+}
+
 /**
- * A j12′ refused-return line, from the gateway console or from its structured file log, as
- * { stage, reason, session, deliveryId } (deliveryId null when the line names no row), else null.
- * - console: `[continuation/return-refused] [continuation:return-refused] stage=<stage>
- *   reason=<reason> session=<key>[ deliveryId=<id>]`, the subsystem tag the product's own
- *   (return-refusal.ts:18, 26-28);
- * - file log or JSON console: one JSON object from that subsystem whose message is the same text,
- *   and whose structured fields, when present, agree with it.
- * Any other text, including j12's `session event delivery skipped: recipient authority changed`,
- * is not a refusal line.
+ * One refusal line of `subsystem`, from the console or the structured file log, parsed by
+ * `fromMessage`, else null. A console line opens with the subsystem tag (behind at most a
+ * timestamp) and the message is the rest of it. A JSON record must be the subsystem's own, and its
+ * structured fields, when present, must agree with its message (`agrees`).
  */
-export function parseReturnRefusedLine(line) {
-  if (typeof line !== 'string' || !line.includes(RRA_REASON_TEXT['return-refused'][0])) return null;
+function parseSubsystemRefusalLine(line, { tag, subsystem, consolePattern, fromMessage, agrees }) {
+  if (typeof line !== 'string' || !line.includes(tag)) return null;
   const text = line.replace(ANSI, '').trim();
   if (text.startsWith('{')) {
     let record;
@@ -317,28 +345,71 @@ export function parseReturnRefusedLine(line) {
       return null;
     }
     if (!record || typeof record !== 'object' || Array.isArray(record)) return null;
-    const subsystemTag = JSON.stringify({ subsystem: RRA_REFUSED_SUBSYSTEM });
+    const subsystemTag = JSON.stringify({ subsystem });
     const values = Object.values(record);
     // The JSON console names the subsystem as a field; the file log as tslog's logger name, its
     // first positional value. Any other record is not this subsystem's, whatever it quotes.
     const fromSubsystem = record.subsystem !== undefined
-      ? record.subsystem === RRA_REFUSED_SUBSYSTEM
+      ? record.subsystem === subsystem
       : record['0'] === subsystemTag && (record._meta?.name === undefined || record._meta.name === subsystemTag);
     if (!fromSubsystem) return null;
     const messages = [record.message, ...values].filter((value) => typeof value === 'string');
-    const parsed = messages.map(refusalFromMessage).find(Boolean);
+    const parsed = messages.map(fromMessage).find(Boolean);
     if (!parsed) return null;
-    // The file log keeps the fields structured beside the message (return-refusal.ts:28).
+    // The file log keeps the fields structured beside the message (return-refusal.ts:35, 45).
     const fields = values.find((value) => value && typeof value === 'object' && !Array.isArray(value) && 'stage' in value) ?? record;
-    const disagrees =
+    return agrees(fields, parsed) ? parsed : null;
+  }
+  const match = consolePattern.exec(text);
+  return match ? fromMessage(match[1]) : null;
+}
+
+/**
+ * A j12′ refused-return line, from the gateway console or from its structured file log, as
+ * { stage, reason, session, deliveryId } (deliveryId null when the line names no row), else null.
+ * - console: `[continuation/return-refused] [continuation:return-refused] stage=<stage>
+ *   reason=<reason> session=<key>[ deliveryId=<id>]`, the subsystem tag the product's own
+ *   (return-refusal.ts:24, 33-35);
+ * - file log or JSON console: one JSON object from that subsystem whose message is the same text,
+ *   and whose structured fields, when present, agree with it.
+ * Any other text, including j12's `session event delivery skipped: recipient authority changed`,
+ * is not a refusal line.
+ */
+export function parseReturnRefusedLine(line) {
+  return parseSubsystemRefusalLine(line, {
+    tag: RRA_REASON_TEXT['return-refused'][0],
+    subsystem: RRA_REFUSED_SUBSYSTEM,
+    consolePattern: REFUSED_CONSOLE,
+    fromMessage: refusalFromMessage,
+    agrees: (fields, parsed) => !(
       (fields.stage !== undefined && fields.stage !== parsed.stage) ||
       (fields.reason !== undefined && fields.reason !== parsed.reason) ||
       (fields.sessionKey !== undefined && fields.sessionKey !== parsed.session) ||
-      (fields.deliveryId !== undefined && fields.deliveryId !== parsed.deliveryId);
-    return disagrees ? null : parsed;
-  }
-  const match = REFUSED_CONSOLE.exec(text);
-  return match ? refusalFromMessage(match[1]) : null;
+      (fields.deliveryId !== undefined && fields.deliveryId !== parsed.deliveryId)
+    ),
+  });
+}
+
+/**
+ * A j12′ refused kept continue_work wake's line, as { stage, reason, session, flowId }, else null:
+ * `[continuation/work-refused] [continuation:work-refused] stage=<replay|wake|adoption>
+ * reason=<reason> session=<key> flowId=<id>` on the console, or the same message from that
+ * subsystem in the structured file log (return-refusal.ts:38-46). The flowId is the refused
+ * election's custody record; every work refusal names one.
+ */
+export function parseWorkRefusedLine(line) {
+  return parseSubsystemRefusalLine(line, {
+    tag: RRA_REASON_TEXT['work-refused'][0],
+    subsystem: RRA_WORK_REFUSED_SUBSYSTEM,
+    consolePattern: WORK_REFUSED_CONSOLE,
+    fromMessage: workRefusalFromMessage,
+    agrees: (fields, parsed) => !(
+      (fields.stage !== undefined && fields.stage !== parsed.stage) ||
+      (fields.reason !== undefined && fields.reason !== parsed.reason) ||
+      (fields.sessionKey !== undefined && fields.sessionKey !== parsed.session) ||
+      (fields.flowId !== undefined && fields.flowId !== parsed.flowId)
+    ),
+  });
 }
 
 /**
@@ -358,8 +429,8 @@ export function lineNamesKey(line, key) {
 export function matchReasonLine(line, kind, { targetKey, parentKey } = {}) {
   const texts = RRA_REASON_TEXT[kind];
   if (!texts || kind === 'admission-policy' || typeof line !== 'string') return false;
-  if (kind === 'return-refused') {
-    const refusal = parseReturnRefusedLine(line);
+  if (kind === 'return-refused' || kind === 'work-refused') {
+    const refusal = kind === 'return-refused' ? parseReturnRefusedLine(line) : parseWorkRefusedLine(line);
     return Boolean(refusal && typeof targetKey === 'string' && targetKey && refusal.session === targetKey && refusal.reason === RRA_REFUSAL_REASON);
   }
   if (!texts.some((text) => line.includes(text))) return false;
@@ -420,6 +491,22 @@ export function findReturnRefusals(entries, targetKey, afterMs = 0) {
     if (typeof entry?.atMs !== 'number' || entry.atMs < afterMs) continue;
     const refusal = parseReturnRefusedLine(entry.text);
     if (refusal && refusal.session === targetKey) found.push({ atMs: entry.atMs, generation: entry.generation ?? 0, ...refusal });
+  }
+  return found;
+}
+
+/**
+ * Every refused-work line naming `sessionKey` at or after `afterMs`, in log order, as
+ * { atMs, generation, stage, reason, flowId }. The electing session is disposable and elects one
+ * wake, so every line here is about that election.
+ */
+export function findWorkRefusals(entries, sessionKey, afterMs = 0) {
+  const found = [];
+  if (typeof sessionKey !== 'string' || !sessionKey) return found;
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (typeof entry?.atMs !== 'number' || entry.atMs < afterMs) continue;
+    const refusal = parseWorkRefusedLine(entry.text);
+    if (refusal && refusal.session === sessionKey) found.push({ atMs: entry.atMs, generation: entry.generation ?? 0, ...refusal });
   }
   return found;
 }
@@ -601,6 +688,48 @@ export function countDelegateCalls(messages) {
 }
 
 /**
+ * The case's continue_work election in the electing session's transcript, paired with its
+ * toolResult by toolCallId: the tool itself (through Tool Search's dispatch_action when deferred,
+ * lib/tool-call-identity.mjs), its reason carrying this case's marker. Returns
+ * { status, toolCallId, delaySeconds } or null; status null while no result is recorded, 'error'
+ * for an error result. The `scheduled` result is written before the election is captured: the
+ * tool only queues the request (continue-work-tool.ts:84-110, agent-runner-embedded-candidate.ts
+ * :222-224), and the turn schedules it after the attempt (agent-runner-continuation-signal.ts:463 ->
+ * work-dispatch.ts:662-668). So the capture is read from the store, never from this result.
+ */
+export function findWorkElection(messages, { reasonMarker }) {
+  const list = Array.isArray(messages) ? messages : [];
+  for (let i = 0; i < list.length; i += 1) {
+    if (roleOf(list[i]) !== 'assistant' || !Array.isArray(list[i].content)) continue;
+    for (const part of list[i].content) {
+      const target = toolCallTarget(part);
+      if (!target || target.name !== 'continue_work' || typeof part.id !== 'string') continue;
+      if (!String(target.args?.reason ?? '').includes(reasonMarker)) continue;
+      const result = toolResultFor(list, part.id, i + 1);
+      if (!result) return { status: null, toolCallId: part.id, delaySeconds: null };
+      const { parsed } = parseResultPayload(result);
+      if (result.isError === true || !parsed) return { status: 'error', toolCallId: part.id, delaySeconds: null };
+      return {
+        status: typeof parsed.status === 'string' ? parsed.status : null,
+        toolCallId: part.id,
+        delaySeconds: typeof parsed.delaySeconds === 'number' ? parsed.delaySeconds : null,
+      };
+    }
+  }
+  return null;
+}
+
+/** Every continue_work call in a transcript, through Tool Search or not. */
+export function countWorkCalls(messages) {
+  let count = 0;
+  for (const message of Array.isArray(messages) ? messages : []) {
+    if (roleOf(message) !== 'assistant' || !Array.isArray(message.content)) continue;
+    for (const part of message.content) if (toolCallTarget(part)?.name === 'continue_work') count += 1;
+  }
+  return count;
+}
+
+/**
  * The sessions tool's assign_owner call for `targetSessionKey` in the operator session, paired
  * with its toolResult: { status } ('updated' on success, 'error' otherwise) or null.
  */
@@ -703,6 +832,7 @@ export function gradeRecipientAuthorityCase(record) {
   }
   if (record.scenario?.observeRunId !== undefined && record.scenario.observeRunId !== record.runId) missing.push('scenario-not-bound-to-run');
   if (missing.length) return result('MISSING-candidate');
+  if (spec.tool === 'continue_work') return gradeWorkRefusalCase(record, spec);
 
   const need = (ok, code) => {
     if (!ok) missing.push(code);
@@ -890,7 +1020,7 @@ export function gradeRecipientAuthorityCase(record) {
       'refusal-reason-not-observed',
     );
     if (reasonSeen && spec.reasonKind === 'return-refused') {
-      // j12′ has one reason (return-refusal.ts:15); every line for this return must carry it.
+      // j12′ has one reason (return-refusal.ts:16); every line for this return must carry it.
       const texts = Array.isArray(reason.reasonTexts) ? reason.reasonTexts : [];
       need(texts.length > 0 && texts.every((text) => text === RRA_REFUSAL_REASON), 'refusal-reason-mismatch');
       // One stage per case, from the j12′ bytes (RRA_CASES, refusedAtBytes): the first line carries
@@ -925,6 +1055,113 @@ export function gradeRecipientAuthorityCase(record) {
   if (spec.expectChild !== false && record.trace?.correlated !== true) partial.push('trace-receipt-pending');
   if (record.cleanup?.gatewayStopped !== true || record.cleanup?.residue !== false) partial.push('cleanup-incomplete');
 
+  if (contradictions.length) return result('FAIL-candidate');
+  if (missing.length) return result('MISSING-candidate');
+  if (partial.length) return result('PARTIAL-candidate');
+  return result('PASS-candidate');
+}
+
+/**
+ * Grade the continue_work case (RRA_CASES[*].tool), once its record passed the row's gates. The
+ * session elects its own kept wake, so:
+ * - the electing run is the one run the transcript observation excludes (it may quote its own
+ *   reason); any other assistant run but the probe's is a wake turn;
+ * - there is no parent, child, router line or trace: the wake never fires;
+ * - the capture comes after the `scheduled` toolResult (findWorkElection), so it is read from the
+ *   store. Only the capture and the case's own transition write this session's authority row
+ *   (session-accessor.sqlite-recipient-authority.ts:17-37 and its callers), so the first sample
+ *   holding the row is the capture, and the last sample without it bounds the capture from below;
+ * - the wake is due no earlier than the election plus its delay (work-dispatch.ts:667-668; an
+ *   anchored wake is due at its turn's finalization plus the delay, work-store.ts:335-345), so a
+ *   transition that settled before that bound preceded the handoff;
+ * - the reason is j12′'s `[continuation:work-refused]` line for this session at stage=wake, naming
+ *   one election. The handoff fails the record before it reports (work-recipient-authority.ts
+ *   :133-141), and a failed record is never driven again (work-store.ts:226, 260), so a line logged
+ *   before the probe was sent leaves the probe turn nothing to adopt.
+ * A deviation by the model or the setup is MISSING; a wake turn once the premise holds is FAIL.
+ */
+function gradeWorkRefusalCase(record, spec) {
+  const missing = [];
+  const contradictions = [];
+  const partial = [];
+  const result = (verdict) => ({ verdict, missing: [...new Set(missing)], contradictions: [...new Set(contradictions)], partial: [...new Set(partial)] });
+  const need = (ok, code) => {
+    if (!ok) missing.push(code);
+    return ok;
+  };
+  // A premise that does not hold leaves the case unjudged: no contradiction is recorded.
+  let premise = true;
+  const unless = (ok, code) => {
+    if (!ok) {
+      missing.push(code);
+      premise = false;
+    }
+    return ok;
+  };
+  const dispatch = record.dispatch ?? {};
+  const target = record.target ?? {};
+  const transition = record.transition ?? {};
+  const epochs = record.epochs ?? {};
+  const reason = record.reason ?? null;
+  const before = record.preTransition ?? {};
+
+  unless(Array.isArray(record.scenario?.refusals) && record.scenario.refusals.length === 0, 'scenario-refused');
+  unless(record.scenario?.preflightOk === true, 'preflight-not-ok');
+  const counted = need(
+    ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows'].every((key) => isCount(target[key])),
+    'transcript-not-read',
+  );
+  if (counted && target.unattributedAssistantRows > 0) missing.push('unattributable-target-rows');
+  // The electing run plays the priming run's part: without its id, the model's own echo of the
+  // reason could not be told from a wake turn.
+  need(target.primed === true, 'electing-run-unrecorded');
+  unless(transition.ok === true && isTime(transition.requestedAtMs) && isTime(transition.settledAtMs), 'transition-not-observed');
+  // Exactly the one election: another continue_work, or a continue_delegate, tests something else.
+  for (const [key, code] of [['otherWorkCalls', 'extra-work-calls'], ['otherDelegateCalls', 'extra-delegate-calls']]) {
+    if (unless(isCount(dispatch[key]), 'delegate-calls-unread')) unless(dispatch[key] === 0, code);
+  }
+  need(dispatch.accepted === true && dispatch.status === 'scheduled' && isTime(dispatch.capturedAtMs), 'election-not-accepted');
+  const captureSeen = unless(
+    isTime(epochs.capturedAfterMs) && isTime(epochs.capturedByMs) && epochs.capturedAfterMs < epochs.capturedByMs && isHash(epochs.captured),
+    'capture-unobserved',
+  );
+  if (captureSeen) unless(isTime(transition.requestedAtMs) && epochs.capturedByMs < transition.requestedAtMs, 'capture-not-before-transition');
+  // The reported delay is rounded to whole seconds (continue-work-tool.ts:99-100): one is held back.
+  const earliestWakeMs = isTime(epochs.capturedAfterMs) && Number.isFinite(dispatch.resultDelaySeconds)
+    ? epochs.capturedAfterMs + (dispatch.resultDelaySeconds - 1) * 1000
+    : NaN;
+  unless(isTime(transition.settledAtMs) && transition.settledAtMs < earliestWakeMs, 'transition-not-before-wake');
+  if (unless(isHash(epochs.captured) && isHash(epochs.afterTransition), 'epochs-unread')) {
+    unless(epochs.afterTransition !== epochs.captured, 'transition-did-not-advance-epoch');
+  }
+  if (unless(['ackRuns', 'foreignRuns', 'adoptedDeliveryRows'].every((key) => isCount(before[key])), 'pre-transition-unread')) {
+    unless(before.ackRuns + before.foreignRuns + before.adoptedDeliveryRows === 0, 'wake-ran-before-transition');
+  }
+  const contradict = (code) => {
+    if (premise) contradictions.push(code);
+  };
+
+  const reasonSeen = need(
+    reason !== null && reason.kind === spec.reasonKind && isTime(reason.observedAtMs) &&
+      isTime(transition.requestedAtMs) && reason.observedAtMs > transition.requestedAtMs,
+    'refusal-reason-not-observed',
+  );
+  if (reasonSeen) {
+    // A bound election is refused for one reason; `recipient-authority-unverifiable` is an unbound one's.
+    const texts = Array.isArray(reason.reasonTexts) ? reason.reasonTexts : [];
+    need(texts.length > 0 && texts.every((text) => text === RRA_REFUSAL_REASON), 'refusal-reason-mismatch');
+    // Refused at the handoff, the record is failed: no later boundary sees it, so every line is that one.
+    const stages = Array.isArray(reason.stages) ? reason.stages : [];
+    need(reason.stage === spec.refusedAt && stages.length > 0 && stages.every((stage) => stage === spec.refusedAt), 'refusal-stage-mismatch');
+    need(isHash(reason.flowIdHash) && reason.distinctFlowIds === 1, 'reason-flow-id-ambiguous');
+    need(isTime(target.probeSentAtMs) && reason.observedAtMs < target.probeSentAtMs, 'reason-not-before-probe');
+  }
+  need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
+  if (counted) {
+    if (target.foreignRuns > 0) contradict('target-woken');
+    if (target.adoptedDeliveryRows > 0) contradict('refused-work-adopted');
+  }
+  if (record.cleanup?.gatewayStopped !== true || record.cleanup?.residue !== false) partial.push('cleanup-incomplete');
   if (contradictions.length) return result('FAIL-candidate');
   if (missing.length) return result('MISSING-candidate');
   if (partial.length) return result('PARTIAL-candidate');

@@ -117,9 +117,10 @@
  *      (src/auto-reply/continuation/continuation-wake.test.ts:878-920). chat.history hides the wake's
  *      own rows (see lib/wake-turn-receipt.mjs). So every adoption this row reads, a wake's or the
  *      probe turn's, is the primed target's TARGET-ACK, bound to its run (🌊's ruling (a), room msg
- *      1567556038281007235). The probe is conditional (🌊, room msg 1567590902694936678): a turn
- *      that drained the return follows its priming, any other answers PROBE-OK; the unconditional
- *      probe before it won over the priming, so allowed-silent's ack could never show;
+ *      1567556038281007235). The probe is conditional (🌊, room msg 1567590902694936678; its
+ *      condition reads the target's context, as the priming does, room msg 1567656724549075047): a
+ *      target whose context holds the return follows its priming, any other answers PROBE-OK; the
+ *      unconditional probe before it won over the priming, so allowed-silent's ack could never show;
  *    - sessions.delete (and sessions.reset) consume the session's queued events
  *      (src/gateway/server-methods/sessions-delete.ts:454-470 -> src/gateway/session-lifecycle-cleanup.ts:74-92
  *      -> src/gateway/session-reset-runtime-cleanup.ts:77-93 -> src/gateway/session-reset-runtime-state.ts:11-51
@@ -816,11 +817,12 @@ export default function () {
     }
 
     function probeThenFinal({ fallback = false } = {}) {
-      // 🌊's conditional probe (room msg 1567590902694936678), the same text for every case: a turn
-      // that drained the return follows its priming and acks; any other answers PROBE-OK <probeNonce>.
-      // It never names the ack or the row nonce, so an ack in its run is the primed target answering
-      // a return its turn drained, never an echo of this text. A text that fails the text test is
-      // never sent.
+      // 🌊's conditional probe (room msgs 1567590902694936678 and 1567656724549075047), the same text
+      // for every case: a target whose context holds the return (drained by this turn, or on allowed's
+      // fallback by its woken run) follows its priming and acks; any other answers PROBE-OK
+      // <probeNonce>. It never names the ack or the row nonce, so an ack in its run is the primed
+      // target answering a return in its context, never an echo of this text. A text that fails the
+      // text test is never sent.
       const instruction = rraProbeText(probeNonce);
       const problems = rraProbeTextProblems(instruction, { rowNonce, probeNonce });
       if (problems.length) {

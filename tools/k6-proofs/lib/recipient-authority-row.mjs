@@ -71,14 +71,19 @@ export const RRA_PROBE_MARKER = 'PROBE-OK';
 const HARNESS_MARKER = '[k6-proof-harness]';
 
 /**
- * The probe's condition, 🌊's wording (room msg 1567590902694936678). The probe at 4f86dd78 asked
- * only `reply exactly PROBE-OK <probeNonce>`, and that unconditional instruction won over the primed
- * target's conditional return instruction: in 🕯's run rra-88e4fd22f0b122a8, allowed-silent's probe
- * was answered PROBE-OK with no ack (probe_ran true, probeReplied true, target_obs.ackRuns 0; room
- * msg 1567590581796868168). The condition hands a turn that drained the return back to the
- * priming, which alone asks for `TARGET-ACK <row nonce>`.
+ * The probe's condition, 🌊's wording (room msg 1567656724549075047, on the conditional probe of
+ * room msg 1567590902694936678). The probe at 4f86dd78 asked only `reply exactly PROBE-OK
+ * <probeNonce>`, and that unconditional instruction won over the primed target's conditional return
+ * instruction: in 🕯's run rra-88e4fd22f0b122a8, allowed-silent's probe was answered PROBE-OK with no
+ * ack (probe_ran true, probeReplied true, target_obs.ackRuns 0; room msg 1567590581796868168). From
+ * 53c1c192 to 663fafdc the condition asked whether "this turn" held the completion. On allowed's
+ * fallback the woken run had already taken the return in, so a literal model answered PROBE-OK (🌿's
+ * review on #620, comment 6642952113). The condition now asks about the target's context, as the
+ * priming does ("is in your context"), and hands back to the priming, which alone asks for
+ * `TARGET-ACK <row nonce>`, every target whose context holds the completion: the probe turn's own
+ * drain (allowed-silent) or a woken run before it (allowed's fallback).
  */
-export const RRA_PROBE_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
+export const RRA_PROBE_CONDITION = 'If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
 
 /**
  * The proof id the priming names (`for proof <id>`) and the delegate's task marker carries
@@ -91,9 +96,11 @@ export function rraProofId(rowNonce) {
 
 /**
  * The one probe text, the same for every case but for its own nonce: the harness header, then
- * 🌊's two sentences word for word. The header's tag keeps a model that echoes the probe from being
- * credited with its PROBE-OK (hasExactSentinelText). It names neither the ack nor the row nonce, so
- * an ack in the probe's run can only come from the priming.
+ * 🌊's two sentences word for word: the condition as room msg 1567656724549075047 words it, then
+ * room msg 1567590902694936678's `Otherwise reply exactly PROBE-OK ‹probe nonce›.`. The header's tag
+ * keeps a model that echoes the probe from being credited with its PROBE-OK (hasExactSentinelText).
+ * It names neither the ack nor the row nonce, so an ack in the probe's run can only come from the
+ * priming.
  */
 export function rraProbeText(probeNonce) {
   return `${HARNESS_MARKER} ${RRA_ROW} probe ${probeNonce}: ${RRA_PROBE_CONDITION} Otherwise reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
@@ -104,10 +111,11 @@ export const RRA_PROBE_NONCE_SLOT = '<probeNonce>';
 /**
  * SHA-256 (hex) of rraProbeText(RRA_PROBE_NONCE_SLOT): the probe every probing case's receipt must
  * name (target.probeTextSha256). The scenario hashes the text it sent, its own nonce written as the
- * slot. A receipt naming no probe, or another (the unconditional one before 🌊's ruling), is not
- * about this probe: `probe-text-unbound`. The unit tests pin it against node:crypto.
+ * slot. A receipt naming no probe, or another, is not about this probe: `probe-text-unbound`. The
+ * others include the unconditional probe before 🌊's first ruling, and the "this turn" probe from
+ * 53c1c192 to 663fafdc, whose hash was d6187455…. The unit tests pin it against node:crypto.
  */
-export const RRA_PROBE_TEXT_SHA256 = 'd6187455fe5d61ff33f4255e6ece5e65fde4cd67d0d452703c4262892292b8cf';
+export const RRA_PROBE_TEXT_SHA256 = '509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512';
 
 /**
  * The text test: why `text` is not a probe this row may send, as codes, none when it is.
@@ -1396,8 +1404,9 @@ function gradeCaseRecord(record, specs) {
       // 🌊's ruling (a), room msg 1567556038281007235: the probe turn's adoption is read from the
       // primed target's TARGET-ACK in the probe's own run. The product's marker is not evidence: no
       // pin writes it on a sessions.send turn's row (observeTargetTranscript, adoptedDeliveryRows).
-      // The probe's PROBE-OK is never required here: the conditional probe (rraProbeText, room msg
-      // 1567590902694936678) tells a turn that drained the return to follow its priming instead.
+      // The probe's PROBE-OK is never required here: the conditional probe (rraProbeText, room msgs
+      // 1567590902694936678 and 1567656724549075047) tells a target whose context holds the return,
+      // here drained by the probe turn itself, to follow its priming instead.
       need(child.spawned === true, 'child-spawn-unobserved');
       need(target.probeRan === true, 'probe-turn-unobserved');
       if (target.probeRan === true) need(target.probeTextSha256 === RRA_PROBE_TEXT_SHA256, 'probe-text-unbound');
@@ -1492,7 +1501,7 @@ function gradeCaseRecord(record, specs) {
         need(isCount(armed) && armed > 0, 'no-sweep-armed-in-transition');
       }
     }
-    // With no return in its turn, the conditional probe is answered `PROBE-OK <probeNonce>`: that
+    // With no return in its context, the conditional probe is answered `PROBE-OK <probeNonce>`: that
     // answer, from the probe's own run, shows the turn whose drain the absence is read after. The
     // receipt must name that probe: under another (the unconditional one) the absence of an ack was
     // never shown able to fail. Unbound, a case is never PASS; a contradiction is still FAIL.

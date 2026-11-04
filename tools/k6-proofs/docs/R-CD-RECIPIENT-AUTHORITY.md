@@ -18,7 +18,8 @@ open, 🌊's ruling on them (room msg 1567623059727458526) and what this head do
   ([the witness](#revoked--the-parked-copy-witnessed-before-the-transition)).
   - `revoked-visibility` and `revoked-membership` share the prompt-drain pin and the race, and get the
     same witness.
-  - So do `reassigned` and `replay-restart`, the other two parked cases.
+  - So do `reassigned` and `replay-restart`, the other two parked cases (🌊's ruling (2), room msg
+    1567656724549075047: all five).
   - The early-enqueue ordering is pinned apart as a dry-run case and never satisfies the parked-copy
     case ([the early-enqueue ordering](#the-early-enqueue-ordering-pinned-apart)).
 - `allowed`: the return was delivered and the child finished, but the woken run gave no credited ack
@@ -27,7 +28,21 @@ open, 🌊's ruling on them (room msg 1567623059727458526) and what this head do
   own run, after the delivered return, is credited, and the receipt is labelled `probe-mediated`
   ([the fallback](#allowed-the-direct-wake-path-and-the-probe-mediated-fallback)).
 
-The run before it, 🕯's `rra-88e4fd22f0b122a8` (docs `935898d1`), graded 10 of 13. It left
+🌿's review of `663fafdc` (#620, comment 6642952113) found that the fallback could not pass as
+worded:
+
+- The priming asks for the ack on a later turn "only if an internal task completion for proof X is
+  in your context".
+- The probe asked whether "this turn" held the completion.
+- On `allowed`'s fallback the woken run had already taken the return in, so a literal model answers
+  `PROBE-OK`.
+
+🌊's ruling (room msg 1567656724549075047) rewords the condition to match the priming: "If your
+context includes …". This head sends that text and binds every receipt to its new hash. A receipt
+naming the old text reads MISSING `probe-text-unbound`
+([the context wording](#the-probes-context-wording)). `663fafdc` was not a gate-3 PASS.
+
+The run before the fresh 13, 🕯's `rra-88e4fd22f0b122a8` (docs `935898d1`), graded 10 of 13. It left
 `wake-reassigned`, `reassigned` and `allowed-silent` open; their fixes are
 [below](#the-live-runs-misses-at-2907e656). Its `allowed-silent` receipt stays MISSING
 `probe-ack-unobserved` and is never upgraded. Every other case keeps every rule it had. Receipts from
@@ -97,6 +112,13 @@ Rulings:
   ACK. Credit exactly one nonce-bound ACK in that probe run, after the delivered return, and label the
   receipt **probe-mediated** rather than claiming an ACK in the wake turn. No ACK remains MISSING,
   never FAIL. Pin both the direct-wake and fallback paths before another 13."
+- 🌊, room msg 1567656724549075047 (the probe's context wording), on 🌿's review of `663fafdc` (#620,
+  comment 6642952113): "accept (1) double ACK as **MISSING**, never credited; (2) apply the
+  parked-copy witness to all five cases that require it, including `reassigned` and
+  `replay-restart`; (3) change the probe condition to **'If your context includes the internal task
+  completion for the proof you were primed for…'** so it matches the priming across turns. Keep the
+  exact proof/nonce binding, `PROBE-OK` refusal path, probe-text hash and negatives pinned. Review
+  that small successor before 🕯 fires a fresh whole 13; `663fafdc` is not a gate-3 PASS."
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
@@ -421,11 +443,10 @@ stage, another row, or a row-less line where the stage writes one leaves the cas
 internal task completion for proof <suffix> is in your context, reply exactly `TARGET-ACK <nonce>`"
 (the scenario's `prime()`). Nothing else the harness sends names the ack: the probe names neither
 the ack nor the row nonce ([the conditional probe](#the-conditional-probe)), and the delegate's task
-carries the nonce but never the ack marker. The probe tells a turn that includes the task completion
-to follow its priming instead, and any other to reply `PROBE-OK <probeNonce>`. So an
-ack in the probe
-run is the primed target answering a return its turn drained, and a refused return, which never
-reaches the target, leaves the probe run with nothing to ack. The absence is read from the probe run
+carries the nonce but never the ack marker. The probe tells a target whose context includes the task
+completion to follow its priming instead, and any other to reply `PROBE-OK <probeNonce>`. So an ack
+in the probe run is the primed target answering a return that reached its context, and a refused
+return, which never reaches the target, leaves the probe run with nothing to ack. The absence is read from the probe run
 (`probeAckRows`, bound by the run id `sessions.send` returned for the probe) and from every later
 non-priming run (`ackRuns`). `allowed-silent` is the control: the same park and the same probe, where
 the ack must show. Without it the row cannot pass, because the refusal cases' "no ack" would be
@@ -594,7 +615,8 @@ receipt now says which path it took: `ack.path` is `direct-wake`, else MISSING
    (`_DUPLICATE_WAIT_MS`), the scenario reads the target once more. A woken run with no ack sends the
    probe; an ack, or no woken run, sends nothing. The read is recorded (`ack.fallbackDecision`:
    `decidedAtMs`, `wokenRuns`, `ackRuns`).
-2. The probe is the conditional probe every probing case sends, 🌊's text as at `53c1c192`. It goes
+2. The probe is the conditional probe every probing case sends, its condition the target's context
+   (🌊, room msg 1567656724549075047; [the context wording](#the-probes-context-wording)). It goes
    through the same text test and is named by the same hash (`probeTextSha256`, else
    `probe-text-unbound`).
 3. Exactly one ack of the nonce in that probe's own run (`probeAckRows === 1`), with the probe sent
@@ -621,16 +643,20 @@ What it rejects (dry-run pins (f) and (g), and the unit tests):
 | a fallback receipt not labelled `probe-mediated`, or labelled with no probe run | MISSING | `probe-mediated-label-missing`; `probe-turn-unobserved` |
 | two wake turns that each acked; two woken runs; a return in the parent | FAIL | `duplicate-adoption`; `duplicate-wake`; `return-landed-in-parent` |
 
-An ack in both the wake turn and the probe run is MISSING, not the direct path's `duplicate-adoption`.
-The priming asks for the ack on any later turn that has the completion in its context, so a model may
-give both for one adoption. Two wake turns that each acked are two adoptions, FAIL as before. The
-row's verdict names the path for `allowed` (`cases.allowed.ackPaths`).
+An ack in both the wake turn and the probe run is MISSING, not the direct path's `duplicate-adoption`,
+and is never credited (🌊's ruling (1), room msg 1567656724549075047). The priming asks for the ack
+on any later turn that has the completion in its context, so a model may give both for one adoption.
+Two wake turns that each acked are two adoptions, FAIL as before. The row's verdict names the path
+for `allowed` (`cases.allowed.ackPaths`).
 
 Its limits:
 
-- The ack is the model's. 🌊's probe asks about "this turn", and on the fallback the return was
-  adopted by the wake turn. A model that reads "this turn" strictly answers `PROBE-OK`, and the case
-  stays MISSING (`probe-ack-unobserved`), never FAIL.
+- The ack is the model's. The probe asks whether the target's context holds the completion, as the
+  priming does. On the fallback the wake turn took the return in, so a literal model follows its
+  priming and acks in the probe run. At `663fafdc` the probe asked about "this turn" instead, and a
+  literal model answered `PROBE-OK`, leaving the case MISSING (`probe-ack-unobserved`). That is
+  🌿's finding and pin (h) ([the context wording](#the-probes-context-wording)). A model that
+  follows neither sentence still reads MISSING, never FAIL.
 - A probe-mediated ack shows that the primed target's model had this proof's completion in its
   context at the probe, after a woken run. It does not show which turn took it in: the row reads no
   adoption marker, and `chat.history` hides the wake's own input rows (the adoption row in
@@ -897,19 +923,22 @@ What it rejects, each pinned by a dry-run negative in `tests/recipient-authority
 
 🌊's ruling, room msg 1567590902694936678, is quoted in the rulings list above: "the probe's
 unconditional `reply exactly PROBE-OK` conflicts with the primed target's conditional return
-instruction". The priming asks for `TARGET-ACK <nonce>` only on a later turn that holds this
-proof's task completion. The probe asked every turn for `PROBE-OK <probeNonce>` and nothing else,
+instruction". The priming asks for `TARGET-ACK <nonce>` only on a later turn whose context holds
+this proof's task completion. The probe asked every turn for `PROBE-OK <probeNonce>` and nothing else,
 and on `allowed-silent`'s turn that won.
 
 Every case that probes now sends this text (`rraProbeText` in `lib/recipient-authority-row.mjs`),
 the same but for its own nonce:
 
 ```text
-[k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK <probeNonce>.
+[k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK <probeNonce>.
 ```
 
 - **The wording.** After the header, the text is 🌊's two sentences, word for word, with the probe's
-  own nonce in `PROBE-OK ‹probe nonce›`.
+  own nonce in `PROBE-OK ‹probe nonce›`. The condition is worded as room msg 1567656724549075047
+  rules, asking about the target's context as the priming does
+  ([the context wording](#the-probes-context-wording)). `Otherwise reply exactly PROBE-OK ‹probe
+  nonce›.` is room msg 1567590902694936678's.
 - **The header.** The header is the one the probe had before. Its `[k6-proof-harness]` tag matters:
   `hasExactSentinelText` credits no sentinel in text that carries it, so a model that echoes the
   probe is never credited with its `PROBE-OK`. The header names the row and the probe nonce, never
@@ -936,7 +965,7 @@ the same but for its own nonce:
 
 How the probe's reply is graded. One of two answers counts, never both:
 
-| Case | What its probe turn holds | PASS needs | Otherwise |
+| Case | What the target's context holds at the probe | PASS needs | Otherwise |
 |---|---|---|---|
 | each delegate refusal | no return | `PROBE-OK <probeNonce>` in the probe run, and no `TARGET-ACK` in it or later | an ack, with or without `PROBE-OK`: FAIL `refused-return-adopted`; no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved` |
 | `work-revoked-visibility` | no return, no priming | `PROBE-OK <probeNonce>`, and no wake turn | no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved`. An ack is not graded here: the session is never primed |
@@ -972,7 +1001,8 @@ Its 10/13 is that run's grade at its own docs head, and the fresh 13 replaces it
 
 The pins, as dry-run tests through the real case driver (`tests/recipient-authority-dry-run.test.mjs`).
 The scripted model reads the probe it is sent. An unconditional `PROBE-OK` wins over its priming, as
-in 🕯's run. 🌊's condition hands a turn holding the return back to the priming. Before this lane
+in 🕯's run. 🌊's condition, read literally, hands a target whose context holds the return back to
+the priming ([the context wording](#the-probes-context-wording)). Before the conditional-probe lane
 that model answered the ack and `PROBE-OK` in one row whatever the probe said, which is why the dry
 run passed `allowed-silent` while the live run could not.
 
@@ -999,10 +1029,72 @@ those pins go RED.
 Its limits:
 
 - The ack is still the model's. A model that follows neither sentence reads MISSING, as before.
-- A model that acks with no return in its turn fails a refusal case (`refused-return-adopted`). The
+- A model that acks with no return in its context fails a refusal case (`refused-return-adopted`). The
   refusal line, read first, shows such a FAIL for what it is.
 - The dry run's model shows what the driver sends and how each answer grades. It is not evidence that
   a real model follows the condition. The owner's run at the new head is.
+
+### The probe's context wording
+
+🌊's ruling, room msg 1567656724549075047, is quoted in the rulings list above. It answers 🌿's
+review of `663fafdc` (#620, comment 6642952113).
+
+From `53c1c192` to `663fafdc` the two instructions asked different things:
+
+- the priming: "On a later turn, only if an internal task completion for proof <suffix> is **in your
+  context**, reply exactly `TARGET-ACK <nonce>`" (the scenario's `prime()`);
+- the probe: "If **this turn** includes the internal task completion for the proof you were primed
+  for, follow that priming instruction instead."
+
+They agree where the probe turn drained the return itself (`allowed-silent`) and where nothing
+reached the target (every refusal). They part on `allowed`'s fallback. Its woken run already took the
+return in, so the completion is in the target's context but not in "this turn". A literal model
+answers `PROBE-OK`, and the case stays MISSING `probe-ack-unobserved` however correct the product.
+
+The condition now asks what the priming asks. Only that sentence and the hash changed:
+
+| | from `53c1c192` to `663fafdc` | this head |
+|---|---|---|
+| `RRA_PROBE_CONDITION` | `If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.` | `If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead.` |
+| `RRA_PROBE_TEXT_SHA256` | `d6187455fe5d61ff33f4255e6ece5e65fde4cd67d0d452703c4262892292b8cf` | `509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512` |
+
+- **The hash.** It is computed by `node:crypto` from `rraProbeText('<probeNonce>')`, never written by
+  hand, and the unit test pins it so. The old text, hashed the same way, gives `d6187455…`.
+- **Unchanged:**
+  - the rest of the text: the header and `Otherwise reply exactly PROBE-OK <probeNonce>.` with the
+    probe's own nonce. It still names no `TARGET-ACK`, `RRA_ACK_MARKER`, row nonce or proof id, and
+    every probing case still sends the same text;
+  - the binding (`probeTextSha256`, else `probe-text-unbound`) and the `PROBE-OK` refusal path;
+  - the ACK oracle: exactly one nonce-bound ack in the probe's own run, after `Delivered to`;
+  - every negative.
+
+How each case reads the new condition:
+
+| Case | The target's context at the probe | A literal model answers |
+|---|---|---|
+| each refusal | no return | `PROBE-OK <probeNonce>` |
+| `allowed-silent` | the return, drained by the probe turn | the ack |
+| `allowed`, on its fallback | the return, taken in by its woken run | the ack, in the probe run |
+| `allowed` on its direct path, `allowed-across-reset` | no probe is sent | n/a |
+
+**Old receipts.** A receipt sealed by a run that sent the "this turn" text names `d6187455…`. At this
+head it reads MISSING `probe-text-unbound`, never PASS, and a contradiction in it is still FAIL. That
+includes every receipt of 🕯's fresh 13 `rra-a4d5318d426ad728` whose probe ran: it sent that text,
+the conditional probe of its time. A run's receipts are graded together
+(`receipts-from-different-runs`), so the owner's fresh whole 13 at this head is every case's receipt.
+
+**The scripted model.** The dry run's primed model now reads the condition literally:
+
+- "your context" holds a completion that any turn took in;
+- "this turn" holds only one that the probe turn's own drain adopted.
+
+Until `663fafdc` it read both wordings as "in context". That is why pin (f) passed there although a
+literal model could not. Pin (h) drives `allowed`'s fallback through the real case driver:
+
+- at this head its probe is acked in its own run: PASS-candidate, labelled `probe-mediated`;
+- with the probe reworded on the wire to the "this turn" text, the model answers `PROBE-OK`: MISSING
+  `probe-ack-unobserved`. Sealed with that text's hash, the receipt is also `probe-text-unbound`;
+- every refusal case and `allowed-silent` answer the same under either wording.
 
 ### The refusal cases' absence: no ack in the probe run
 
@@ -1325,10 +1417,12 @@ refusal becomes provable.
   (`probe-ack-duplicated`), an ack outside priming the case cannot credit (`ack-uncredited`), one in
   a priming run (`ack-before-return`), or a probe sent before that line or with no such line
   (`probe-not-after-return`, `return-not-routed-from-child`). The product's marker is not required,
-  and neither is `PROBE-OK`: the probe tells a turn holding the return to follow its priming instead.
+  and neither is `PROBE-OK`: the probe tells a target whose context holds the return to follow its
+  priming instead.
 - Every case that probes sends the same conditional probe (🌊, room msg 1567590902694936678;
-  [the conditional probe](#the-conditional-probe)), and a text that fails the text test is never
-  sent. Its reply is graded as one of two answers, never both: a refusal needs
+  [the conditional probe](#the-conditional-probe)), its condition the target's context, as the
+  priming's is (🌊, room msg 1567656724549075047; [the context wording](#the-probes-context-wording)).
+  A text that fails the text test is never sent. Its reply is graded as one of two answers, never both: a refusal needs
   `PROBE-OK <probeNonce>` and no ack, and `allowed-silent` needs the ack. A `PROBE-OK` naming another
   nonce is never credited. A probe that ran must be named in the receipt by its text's hash, or the
   case is MISSING (`probe-text-unbound`); a contradiction is still FAIL.
@@ -1450,6 +1544,6 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, the parked copy's witness before a parked case's transition phase, restart, signed receipts, `--grade-row` |
 | `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the parked-copy witness's bytes, the early-enqueue pins, the j12′ reason matchers, the probe text with its text test and pinned hash, transcript observation and verdict rules (`allowed`'s two paths included) |
-| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, gates, signed receipts |
-| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. Its probe turn writes no marker, and its primed model reads the probe (an unconditional `PROBE-OK` wins over the priming, 🌊's condition hands a turn holding the return back to it). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), and 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives |
+| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, gates, signed receipts |
+| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

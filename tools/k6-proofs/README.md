@@ -931,9 +931,10 @@ adopted and acknowledged exactly once. `allowed-silent`, the control for the ref
 must be acknowledged exactly once by the primed target in the probe's own run, sent after the router
 delivered its return (🌊's ruling (a), room msg 1567556038281007235: no `sessions.send` row carries
 the product's adoption marker, so the marker is never required). Every case that probes sends the
-same conditional probe (🌊, room msg 1567590902694936678): a turn holding the return follows its
-priming and acks, any other replies `PROBE-OK <probeNonce>`, and the probe names neither the ack nor
-the row nonce. A refusal passes on that `PROBE-OK` and no ack, `allowed-silent` on the ack, and
+same conditional probe (🌊, room msg 1567590902694936678), its condition the target's context, as
+the priming's is (🌊, room msg 1567656724549075047): a target whose context holds the return follows
+its priming and acks, any other replies `PROBE-OK <probeNonce>`, and the probe names neither the ack
+nor the row nonce. A refusal passes on that `PROBE-OK` and no ack, `allowed-silent` on the ack, and
 neither needs both. A receipt whose probe ran names that probe by the text's hash, or the case is
 MISSING (`probe-text-unbound`). 🌊's room msg 1567623059727458526 adds two rules. A parked case
 (`revoked-*`, `reassigned`, `replay-restart`) sends its transition only once the control has seen the

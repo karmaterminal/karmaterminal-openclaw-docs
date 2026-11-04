@@ -38,9 +38,13 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
   content: [{ type: 'text', text: typeof payload === 'string' ? payload : JSON.stringify(payload) }], __openclaw: { runId },
 });
 
-// 🌊's conditional probe (room msg 1567590902694936678), quoted here rather than imported, so the
-// driver's text is pinned to the ruling itself. The driver keeps its harness header before it.
-const PROBE_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
+// 🌊's conditional probe (room msg 1567590902694936678), its condition worded as room msg
+// 1567656724549075047 rules, quoted here rather than imported, so the driver's text is pinned to the
+// ruling itself. The driver keeps its harness header before it.
+const PROBE_CONDITION = 'If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
+// The condition from 53c1c192 to 663fafdc, as room msg 1567590902694936678 first worded it. The
+// scripted model reads it literally, so only pin (h) sends it.
+const THIS_TURN_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
 const probeTextFor = (probeNonce) => `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: ${PROBE_CONDITION} Otherwise reply exactly PROBE-OK ${probeNonce}.`;
 const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' && frame.method === 'sessions.send' && String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`));
 
@@ -78,8 +82,15 @@ const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' &&
  * allowed's wake (🌊's ruling, room msg 1567623059727458526): `ack: 'wake'` is a woken run that acks
  * (the direct path), `'wake-no-ack'` a woken run that answers without the ack (🕯's rra-a4d5318d426ad728
  * shape), `'none'` no wake at all. After a woken run, the return's completion is in the model's
- * context, so a conditional probe is answered with the ack alone. `lateWakeAck` puts the woken run's
- * ack in the transcript only once the fallback probe has been sent.
+ * context but not in the probe's turn. `lateWakeAck` puts the woken run's ack in the transcript only
+ * once the fallback probe has been sent.
+ *
+ * The model reads the probe's condition literally (🌿's review on #620, comment 6642952113). "If your
+ * context includes" (room msg 1567656724549075047) holds a completion that any turn took in: the
+ * probe turn's own drain, or allowed's woken run before it. "If this turn includes", the condition
+ * from 53c1c192 to 663fafdc, holds only one that this turn's drain adopted, so on allowed's fallback
+ * it is answered PROBE-OK. Until 663fafdc this model read both wordings as "in context", which is
+ * why the dry run passed allowed's fallback while a literal model could not.
  */
 function gatewayFor(world, sessions = {}) {
   const spec = specOf(world.caseId);
@@ -138,13 +149,14 @@ function gatewayFor(world, sessions = {}) {
         const probe = /probe (\S+):/.exec(message);
         if (probe) {
           // A parked return the probe turn's drain adopts, and no marker reaches the row (see above).
-          // The primed model acks it in the probe run only when the probe hands the turn back to its
-          // priming. After allowed's woken run the completion is already in its context.
-          const adopts = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
-          const inContext = adopts || woken;
+          // The primed model acks it in the probe run only when the probe's condition, read
+          // literally, hands the turn back to its priming. After allowed's woken run the completion
+          // is already in its context, but not in this turn.
+          const drained = world.adoptOnProbe || (spec.probeAdopts && childSpawned);
+          const inContext = drained || woken;
           const marker = world.probeMarker ?? world.adoptOnProbe === true;
-          const conditional = message.includes(PROBE_CONDITION);
-          const answer = world.probeAck ?? (inContext && !world.markerOnly && conditional ? 'ack-only' : 'none');
+          const handsBack = message.includes(PROBE_CONDITION) ? inContext : message.includes(THIS_TURN_CONDITION) ? drained : false;
+          const answer = world.probeAck ?? (handsBack && !world.markerOnly ? 'ack-only' : 'none');
           // A silent return that woke the target anyway, and whose wake acked it.
           if (world.wakeAck) push(p.key, say(`TARGET-ACK ${nonce}`, 'run-wake'));
           // allowed's woken run's ack, seen only after the fallback decision.
@@ -810,7 +822,8 @@ test('dry run: (f) allowed\'s fallback: only after a woken run with no ack, the 
   );
   assert.ok(record.park.deliveredFromChildAtMs < record.target.probeSentAtMs, 'after the delivered return');
   assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
-  // At 53c1c192 this woken run without an ack graded MISSING woken-without-ack, with no probe.
+  // At 53c1c192 this woken run without an ack graded MISSING woken-without-ack, with no probe. At
+  // 663fafdc the literal model answered its "this turn" probe PROBE-OK: pin (h).
 });
 
 test('dry run: (g) allowed\'s fallback refuses a duplicate, a probe after a wake ack, a pre-return or wrong-nonce ack and an unlabelled receipt; no ack is MISSING, never FAIL', async () => {
@@ -852,6 +865,51 @@ test('dry run: (g) allowed\'s fallback refuses a duplicate, a probe after a wake
   assert.ok(record.scenario.refusals.includes('fallback probe turn not accepted with a run id'), record.scenario.refusals.join());
   assert.equal(record.ack.path, 'direct-wake');
   assert.equal(gradeRecipientAuthorityCase(record).verdict, 'MISSING-candidate');
+});
+
+/*
+ * 🌊's ruling, room msg 1567656724549075047: "(3) change the probe condition to **'If your context
+ * includes the internal task completion for the proof you were primed for…'** so it matches the
+ * priming across turns." 🌿's finding (#620, comment 6642952113): on allowed's fallback the woken run
+ * already took the return in, so it is in the target's context but not in "this turn", and a literal
+ * model answers PROBE-OK. Pin (h).
+ */
+// The driver's probe as a gateway at 663fafdc's text would read it: its condition reworded on the wire.
+const thisTurnOnTheWire = (gateway) => (frame) => (frame?.type === 'req' && frame.method === 'sessions.send' && String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`)
+  ? gateway({ ...frame, params: { ...frame.params, message: String(frame.params.message).replace(PROBE_CONDITION, THIS_TURN_CONDITION) } })
+  : gateway(frame));
+// What a receipt sealed at 663fafdc names: the "this turn" text's hash, its nonce written as the slot.
+const THIS_TURN_SHA256 = createHash('sha256').update(`[k6-proof-harness] ${RRA_ROW} probe <probeNonce>: ${THIS_TURN_CONDITION} Otherwise reply exactly PROBE-OK <probeNonce>.`).digest('hex');
+
+test('dry run: (h) allowed\'s fallback probe asks about the target\'s context, as the priming does: a literal model acks it, and 663fafdc\'s "this turn" probe is answered PROBE-OK, never PASS', async () => {
+  // At this head: the woken run took the completion in, and the probe hands the target's context
+  // back to the priming. The literal model acks in the probe's own run.
+  const { frames, record, graded } = await grade('allowed', { ack: 'wake-no-ack' });
+  assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  assert.deepEqual([record.ack.path, record.target.probeAckRows, record.target.wakeAckRuns, record.target.probeReplied], ['probe-mediated', 1, 0, false]);
+  const sent = probeFrames(frames).map((frame) => frame.params.message);
+  assert.equal(sent.length, 1);
+  assert.ok(sent[0].includes(PROBE_CONDITION) && !sent[0].includes(THIS_TURN_CONDITION), sent[0]);
+  assert.notEqual(rowLib.RRA_PROBE_TEXT_SHA256, THIS_TURN_SHA256, 'the "this turn" text is another probe');
+  // The same driver, its probe reworded to 663fafdc's condition: the completion is in the target's
+  // context but not in this turn, so the literal model answers PROBE-OK and acks nothing.
+  const old = await grade('allowed', { ack: 'wake-no-ack' }, {}, thisTurnOnTheWire(gatewayFor({ caseId: 'allowed', ack: 'wake-no-ack' })));
+  assert.deepEqual([old.record.ack.path, old.record.target.probeAckRows, old.record.target.probeReplied], ['probe-mediated', 0, true]);
+  assert.deepEqual(old.graded, { verdict: 'MISSING-candidate', missing: ['probe-ack-unobserved'], contradictions: [], partial: [] });
+  // Sealed as a run at 663fafdc sealed it, naming the "this turn" text's hash: unbound as well.
+  old.record.target.probeTextSha256 = THIS_TURN_SHA256;
+  const sealed = gradeRecipientAuthorityCase(old.record);
+  assert.deepEqual([sealed.verdict, sorted(sealed.missing), sealed.contradictions], ['MISSING-candidate', sorted(['probe-ack-unobserved', 'probe-text-unbound']), []]);
+  // Every other probing case answers alike under either wording: a refusal's target holds no return
+  // in its context (PROBE-OK, no ack); allowed-silent's probe turn drained its return (the ack).
+  for (const caseId of [...refusalCases, 'allowed-silent']) {
+    const now = await grade(caseId);
+    const then = await grade(caseId, {}, {}, thisTurnOnTheWire(gatewayFor({ caseId })));
+    const answer = ({ record: r }) => [r.target.probeAckRows, r.target.probeReplied, r.target.ackRuns];
+    assert.deepEqual(answer(then), answer(now), caseId);
+    assert.deepEqual(answer(now), caseId === 'allowed-silent' ? [1, false, 1] : [0, true, 0], caseId);
+    assert.equal(now.graded.verdict, 'PASS-candidate', `${caseId}: ${JSON.stringify(now.graded)}`);
+  }
 });
 
 test('dry run: a policy patch the gateway rejected stops the case before dispatch and is never FAIL', async () => {

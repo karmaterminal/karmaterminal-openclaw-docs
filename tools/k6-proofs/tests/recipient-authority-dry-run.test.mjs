@@ -36,11 +36,11 @@ const toolResult = (id, name, payload, runId, isError = false) => ({
  * workWake, wakeElects, probeElects, retry }. Allowed cases get the woken target's ack after their (last) priming; refused
  * cases spawn a child only when the delegate would have fired. The continue_work case's session
  * answers its election with a scheduled result, and with `workWake` a wake turn shows once the
- * probe was sent.
+ * probe was sent. `sessions` is the gateway's session store: pass one store to several cases to
+ * run them on one gateway, as the control does, where a label one case holds refuses another's.
  */
-function gatewayFor(world) {
+function gatewayFor(world, sessions = {}) {
   const spec = RRA_CASES[world.caseId];
-  const sessions = {};
   const push = (key, message) => {
     sessions[key] ??= { messages: [] };
     sessions[key].messages.push(message);
@@ -59,7 +59,8 @@ function gatewayFor(world) {
     switch (frame.method) {
       case 'connect': return ok({ type: 'hello-ok', features: { methods: ALL_METHODS } });
       case 'sessions.create': {
-        if (Object.entries(sessions).some(([key, session]) => key !== p.key && session.label === p.label)) return fail('label already in use');
+        // A label held by another session refuses the create (sessions-patch-display-metadata.ts:52-53).
+        if (Object.entries(sessions).some(([key, session]) => key !== p.key && session.label === p.label)) return fail(`label already in use: ${p.label}`);
         sessions[p.key] = { label: p.label, messages: [] };
         return ok({ key: p.key });
       }
@@ -318,6 +319,40 @@ test('dry run: the same case can run twice on one gateway without colliding with
     });
     assert.deepEqual(evidence.refusals, [], `${runId}: ${evidence.refusals}`);
     assert.equal(evidence.control_run_id, runId);
+  }
+});
+
+// 🕯's live run at 2907e656 (rra-88e4fd22f0b122a8): wake-reassigned's re-create reused the label
+// reassigned's re-create already held in the same run, and the gateway refused it
+// (sessions-patch-display-metadata.ts:52-53 via session-create-service.ts:722, at 2907e656).
+test('dry run: reassigned and wake-reassigned re-create their targets in one world under one run id', async () => {
+  const store = {};
+  for (const caseId of ['reassigned', 'wake-reassigned']) {
+    const { evidence, frames } = await fire(caseId, {}, { gateway: gatewayFor({ caseId }, store) });
+    assert.equal(evidence.control_run_id, RUN, caseId);
+    assert.equal(evidence.transition.error, null, `${caseId}: ${evidence.transition.error}`);
+    assert.equal(evidence.transition.ok, true, caseId);
+    assert.deepEqual(evidence.refusals, [], `${caseId}: ${evidence.refusals}`);
+    const created = frames.filter((frame) => frame.type === 'req' && frame.method === 'sessions.create' && frame.params.key === evidence.keys.target);
+    assert.equal(created.length, 2, `${caseId}: the target is created, then re-created`);
+    for (const frame of created) assert.ok(frame.params.label.includes(` ${caseId} `) && frame.params.label.includes(RUN), frame.params.label);
+  }
+});
+
+// Every label the scenario creates, in every case, on one gateway under one run id, in the control's
+// order: no label may be built without its case and the run.
+test('dry run: every case runs on one gateway under one run id without a label collision', async () => {
+  const store = {};
+  const labels = new Map();
+  for (const caseId of RRA_CASE_IDS) {
+    const { evidence, frames } = await fire(caseId, { ack: 'wake' }, { gateway: gatewayFor({ caseId, ack: 'wake' }, store) });
+    assert.deepEqual(evidence.refusals, [], `${caseId}: ${evidence.refusals}`);
+    for (const frame of frames.filter((f) => f.type === 'req' && f.method === 'sessions.create')) {
+      const { label, key } = frame.params;
+      assert.ok(label.includes(` ${caseId} `) && label.includes(RUN), `${caseId}: ${label}`);
+      assert.ok(!labels.has(label) || labels.get(label) === key, `${caseId}: ${label} already named ${labels.get(label)}`);
+      labels.set(label, key);
+    }
   }
 });
 

@@ -687,7 +687,10 @@ export default function () {
         case 'sessions.delete+sessions.create':
           return rpc('sessions.delete', { key: keys.target }, (deleted) => {
             if (!deleted.ok) return settle(false, deleted.error?.message);
-            rpc('sessions.create', { key: keys.target, label: `k6 ${RRA_ROW} reassigned ${control.runId}` }, (created) => settle(created.ok, created.error?.message));
+            // A label is unique among the agent's sessions (session-create-service.ts:722 ->
+            // sessions-patch-display-metadata.ts:52-53), and two cases of one run re-create: the
+            // label names the case as well as the run.
+            rpc('sessions.create', { key: keys.target, label: `k6 ${RRA_ROW} ${control.caseId} reassigned ${control.runId}` }, (created) => settle(created.ok, created.error?.message));
           });
         case 'sessions.assignOwner': {
           const instruction =

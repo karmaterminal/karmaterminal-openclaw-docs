@@ -936,8 +936,11 @@ or enqueue), no `Delivered to` line for the return once its transition settled, 
 product's own marker), ack, wake or final effect. j12's `recipient authority changed` lines never
 count. The thirteenth, `work-revoked-visibility`, elects a `continue_work` wake, which j12′ binds to
 its session's authority, narrows that session's visibility once the election is captured, and must
-show j12′'s `[continuation:work-refused]` line at `stage=wake` and no wake turn or adoption. The
-control refuses a candidate other than j12′, a non-disposable or live-overlapping target, a missing
+show j12′'s `[continuation:work-refused]` line at `stage=wake` and no wake turn or adoption. Each
+fired delegate spawns under the k6 operator's bounded dispatch grant, captured at election
+(`delegate-flow-store.ts:443-451`) and restored at dispatch (`delegate-dispatch.ts:449-484`), so the
+k6 connection need not outlive it. The grant changes no case's stage or oracle, and its revocation,
+ceiling and expiry are the product's unit pins, not this row's. The control refuses a candidate other than j12′, a non-disposable or live-overlapping target, a missing
 isolated model sign-in, a disabled cross-session policy and any gateway it did not start; the
 live-run guard refuses the manifest (`orchestration-required`). Every case stays MISSING until an
 owner runs it. See [`docs/R-CD-RECIPIENT-AUTHORITY.md`](docs/R-CD-RECIPIENT-AUTHORITY.md) for the

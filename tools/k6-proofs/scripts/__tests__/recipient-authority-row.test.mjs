@@ -189,6 +189,52 @@ test('the scenario header cites the j12′ product path at every boundary the ve
   }
 });
 
+test('the docs say what the delegate dispatch grant changes for the row, and what the row does not prove of it', () => {
+  const docs = readFileSync(path.join(k6Root, 'docs', 'R-CD-RECIPIENT-AUTHORITY.md'), 'utf8');
+  const capture = 'delegate-flow-store.ts:443-451';
+  const captureOwner = 'delegate-dispatch-grant.ts:48-79';
+  const restore = 'delegate-dispatch.ts:449-484';
+  const restoreOwner = 'delegate-dispatch-grant.ts:85-141';
+  const unitPins = 'subagent-spawn.continuation-operator-grant.test.ts';
+  // The grant's own section: capture at election, restore at dispatch, the 1ab5a73e smoke, and no
+  // case's stage or oracle moved.
+  // Prose wraps, so the section and the bullet are read with their whitespace folded.
+  const section = (/## The delegate dispatch grant and this row's operator connection\n[\s\S]*?(?=\n## )/.exec(docs)?.[0] ?? '').replace(/\s+/gu, ' ');
+  for (const anchor of [capture, captureOwner, restore, restoreOwner, 'delegate-dispatch.ts:268-291', '1567487338383413250', 'Gateway caller authority is no longer active.']) {
+    assert.ok(section.includes(anchor), anchor);
+  }
+  assert.match(section, /\*\*No case's expected stage or oracle changes\.\*\*/);
+  assert.match(section, /The row now depends on the grant to spawn/);
+  // Its capture for this row's own client shape is read from the bytes and pinned by no product test.
+  assert.match(section, /\*\*Not pinned for this row's client shape\.\*\*/);
+  // Under "does not prove": revocation, ceiling and expiry are the product's unit pins, not this row's.
+  const doesNotProve = /It does not prove:\n[\s\S]*?(?=\n## )/.exec(docs)?.[0] ?? '';
+  const grantBullet = (/- \*\*The grant's refusals\.\*\*[\s\S]*?(?=\n- \*\*)/.exec(doesNotProve)?.[0] ?? '').replace(/\s+/gu, ' ');
+  for (const word of ['Revocation', 'scope ceiling', 'expiry', unitPins, 'This row cannot drive them']) assert.ok(grantBullet.includes(word), word);
+  // The re-walk names each file the grant changed that the row cites, at its new lines.
+  const rewalk = /### At `2907e656`, the delegate dispatch grant\n[\s\S]*?(?=\n### )/.exec(docs)?.[0] ?? '';
+  for (const [file, at] of [
+    ['custody-boot.ts', '`:114-121`'],
+    ['delegate-flow-store.ts', '`:432-452`'],
+    ['delegate-dispatch.ts', '`:268-291`'],
+    ['delegate-store.ts', '`:205-224`'],
+    ['agent-runner-continuation-signal.ts', '`:467`'],
+    ['continuation/types.ts', '**not cited**'],
+  ]) {
+    const line = rewalk.split('\n').find((row) => row.startsWith(`| \`src/auto-reply/`) && row.includes(`${file}\``)) ?? '';
+    assert.ok(line.includes(at), `${file}: ${at}`);
+  }
+  // The scenario header, the README section and the pipeline row carry the same grant.
+  const scenario = readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8');
+  for (const anchor of [captureOwner, restoreOwner, unitPins]) assert.ok(scenario.includes(anchor), anchor);
+  const readme = readFileSync(path.join(k6Root, 'README.md'), 'utf8');
+  const readmeSection = /### R-CD-RECIPIENT-AUTHORITY [^\n]*\n[\s\S]*?(?=\n### )/.exec(readme)?.[0] ?? '';
+  for (const anchor of [capture, restore]) assert.ok(readmeSection.includes(anchor), anchor);
+  const pipeline = readFileSync(path.join(k6Root, 'k6-proofs-pipeline.xml'), 'utf8');
+  const pipelineRow = /<Row id="R-CD-RECIPIENT-AUTHORITY" [\s\S]*?<\/Row>/.exec(pipeline)?.[0] ?? '';
+  assert.match(pipelineRow, /dispatch grant/);
+});
+
 test('live-run-guard refuses the row even with every live-run variable set', () => {
   for (const env of [{}, { OPENCLAW_GATEWAY_TOKEN: 'x'.repeat(32), OPENCLAW_SESSION_KEY: 'agent:main:main', OPENCLAW_CANDIDATE_SHA: RRA_PINNED }]) {
     const result = spawnSync(process.execPath, [path.join(k6Root, 'scripts', 'live-run-guard.mjs'), '--manifest', manifestPath, '--json'], {

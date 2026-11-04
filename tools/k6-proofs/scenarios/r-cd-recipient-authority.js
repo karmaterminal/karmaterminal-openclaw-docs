@@ -158,6 +158,22 @@
  *      or the authority moved after the handoff's read.
  *    So the case pins stage=wake: the session elects with a delay, narrows its own visibility after
  *    the capture, and is probed only after the wake was due.
+ *
+ * 8. The delegate dispatch grant (2907e656; 🌊's ruling A, room msg 1567487338383413250). This
+ *    scenario's connection is a Gateway operator: the shared token over loopback, no device, admitted
+ *    as the Gateway owner (src/gateway/server/ws-connection/connect-session.ts:216-220, 360-367,
+ *    377-378). Before the grant, a delegate's spawn re-read the authority of the request that armed its
+ *    timer, this connection's own, when it fired (src/gateway/operator-run-authority.ts:358-359), so
+ *    the spawn needed this connection still current. Now the election captures the operator's
+ *    bounded grant beside the binding, before the "scheduled" result
+ *    (src/auto-reply/continuation/delegate-flow-store.ts:443-451 ->
+ *    src/auto-reply/continuation/delegate-dispatch-grant.ts:48-79), and the spawn runs under it after
+ *    the policy check (delegate-dispatch.ts:449-484 -> delegate-dispatch-grant.ts:85-141): another
+ *    session, expiry, revocation or narrowed scopes fail the delegate with a named reason and no
+ *    child. It authorizes only the spawn: routing, enqueue, wake, drain and replay are unchanged, so
+ *    no case's stage or oracle moves. A refused grant leaves no child, which grades MISSING. The
+ *    grant's refusals are the product's unit pins
+ *    (src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts), not this row's.
  */
 import ws from 'k6/ws';
 import { check } from 'k6';

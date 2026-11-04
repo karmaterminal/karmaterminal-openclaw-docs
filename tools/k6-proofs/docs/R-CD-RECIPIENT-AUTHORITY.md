@@ -136,6 +136,14 @@ It does not prove:
   - `src/auto-reply/continuation/work-recipient-authority.incognito.test.ts`: the incognito pin from
     `f52dc67e` (`:235`, an incognito election fails visibly and elects nothing) and the bound
     control (`:285`).
+- **The grant's refusals.** Revocation (a revoked device), a narrowed scope ceiling, a grant used
+  under another session, expiry and a restart are proven by the product's unit pins in
+  `src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts` (`:387`, `:398`,
+  `:409`, `:435`, `:446`; the disconnect at `:320`). The grant's lane revert-proved them (7 RED
+  against `1ab5a73e`). This row cannot drive them: no case revokes the elector's device, narrows its
+  scopes, copies a grant to another session or waits out its hour. Its cases only spawn under a
+  grant that holds, and that its own shared-token owner client gets one is read from the bytes, not
+  pinned ([the grant](#the-delegate-dispatch-grant-and-this-rows-operator-connection)).
 - **"Settled as refused" from the record.** j12′ retires a refused row as a bounded `failed`
   receipt, never `recovered` (`return-refusal.ts:53-66`; the sweep's settlement,
   `session-delivery-queue-recovery.ts:161-180, 208-213`). But no public surface reads that receipt:
@@ -388,6 +396,100 @@ the row's isolated gateway. None changes one; the setup below rules out the one 
   (`delegate-dispatch-recovery.ts`, `rearmPendingContinuationDelegates`), both keyed by the owner
   session. No case resets a parent or crashes a gateway (`replay-restart` is a supervised restart
   after the delegate fired).
+
+## The delegate dispatch grant and this row's operator connection
+
+**What `1ab5a73e` did.** Ten cases fire a timed `continue_delegate` that a model turn elects from the
+k6 client's `sessions.send`. The other three fire none that spawns: `unauthorized-admission` is
+refused at the tool, `unauthorized-dispatch` by the policy at dispatch, and `work-revoked-visibility`
+elects no delegate. The k6 client is a Gateway operator connection: the proof gateway's shared
+token over loopback, with no device (`composite-launcher.sh` sets `gateway.auth` mode `token`),
+admitted as the Gateway owner (`connect-session.ts:216-220, 360-367, 377-378`; profile
+`gateway-owner`, `operator-run-authority.ts:329-355`). At `1ab5a73e` a delegate's spawn ran under the
+request scope that armed its timer, the k6 client's own request, and re-read that request's
+authority when the delegate fired (`delegate-dispatch.ts:449` -> `subagent-spawn-gateway.ts:323-326,
+179-197` -> `server-plugin-in-process-authority.ts:336-340, 703-714` ->
+`operator-run-authority.ts:358-359`). So every delegate the row fires needed the k6 connection's
+authority still current when it fired. The row's one-case live smoke (🕯, emeric, at `1ab5a73e`)
+stopped there: `continuation.delegate.dispatch` ERROR "Gateway caller authority is no longer
+active." ×4, the k6 operator's connection having closed before the timed delegate fired. It wrote
+no case receipt.
+
+Two things about that smoke are not settled by the bytes:
+
+- The scenario holds one connection per case and closes it only when the case ends
+  (`finish()` in `scenarios/r-cd-recipient-authority.js`), after its final reads. In a case
+  that runs to its end, the connection outlives the fire. It closes earlier only on a scenario
+  refusal, a socket error or the 885 s window.
+- For this owner client, a fully processed socket close makes the capture return no authority
+  (`operator-run-authority.ts:339, 352`) rather than throw at `:358-359`.
+
+Which path the smoke took is for its own log to say.
+
+**What `2907e656` changes** (`da8851c5`, 🌊's ruling A, room msg 1567487338383413250):
+
+- **Capture at election.** The `continue_delegate` tool's enqueue (`continue-delegate-tool.ts:434` ->
+  `delegate-store.ts:205-224` -> **`delegate-flow-store.ts:443-451` ->
+  `delegate-dispatch-grant.ts:48-79`**) captures the grant in the same step as the recipient-authority
+  binding, before the record and before the `scheduled` toolResult. It holds:
+  - the electing operator's durable source (`operator-run-recovery-source.ts:13-52`): principal,
+    scopes intersected with the elector's, device, profile, role and auth policy, and no credential
+    bytes (`operator-run-authority.ts:631-691`);
+  - the owner session;
+  - `expiresAt`, the due time plus one hour (`delegate-dispatch-grant.ts:35, 71-75`).
+
+  The tool inherits its run's admitted operator (`operator-invocation-authority.ts:90-117`). On the
+  bytes, this row's owner client yields a grant: token auth, a defined shared generation and no device
+  pass `operator-run-authority.ts:642-660`, and an owner's access grant is `null`, not absent
+  (`:572-575`).
+- **Restore at dispatch.** After the policy check (`delegate-dispatch.ts:268-291`) and the spawn fence
+  (`:437-448`), the spawn runs under the grant (**`delegate-dispatch.ts:449-484` ->
+  `delegate-dispatch-grant.ts:85-141`**). The delegate fails with a named reason and no child
+  (`:97-108, 120-121`) when the grant:
+  - belongs to another session;
+  - has expired;
+  - has no Gateway to restore it on;
+  - names a source that the operator-recovery owner (`operator-run-recovery.ts`) refuses: a revoked
+    device, a changed profile or role, narrowed scopes, or a changed auth method or shared
+    generation.
+
+  Otherwise the child spawns under the restored authority, in a fresh scope. That scope reads
+  neither the electing connection nor the scope that armed the timer (`:123-137`).
+
+**What it changes for this row.** The row now depends on the grant to spawn. Each of the ten firing
+cases spawns its child under the k6 owner's grant, so a k6 connection closed before the fire no
+longer fails it. A delegate captured without a grant (an unretainable source logs
+`[continuation:delegate-grant-unavailable]`, `delegate-dispatch-grant.ts:63-69`) would dispatch under
+the k6 connection as at `1ab5a73e` (`:94-95`).
+
+**No case's expected stage or oracle changes.** Re-derived from the bytes:
+
+- The binding is captured as before, in the same step and still before the `scheduled` result
+  (`delegate-flow-store.ts:432-452`), so every capture sample and transition order holds. A failed
+  grant capture commits no record and gives no `scheduled` result: MISSING, never FAIL.
+- The policy refusals come before any grant. `unauthorized-admission` is refused at the tool
+  (`continue-delegate-tool.ts:353-362`), and `unauthorized-dispatch` at `delegate-dispatch.ts:268-291`,
+  which restores no grant. Each keeps its line.
+- The grant authorizes only the spawn. Routing, enqueue, wake, prompt drain, replay and settlement are
+  byte-identical to `1ab5a73e`, so every refused return keeps its stage, its line and its absence.
+- No case's transition reaches the elector's grant. Visibility, membership, owner, delete and
+  recreate, and reset change the target session's recipient authority, not the owner's device,
+  profile, role, scopes or token. The only config write while a delegate is pending is
+  `unauthorized-dispatch`'s `config.patch`, and the policy refuses that delegate before the grant is
+  read.
+- Every delegate fires well inside its hour: a 30 s delay, in a scenario window of 900 s.
+- `replay-restart`'s delegate fires before the restart, so boot recovery restores no grant.
+  `work-revoked-visibility` elects a `continue_work` wake, which carries no delegate grant.
+- A refused grant leaves no child, so it can only make a case MISSING, never PASS or FAIL. An allowed
+  or parked case then lacks its bound child (`child-not-bound`), and a wake-mode case lacks its
+  refusal line.
+
+**Not pinned for this row's client shape.** The grant's unit pins
+(`src/agents/subagents/spawn/subagent-spawn.continuation-operator-grant.test.ts`) elect through a
+paired-device operator with a named profile (`:159-194`), not a shared-token owner. No product test
+captures a grant from a WebSocket owner or restores one as `gateway-owner`. That this row's client
+gets a grant is read from the bytes above, and the one-case smoke at `2907e656` is the first run of
+that shape.
 
 ## Cites re-walked at the merged j12′
 

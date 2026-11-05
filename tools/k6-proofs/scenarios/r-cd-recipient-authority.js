@@ -12,7 +12,9 @@
  * disposable gateway, runs this scenario once per case and grades. A parked case runs twice: drive
  * (up to its child's return), then transition, which the control starts only once it has witnessed
  * the return's queued copy (section 9); replay-restart runs a third time, observe, after its
- * supervised restart. Without the control's run id the scenario refuses from setup() and from
+ * supervised restart. The continue_work case runs twice as well: drive (up to its `scheduled`
+ * result), then transition, which the control starts only once it has read the election's capture
+ * in the store (section 7). Without the control's run id the scenario refuses from setup() and from
  * default(). It never decides a verdict: it prints evidence, and lib/recipient-authority-row.mjs
  * grades the control's case record.
  *
@@ -182,7 +184,12 @@
  *      refuses a wake only if the handoff could not read the authority (work-recipient-authority.ts:116-124)
  *      or the authority moved after the handoff's read.
  *    So the case pins stage=wake: the session elects with a delay, narrows its own visibility after
- *    the capture, and is probed only after the wake was due.
+ *    the capture, and is probed only after the wake was due. This scenario cannot read the store, and
+ *    a fixed wait after the `scheduled` result could not force the order (🕯's whole 13 at a22bd9c05c,
+ *    run rra-eaa61a458beaf344, sent the narrowing before the capture). So the drive ends at the
+ *    `scheduled` result; the control reads the store until the capture is there, at most until the
+ *    result's own deadline (lib rraWorkCaptureDeadline: capturedAtMs + (delay - 10 s)), and only then
+ *    runs the transition phase. With no capture by then it sends none.
  *
  * 8. The delegate dispatch grant (2907e656; 🌊's ruling A, room msg 1567487338383413250). This
  *    scenario's connection is a Gateway operator: the shared token over loopback, no device, admitted
@@ -296,7 +303,9 @@ function controlEnv() {
   if (!/^rra-[0-9a-f]{16}$/.test(runId)) problems.push('control run id missing');
   if (!spec) problems.push('unknown case');
   if (phase !== 'drive' && phase !== 'transition' && phase !== 'observe') problems.push('unknown phase');
-  if (phase === 'transition' && spec?.timing !== 'parked') problems.push('only a parked case has a transition phase');
+  if (phase === 'transition' && spec?.timing !== 'parked' && spec?.timing !== 'before-wake') {
+    problems.push('only a parked or a before-wake case has a transition phase');
+  }
   if (phase === 'observe' && !spec?.restart) problems.push('only replay-restart has an observe phase');
   if ((__ENV.OPENCLAW_CANDIDATE_SHA || '') !== RRA_PINNED) problems.push('candidate is not j12′');
   if (!__ENV.OPENCLAW_GATEWAY_TOKEN || !__ENV.OPENCLAW_GATEWAY_WS) problems.push('the control passes the disposable gateway');
@@ -356,10 +365,11 @@ export default function () {
     refusals: [],
   };
   // A transition phase continues a drive that handed over before any transition: one the drive
-  // already sent would make the control's witness meaningless.
+  // already sent would make the control's witness, or its read of the capture, meaningless.
   if (control.phase === 'transition' && !control.problems.length) {
     const handed = JSON.parse(__ENV.OPENCLAW_RCD_RA_STATE || '{}');
-    if (handed?.handoff?.ready_for_witness !== true || handed?.transition?.requested_at_ms != null) {
+    const ready = spec.timing === 'before-wake' ? handed?.handoff?.ready_for_capture : handed?.handoff?.ready_for_witness;
+    if (ready !== true || handed?.transition?.requested_at_ms != null) {
       control.problems.push('the transition phase continues only a drive that handed over before any transition');
     }
   }
@@ -641,9 +651,18 @@ export default function () {
         return finalReads();
       }
       // The scheduled result comes before the capture (the turn schedules the election after its
-      // attempt), so wait for the capture before narrowing: the control reads it from the store. The
-      // probe comes only once the wake was due, after its refusal.
-      later(numberEnv('OPENCLAW_RCD_RA_CAPTURE_WAIT_MS', 8000), () => transition((ok) => (ok ? later(delaySeconds * 1000 + parkMs, probeThenFinal) : finalReads())));
+      // attempt), and this scenario cannot read the store. So the drive ends here: the control reads
+      // the capture in the store, by the deadline this result sets, and only then runs the transition
+      // phase (afterWorkTransition). With no capture by then it sends no transition: MISSING.
+      evidence.handoff = { ready_for_capture: true };
+      finish();
+    }
+
+    // The continue_work case's transition phase, after the narrowing: the probe comes only once the
+    // wake was due, after its refusal.
+    function afterWorkTransition(ok) {
+      if (!ok) return finalReads();
+      later(delaySeconds * 1000 + parkMs, probeThenFinal);
     }
 
     function afterDispatch() {
@@ -933,8 +952,9 @@ export default function () {
           return finish();
         }
         if (control.phase === 'observe') return later(numberEnv('OPENCLAW_RCD_RA_BOOT_WAIT_MS', 30000), probeThenFinal);
-        // The control witnessed the parked copy and released the transition.
-        if (control.phase === 'transition') return later(250, () => transition(afterTransition));
+        // The control witnessed the parked copy, or read the election's capture, and released the
+        // transition.
+        if (control.phase === 'transition') return later(250, () => transition(spec.timing === 'before-wake' ? afterWorkTransition : afterTransition));
         return later(250, createSessions);
       }
       if (id && handlers[id]) {

@@ -43,6 +43,10 @@
  *   (RRA_PARKED_COPY_WITNESS_BYTES): no gateway RPC reads a non-main session's queued system events. So a
  *   parked case's transition waits for the control to see that line (🌊's ruling, room msg
  *   1567623059727458526), and the grade requires the control's witness (record.witness).
+ * - A continue_work election captures its epoch after its `scheduled` result, so the one case that
+ *   elects one (`work-revoked-visibility`) has its capture read from the store. Its transition waits
+ *   for the control to read that capture there, at most until rraWorkCaptureDeadline
+ *   (record.captureGate; 🕯's whole 13, run rra-eaa61a458beaf344, where the transition came first).
  */
 import { TASK_IDENTITY_NONCE_SUFFIX_CHARS } from './row-child-correlation.mjs';
 import { toolCallTarget } from './tool-call-identity.mjs';
@@ -191,7 +195,8 @@ export const RRA_PARKED_COPY_WITNESS_BYTES =
  * when the transition lands: `parked` after the control witnessed the return's queued copy (the
  * router's `Delivered to` line, RRA_PARKED_COPY_WITNESS_BYTES) and released the transition (mode
  * silent), `before-return` after the scheduled result and before the delegate fires,
- * `before-wake` after the election was captured and before its wake is due. `deliveryId` says
+ * `before-wake` after the control read the election's capture in the store and released the
+ * transition, before its wake is due (rraWorkCaptureDeadline). `deliveryId` says
  * whether that line names the refused row (`true`) or no row was written (`false`); `flowId` that
  * the work line names the refused election. `laterStages` names the only stages a later line for
  * the same row may carry, and why. `otherFirstStages` names another first stage the bytes give the
@@ -368,7 +373,8 @@ export const RRA_CASES = Object.freeze({
   // own wake, its visibility narrows while the wake waits, and the dispatcher's handoff refuses it
   // right after the claim, before the busy, fold, admission and turn-start-fence branches that would
   // run it. There is no parent, child or
-  // router line: the electing session is the recipient.
+  // router line: the electing session is the recipient. The narrowing is sent only once the control
+  // read the election's capture in the store, by rraWorkCaptureDeadline (record.captureGate).
   'work-revoked-visibility': Object.freeze({
     family: 'refusal',
     tool: 'continue_work',
@@ -438,6 +444,38 @@ export function rraCaseSpec(caseId) {
   if (Object.hasOwn(RRA_CASES, caseId)) return RRA_CASES[caseId];
   if (Object.hasOwn(RRA_EARLY_ENQUEUE_PINS, caseId)) return RRA_EARLY_ENQUEUE_PINS[caseId];
   return null;
+}
+
+/**
+ * The `before-wake` case's capture gate (work-revoked-visibility; docs#620). 🕯's whole 13 at
+ * a22bd9c05c (run rra-eaa61a458beaf344, docs 8bf9baf9) sent its transition at requestedAtMs
+ * 1793839280186, while the first readable sample holding the session's authority row came at
+ * capturedByMs 1793839282419 (capturedAfterMs 1793839281828): the transition came before the capture,
+ * and the case read MISSING `capture-not-before-transition`. The control's fixed wait after the
+ * `scheduled` result could not force the order, because the election captures only after the turn's
+ * attempt. So the drive now ends at the `scheduled` result. The control reads the store until the
+ * capture is there (the first readable sample holding the row, as the grade reads it), and only then
+ * runs the transition phase. It waits at most until this deadline; with no capture by then it sends no
+ * transition, and the case is MISSING `capture-unread-before-transition`, never FAIL.
+ */
+export const RRA_WORK_CAPTURE_MARGIN_SECONDS = 10;
+export const RRA_WORK_CAPTURE_MARGIN_BYTES =
+  'the wake is due no earlier than the election plus its delay: work-dispatch.ts:662-668 captures, then takes electedAt and dueAt = electedAt + delayMs (delayMs = clampDelayMs, :647); an anchored wake is due at its anchor plus delayMs, an overdue one at its anchor, never before electedAt + delayMs (work-store.ts:335-345); the work timer fires at dueAt (work-dispatch.ts:169-199). ' +
+  'The margin holds back: 1 s, because the tool reports Math.round of that delay in seconds (continue-work-tool.ts:99-100), so it may be 0.5 s longer than delayMs, and the grade already holds back a whole second (transition-not-before-wake); ' +
+  '2.5 s, because capturedAtMs is the scenario reading the scheduled toolResult, up to one chat.history poll (OPENCLAW_RCD_RA_POLL_MS, 2000 ms by default) and its read after the result was written, and the election may capture right after it; ' +
+  '0.5 s, because the store is sampled every 500 ms and the grade bounds the capture from below only by the sample before it (capturedAfterMs); ' +
+  '6 s for the transition phase itself to settle: a k6 start, its connect, the pre-transition chat.history read, 250 ms, then the RPC, whose session.visibility.set took 2168 ms in rra-eaa61a458beaf344 (1793839280186 to 1793839282354). ' +
+  'With the default 30 s delay the control waits at most 20 s after the scheduled result; in rra-eaa61a458beaf344 the capture was first readable 10.252 s after it (1793839272167 to 1793839282419)';
+
+/**
+ * The latest time the control may release the `before-wake` case's transition:
+ * capturedAtMs + (resultDelaySeconds − RRA_WORK_CAPTURE_MARGIN_SECONDS) × 1000, both read from the
+ * case's `scheduled` result. Null when either is missing: the wait cannot be bounded, and no
+ * transition is sent.
+ */
+export function rraWorkCaptureDeadline({ capturedAtMs, resultDelaySeconds } = {}) {
+  if (!isTime(capturedAtMs) || typeof resultDelaySeconds !== 'number' || !Number.isFinite(resultDelaySeconds)) return null;
+  return capturedAtMs + (resultDelaySeconds - RRA_WORK_CAPTURE_MARGIN_SECONDS) * 1000;
 }
 
 /** The gates the control records; each must be exactly true, or the case is not about the pin. */
@@ -1550,6 +1588,9 @@ function gradeCaseRecord(record, specs) {
  *   authority row (session-accessor.sqlite-recipient-authority.ts:17-37 and its callers; the legacy
  *   import and doctor's repair insert rows only outside a run), so the first sample holding the row
  *   is the capture, and the last sample without it bounds the capture from below;
+ * - the control sends the transition only once it read that capture, by rraWorkCaptureDeadline. A
+ *   gate that released nothing is MISSING `capture-unread-before-transition`. The gate never stands in
+ *   for the store's order: `capture-not-before-transition` reads the timeline whether a gate ran or not;
  * - the wake is due no earlier than the election plus its delay (work-dispatch.ts:667-668; an
  *   anchored wake's anchor is a later dispatcher pass, and an overdue one matures at that pass,
  *   work-store.ts:335-345), so a transition that settled before that bound preceded the handoff;
@@ -1605,6 +1646,11 @@ function gradeWorkRefusalCase(record, spec) {
     'capture-unobserved',
   );
   if (captureSeen) unless(isTime(transition.requestedAtMs) && epochs.capturedByMs < transition.requestedAtMs, 'capture-not-before-transition');
+  // The control's capture gate (record.captureGate), when it ran, released no transition: no capture was
+  // readable by its deadline. The gate only adds MISSING. The order is read from the store above,
+  // gate or no gate, so a receipt without one is graded as before.
+  const gate = record.captureGate;
+  if (gate && typeof gate === 'object') unless(isTime(gate.releasedAtMs), 'capture-unread-before-transition');
   // The reported delay is rounded to whole seconds (continue-work-tool.ts:99-100): one is held back.
   const earliestWakeMs = isTime(epochs.capturedAfterMs) && Number.isFinite(dispatch.resultDelaySeconds)
     ? epochs.capturedAfterMs + (dispatch.resultDelaySeconds - 1) * 1000

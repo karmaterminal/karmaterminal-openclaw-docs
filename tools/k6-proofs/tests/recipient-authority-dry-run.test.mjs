@@ -15,12 +15,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { assembleCaseRecord } from '../scripts/run-recipient-authority-row.mjs';
+import * as control from '../scripts/run-recipient-authority-row.mjs';
 import { RRA_CASES, RRA_CASE_IDS, RRA_J12, RRA_PINNED, RRA_ROW, gradeRecipientAuthorityCase, scenarioMethodsFor } from '../lib/recipient-authority-row.mjs';
 import * as rowLib from '../lib/recipient-authority-row.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
 
 // What 🌊's ordering ruling (room msg 1567623059727458526) added is read through the namespace, so this
-// file still loads against a lib without it and each new pin fails on its own assertion.
+// file still loads against a lib without it and each new pin fails on its own assertion. So is the
+// control's capture gate for work-revoked-visibility (docs#620, pins (o1)-(o4)).
 const specOf = (caseId) => rowLib.rraCaseSpec?.(caseId) ?? RRA_CASES[caseId];
 const EARLY_PINS = rowLib.RRA_EARLY_ENQUEUE_PINS ?? {};
 
@@ -272,23 +274,88 @@ async function fire(caseId, world = {}, { phase = 'drive', state = null, env = {
   }
 }
 
+const CLOCK_START = 1_800_000_000_000;
+/** The epoch the continue_work election captures, and the one its transition advances it to. */
+const WORK_CAPTURED_EPOCH = '11111111-1111-4111-8111-111111111111';
+const WORK_ADVANCED_EPOCH = '22222222-2222-4222-8222-222222222222';
+
+/**
+ * work-revoked-visibility's capture gate as the control runs it (run-recipient-authority-row.mjs,
+ * awaitWorkCapture, then the release), on a scripted store: the control's sampler reads the
+ * session_recipient_authority table every 500 ms from the case's start, and the session's row first
+ * appears `captureAfterMs` after the scenario read the `scheduled` result (null: never). The control's
+ * clock starts where the drive ended and moves only while it waits. Returns the gate as the record
+ * takes it, the sampled timeline, the clock, and how many times the control read the store.
+ */
+async function gateCapture(drive, { captureAfterMs = 6_000, startAt }) {
+  const key = drive.keys.target;
+  const capturedAtMs = drive.dispatch.observed_at_ms;
+  const captureAt = captureAfterMs === null ? Infinity : capturedAtMs + captureAfterMs;
+  const timeline = [];
+  let clock = startAt;
+  let nextSample = CLOCK_START;
+  const sample = () => {
+    for (; nextSample <= clock; nextSample += 500) {
+      timeline.push({ atMs: nextSample, state: 'read', rows: nextSample >= captureAt ? [{ session_key: key, epoch: WORK_CAPTURED_EPOCH }] : [] });
+    }
+  };
+  sample();
+  let reads = 0;
+  const platform = {
+    now: () => {
+      reads += 1;
+      return clock;
+    },
+    sleep: async (ms) => {
+      clock += ms;
+      sample();
+    },
+  };
+  const read = await control.awaitWorkCapture({
+    timeline,
+    key,
+    sinceMs: CLOCK_START,
+    deadlineAtMs: rowLib.rraWorkCaptureDeadline({ capturedAtMs, resultDelaySeconds: drive.dispatch.result_delay_seconds }),
+    platform,
+  });
+  // As the control releases: only a capture read by the deadline, at its own clock.
+  const captureGate = { ...read, releasedAtMs: read.inTime ? clock : null };
+  return { captureGate, timeline, now: clock, reads };
+}
+
 /**
  * One case as the control runs it: the drive phase; for a parked case that hands over, the control's
  * witness of the parked copy (the router's Delivered to line for the target from the child, logged
- * 100 ms after the drive ended) and then the transition phase it releases; for replay-restart, the
- * observe phase after the restart. `witness: false` is a control that never saw the line: no
- * transition phase runs. Every phase's frames, in order, with the phase that sent them.
+ * 100 ms after the drive ended) and then the transition phase it releases; for the continue_work case
+ * that hands over, the control's read of the capture in the store (gateCapture; `capture` its options)
+ * and then the transition phase it releases; for replay-restart, the observe phase after the restart.
+ * `witness: false` is a control that never saw the line: no transition phase runs. Every phase's
+ * frames, in order, with the phase that sent them.
  */
-async function runCase(caseId, world = {}, { gateway = gatewayFor({ caseId, ...world }), witness: seen = true } = {}) {
+async function runCase(caseId, world = {}, { gateway = gatewayFor({ caseId, ...world }), witness: seen = true, capture = {} } = {}) {
   const ran = await fire(caseId, world, { gateway });
   const drive = ran.evidence;
   const frames = ran.frames.map((frame) => ({ ...frame, phase: 'drive' }));
   let now = ran.clock;
   let transition = null;
   let witness = null;
+  let captureGate = null;
+  let storeTimeline = null;
   if (drive.handoff?.ready_for_witness) {
     witness = seen ? { parkedCopyAtMs: now + 100, releasedAtMs: now + 200 } : { parkedCopyAtMs: null, releasedAtMs: null };
     if (seen) {
+      const next = await fire(caseId, world, { phase: 'transition', state: drive, gateway, clockStart: now + 1_000 });
+      transition = next.evidence;
+      frames.push(...next.frames.map((frame) => ({ ...frame, phase: 'transition' })));
+      now = next.clock;
+    }
+  }
+  let storeReads = 0;
+  if (drive.handoff?.ready_for_capture) {
+    const gated = await gateCapture(drive, { ...capture, startAt: now });
+    ({ captureGate, now, reads: storeReads } = gated);
+    storeTimeline = gated.timeline;
+    if (captureGate.releasedAtMs !== null) {
       const next = await fire(caseId, world, { phase: 'transition', state: drive, gateway, clockStart: now + 1_000 });
       transition = next.evidence;
       frames.push(...next.frames.map((frame) => ({ ...frame, phase: 'transition' })));
@@ -302,7 +369,7 @@ async function runCase(caseId, world = {}, { gateway = gatewayFor({ caseId, ...w
     observe = next.evidence;
     frames.push(...next.frames.map((frame) => ({ ...frame, phase: 'observe' })));
   }
-  return { drive, transition, observe, final: observe ?? transition ?? drive, frames, witness };
+  return { drive, transition, observe, final: observe ?? transition ?? drive, frames, witness, captureGate, storeTimeline, storeReads };
 }
 
 const DELIVERY_ID = '0f1e2d3c'.repeat(8);
@@ -316,7 +383,9 @@ const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${messa
  * the child after it). For the continue_work case: workReason (the line's reason), workAfterProbe
  * (the line lands after the probe was sent), returnLineInstead (a return-refused line naming the
  * session instead of the work line), secondFlow (a second line naming another election),
- * captureLate (the session's authority row first appears after the transition was requested).
+ * captureLate (the session's authority row first appears after the transition was requested),
+ * storeTimeline (the store as the control's capture gate sampled it, gateCapture). A kept wake whose
+ * transition was never sent is refused by nothing: no work line.
  * sweepInTransition: the pending sweep's arming line while the delete was in flight
  * ('after-delete': after the delete's response, while the create was in flight).
  * routedAfterProbe: the router's Delivered to line lands only after the probe was sent;
@@ -326,7 +395,7 @@ const consoleLine = (subsystem, message) => `08:00:00.000 [${subsystem}] ${messa
  * with no row and logged no Delivered to line (the early-enqueue ordering).
  * `driven` is the evidence that holds the case's transition: the transition phase's for a parked case.
  */
-function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, sweepInTransition = false, routedAfterProbe = false, routedFrom = CHILD, witness = null, enqueueInstead = false } = {}) {
+function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Reason = false, routedAfter = false, emptyListAfter = false, workReason = 'recipient-authority-changed', workAfterProbe = false, returnLineInstead = false, secondFlow = false, captureLate = false, storeTimeline = null, sweepInTransition = false, routedAfterProbe = false, routedFrom = CHILD, witness = null, enqueueInstead = false } = {}) {
   const spec = specOf(caseId);
   const { target, parent } = driven.keys;
   const transition = driven.transition || {};
@@ -356,7 +425,7 @@ function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Rea
       : consoleLine('continuation/return-refused', `[continuation:return-refused] stage=${refusedAt} reason=recipient-authority-changed session=${target}${deliveryId}`);
     logEntries.push({ atMs, text, generation: spec.restart ? 1 : 0 });
   }
-  if (reason && spec.reasonKind === 'work-refused') {
+  if (reason && spec.reasonKind === 'work-refused' && Number.isFinite(transition.requested_at_ms)) {
     // The dispatcher's handoff refuses the kept wake once it is due, before the probe is sent.
     const atMs = workAfterProbe ? final.probe_sent_at_ms + 3 : settledAt + 3;
     const message = (flow) => `[continuation:work-refused] stage=${stage ?? spec.refusedAt} reason=${workReason} session=${target} flowId=${flow}`;
@@ -375,16 +444,25 @@ function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Rea
   }
   if (routedAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to ${target} from ${CHILD}`, generation: 0 });
   if (emptyListAfter) logEntries.push({ atMs: settledAt + 4, text: `[continuation:targeted-return] Delivered to  from ${CHILD}`, generation: 0 });
-  const e1 = '11111111-1111-4111-8111-111111111111';
-  const e2 = '22222222-2222-4222-8222-222222222222';
+  const e1 = WORK_CAPTURED_EPOCH;
+  const e2 = WORK_ADVANCED_EPOCH;
   if (spec.tool === 'continue_work') {
-    // The election is captured after its scheduled result: the session's row first appears then,
-    // before the transition (or, captureLate, only after it was requested).
-    const timeline = [
+    // The election is captured after its scheduled result: the session's row first appears then, in
+    // the store the control's gate sampled before it released the transition (without a gate, a drive
+    // that handed nothing over, just before the transition), or, captureLate, only after the
+    // transition was requested. The transition advances it; one never sent advances nothing.
+    const sampled = storeTimeline ?? [
       { atMs: capturedAt - 1, state: 'read', rows: [] },
-      ...(captureLate ? [] : [{ atMs: transitionAt - 1, state: 'read', rows: [{ session_key: target, epoch: e1 }] }]),
-      { atMs: settledAt, state: 'read', rows: [{ session_key: target, epoch: e2 }] },
-      { atMs: settledAt + 1_000, state: 'read', rows: [{ session_key: target, epoch: e2 }] },
+      { atMs: transitionAt - 1, state: 'read', rows: [{ session_key: target, epoch: e1 }] },
+    ];
+    const timeline = [
+      ...(captureLate ? sampled.map((sample) => ({ ...sample, rows: [] })) : sampled),
+      ...(Number.isFinite(transition.requested_at_ms)
+        ? [
+            { atMs: settledAt, state: 'read', rows: [{ session_key: target, epoch: e2 }] },
+            { atMs: settledAt + 1_000, state: 'read', rows: [{ session_key: target, epoch: e2 }] },
+          ]
+        : []),
     ];
     return { logEntries, timeline, generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], restartedAtMs: null };
   }
@@ -400,8 +478,9 @@ function harnessFor(caseId, driven, final, { reason = true, stage = null, j12Rea
 
 async function grade(caseId, world = {}, harnessOptions = {}, gateway = gatewayFor({ caseId, ...world })) {
   // One scripted store for every phase: the replacement generation serves the same state.
-  const { drive, transition, observe, final, frames, witness } = await runCase(caseId, world, { gateway, witness: harnessOptions.witness !== false });
-  if (specOf(caseId).restart && harnessOptions.witness !== false) assert.equal((transition ?? drive).handoff?.ready_for_restart, true, 'the case hands over for the restart');
+  const { capture, ...harness } = harnessOptions;
+  const { drive, transition, observe, final, frames, witness, captureGate, storeTimeline, storeReads } = await runCase(caseId, world, { gateway, witness: harness.witness !== false, capture });
+  if (specOf(caseId).restart && harness.witness !== false) assert.equal((transition ?? drive).handoff?.ready_for_restart, true, 'the case hands over for the restart');
   const driven = transition ?? drive;
   const record = assembleCaseRecord({
     caseId,
@@ -412,12 +491,13 @@ async function grade(caseId, world = {}, harnessOptions = {}, gateway = gatewayF
     transitionEvidence: transition,
     observeEvidence: observe,
     witness,
-    ...harnessFor(caseId, driven, final, { ...harnessOptions, witness }),
+    captureGate,
+    ...harnessFor(caseId, driven, final, { ...harness, witness, storeTimeline }),
     cleanup: { gatewayStopped: true, residue: false },
     startedAtMs: 1,
   });
   if (specOf(caseId).expectChild !== false) record.trace = { correlated: true };
-  return { drive, transition, observe, final, frames, record, graded: gradeRecipientAuthorityCase(record) };
+  return { drive, transition, observe, final, frames, record, captureGate, storeReads, graded: gradeRecipientAuthorityCase(record) };
 }
 
 test('dry run: every case drives its public surfaces and grades PASS-candidate against a j12′-shaped gateway', async () => {
@@ -738,10 +818,11 @@ test('dry run: (p) a parked case sends its transition only once the control witn
     assert.ok(evidence.refusals.some((refusal) => refusal.includes('continues only a drive that handed over')), `${JSON.stringify(state)}: ${evidence.refusals}`);
     assert.equal(frames.length, 0, JSON.stringify(state));
   }
-  // Only a parked case has a transition phase.
-  for (const caseId of RRA_CASE_IDS.filter((id) => !parkedCases.includes(id))) {
+  // Only a parked case, and the continue_work case gated on its capture (pins (o1)-(o4)), has a
+  // transition phase.
+  for (const caseId of RRA_CASE_IDS.filter((id) => !parkedCases.includes(id) && RRA_CASES[id].timing !== 'before-wake')) {
     const { evidence, frames } = await fire(caseId, {}, { phase: 'transition', state: {} });
-    assert.ok(evidence.refusals.some((refusal) => refusal.includes('only a parked case has a transition phase')), `${caseId}: ${evidence.refusals}`);
+    assert.ok(evidence.refusals.some((refusal) => refusal.includes('only a parked or a before-wake case has a transition phase')), `${caseId}: ${evidence.refusals}`);
     assert.equal(frames.length, 0, caseId);
   }
 });
@@ -1017,7 +1098,8 @@ const workCase = 'work-revoked-visibility';
 
 test('dry run: the continue_work case elects its own wake, narrows its own session after the capture and probes after the refusal', async () => {
   assert.equal(RRA_CASES[workCase].tool, 'continue_work');
-  const { evidence: elected, frames } = await fire(workCase, {});
+  // Every phase's frames: the drive elects, the transition phase the control released narrows and probes.
+  const { drive: elected, frames } = await runCase(workCase, {});
   const sent = frames.filter((frame) => frame.type === 'req');
   const sends = sent.filter((frame) => frame.method === 'sessions.send');
   assert.equal(elected.keys.parent, null, 'the electing session is the recipient: no parent');
@@ -1030,14 +1112,15 @@ test('dry run: the continue_work case elects its own wake, narrows its own sessi
     'the transition narrows the electing session itself',
   );
   assert.deepEqual(sent.filter((frame) => frame.method === 'sessions.create').map((frame) => frame.params.key), [elected.keys.target]);
-  const { drive, record, graded } = await grade(workCase, {});
+  const { drive, final, record, graded } = await grade(workCase, {});
   assert.equal(drive.dispatch.status, 'scheduled');
   assert.equal(drive.dispatch.result_delay_seconds, 30);
   assert.deepEqual(drive.priming_run_ids, ['run-e'], 'the electing run is the one run excluded');
-  assert.equal(drive.other_work_calls, 0);
-  assert.equal(drive.other_delegate_calls, 0);
-  assert.ok(drive.transition.requested_at_ms > drive.dispatch.observed_at_ms, 'the transition follows the scheduled result');
-  assert.ok(drive.probe_sent_at_ms > drive.transition.settled_at_ms, 'the probe follows the transition');
+  assert.deepEqual(final.priming_run_ids, ['run-e'], 'and stays the one run excluded in the transition phase');
+  assert.equal(final.other_work_calls, 0);
+  assert.equal(final.other_delegate_calls, 0);
+  assert.ok(final.transition.requested_at_ms > drive.dispatch.observed_at_ms, 'the transition follows the scheduled result');
+  assert.ok(final.probe_sent_at_ms > final.transition.settled_at_ms, 'the probe follows the transition');
   assert.ok(record.epochs.capturedAfterMs < record.epochs.capturedByMs && record.epochs.capturedByMs < record.transition.requestedAtMs, JSON.stringify(record.epochs));
   assert.equal(record.reason.kind, 'work-refused');
   assert.equal(record.reason.stage, 'wake');
@@ -1072,15 +1155,15 @@ test('dry run: a refused kept wake that still ran a turn is FAIL-candidate, the 
   assert.ok(graded.contradictions.includes('target-woken'));
   // Review finding: a call the wrongly run wake turn makes is part of that wake, never a deviation
   // of the electing run, so it cannot turn the FAIL into MISSING.
-  const { drive, graded: elected } = await grade(workCase, { workWake: true, wakeElects: true });
-  assert.equal(drive.other_work_calls, 0, 'only the electing and probe runs are counted');
+  const { final, graded: elected } = await grade(workCase, { workWake: true, wakeElects: true });
+  assert.equal(final.other_work_calls, 0, 'only the electing and probe runs are counted');
   assert.equal(elected.verdict, 'FAIL-candidate', JSON.stringify(elected));
   assert.ok(elected.contradictions.includes('target-woken'));
 });
 
 test('dry run: an election in the probe turn is a model deviation: MISSING, never FAIL', async () => {
-  const { drive, graded } = await grade(workCase, { workWake: true, probeElects: true });
-  assert.equal(drive.other_work_calls, 1);
+  const { final, graded } = await grade(workCase, { workWake: true, probeElects: true });
+  assert.equal(final.other_work_calls, 1);
   assert.equal(graded.verdict, 'MISSING-candidate', JSON.stringify(graded));
   assert.ok(graded.missing.includes('extra-work-calls'));
   assert.deepEqual(graded.contradictions, []);
@@ -1095,6 +1178,160 @@ test('dry run: a continue_work capture not seen before the transition, or a seco
     assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
     assert.ok(graded.missing.includes(code), `${label}: ${graded.missing}`);
     assert.deepEqual(graded.contradictions, [], `${label}: a wake of a binding the transition did not stale is correct`);
+  }
+});
+
+/*
+ * docs#620: 🕯's whole 13 at a22bd9c05c (run rra-eaa61a458beaf344, docs 8bf9baf9), work-revoked-visibility's
+ * public receipt: `dispatch.accepted: true, status: scheduled, capturedAtMs: 1793839272167,
+ * resultDelaySeconds: 30`; `transition: session.visibility.set, ok: true, requestedAtMs: 1793839280186,
+ * settledAtMs: 1793839282354`; `epochs: captured = afterTransition = final = ff5b4d9f…, capturedAfterMs:
+ * 1793839281828, capturedByMs: 1793839282419`; `target: probeRan true, probeReplied false, foreignRuns 1`.
+ * Grade: MISSING with capture-not-before-transition, transition-did-not-advance-epoch,
+ * refusal-reason-not-observed, probe-turn-unobserved. The first readable sample holding the session's
+ * authority row came after the transition request: the control's fixed wait could not force the order.
+ * Pins (o1)-(o4): the control's capture gate makes that order happen, and changes no oracle.
+ */
+const RRA_EAA61 = Object.freeze({
+  capturedAtMs: 1793839272167,
+  requestedAtMs: 1793839280186,
+  settledAtMs: 1793839282354,
+  capturedAfterMs: 1793839281828,
+  capturedByMs: 1793839282419,
+});
+const isNarrowing = (frame) => frame.type === 'req' && frame.method === 'session.visibility.set';
+// The deadline the work case's own scheduled result sets: capturedAtMs + (30 - 10) s.
+const workDeadline = (drive) => drive.dispatch.observed_at_ms + (30 - 10) * 1000;
+
+test('dry run: (o1) a capture that lands after the scheduled result and before the deadline: the control waits, then transitions after capturedByMs, and the case passes', async () => {
+  assert.equal(typeof control.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
+  assert.equal(rowLib.RRA_WORK_CAPTURE_MARGIN_SECONDS, 10);
+  for (const captureAfterMs of [1_000, 6_000, 10_252, 19_000]) {
+    const { drive, transition, frames, record, captureGate, storeReads, graded } = await grade(workCase, {}, { capture: { captureAfterMs } });
+    // The drive ends at the scheduled result, narrowing nothing, and hands over for the capture.
+    assert.deepEqual(drive.handoff, { ready_for_capture: true }, `${captureAfterMs}`);
+    assert.equal(drive.transition.requested_at_ms, null, `${captureAfterMs}`);
+    assert.deepEqual(frames.filter((frame) => frame.phase === 'drive' && isNarrowing(frame)), [], `${captureAfterMs}: no transition in the drive`);
+    // The capture lands after the scheduled result was read, before the deadline that result sets.
+    assert.equal(captureGate.deadlineAtMs, workDeadline(drive), `${captureAfterMs}`);
+    assert.ok(captureGate.capturedAfterMs >= drive.dispatch.observed_at_ms, `${captureAfterMs}: a row-less sample after the result`);
+    assert.ok(captureGate.capturedByMs >= drive.dispatch.observed_at_ms + captureAfterMs && captureGate.capturedByMs <= captureGate.deadlineAtMs, `${captureAfterMs}: ${JSON.stringify(captureGate)}`);
+    // The control waited: it read the store until the row was there, and released no earlier.
+    assert.ok(storeReads > 1, `${captureAfterMs}: ${storeReads} reads`);
+    assert.ok(captureGate.capturedByMs <= captureGate.releasedAtMs && captureGate.releasedAtMs <= captureGate.deadlineAtMs, `${captureAfterMs}: ${JSON.stringify(captureGate)}`);
+    // Then the transition phase it released narrows the session, after the capture.
+    assert.ok(transition, `${captureAfterMs}: the transition phase ran`);
+    assert.deepEqual(frames.filter(isNarrowing).map((frame) => frame.phase), ['transition'], `${captureAfterMs}`);
+    assert.ok(record.transition.requestedAtMs > record.captureGate.releasedAtMs && record.captureGate.releasedAtMs >= record.epochs.capturedByMs, `${captureAfterMs}: ${JSON.stringify([record.captureGate, record.transition])}`);
+    // The gate read the capture the grade reads, from the same store.
+    assert.deepEqual(
+      [record.captureGate.captured, record.captureGate.capturedAfterMs, record.captureGate.capturedByMs],
+      [record.epochs.captured, record.epochs.capturedAfterMs, record.epochs.capturedByMs],
+      `${captureAfterMs}`,
+    );
+    assert.equal(record.epochs.captured, createHash('sha256').update(WORK_CAPTURED_EPOCH).digest('hex'), `${captureAfterMs}: the epoch leaves hashed`);
+    assert.ok(!JSON.stringify(record).includes(WORK_CAPTURED_EPOCH), `${captureAfterMs}: never raw`);
+    assert.notEqual(record.epochs.afterTransition, record.epochs.captured, `${captureAfterMs}: the transition advanced it`);
+    assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, `${captureAfterMs}`);
+  }
+});
+
+test('dry run: (o2) a capture never readable by the deadline: no transition is sent, MISSING capture-unread-before-transition, never FAIL', async () => {
+  assert.equal(typeof control.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
+  for (const [label, captureAfterMs] of [['never', null], ['only after the deadline', 25_000]]) {
+    const { drive, transition, frames, record, captureGate, graded } = await grade(workCase, {}, { capture: { captureAfterMs } });
+    assert.deepEqual(drive.handoff, { ready_for_capture: true }, label);
+    // The control waited out the deadline, read no capture, and released nothing.
+    assert.equal(captureGate.deadlineAtMs, workDeadline(drive), label);
+    assert.deepEqual([captureGate.captured, captureGate.capturedByMs, captureGate.releasedAtMs], [null, null, null], label);
+    assert.equal(transition, null, `${label}: no transition phase`);
+    assert.deepEqual(frames.filter(isNarrowing), [], `${label}: no transition is sent`);
+    assert.deepEqual([record.transition.ok, record.transition.requestedAtMs, record.transition.settledAtMs], [null, null, null], label);
+    assert.deepEqual(record.captureGate, { deadlineAtMs: workDeadline(drive), captured: null, capturedAfterMs: null, capturedByMs: null, releasedAtMs: null }, label);
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    assert.ok(graded.missing.includes('capture-unread-before-transition'), `${label}: ${graded.missing}`);
+    assert.deepEqual(graded.contradictions, [], label);
+    // The case's other receipts are kept: the accepted election and its delay, the electing run, the run.
+    assert.deepEqual(
+      [record.dispatch.accepted, record.dispatch.status, record.dispatch.capturedAtMs, record.dispatch.resultDelaySeconds, record.target.primed, record.scenario.controlRunId, record.scenario.preflightOk],
+      [true, 'scheduled', drive.dispatch.observed_at_ms, 30, true, RUN, true],
+      label,
+    );
+  }
+  // A scheduled result with no delay sets no deadline: the control reads once and sends nothing,
+  // even with the capture already in the store.
+  const { drive } = await runCase(workCase, {}, { capture: { captureAfterMs: 0 } });
+  const noDelay = await gateCapture({ ...drive, dispatch: { ...drive.dispatch, result_delay_seconds: null } }, { captureAfterMs: -1_000, startAt: drive.dispatch.observed_at_ms + 500 });
+  assert.deepEqual([noDelay.captureGate.deadlineAtMs, noDelay.captureGate.releasedAtMs, noDelay.reads], [null, null, 1]);
+  assert.ok(noDelay.captureGate.capturedByMs !== null, 'the capture was readable, and still nothing is released');
+});
+
+test('dry run: (o3) a receipt shaped like rra-eaa61a458beaf344, its transition before its capture, still grades MISSING capture-not-before-transition, unchanged', async () => {
+  const { drive } = await runCase(workCase, {});
+  const key = drive.keys.target;
+  const t = RRA_EAA61;
+  // The 8bf9baf9 control's one phase: the drive narrowed the session 8 s after the scheduled result.
+  const evidence = {
+    ...drive,
+    handoff: undefined,
+    dispatch: { ...drive.dispatch, status: 'scheduled', accepted: true, observed_at_ms: t.capturedAtMs, result_delay_seconds: 30 },
+    transition: { method: 'session.visibility.set', ok: true, requested_at_ms: t.requestedAtMs, settled_at_ms: t.settledAtMs, error: null },
+    pre_transition_obs: { ackRuns: 0, probeAckRows: 0, primingAckRows: 0, uncreditedAckRows: 0, foreignRuns: 0, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
+    probe_ran: true,
+    probe_sent_at_ms: t.settledAtMs + 45_000,
+    probe_text_sha256: rowLib.RRA_PROBE_TEXT_SHA256,
+    target_obs: { ackRuns: 0, wakeAckRuns: 0, probeAckRows: 0, primingAckRows: 0, uncreditedAckRows: 0, foreignRuns: 1, unattributedAssistantRows: 0, returnMarkerRows: 0, probeReplied: false, adoptedDeliveryRows: 0 },
+    other_work_calls: 0,
+    other_delegate_calls: 0,
+  };
+  // The store as the control sampled it: no row until after the transition request, then one epoch,
+  // unchanged to the end.
+  const epoch = 'ff5b4d9f-0000-4000-8000-0000000000aa';
+  const timeline = [
+    ...Array.from({ length: 20 }, (_, i) => ({ atMs: t.capturedAfterMs - (20 - i) * 500, state: 'read', rows: [] })),
+    { atMs: t.capturedAfterMs, state: 'read', rows: [] },
+    { atMs: t.capturedByMs, state: 'read', rows: [{ session_key: key, epoch }] },
+    { atMs: t.capturedByMs + 500, state: 'read', rows: [{ session_key: key, epoch }] },
+  ];
+  const gates = { candidatePinned: true, buildInfoCommit: RRA_PINNED, stateIsolated: true, modelSignIn: true, crossSessionTargetingEnabled: true, gatewayStartedByHarness: true };
+  const assemble = (captureGate) => assembleCaseRecord({
+    caseId: workCase, runId: RUN, docsSha: 'd'.repeat(40), gates, evidence, captureGate, logEntries: [], timeline,
+    generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: t.capturedAtMs - 30_000,
+  });
+  const record = assemble(null);
+  assert.deepEqual(
+    [record.dispatch.accepted, record.dispatch.status, record.dispatch.capturedAtMs, record.dispatch.resultDelaySeconds, record.transition.ok, record.transition.requestedAtMs, record.transition.settledAtMs],
+    [true, 'scheduled', t.capturedAtMs, 30, true, t.requestedAtMs, t.settledAtMs],
+  );
+  assert.deepEqual([record.epochs.capturedAfterMs, record.epochs.capturedByMs], [t.capturedAfterMs, t.capturedByMs]);
+  assert.ok(record.epochs.captured === record.epochs.afterTransition && record.epochs.afterTransition === record.epochs.final, JSON.stringify(record.epochs));
+  assert.deepEqual([record.target.probeRan, record.target.probeReplied, record.target.foreignRuns], [true, false, 1]);
+  assert.equal(record.captureGate ?? null, null, 'the 8bf9baf9 control had no gate');
+  const expected = { verdict: 'MISSING-candidate', missing: ['capture-not-before-transition', 'transition-did-not-advance-epoch', 'refusal-reason-not-observed', 'probe-turn-unobserved'], contradictions: [], partial: [] };
+  assert.deepEqual(gradeRecipientAuthorityCase(record), expected);
+  // A gate that claims a release never stands in for the store's order: the same grade.
+  const claimed = assemble({ deadlineAtMs: t.capturedAtMs + 20_000, captured: record.epochs.captured, capturedAfterMs: t.capturedAfterMs, capturedByMs: t.capturedByMs, releasedAtMs: t.requestedAtMs - 1 });
+  assert.deepEqual(gradeRecipientAuthorityCase(claimed), expected);
+});
+
+test('dry run: (o4) a wake turn that ran after the gated transition still grades FAIL', async () => {
+  for (const world of [{ workWake: true }, { workWake: true, wakeElects: true }]) {
+    const { record, graded } = await grade(workCase, world);
+    // The control read the capture, then released the transition: the premise holds.
+    assert.ok(record.captureGate, `${JSON.stringify(world)}: the control gated the transition`);
+    assert.ok(record.captureGate.capturedByMs <= record.captureGate.releasedAtMs && record.captureGate.releasedAtMs < record.transition.requestedAtMs, JSON.stringify(record.captureGate));
+    assert.equal(record.target.foreignRuns, 1, JSON.stringify(world));
+    assert.equal(graded.verdict, 'FAIL-candidate', `${JSON.stringify(world)}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.contradictions, ['target-woken'], JSON.stringify(world));
+    assert.deepEqual(graded.missing, [], JSON.stringify(world));
+  }
+});
+
+test('dry run: the continue_work case\'s transition phase continues only a drive that handed over for the capture', async () => {
+  for (const state of [{}, { handoff: { ready_for_witness: true }, transition: { requested_at_ms: null } }, { handoff: { ready_for_capture: true }, transition: { requested_at_ms: 1_800_000_000_500 } }]) {
+    const { evidence, frames } = await fire(workCase, {}, { phase: 'transition', state });
+    assert.ok(evidence.refusals.some((refusal) => refusal.includes('continues only a drive that handed over')), `${JSON.stringify(state)}: ${evidence.refusals}`);
+    assert.equal(frames.length, 0, JSON.stringify(state));
   }
 });
 

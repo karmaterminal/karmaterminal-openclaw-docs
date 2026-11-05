@@ -28,7 +28,10 @@
  *      there: it follows the tool's `scheduled` result). A parked case's drive phase ends once its
  *      child returned; the control waits for the router's `Delivered to` line for that target from
  *      that child, the witness of the return's queued copy, and only then runs its transition phase
- *      (🌊's ruling, room msg 1567623059727458526). With no witness the transition is never sent;
+ *      (🌊's ruling, room msg 1567623059727458526). With no witness the transition is never sent.
+ *      The continue_work case's drive ends at its `scheduled` result; the control reads the store
+ *      until the election's capture is there, at most until rraWorkCaptureDeadline, and only then runs
+ *      its transition phase. With no capture by then the transition is never sent;
  *   4. for replay-restart, after the transition phase: gateway.restart.request, wait for the old process to
  *      exit 0, consume its restart handoff (`gateway restart-handoff consume --expected-pid`), start
  *      the replacement and run the observe phase;
@@ -88,6 +91,7 @@ import {
   parseReturnRefusedLine,
   parseWorkRefusedLine,
   rraCaseSpec,
+  rraWorkCaptureDeadline,
   traceCorrelationMatches,
 } from '../lib/recipient-authority-row.mjs';
 import { extractEvidence } from './extract-k6-evidence.mjs';
@@ -103,9 +107,12 @@ const GATEWAY_ENV_ALLOWED = /^(?:NODE_OPTIONS|OPENCLAW_CODEX_APP_SERVER_BIN)$/u;
 const NODE_OPTIONS_ALLOWED = /^(?:--max-old-space-size=\d+|--inspect=127\.0\.0\.1:\d{4,5})$/u;
 // Case timing the operator may tune; passed to the scenario, recorded in the receipt.
 // OPENCLAW_RCD_RA_WITNESS_WAIT_MS is the control's own: how long it waits for a parked copy's witness.
-const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 'OPENCLAW_RCD_RA_CAPTURE_WAIT_MS', 'OPENCLAW_RCD_RA_PROBE_SETTLE_MS', 'OPENCLAW_RCD_RA_WITNESS_WAIT_MS'];
+// The continue_work case's wait for its capture has no knob: its deadline comes from the case's own
+// `scheduled` result (rraWorkCaptureDeadline).
+const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 'OPENCLAW_RCD_RA_WINDOW_MS', 'OPENCLAW_RCD_RA_PARK_MS', 'OPENCLAW_RCD_RA_SWEEP_WAIT_MS', 'OPENCLAW_RCD_RA_BOOT_WAIT_MS', 'OPENCLAW_RCD_RA_DUPLICATE_WAIT_MS', 'OPENCLAW_RCD_RA_SAMPLE_GAP_MS', 'OPENCLAW_RCD_RA_PROBE_SETTLE_MS', 'OPENCLAW_RCD_RA_WITNESS_WAIT_MS'];
 const WITNESS_WAIT_MS = 120_000;
 const WITNESS_POLL_MS = 250;
+const CAPTURE_POLL_MS = 250;
 const READY_TIMEOUT_MS = 120_000;
 // Live generations of the current run, so an interrupted CLI can still stop what it started.
 const liveGenerations = new Set();
@@ -573,7 +580,8 @@ function workRefusalReason(logEntries, sessionKey, afterMs) {
  * (the legacy import and doctor's repair insert rows only outside a run), so the first
  * readable sample holding it is the capture (byMs), the readable sample before it, without the row,
  * bounds the capture from below (afterMs), and its epoch is the captured one. The grade checks that
- * the capture preceded the transition.
+ * the capture preceded the transition; the control reads the same capture before it sends the
+ * transition (awaitWorkCapture).
  */
 function captureFromStore(timeline, key) {
   const samples = (Array.isArray(timeline) ? timeline : []).filter((sample) => sample.state === 'read');
@@ -585,6 +593,27 @@ function captureFromStore(timeline, key) {
     byMs: samples[first].atMs,
     captured: typeof epoch === 'string' ? sha256(epoch) : null,
   };
+}
+
+/**
+ * The continue_work case's capture gate: read the sampler's store timeline (samples from `sinceMs`)
+ * until the session's capture is there, as captureFromStore reads it, at most until `deadlineAtMs`
+ * (rraWorkCaptureDeadline). Returns { deadlineAtMs, captured, capturedAfterMs, capturedByMs, inTime }:
+ * the capture as last read (hashed), and whether it was read at a check no later than the deadline.
+ * A null deadline is checked once and is never in time.
+ */
+export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, platform, pollMs = CAPTURE_POLL_MS }) {
+  const deadline = Number.isFinite(deadlineAtMs) ? deadlineAtMs : null;
+  for (;;) {
+    const checkedAtMs = platform.now();
+    const capture = captureFromStore((Array.isArray(timeline) ? timeline : []).filter((sample) => sample.atMs >= sinceMs), key);
+    const open = deadline !== null && checkedAtMs <= deadline;
+    const read = capture.byMs !== null && capture.captured !== null;
+    if (read || !open) {
+      return { deadlineAtMs: deadline, captured: capture.captured, capturedAfterMs: capture.afterMs, capturedByMs: capture.byMs, inTime: read && open };
+    }
+    await platform.sleep(pollMs);
+  }
 }
 
 /** The continue_work case's epochs: its capture from the store, then as for every case. */
@@ -652,8 +681,11 @@ async function witnessParkedCopy({ generation, sinceMs, targetKey, childKey, wai
  * generation. A parked case's transition phase continues its drive (it carries the drive's state),
  * so its evidence is read for the transition and what follows; `witness` is the control's own
  * observation of the parked copy before it released that phase ({ parkedCopyAtMs, releasedAtMs }).
+ * The continue_work case's transition phase likewise continues its drive; `captureGate` is the
+ * control's read of its capture before it released that phase (awaitWorkCapture, plus releasedAtMs),
+ * null when the drive handed nothing over.
  */
-export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, transitionEvidence = null, observeEvidence = null, witness = null, logEntries, timeline, generations, restartedAtMs = null, cleanup, startedAtMs }) {
+export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, transitionEvidence = null, observeEvidence = null, witness = null, captureGate = null, logEntries, timeline, generations, restartedAtMs = null, cleanup, startedAtMs }) {
   const spec = rraCaseSpec(caseId);
   // The drive's evidence, carried forward by the transition phase when there was one.
   const driven = transitionEvidence ?? evidence;
@@ -773,6 +805,17 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, tr
     // A parked case: the control's witness of that same line before it released the transition.
     witness: spec.timing === 'parked'
       ? { parkedCopyAtMs: witness?.parkedCopyAtMs ?? null, releasedAtMs: witness?.releasedAtMs ?? null }
+      : null,
+    // The continue_work case: the control's read of the election's capture in the store, its deadline,
+    // and the release of the transition (null: none was sent). The epoch leaves as SHA-256 only.
+    captureGate: spec.timing === 'before-wake' && captureGate
+      ? {
+          deadlineAtMs: captureGate.deadlineAtMs ?? null,
+          captured: captureGate.captured ?? null,
+          capturedAfterMs: captureGate.capturedAfterMs ?? null,
+          capturedByMs: captureGate.capturedByMs ?? null,
+          releasedAtMs: captureGate.releasedAtMs ?? null,
+        }
       : null,
     // Router lines for this return, the target named or its child as the source (the child key
     // stays private): while the transition RPC was in flight, and once it had settled. A refused
@@ -981,7 +1024,26 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       // preflight, or a gateway the control no longer owns, and the transition is never sent.
       let transitionEvidence = null;
       let witness = null;
+      let captureGate = null;
       const driveClean = Array.isArray(evidence?.refusals) && evidence.refusals.length === 0 && evidence?.preflight?.ok === true;
+      // The continue_work case: its election captures after the `scheduled` result the drive ended
+      // on, so read the capture in the store first, by the deadline its own result sets, then release
+      // the transition. No capture by then, a drive that recorded a refusal or failed its preflight,
+      // or a gateway the control no longer owns, and the transition is never sent.
+      if (spec.timing === 'before-wake' && evidence?.handoff?.ready_for_capture && driveClean) {
+        const read = await awaitWorkCapture({
+          timeline,
+          key: evidence.keys?.target,
+          sinceMs: caseStart,
+          deadlineAtMs: rraWorkCaptureDeadline({ capturedAtMs: evidence.dispatch?.observed_at_ms, resultDelaySeconds: evidence.dispatch?.result_delay_seconds }),
+          platform,
+        });
+        captureGate = { ...read, releasedAtMs: null };
+        if (read.inTime && verifyOwnership(current, target, platform)) {
+          captureGate.releasedAtMs = platform.now();
+          transitionEvidence = await runScenario({ caseId, phase: 'transition', state: evidence, runId, target, options, privateDir, platform });
+        }
+      }
       if (spec.timing === 'parked' && evidence?.handoff?.ready_for_witness && driveClean) {
         witness = await witnessParkedCopy({
           generation: current,
@@ -1030,6 +1092,7 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
         transitionEvidence,
         observeEvidence,
         witness,
+        captureGate,
         logEntries: logEntries.filter((line) => line.atMs >= caseStart),
         timeline: timeline.filter((sample) => sample.atMs >= caseStart),
         generations: caseGenerations,

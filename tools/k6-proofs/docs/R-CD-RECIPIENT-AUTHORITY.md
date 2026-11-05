@@ -713,16 +713,19 @@ from the work probe:
 - the work case's fixture names `3cacb241…`, which that lib does not know;
 - the registration test reads this head's docs;
 - the scenario-source pin expects `rraCaseProbe`;
-- the transcript test expects `observeTargetTranscript` to return `probeWokeRows`.
+- the transcript test expects `observeTargetTranscript` to return `probeWokeRows`;
+- the work probe's own test needs `rraWorkProbeText`, which that lib does not have.
 
 At this head both files pass, 47 of 47 and 61 of 61.
 
 **Review fix.** The lane's first cut (`36443335`) required `probeWokeRows` among the counts every
 contradiction waits on. A receipt without it, as every receipt sealed before this head, then lost its
 `target-woken` and `refused-work-adopted` FAILs to MISSING `transcript-not-read`. That weakened an
-existing oracle. The count is now read on its own: unread, it only adds MISSING. The unit pin "a
-receipt without it keeps every FAIL" is RED at `36443335` (`MISSING-candidate`, no contradiction, where
-`FAIL-candidate` `target-woken` was expected) and GREEN here. The same review renamed the marker's FAIL
+existing oracle. The count is now read on its own: unread, it only adds MISSING. Against the lib at
+`36443335`, the pin "a receipt without it keeps every FAIL" was RED before the code was renamed:
+`MISSING-candidate` with no contradiction, where `FAIL-candidate` `target-woken` was expected. It is
+GREEN here. This head's test file goes RED at `36443335` earlier, on the renamed code, in the same
+test. The same review renamed the marker's FAIL
 from `refused-work-adopted` to `probe-answered-wake-reason`, because the reason is in the session's own
 context, and judges the marker only under the work probe.
 

@@ -5,7 +5,7 @@ comment 6651745479), on 🌿's regrade (comment 6651654909).
 
 **Corpus state: `missing`, not folded.** The row stays at the seed state that F′ kept for every
 row until its reviewed fold, with its candidate verdict recorded. This is not a behavior finding:
-graded with verified receipts, every case is PASS-candidate. The fold needs things this packet does
+graded as if the observer-key signatures hold, every case is PASS-candidate. The fold needs things this packet does
 not have (below), and the row's own grader returns MISSING-candidate until the receipts are verified
 with the observer key.
 

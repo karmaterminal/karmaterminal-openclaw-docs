@@ -94,7 +94,7 @@ A planted positive control caught every class. The result is in `RESOLVED-SHA.md
 
 ## Validation of this packet
 
-Run at the lane branch head, on the docs `main` `7ca06bdb` tooling.
+Run on this packet's final tree, after its last edit, with the docs `main` `7ca06bdb` tooling. The lane re-ran every check after each edit, before committing it.
 
 | check | result |
 |---|---|

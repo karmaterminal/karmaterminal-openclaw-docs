@@ -1,0 +1,139 @@
+{
+  "schema": "openclaw.k6.recipient-authority-case.v1",
+  "row": "R-CD-RECIPIENT-AUTHORITY",
+  "case": "revoked-owner",
+  "runId": "rra-e0b97a595e89973b",
+  "candidateSha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+  "docsSha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+  "gates": {
+    "candidatePinned": true,
+    "buildInfoCommit": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+    "stateIsolated": true,
+    "modelSignIn": true,
+    "crossSessionTargetingEnabled": true,
+    "gatewayStartedByHarness": true
+  },
+  "gateway": {
+    "generations": [
+      {
+        "index": 0,
+        "startedByHarness": true,
+        "ownedListenerThroughout": true
+      }
+    ],
+    "restartedAtMs": null
+  },
+  "scenario": {
+    "controlRunId": "rra-e0b97a595e89973b",
+    "transitionRunId": "rra-e0b97a595e89973b",
+    "refusals": [],
+    "preflightOk": true
+  },
+  "keys": {
+    "parent": "d4f262f4689eb37a1f9f34652917f54da84c5ed6575d44a7ca8a3061ae75a9b6",
+    "target": "b012dfd2c45758851c29db25c9932ee38c3113052924e5aeddfb62d3ace3c57c",
+    "ops": "25de6cf150a2546ab739cf6948fc728b15244873011b405c3ac3ea3624fcd7c9"
+  },
+  "dispatch": {
+    "accepted": true,
+    "status": "scheduled",
+    "capturedAtMs": 1793859865634,
+    "reasonHash": "1f9b0d6439a96e2f",
+    "reasonLength": 170,
+    "delegateMode": "silent",
+    "resultMode": "silent",
+    "resultDelaySeconds": 30,
+    "otherDelegateCalls": 0
+  },
+  "child": {
+    "spawned": true,
+    "bound": true,
+    "done": true
+  },
+  "target": {
+    "primed": true,
+    "probeRan": true,
+    "probeSentAtMs": 1793860084410,
+    "probeTextSha256": "509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512",
+    "probeReplied": true,
+    "ackRuns": 0,
+    "wakeAckRuns": 0,
+    "probeAckRows": 0,
+    "primingAckRows": 0,
+    "uncreditedAckRows": 0,
+    "foreignRuns": 0,
+    "unattributedAssistantRows": 0,
+    "returnMarkerRows": 0,
+    "adoptedDeliveryRows": 0
+  },
+  "parent": {
+    "ackRows": 0
+  },
+  "ack": null,
+  "preTransition": {
+    "ackRuns": 0,
+    "foreignRuns": 0,
+    "adoptedDeliveryRows": 0
+  },
+  "transition": {
+    "method": "sessions.assignOwner",
+    "ok": true,
+    "requestedAtMs": 1793859898109,
+    "settledAtMs": 1793859924409
+  },
+  "park": {
+    "deliveredToTargetAtMs": 1793859897558,
+    "deliveredFromChildAtMs": 1793859897558
+  },
+  "witness": {
+    "parkedCopyAtMs": 1793859897558,
+    "releasedAtMs": 1793859897796
+  },
+  "captureGate": null,
+  "routing": {
+    "duringTransition": 0,
+    "afterTransition": 0
+  },
+  "sweep": {
+    "armedInTransition": 1
+  },
+  "epochs": {
+    "captured": "f84179d41da25ca58118b678cd5d2437cedb3d90e7fed2efad3ab838d9b67a1e",
+    "afterTransition": "b95202843fd8427bd65fb557d874356948fea02814da97bbdb348b4666732497",
+    "final": "b95202843fd8427bd65fb557d874356948fea02814da97bbdb348b4666732497"
+  },
+  "reason": {
+    "kind": "return-refused",
+    "stage": "prompt-drain",
+    "stages": [
+      "prompt-drain"
+    ],
+    "reasonTexts": [
+      "recipient-authority-changed"
+    ],
+    "observedAtMs": 1793860084491,
+    "generation": 0,
+    "deliveryIdHash": "640b96cc0496c3cf6468e36ac3ae978f8f50eef91f61f2fdcd239b836c4bda4b",
+    "distinctDeliveryIds": 1,
+    "linesWithoutDeliveryId": 0,
+    "lines": 1
+  },
+  "config": null,
+  "trace": null,
+  "cleanup": {
+    "gatewayStopped": true,
+    "residue": false
+  },
+  "grade": {
+    "verdict": "PARTIAL-candidate",
+    "missing": [],
+    "contradictions": [],
+    "partial": [
+      "trace-receipt-pending"
+    ]
+  },
+  "integrity": {
+    "algorithm": "hmac-sha256-proof-observer-key-v1",
+    "signature": "1c71effeadd7161a5b1fd978c734e38dd6bff72ff6e345cd34fef7e50c019212"
+  }
+}

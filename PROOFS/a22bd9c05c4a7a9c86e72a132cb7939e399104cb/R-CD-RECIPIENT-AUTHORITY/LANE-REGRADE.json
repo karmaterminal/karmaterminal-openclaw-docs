@@ -1,0 +1,236 @@
+{
+  "kind": "lane reproduction for fold review; not a verdict authority and not a signature check",
+  "row": "R-CD-RECIPIENT-AUTHORITY",
+  "run_id": "rra-e0b97a595e89973b",
+  "bundle": {
+    "path": "frond/thornfield-artifacts/proof-runs/2026-11-05/rra-e0b97a595e89973b-public.tar.gz",
+    "sha256": "7e29caf5310e877b4dcd5755c1719389b2b929237cfe14d686491ce04da06409",
+    "sha256_matched": true,
+    "files": 33
+  },
+  "grader": {
+    "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+    "docs_ref_note": "draft docs#620 head; the row grader is not on docs main",
+    "functions": [
+      "scripts/run-recipient-authority-row.mjs gradeRowFromArtifacts (the per-case correlation loop, :1186-1214)",
+      "lib/recipient-authority-row.mjs traceCorrelationMatches, gradeRecipientAuthorityRow"
+    ]
+  },
+  "signatures_verified_by_this_lane": false,
+  "signature_note": "Each case receipt is sealed hmac-sha256-proof-observer-key-v1 with the run owner observer key, which this lane does not hold. The grade below assumes the signatures hold; graded with any other key the same grader returns MISSING-candidate (unverified-receipt on all 13).",
+  "row_verdict_assuming_signatures_hold": "PASS-candidate",
+  "row_verdict_with_a_non_observer_key": "MISSING-candidate",
+  "row_notes": [],
+  "trace_structure_checks": [
+    "traceId 32 lowercase hex, non-zero; equals the correlation file; names the trace file",
+    "span ids 16 lowercase hex, non-zero, distinct; every span on the one trace",
+    "openclaw.tool.execution (continue_delegate) -> continuation.delegate.dispatch -> exactly one continuation.delegate.fire",
+    "dispatch and fire carry the correlation chainId; dispatch reason.hash/length and delegate.mode equal the case receipt",
+    "correlation sameTrace, sameChain, distinctSpans true; resultClass unique; reason.rawPersisted false; dispatch and fire status OK"
+  ],
+  "cases": [
+    {
+      "case": "allowed",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "2c8506fa2ccad57b0ee2f61fec16b22c",
+      "trace_structure": "ok",
+      "delegate_mode": "silent-wake",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "allowed-across-reset",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "d34573538b954025437649175829ffbd",
+      "trace_structure": "ok",
+      "delegate_mode": "silent-wake",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "allowed-silent",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "683c91405270f08ab86932274d024df8",
+      "trace_structure": "ok",
+      "delegate_mode": "silent",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "unauthorized-admission",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PASS-candidate",
+      "sealed_partial": [],
+      "trace_correlated": false,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": null,
+      "trace_structure": "none owed (the case fires nothing)",
+      "delegate_mode": "silent-wake",
+      "dispatch_status": "error"
+    },
+    {
+      "case": "unauthorized-dispatch",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PASS-candidate",
+      "sealed_partial": [],
+      "trace_correlated": false,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": null,
+      "trace_structure": "none owed (the case fires nothing)",
+      "delegate_mode": "silent-wake",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "revoked-visibility",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "c2447f83cb6c225a6cf718382707e309",
+      "trace_structure": "ok",
+      "delegate_mode": "silent",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "revoked-membership",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "f13e9a95e1876fa0830898e496082c0b",
+      "trace_structure": "ok",
+      "delegate_mode": "silent",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "revoked-owner",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "82c78acfcd57d773b3ad78522417e197",
+      "trace_structure": "ok",
+      "delegate_mode": "silent",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "reassigned",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "ab21e89afa39221ae0acbad4b4540863",
+      "trace_structure": "ok",
+      "delegate_mode": "silent",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "wake-revoked-visibility",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "2c57a4d42a173a374fe7eea2ee7a1fae",
+      "trace_structure": "ok",
+      "delegate_mode": "silent-wake",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "wake-reassigned",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "4aba4f3f98af60b06cf8b545a34440b6",
+      "trace_structure": "ok",
+      "delegate_mode": "silent-wake",
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "work-revoked-visibility",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PASS-candidate",
+      "sealed_partial": [],
+      "trace_correlated": false,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": null,
+      "trace_structure": "none owed (the case fires nothing)",
+      "delegate_mode": null,
+      "dispatch_status": "scheduled"
+    },
+    {
+      "case": "replay-restart",
+      "run_id": "rra-e0b97a595e89973b",
+      "candidate_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+      "docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+      "sealed_grade": "PARTIAL-candidate",
+      "sealed_partial": [
+        "trace-receipt-pending"
+      ],
+      "trace_correlated": true,
+      "grade_after_correlation": "PASS-candidate",
+      "trace_id": "1ee30166400dd51e4bb746abed1a56bf",
+      "trace_structure": "ok",
+      "delegate_mode": "silent",
+      "dispatch_status": "scheduled"
+    }
+  ],
+  "delegate_mode_source": "each case receipt dispatch.delegateMode (null where no continue_delegate was dispatched)"
+}

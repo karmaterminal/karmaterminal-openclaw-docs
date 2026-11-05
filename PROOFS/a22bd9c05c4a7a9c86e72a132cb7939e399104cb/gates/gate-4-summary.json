@@ -1,0 +1,96 @@
+{
+  "gate": "Gate 4: Mode-B and the locally run cut shards",
+  "product_sha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+  "workflow_sha": "a768f04231bd0a6f94cc7b845aecaec28a4a4c9e",
+  "ruling": {
+    "verdict": "PASS-candidate",
+    "authority": "🌊, karmaterminal/openclaw#1271 comment 6653747059",
+    "scope": "clears the candidate-owned Mode-B precondition at this SHA",
+    "scope_limits_verbatim": "This does not clear fold review, immutable corpus promotion, exact-head fleet readiness, or the terminal 38-row acceptance gate. A product change reopens this gate at the new head."
+  },
+  "mode_b": {
+    "run_id": 41927761314,
+    "repository": "karmaterminal/openclaw-bootstrap",
+    "workflow": "openclaw-local-ci",
+    "event": "workflow_dispatch",
+    "head_sha": "a768f04231bd0a6f94cc7b845aecaec28a4a4c9e",
+    "product_sha_from_preflight_job": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+    "run_attempt": 1,
+    "created_at": "2026-11-04T22:43:35Z",
+    "updated_at": "2026-11-05T04:47:21Z",
+    "conclusion": "failure",
+    "jobs": { "total": 91, "success": 53, "failure": 27, "cancelled": 3, "skipped": 8 },
+    "jobs_with_a_runner_by_labels": { "oc-8cpu-32gb": 80, "self-hosted,openclaw-ci-eligible": 3 },
+    "self_hosted_jobs": ["preflight", "static gates", "aggregate + status"],
+    "ubuntu_labels": "only on 2 skipped matrix jobs that never had a runner",
+    "receipt_fields_from_the_scribe_receipt": {
+      "source": "karmaterminal/openclaw#1271 comment 6649989076",
+      "receipts_valid": true,
+      "routed_equals_planned": true,
+      "hosted_worker_pools": ["arc:oc-8cpu-32gb"],
+      "cost_guard_line": "[cost-guard] hosted lane on ARC scale set oc-8cpu-32gb; nothing rented.",
+      "tests_passed": 218033,
+      "tests_failed": 220,
+      "deterministic_failures": 202
+    }
+  },
+  "failing_set": {
+    "distinct_failing_tests": 64,
+    "extraction": "vitest 'FAIL <project> <file> > <name>' lines from every failed or cancelled job's log, de-duplicated (the method of mb-failset.sh in the evidence bundle)",
+    "sorted_set_sha256_c_locale": "185b6dea9f175e4867551e227b80e6ce26d21bdb824509d5d8bf4aed27e8a2db",
+    "j12_comparison": {
+      "j12_run_id": 41266680278,
+      "j12_product_sha": "352f56029dc95c60149ab4aaa127226a861d0b3d",
+      "j12_workflow_sha": "293d9f24ffad17ca8678a161b7ad3c9b2a2cf450",
+      "j12_distinct_failing_tests": 64,
+      "identical": true,
+      "new_against_j12": 0
+    },
+    "other_baselines_per_the_bundle_failsets": {
+      "u12_run_id": 41223007528,
+      "u12_distinct_failing_tests": 66,
+      "new_against_u12": 0,
+      "r2907_run_id": 41834121271,
+      "r2907_distinct_failing_tests": 67,
+      "new_against_2907": 0,
+      "gone_since_2907": [
+        "session-actor-memory x2 (the 4f891818d9 regression, fixed by the merged ae11b292)",
+        "a progress-narrator-model fallback flake"
+      ]
+    },
+    "verification": "This lane re-extracted both the a22b and the j12 sets from the runs' own job logs (30 failed or cancelled jobs each, every log available) and got 64 tests each, identical to each other and to the bundle's fs-a22b.tests and fs-j12.tests. The U12 and 2907 comparisons use the bundle's failsets (the scribe's extraction).",
+    "test_names_published": false
+  },
+  "local_cut_shards": {
+    "source": "karmaterminal/openclaw#1271 comments 6649989076 and 6653707483; totals re-read from each shard log's vitest summary by this lane",
+    "mode": "serial, --maxWorkers=1, in a detached worktree checked out at the product SHA (the bundle's run-cut-shards-local.sh refuses unless HEAD equals it); the logs themselves carry no SHA line",
+    "shards": [
+      { "shard": "core-runtime-infra-storage-state", "failed": 52, "passed": 21466, "skipped": 369, "rc": 1, "classification": "baseline (2907/j12/U12) except update-command-post-update x3, a load flake that passes alone 94/94 twice" },
+      { "shard": "agentic-control-plane-startup-core", "failed": 0, "passed": 139, "skipped": 1, "rc": 0, "classification": "clean (89 + 50 passed)" },
+      { "shard": "gateway-server-isolated", "failed": 0, "passed": 171, "skipped": 0, "rc": 0, "classification": "clean" },
+      { "shard": "gateway-database-workers", "failed": 116, "passed": 6712, "skipped": 79, "failed_files": 49, "rc": 1, "classification": "no candidate red: 27 failing files also fail at j12 or 2907; 16 a22b-only files plus 3 file-level failures come from test order under isolate:false (a baseline 120 s timeout ran 2nd and left the plugin-metadata owner closing); the one remaining order failure reproduces at 2907 with the same seed" },
+      { "shard": "runtime-config", "failed": 0, "passed": 5897, "skipped": 35, "rc": 0, "classification": "clean; the 4f891818d9 actor-memory pair is fixed" },
+      { "shard": "runtime-config archive-session", "failed": 0, "passed": 22, "skipped": 0, "rc": 0, "classification": "clean" },
+      { "shard": "extension-database-workers", "failed": 0, "passed": 10177, "skipped": 95, "files": 781, "rc": 0, "classification": "clean, run to completion (2907's run of this shard was cut by SIGTERM, so its baseline was partial)" }
+    ],
+    "counterfactuals": [
+      { "run": "the 16 a22b-only gateway-database-workers files as one batch, without the timeout file", "result": "15 of 16 files pass (1 failed, 121 passed tests)" },
+      { "run": "the 3 file-level failures alone", "result": "42/42 passed" },
+      { "run": "models-list.native-lifecycle alone, x3", "result": "3/3 passed each time" },
+      { "run": "seed-shuffled 6-file runs at a22b, seeds 11, 22, 33, 44", "result": "79/79 passed each" },
+      { "run": "the same 6 files, seed 55, at a22b and at 2907e656", "result": "1 failed, 78 passed at both: the skill-library-read -> native-lifecycle order failure is a baseline order leak" },
+      { "run": "the 2-file pair (skill-library-read, native-lifecycle), seed 1, at a22b x2 and at 2907e656 x2", "result": "with skill-library-read first: 1 failed, 4 passed at a22b (twice) and at 2907; the 2907 repeat ran native-lifecycle first and passed 5/5" },
+      { "run": "models-list.worker-recovery.integration alone", "result": "fails (the baseline 120 s timeout, also red at j12 and 2907)" }
+    ],
+    "classified_by": "🌿 frond-scribe; 🌊 spot-checked the retained logs and counterfactual summaries (comment 6653747059) and says the full fail-set extraction and causal classification are the scribe's, not an independent regrade"
+  },
+  "evidence_bundle": {
+    "path": "frond/thornfield-artifacts/proof-runs/2026-11-05/j12prime-gate4-local-a22bd9c0/gate4-evidence-a22bd9c0.tar.gz",
+    "sha256": "cf7644f755ede925b201bf5bcb6f8bf654dd08404507d008b0d181a476981166",
+    "bytes": 1576476,
+    "map": "karmaterminal/openclaw#1271 comment 6653764472",
+    "sha256_matched_by_this_lane": true,
+    "raw_logs_published_here": false,
+    "why_not_published": "13 MB of test output with local paths; this repository is public"
+  }
+}

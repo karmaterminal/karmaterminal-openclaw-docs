@@ -1,0 +1,111 @@
+{
+  "schema": "openclaw.k6.recipient-authority-case.v1",
+  "row": "R-CD-RECIPIENT-AUTHORITY",
+  "case": "allowed-across-reset",
+  "runId": "rra-e0b97a595e89973b",
+  "candidateSha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+  "docsSha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+  "gates": {
+    "candidatePinned": true,
+    "buildInfoCommit": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+    "stateIsolated": true,
+    "modelSignIn": true,
+    "crossSessionTargetingEnabled": true,
+    "gatewayStartedByHarness": true
+  },
+  "gateway": {
+    "generations": [
+      {
+        "index": 0,
+        "startedByHarness": true,
+        "ownedListenerThroughout": true
+      }
+    ],
+    "restartedAtMs": null
+  },
+  "scenario": {
+    "controlRunId": "rra-e0b97a595e89973b",
+    "refusals": [],
+    "preflightOk": true
+  },
+  "keys": {
+    "parent": "b56b93a58220ddb40bdbf66cb58fa3abb1c3ebb3b50e01cbfdae20667da64e4d",
+    "target": "1f4aed1a47cb935d277af6fff4e03cd624edae8f3b10a292e2a17d3ff41a2ef0",
+    "ops": null
+  },
+  "dispatch": {
+    "accepted": true,
+    "status": "scheduled",
+    "capturedAtMs": 1793858969127,
+    "reasonHash": "75a6b9c342ccb031",
+    "reasonLength": 170,
+    "delegateMode": "silent-wake",
+    "resultMode": "silent-wake",
+    "resultDelaySeconds": 30,
+    "otherDelegateCalls": 0
+  },
+  "child": {
+    "spawned": true,
+    "bound": true,
+    "done": true
+  },
+  "target": {
+    "primed": true,
+    "probeRan": false,
+    "probeSentAtMs": null,
+    "probeTextSha256": null,
+    "probeReplied": false,
+    "ackRuns": 1,
+    "wakeAckRuns": 1,
+    "probeAckRows": 0,
+    "primingAckRows": 0,
+    "uncreditedAckRows": 0,
+    "foreignRuns": 1,
+    "unattributedAssistantRows": 0,
+    "returnMarkerRows": 0,
+    "adoptedDeliveryRows": 0
+  },
+  "parent": {
+    "ackRows": 0
+  },
+  "ack": null,
+  "preTransition": null,
+  "transition": {
+    "method": "sessions.reset",
+    "ok": true,
+    "requestedAtMs": 1793858971128,
+    "settledAtMs": 1793858971337
+  },
+  "park": {
+    "deliveredToTargetAtMs": 1793859002239,
+    "deliveredFromChildAtMs": 1793859002239
+  },
+  "witness": null,
+  "captureGate": null,
+  "routing": null,
+  "sweep": null,
+  "epochs": {
+    "captured": "b40fd1538afcb77b03c1684b1ffca7e1f1d486c268837cd4863510f15fc9ca00",
+    "afterTransition": "b40fd1538afcb77b03c1684b1ffca7e1f1d486c268837cd4863510f15fc9ca00",
+    "final": "b40fd1538afcb77b03c1684b1ffca7e1f1d486c268837cd4863510f15fc9ca00"
+  },
+  "reason": null,
+  "config": null,
+  "trace": null,
+  "cleanup": {
+    "gatewayStopped": true,
+    "residue": false
+  },
+  "grade": {
+    "verdict": "PARTIAL-candidate",
+    "missing": [],
+    "contradictions": [],
+    "partial": [
+      "trace-receipt-pending"
+    ]
+  },
+  "integrity": {
+    "algorithm": "hmac-sha256-proof-observer-key-v1",
+    "signature": "6c9a39a46a01e50b41fc083a3e42caabec2b74288b12d09a93458135c2d0e7cf"
+  }
+}

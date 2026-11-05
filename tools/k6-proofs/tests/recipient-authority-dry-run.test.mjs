@@ -1036,7 +1036,8 @@ test('dry run: (h) allowed\'s fallback probe asks about the target\'s context, a
   const sealed = gradeRecipientAuthorityCase(old.record);
   assert.deepEqual([sealed.verdict, sorted(sealed.missing), sealed.contradictions], ['MISSING-candidate', sorted(['probe-ack-unobserved', 'probe-text-unbound']), []]);
   // Every other probing case answers alike under either wording: a refusal's target holds no return
-  // in its context (PROBE-OK, no ack); allowed-silent's probe turn drained its return (the ack).
+  // in its context (PROBE-OK, no ack); allowed-silent's probe turn drained its return (the ack). The
+  // work case's own probe carries neither condition, so the rewording leaves its stimulus as it is.
   for (const caseId of [...refusalCases, 'allowed-silent']) {
     const now = await grade(caseId);
     const then = await grade(caseId, {}, {}, thisTurnOnTheWire(gatewayFor({ caseId })));
@@ -1493,7 +1494,7 @@ test('dry run: (w5) the reason\'s RCDRA-WOKE in the work probe\'s run is FAIL, w
     assert.equal(record.target.probeTextSha256, WORK_PROBE_SHA256, probeAck);
     assert.deepEqual([record.target.probeWokeRows, record.target.probeReplied, record.target.foreignRuns], [1, probeAck === 'woke', 0], probeAck);
     assert.equal(graded.verdict, 'FAIL-candidate', `${probeAck}: ${JSON.stringify(graded)}`);
-    assert.deepEqual(graded.contradictions, ['refused-work-adopted'], probeAck);
+    assert.deepEqual(graded.contradictions, ['probe-answered-wake-reason'], probeAck);
     // With PROBE-OK beside it, nothing else is missing.
     if (probeAck === 'woke') assert.deepEqual(graded.missing, [], probeAck);
   }

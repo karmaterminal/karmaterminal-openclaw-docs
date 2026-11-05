@@ -46,8 +46,8 @@
    - Add `R-CD-RECIPIENT-AUTHORITY`, gate 3 of the j12′ gate list (🌊, room msgs
      1567077062139838485 and 1567194866507841678), separate from
      `R-CD-RETURN-COVENANT-AUTHORITY`.
-   - Result: 37 rows. This is provisional: 🌊's Gate 4 ruling, which came after F″, still names
-     "the terminal 38-row acceptance gate", and the terminal matrix is his to set.
+   - Result: 37 rows, confirmed by 🌊 (room msg 1567933730021056636). His Gate 4 ruling's "terminal 38-row
+     acceptance gate" is the old shorthand, not a terminal claim; the terminal matrix is his to set.
 3. **`R-CD-RECIPIENT-AUTHORITY`:**
    - fetched the public bundle from MinIO and matched its sha256 to the one 🕯 and 🌿 recorded;
    - listed it before extracting (plain files only, no links, no absolute or `..` paths);
@@ -57,7 +57,7 @@
      structure (`R-CD-RECIPIENT-AUTHORITY/LANE-REGRADE.json`).
 
    The row is not folded, and nothing was upgraded:
-   - its state stays `missing`, the seed state F′ kept for every row until its reviewed fold;
+   - it is held at `partial`, as 🌊 ruled (room msg 1567933730021056636), the shape F′ kept for R-CD-2;
    - its `candidate_verdict` is `PASS-candidate`.
 
    A ruled PASS-candidate becomes `pass` only through a corpus fold review. The fold needs things

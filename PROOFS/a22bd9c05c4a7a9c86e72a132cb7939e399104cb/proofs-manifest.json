@@ -78,7 +78,7 @@
   "required_matrix": {
     "count": 37,
     "basis": "F′ f15237ec92 required_rows (38), less R-CW-5A and R-CW-6A, which 🌊's F″ method ruling (Discord 1565895695586558120; docs#616, merged) makes required preflight attachments of R-CW-5/6 in any corpus folded after it, plus R-CD-RECIPIENT-AUTHORITY, gate 3 of the j12′ gate list (🌊, room msgs 1567077062139838485 and 1567194866507841678).",
-    "note": "Provisional: the terminal matrix and its count are not decided here. openclaw#1271 names a 38-row terminal rollup, and 🌊's Gate 4 ruling (#1271 comment 6653747059, after F″) still says \"the terminal 38-row acceptance gate\". This packet records the 37 rows the current method yields, pending 🌊's matrix, and makes no terminal claim."
+    "note": "Confirmed by 🌊 (room msg 1567933730021056636): 37 = F′'s 38, less R-CW-5A and R-CW-6A (preflight attachments), plus R-CD-RECIPIENT-AUTHORITY. The \"38-row\" wording of openclaw#1271 and of 🌊's Gate 4 ruling (#1271 comment 6653747059) is the old shorthand for F′'s matrix, not a count this packet meets or claims. The terminal matrix stays 🌊's to set; this packet makes no terminal claim."
   },
   "dispatch_allocation": {
     "emeric-isolated-gateway-gate3": [
@@ -143,11 +143,11 @@
   "rollup": {
     "total_rows": 37,
     "pass": 0,
-    "partial": 0,
+    "partial": 1,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 37
+    "missing": 36
   },
   "gates": [
     {
@@ -374,8 +374,8 @@
       "row": "R-CD-RECIPIENT-AUTHORITY",
       "title": "Live recipient-authority row at j12′: 13 cases (allowed, allowed-across-reset, allowed-silent, two unauthorized, four revoked or reassigned, two wake-mode, work-revoked-visibility, replay-restart) on a harness-owned isolated gateway.",
       "owner": "🕯 emeric: the gate-3 owner fire on an isolated proof gateway (comp-a22bd9c0)",
-      "state": "missing",
-      "fold_status": "not folded: the row stays at the seed state with its PASS-candidate recorded (see fold_gaps)",
+      "state": "partial",
+      "fold_status": "not folded: held at partial with candidate_verdict PASS-candidate (🌊, room msg 1567933730021056636); see fold_gaps",
       "dir": "PROOFS/a22bd9c05c4a7a9c86e72a132cb7939e399104cb/R-CD-RECIPIENT-AUTHORITY/",
       "evidence_doc": "PROOFS/a22bd9c05c4a7a9c86e72a132cb7939e399104cb/R-CD-RECIPIENT-AUTHORITY/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-recipient-authority.json",
@@ -404,7 +404,7 @@
         "The row's method (manifest, control, grader) is on draft docs#620 at 6e1da8eb, not on docs main, so this corpus's own docs base cannot judge the receipts.",
         "openclaw#1271 orders exact-head readiness on all six seats before live acceptance proof; no seat runs a22bd9c05c. Whether an isolated-gateway row is exempt is 🌊's call."
       ],
-      "summary": "Ruled whole-13 run rra-e0b97a595e89973b at docs 6e1da8eb, product a22bd9c05c: every gate true, every buildInfoCommit a22bd9c05c, clean teardown. Graded as if the observer-key signatures hold (this lane does not hold the key; 🌊 ruled on 🕯's signed receipts), all 13 cases are PASS-candidate and the 10 fired delegates correlate with their Tempo traces. Not folded: the state stays missing, the seed state F′ kept for every row until its reviewed fold, because the row's own grader returns MISSING-candidate until the receipts are verified with the observer key. This is not a behavior finding.",
+      "summary": "Ruled whole-13 run rra-e0b97a595e89973b at docs 6e1da8eb, product a22bd9c05c: every gate true, every buildInfoCommit a22bd9c05c, clean teardown. Graded as if the observer-key signatures hold (this lane does not hold the key; 🌊 ruled on 🕯's signed receipts), all 13 cases are PASS-candidate and the 10 fired delegates correlate with their Tempo traces. Not folded: held at partial with candidate_verdict PASS-candidate, as 🌊 ruled (room msg 1567933730021056636), the shape F′ kept for R-CD-2 (partial / PASS-candidate (authoritative receipt)). Observer-key boundary: without the run owner's private observer key the row's own grader verifies no receipt and returns MISSING-candidate; the PASS-candidate rests on 🕯's signed receipts as 🌊 ruled them. This is not a behavior finding.",
       "last_known_good": "NEW-ROW-NO-PRIOR-PASS: no corpus has folded this row. Earlier owner runs stay their SHA's and are not carried: rra-88e4fd22f0b122a8 and rra-a4d5318d426ad728 (2907e656, refused by the a22b pin); rra-eaa61a458beaf344, rra-3dd1c2a556ae087f and rra-89f6172167abb906 (a22bd9c05c, each MISSING).",
       "test_cases_executed": [
         "rra-e0b97a595e89973b/allowed",

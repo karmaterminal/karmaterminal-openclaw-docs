@@ -7,7 +7,8 @@ whole-13 run `rra-e0b97a595e89973b`, docs `6e1da8eb395b181d668b34ffa5611d7143600
 The ruling is scoped to the gate-3 fire. In 🌊's words: "This rules the **live row's Gate 3 fire
 only**. It does not fold the PR, change the corpus/INDEX verdict, bless Gate 4's unfinished shards,
 or claim the broader #129388 authority matrix and Telegram evidence complete." So the row is not
-folded in this packet: its state stays `missing` with `candidate_verdict: PASS-candidate`; see
+folded in this packet: it is held at `partial` with `candidate_verdict: PASS-candidate` (🌊,
+room msg 1567933730021056636); see
 `../R-CD-RECIPIENT-AUTHORITY/EVIDENCE.md`.
 
 | | |

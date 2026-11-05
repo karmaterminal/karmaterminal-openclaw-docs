@@ -4,9 +4,10 @@
 
 - **It holds:** gates 3 and 4 and the j12′ fold source review at this exact SHA, each as its own
   receipt under `gates/`.
-- **No row is folded:** every row's state is `missing`.
-  - `R-CD-RECIPIENT-AUTHORITY` carries its gate-3 `PASS-candidate` as a recorded candidate verdict.
-  - The other 36 rows have not fired at this SHA.
+- **No row is folded:**
+  - `R-CD-RECIPIENT-AUTHORITY` is held at `partial`, with its gate-3 `PASS-candidate` recorded as
+    `candidate_verdict` (🌊, room msg 1567933730021056636).
+  - The other 36 rows are `missing`: they have not fired at this SHA.
 - **Outstanding, and downstream of this packet:** exact-head fleet readiness, and every remaining
   live row. No seat runs `a22bd9c05c` yet; step 3 of the fleet readiness (the emeric canary cut) is
   held.
@@ -21,9 +22,9 @@ state, and `METHOD.md` for how the packet was built.
 
 | total | pass | partial | thin | fail | honest_limit | missing |
 |---|---|---|---|---|---|---|
-| 37 | 0 | 0 | 0 | 0 | 0 | 37 |
+| 37 | 0 | 1 | 0 | 0 | 0 | 36 |
 
-**Why 37 rows (provisional).** F′'s 38 required rows, less `R-CW-5A` and `R-CW-6A`, plus
+**Why 37 rows (confirmed by 🌊, room msg 1567933730021056636).** F′'s 38 required rows, less `R-CW-5A` and `R-CW-6A`, plus
 `R-CD-RECIPIENT-AUTHORITY`:
 
 - 🌊's F″ method ruling (docs#616, merged) makes R-CW-5A and R-CW-6A required preflight
@@ -31,9 +32,9 @@ state, and `METHOD.md` for how the packet was built.
   `preflight_attachments`, both `missing`.
 - `R-CD-RECIPIENT-AUTHORITY` is gate 3 of the j12′ gate list.
 
-openclaw#1271 names a 38-row terminal rollup, and 🌊's Gate 4 ruling, which came after F″, still
-says "the terminal 38-row acceptance gate". The terminal matrix is 🌊's to set; this packet only
-records what the current method yields.
+openclaw#1271 and 🌊's Gate 4 ruling, which came after F″, say "the terminal 38-row acceptance
+gate". That is the old shorthand for F′'s matrix, not a count this packet meets or claims. The
+terminal matrix stays 🌊's to set, and nothing here is a terminal claim.
 
 ## The gates (distinct receipts)
 
@@ -45,13 +46,14 @@ records what the current method yields.
 
 ## Rows
 
-`R-CD-RECIPIENT-AUTHORITY` is the only row with receipts at this SHA. It is not folded: its state
-stays `missing`, the seed state F′ kept for every row until its reviewed fold, with
-`candidate_verdict: PASS-candidate`.
+`R-CD-RECIPIENT-AUTHORITY` is the only row with receipts at this SHA. It is not folded: it is held
+at `partial` with `candidate_verdict: PASS-candidate`, as 🌊 ruled (room msg 1567933730021056636). F′ held
+R-CD-2 the same way (`partial`, `PASS-candidate (authoritative receipt)`).
 
-This is not a behavior finding. The row's own grader returns MISSING-candidate until the receipts
-are verified with the run owner's observer key, and three other fold gaps remain open (its
-`EVIDENCE.md` names all four):
+This is not a behavior finding. **The observer-key boundary:** the 13 case receipts are sealed with
+the run owner's private observer key. Without it, the row's own grader verifies no receipt and
+returns MISSING-candidate; the PASS-candidate rests on 🕯's signed receipts as 🌊 ruled them. Three
+other fold gaps remain open (its `EVIDENCE.md` names all four):
 
 - no corpus fold review yet;
 - the row's method is on draft docs#620, not docs main;
@@ -69,7 +71,7 @@ are verified with the run owner's observer key, and three other fold gaps remain
 | `R-CD-MODEL-DEFAULT` | `missing` | not fired at this SHA |
 | `R-CD-MODEL-TOKEN` | `missing` | not fired at this SHA |
 | `R-CD-MODEL-TOOL` | `missing` | not fired at this SHA |
-| `R-CD-RECIPIENT-AUTHORITY` | `missing` | `PASS-candidate` (gate 3; not folded) |
+| `R-CD-RECIPIENT-AUTHORITY` | `partial` | `PASS-candidate` (gate 3; not folded) |
 | `R-CD-RETURN-COVENANT-AUTHORITY` | `missing` | not fired at this SHA |
 | `R-CD-RETURN-OVERLAP` | `missing` | not fired at this SHA |
 | `R-CD-SILENT` | `missing` | not fired at this SHA |

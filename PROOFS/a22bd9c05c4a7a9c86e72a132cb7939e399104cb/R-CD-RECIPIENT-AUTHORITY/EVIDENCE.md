@@ -3,11 +3,17 @@
 **Candidate verdict: `PASS-candidate`.** 🌊 ruled it for gate 3 (karmaterminal-openclaw-docs#620
 comment 6651745479), on 🌿's regrade (comment 6651654909).
 
-**Corpus state: `missing`, not folded.** The row stays at the seed state that F′ kept for every
-row until its reviewed fold, with its candidate verdict recorded. This is not a behavior finding:
-graded as if the observer-key signatures hold, every case is PASS-candidate. The fold needs things this packet does
-not have (below), and the row's own grader returns MISSING-candidate until the receipts are verified
-with the observer key.
+**Corpus state: `partial`, not folded.** 🌊 ruled it (room msg 1567933730021056636): held at `partial` with
+`candidate_verdict: PASS-candidate`, the shape F′ kept for R-CD-2 (`partial`, `PASS-candidate
+(authoritative receipt)`). This is not a behavior finding: graded as if the observer-key signatures
+hold, every case is PASS-candidate. The fold needs things this packet does not have (below).
+
+**The observer-key boundary.** The 13 case receipts are sealed `hmac-sha256-proof-observer-key-v1`
+with the run owner's private observer key, which is not public and not in this packet. Without it,
+`gradeRowFromArtifacts` verifies no receipt, every required case grades `case-not-run`, and the row
+grades MISSING-candidate (`tools/k6-proofs/lib/recipient-authority-row.mjs:1815-1836` at docs#620
+`6e1da8eb`). A public reader can check the receipts' bytes and checksums, not their signatures; the
+PASS-candidate rests on 🕯's signed receipts as 🌊 ruled them.
 
 ## What ran
 

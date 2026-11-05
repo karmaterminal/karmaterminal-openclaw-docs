@@ -10,7 +10,7 @@
 | `gates/GATE-3-R-CD-RECIPIENT-AUTHORITY.md` | the Gate 3 receipt |
 | `gates/GATE-4-MODE-B-AND-LOCAL-SHARDS.md`, `gates/gate-4-summary.json` | the Gate 4 receipt, summaries only |
 | `gates/FOLD-SOURCE-REVIEW.md` | the j12′ fold source-review receipt |
-| `<row>/EVIDENCE.md` | one per required row; all 37 say `missing`: 36 not fired at this SHA, and `R-CD-RECIPIENT-AUTHORITY`'s, not folded, records its gate-3 PASS-candidate |
+| `<row>/EVIDENCE.md` | one per required row: 36 say `missing` (not fired at this SHA); `R-CD-RECIPIENT-AUTHORITY`'s says `partial`, not folded, with its gate-3 PASS-candidate |
 
 ## Source bundles
 

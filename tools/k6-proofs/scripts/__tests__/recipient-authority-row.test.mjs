@@ -2056,7 +2056,7 @@ test('the control releases work-revoked-visibility\'s transition only once it re
   const target = 'agent:main:r-cd-ra-work-revoked-visibility-target-abc';
   const captured = '11111111-1111-4111-8111-111111111111';
   const advanced = '22222222-2222-4222-8222-222222222222';
-  for (const [label, rowAfterMs, gated, releases, driveExtra = {}] of [
+  for (const [label, rowAfterMs, gated, releases, driveExtra = {}, { loseOwner = false } = {}] of [
     ['the capture lands 6 s after the scheduled result', 6_000, true, true],
     ['the capture lands 19 s after it', 19_000, true, true],
     ['the capture is already there', 0, true, true],
@@ -2066,6 +2066,8 @@ test('the control releases work-revoked-visibility\'s transition only once it re
     ['a drive that recorded a refusal', 6_000, false, false, { refusals: ['websocket error'] }],
     ['a drive whose preflight failed', 6_000, false, false, { preflight: { ok: false } }],
     ['a drive that handed nothing over', 6_000, false, false, { handoff: undefined }],
+    // Another process takes the port once the capture is there: read in time, never released.
+    ['a gateway lost when the capture is read', 6_000, true, false, {}, { loseOwner: true }],
   ]) {
     const fixture = proofGwFixture();
     try {
@@ -2073,16 +2075,18 @@ test('the control releases work-revoked-visibility\'s transition only once it re
       let scheduledAt = null;
       let transitionAt = null;
       const phases = [];
+      const stoppedAt = [];
+      const rowThere = () => scheduledAt !== null && rowAfterMs !== null && clock >= scheduledAt + rowAfterMs;
       // One clock for the sampler and the control's wait: every sleep, whoever sleeps, moves it 50 ms.
       const { platform } = fakePlatform(fixture, {
         now: () => clock,
         sleep: async () => { clock += 50; },
-        listenerOwner: () => ({ pid: 4242, startTicks: 77 }),
-        spawnGateway: () => ({ pid: 4242, lines: [], exited: new Promise(() => {}), signal: () => {} }),
+        listenerOwner: () => (loseOwner && rowThere() ? { pid: 5151, startTicks: 99 } : { pid: 4242, startTicks: 77 }),
+        spawnGateway: () => ({ pid: 4242, lines: [], exited: new Promise(() => {}), signal: (sig) => { stoppedAt.push([sig, clock]); } }),
         // The session's row first appears `rowAfterMs` after the scheduled result; the transition advances it.
         readAuthorityTable: () => ({
           state: 'read',
-          rows: scheduledAt !== null && rowAfterMs !== null && clock >= scheduledAt + rowAfterMs ? [{ session_key: target, epoch: transitionAt === null ? captured : advanced }] : [],
+          rows: rowThere() ? [{ session_key: target, epoch: transitionAt === null ? captured : advanced }] : [],
         }),
         runK6: async ({ env }) => {
           const phase = env.OPENCLAW_RCD_RA_PHASE;
@@ -2113,7 +2117,18 @@ test('the control releases work-revoked-visibility\'s transition only once it re
       assert.deepEqual(phases, releases ? ['drive', 'transition'] : ['drive'], label);
       const receipt = JSON.parse(readFileSync(path.join(fixture.home, 'artifacts', WORK_CASE, 'case-receipt.json'), 'utf8'));
       const deadline = driveExtra.dispatch ? null : scheduledAt + 20_000;
-      if (!gated) {
+      // The gateway is stopped once the case is done. A case whose gate released nothing, its result
+      // carrying a delay, is held until its kept wake was due and parked (the result, plus 30 s, plus
+      // the 15 s park); no other case is.
+      const held = gated && !releases && !driveExtra.dispatch;
+      const stopped = stoppedAt.find(([sig]) => sig === 'SIGTERM')?.[1];
+      assert.ok(held ? stopped >= scheduledAt + 45_000 : stopped < scheduledAt + 30_000, `${label}: stopped at +${stopped - scheduledAt} ms`);
+      if (loseOwner) {
+        assert.deepEqual([receipt.captureGate.releasedAtMs, receipt.transition.requestedAtMs], [null, null], `${label}: nothing released`);
+        assert.ok(receipt.captureGate.capturedByMs !== null, `${label}: the capture was read`);
+        assert.equal(receipt.grade.verdict, 'MISSING-candidate', label);
+        assert.ok(receipt.grade.missing.includes('gateway-not-harness-owned'), `${label}: ${receipt.grade.missing}`);
+      } else if (!gated) {
         assert.equal(receipt.captureGate, null, `${label}: no gate ran`);
         assert.ok(!receipt.grade.missing.includes('capture-unread-before-transition'), `${label}: ${receipt.grade.missing}`);
       } else if (releases) {
@@ -2596,7 +2611,7 @@ test('the capture gate\'s deadline: the scheduled result\'s own time and delay, 
 test('the control\'s capture read: the first readable sample holding the row, by the deadline, and never with no deadline', async () => {
   const key = 'agent:main:r-cd-ra-work-revoked-visibility-target-abc';
   const epoch = '11111111-1111-4111-8111-111111111111';
-  const run = async (rowAtMs, { deadlineAtMs = 20_000, unreadable = [] } = {}) => {
+  const run = async (rowAtMs, { deadlineAtMs = 20_000, unreadable = [], owned = true } = {}) => {
     let clock = 0;
     let reads = 0;
     const timeline = [];
@@ -2608,27 +2623,40 @@ test('the control\'s capture read: the first readable sample holding the row, by
     };
     sample();
     const platform = { now: () => { reads += 1; return clock; }, sleep: async (ms) => { clock += ms; sample(); } };
-    const read = await controlNs.awaitWorkCapture({ timeline, key, sinceMs: 0, deadlineAtMs, platform });
-    return { read, clock, reads };
+    let releaseAsked = 0;
+    const release = () => {
+      releaseAsked += 1;
+      return owned;
+    };
+    const read = await controlNs.awaitWorkCapture({ timeline, key, sinceMs: 0, deadlineAtMs, platform, release });
+    return { read, clock, reads, releaseAsked };
   };
   assert.equal(typeof controlNs.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
+  // The release is decided at the read that found the capture, so never after the deadline.
   const seen = await run(6_000);
-  assert.deepEqual(seen.read, { deadlineAtMs: 20_000, captured: sha256Hex(epoch), capturedAfterMs: 5_500, capturedByMs: 6_000, inTime: true });
+  assert.deepEqual(seen.read, { deadlineAtMs: 20_000, captured: sha256Hex(epoch), capturedAfterMs: 5_500, capturedByMs: 6_000, inTime: true, releasedAtMs: 6_000 });
   assert.ok(seen.clock >= 6_000 && seen.clock < 6_500, `read once the row was there: ${seen.clock}`);
+  assert.equal(seen.releaseAsked, 1);
+  assert.equal((await run(20_000)).read.releasedAtMs, 20_000, 'a read at the deadline itself still releases');
   // An unreadable sample bounds nothing: the readable one before it does.
   assert.equal((await run(6_000, { unreadable: [5_500] })).read.capturedAfterMs, 5_000);
+  // A gateway the control no longer owns: read in time, released never.
+  const unowned = await run(6_000, { owned: false });
+  assert.deepEqual([unowned.read.inTime, unowned.read.releasedAtMs, unowned.releaseAsked], [true, null, 1]);
   // Never there: the read ends at the first check past the deadline, in time for nothing.
   const never = await run(null);
-  assert.deepEqual(never.read, { deadlineAtMs: 20_000, captured: null, capturedAfterMs: null, capturedByMs: null, inTime: false });
+  assert.deepEqual(never.read, { deadlineAtMs: 20_000, captured: null, capturedAfterMs: null, capturedByMs: null, inTime: false, releasedAtMs: null });
   assert.ok(never.clock > 20_000 && never.clock <= 20_250, `${never.clock}`);
+  assert.equal(never.releaseAsked, 0, 'out of time, the release is never asked');
   // There only after the deadline: not in time.
-  assert.equal((await run(20_500)).read.inTime, false);
+  const late = await run(20_500);
+  assert.deepEqual([late.read.inTime, late.read.releasedAtMs, late.releaseAsked], [false, null, 0]);
   // No deadline: one read, never in time, even with the row already there.
   const unbounded = await run(0, { deadlineAtMs: null });
-  assert.deepEqual([unbounded.reads, unbounded.read.inTime, unbounded.read.capturedByMs, unbounded.read.deadlineAtMs], [1, false, 0, null]);
+  assert.deepEqual([unbounded.reads, unbounded.read.inTime, unbounded.read.releasedAtMs, unbounded.read.capturedByMs, unbounded.read.deadlineAtMs, unbounded.releaseAsked], [1, false, null, 0, null, 0]);
   // A deadline already past: one read, never in time.
   const past = await run(0, { deadlineAtMs: -1 });
-  assert.deepEqual([past.reads, past.read.inTime], [1, false]);
+  assert.deepEqual([past.reads, past.read.inTime, past.read.releasedAtMs], [1, false, null]);
 });
 
 /** j12′'s refused-work line as the console prints it (return-refusal.ts:38-46). */

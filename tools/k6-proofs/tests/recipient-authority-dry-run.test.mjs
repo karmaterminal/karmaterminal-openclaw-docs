@@ -281,7 +281,7 @@ const WORK_ADVANCED_EPOCH = '22222222-2222-4222-8222-222222222222';
 
 /**
  * work-revoked-visibility's capture gate as the control runs it (run-recipient-authority-row.mjs,
- * awaitWorkCapture, then the release), on a scripted store: the control's sampler reads the
+ * awaitWorkCapture: the read and the release decided at it), on a scripted store: the control's sampler reads the
  * session_recipient_authority table every 500 ms from the case's start, and the session's row first
  * appears `captureAfterMs` after the scenario read the `scheduled` result (null: never). The control's
  * clock starts where the drive ended and moves only while it waits. Returns the gate as the record
@@ -311,15 +311,15 @@ async function gateCapture(drive, { captureAfterMs = 6_000, startAt }) {
       sample();
     },
   };
-  const read = await control.awaitWorkCapture({
+  // The control's own read and release decision; the gateway is the control's own throughout.
+  const captureGate = await control.awaitWorkCapture({
     timeline,
     key,
     sinceMs: CLOCK_START,
     deadlineAtMs: rowLib.rraWorkCaptureDeadline({ capturedAtMs, resultDelaySeconds: drive.dispatch.result_delay_seconds }),
     platform,
+    release: () => true,
   });
-  // As the control releases: only a capture read by the deadline, at its own clock.
-  const captureGate = { ...read, releasedAtMs: read.inTime ? clock : null };
   return { captureGate, timeline, now: clock, reads };
 }
 

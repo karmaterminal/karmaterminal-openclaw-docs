@@ -454,18 +454,19 @@ export function rraCaseSpec(caseId) {
  * and the case read MISSING `capture-not-before-transition`. The control's fixed wait after the
  * `scheduled` result could not force the order, because the election captures only after the turn's
  * attempt. So the drive now ends at the `scheduled` result. The control reads the store until the
- * capture is there (the first readable sample holding the row, as the grade reads it), and only then
- * runs the transition phase. It waits at most until this deadline; with no capture by then it sends no
- * transition, and the case is MISSING `capture-unread-before-transition`, never FAIL.
+ * capture is there (the first readable sample holding the row, as the grade reads it; until the
+ * transition is sent only the capture writes that row), and only then runs the transition phase. It
+ * waits at most until this deadline, and decides the release at the read itself; with no capture by
+ * then it sends no transition, and the case is MISSING `capture-unread-before-transition`, never FAIL.
  */
 export const RRA_WORK_CAPTURE_MARGIN_SECONDS = 10;
 export const RRA_WORK_CAPTURE_MARGIN_BYTES =
-  'the wake is due no earlier than the election plus its delay: work-dispatch.ts:662-668 captures, then takes electedAt and dueAt = electedAt + delayMs (delayMs = clampDelayMs, :647); an anchored wake is due at its anchor plus delayMs, an overdue one at its anchor, never before electedAt + delayMs (work-store.ts:335-345); the work timer fires at dueAt (work-dispatch.ts:169-199). ' +
+  'the wake is due no earlier than the election plus its delay: work-dispatch.ts:662-668 captures, then takes electedAt and dueAt = electedAt + delayMs (delayMs = clampDelayMs, :647); an anchored wake is due at its anchor plus delayMs, an overdue one at its anchor, never before electedAt + delayMs (work-store.ts:335-345); the work timer is armed at the session\'s soonest due record (work-dispatch.ts:733 -> :423-431), here the election\'s only one, and fires then (work-dispatch.ts:169-199). ' +
   'The margin holds back: 1 s, because the tool reports Math.round of that delay in seconds (continue-work-tool.ts:99-100), so it may be 0.5 s longer than delayMs, and the grade already holds back a whole second (transition-not-before-wake); ' +
   '2.5 s, because capturedAtMs is the scenario reading the scheduled toolResult, up to one chat.history poll (OPENCLAW_RCD_RA_POLL_MS, 2000 ms by default) and its read after the result was written, and the election may capture right after it; ' +
   '0.5 s, because the store is sampled every 500 ms and the grade bounds the capture from below only by the sample before it (capturedAfterMs); ' +
   '6 s for the transition phase itself to settle: a k6 start, its connect, the pre-transition chat.history read, 250 ms, then the RPC, whose session.visibility.set took 2168 ms in rra-eaa61a458beaf344 (1793839280186 to 1793839282354). ' +
-  'With the default 30 s delay the control waits at most 20 s after the scheduled result; in rra-eaa61a458beaf344 the capture was first readable 10.252 s after it (1793839272167 to 1793839282419)';
+  'With the default 30 s delay the control waits at most 20 s after the scheduled result. How late a capture comes is not yet measured: in rra-eaa61a458beaf344 the session\'s row was first readable 10.252 s after the result (1793839272167 to 1793839282419), but only 65 ms after the narrowing settled, and the narrowing\'s own advance inserts the row when it is absent (session-accessor.sqlite-entry-mutation.ts:119-136 -> session-accessor.sqlite-recipient-authority.ts:17-37), so that run shows only that the election had not captured by capturedAfterMs, 9.661 s after the result. The next run\'s captureGate is the first measurement; a capture later than the window reads MISSING, and a longer OPENCLAW_RCD_RA_DELAY_SECONDS widens it';
 
 /**
  * The latest time the control may release the `before-wake` case's transition:

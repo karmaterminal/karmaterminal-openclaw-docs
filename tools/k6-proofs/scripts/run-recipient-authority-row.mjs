@@ -31,7 +31,8 @@
  *      (🌊's ruling, room msg 1567623059727458526). With no witness the transition is never sent.
  *      The continue_work case's drive ends at its `scheduled` result; the control reads the store
  *      until the election's capture is there, at most until rraWorkCaptureDeadline, and only then runs
- *      its transition phase. With no capture by then the transition is never sent;
+ *      its transition phase. With no capture by then the transition is never sent, and the case is
+ *      held until its kept wake was due and parked;
  *   4. for replay-restart, after the transition phase: gateway.restart.request, wait for the old process to
  *      exit 0, consume its restart handoff (`gateway restart-handoff consume --expected-pid`), start
  *      the replacement and run the observe phase;
@@ -113,6 +114,8 @@ const TIMING_ENV = ['OPENCLAW_RCD_RA_DELAY_SECONDS', 'OPENCLAW_RCD_RA_POLL_MS', 
 const WITNESS_WAIT_MS = 120_000;
 const WITNESS_POLL_MS = 250;
 const CAPTURE_POLL_MS = 250;
+// The scenario's OPENCLAW_RCD_RA_PARK_MS default.
+const PARK_MS = 15_000;
 const READY_TIMEOUT_MS = 120_000;
 // Live generations of the current run, so an interrupted CLI can still stop what it started.
 const liveGenerations = new Set();
@@ -598,11 +601,14 @@ function captureFromStore(timeline, key) {
 /**
  * The continue_work case's capture gate: read the sampler's store timeline (samples from `sinceMs`)
  * until the session's capture is there, as captureFromStore reads it, at most until `deadlineAtMs`
- * (rraWorkCaptureDeadline). Returns { deadlineAtMs, captured, capturedAfterMs, capturedByMs, inTime }:
- * the capture as last read (hashed), and whether it was read at a check no later than the deadline.
- * A null deadline is checked once and is never in time.
+ * (rraWorkCaptureDeadline), and decide the release at that same read. Until the transition is sent
+ * only the capture writes the session's row, so the row read here is the election's capture.
+ * Returns { deadlineAtMs, captured, capturedAfterMs, capturedByMs, inTime, releasedAtMs }: the
+ * capture as last read (hashed); whether it was read at a check no later than the deadline; and that
+ * check's time when `release()` (the control's ownership check) allowed the transition, else null.
+ * So a release is never later than the deadline. A null deadline is checked once and is never in time.
  */
-export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, platform, pollMs = CAPTURE_POLL_MS }) {
+export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, platform, release = () => true, pollMs = CAPTURE_POLL_MS }) {
   const deadline = Number.isFinite(deadlineAtMs) ? deadlineAtMs : null;
   for (;;) {
     const checkedAtMs = platform.now();
@@ -610,10 +616,30 @@ export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, p
     const open = deadline !== null && checkedAtMs <= deadline;
     const read = capture.byMs !== null && capture.captured !== null;
     if (read || !open) {
-      return { deadlineAtMs: deadline, captured: capture.captured, capturedAfterMs: capture.afterMs, capturedByMs: capture.byMs, inTime: read && open };
+      const inTime = read && open;
+      return {
+        deadlineAtMs: deadline,
+        captured: capture.captured,
+        capturedAfterMs: capture.afterMs,
+        capturedByMs: capture.byMs,
+        inTime,
+        releasedAtMs: inTime && release() ? checkedAtMs : null,
+      };
     }
     await platform.sleep(pollMs);
   }
+}
+
+/**
+ * Where a continue_work case whose transition was never sent is held until: its kept wake due (the
+ * `scheduled` result plus its delay) and parked, the span its transition phase would have waited.
+ * Null when the result carries no time or delay.
+ */
+function workWakeParkedBy(dispatch, timing) {
+  const at = dispatch?.observed_at_ms;
+  const delay = dispatch?.result_delay_seconds;
+  if (!Number.isFinite(at) || !Number.isFinite(delay)) return null;
+  return at + delay * 1000 + Number(timing?.OPENCLAW_RCD_RA_PARK_MS ?? PARK_MS);
 }
 
 /** The continue_work case's epochs: its capture from the store, then as for every case. */
@@ -1031,19 +1057,22 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
       // the transition. No capture by then, a drive that recorded a refusal or failed its preflight,
       // or a gateway the control no longer owns, and the transition is never sent.
       if (spec.timing === 'before-wake' && evidence?.handoff?.ready_for_capture && driveClean) {
-        const read = await awaitWorkCapture({
+        captureGate = await awaitWorkCapture({
           timeline,
           key: evidence.keys?.target,
           sinceMs: caseStart,
           deadlineAtMs: rraWorkCaptureDeadline({ capturedAtMs: evidence.dispatch?.observed_at_ms, resultDelaySeconds: evidence.dispatch?.result_delay_seconds }),
           platform,
+          release: () => verifyOwnership(current, target, platform),
         });
-        captureGate = { ...read, releasedAtMs: null };
-        // The release itself is held to the deadline too, not only the read before it.
-        const releaseAtMs = platform.now();
-        if (read.inTime && releaseAtMs <= read.deadlineAtMs && verifyOwnership(current, target, platform)) {
-          captureGate.releasedAtMs = releaseAtMs;
+        if (captureGate.releasedAtMs !== null) {
           transitionEvidence = await runScenario({ caseId, phase: 'transition', state: evidence, runId, target, options, privateDir, platform });
+        } else {
+          // Nothing released: a wake the election did capture is still current and may run its turn.
+          // Hold the case until it was due and parked, so that turn lands in this case's gateway log,
+          // never in the next case's.
+          const parkedBy = workWakeParkedBy(evidence.dispatch, options.timing);
+          while (parkedBy !== null && platform.now() < parkedBy) await platform.sleep(CAPTURE_POLL_MS);
         }
       }
       if (spec.timing === 'parked' && evidence?.handoff?.ready_for_witness && driveClean) {

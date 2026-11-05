@@ -535,9 +535,15 @@ session's authority row came after the transition request. The control's own com
 (`run-recipient-authority-row.mjs`, `captureFromStore`) says why that can happen: "Its `scheduled`
 toolResult is written before the turn schedules the election and captures the epoch". The election
 captures only after the turn's attempt (`agent-runner-continuation-signal.ts:467` ->
-`work-dispatch.ts:662-665`). In this run the capture was first readable 10.252 s after the scenario
-read the `scheduled` result, and the scenario had sent the narrowing after a fixed 8 s
+`work-dispatch.ts:662-665`), and the scenario sent the narrowing after a fixed 8 s
 (`_CAPTURE_WAIT_MS`). So the transition raced the capture.
+
+The run doesn't show when the capture came. The session's row was first readable 10.252 s after
+the scenario read the `scheduled` result, but only 65 ms after the narrowing settled. The
+narrowing's own advance inserts the row when it is absent (`session-accessor.sqlite-entry-mutation.ts:119-136`
+-> `session-accessor.sqlite-recipient-authority.ts:17-37`, an insert that updates on conflict), so
+that row may be the narrowing's. All the run shows is that the election had not captured by
+`capturedAfterMs`, 9.661 s after the result.
 
 The grade's rule was right, and it stays: with the transition first, the case can never show the
 epoch's advance. It also can't tell a capture that landed late (a race) from an election that never
@@ -553,8 +559,10 @@ for a parked case's witness:
    capture is the first readable sample holding the session's authority row, as `captureFromStore`
    defines it, so it is the same capture the grade reads.
 3. It waits at most until `capturedAtMs + (resultDelaySeconds − 10) × 1000` (`rraWorkCaptureDeadline`),
-   both values from the case's own `scheduled` result. The release itself is held to that deadline
-   too.
+   both values from the case's own `scheduled` result. It decides the release at the read that finds
+   the capture, so a release is never later than the deadline, and never on a gateway it no longer
+   owns. Until the transition is sent, only the capture writes the session's row, so the row it reads
+   is the election's capture.
 4. Only then does it start the transition phase: the pre-transition read, the narrowing, and the
    probe after the delay and `_PARK_MS`.
 
@@ -562,7 +570,10 @@ The receipt records the gate as `captureGate`: `deadlineAtMs`, the captured epoc
 `capturedAfterMs`, `capturedByMs` and `releasedAtMs`. If no capture is readable by the deadline, no
 transition is sent. The same holds for a result with no delay, which sets no deadline. The case is
 then MISSING `capture-unread-before-transition`, never FAIL. It keeps its other receipts: the
-accepted election, its delay, the electing run.
+accepted election, its delay, the electing run. The control then holds the case until the kept wake
+was due and parked (the result plus its delay plus `_PARK_MS`), the span the transition phase would
+have waited. A wake the election did capture is still current and may run its turn, and that turn
+then lands in this case's gateway log, not in the next case's.
 
 **The margin, from the bytes.** The wake is due no earlier than the election plus its delay:
 
@@ -570,7 +581,8 @@ accepted election, its delay, the electing run.
   where `delayMs` is `clampDelayMs` (`:647`).
 - An anchored wake is due at its anchor plus `delayMs`, and an overdue one at its anchor, never
   before `electedAt + delayMs` (`work-store.ts:335-345`).
-- The work timer fires at `dueAt` (`work-dispatch.ts:169-199`).
+- The work timer is armed at the session's soonest due record (`work-dispatch.ts:733` ->
+  `:423-431`), here the election's only one, and fires then (`work-dispatch.ts:169-199`).
 
 The 10 s margin (`RRA_WORK_CAPTURE_MARGIN_SECONDS`, bytes in `RRA_WORK_CAPTURE_MARGIN_BYTES`) holds back:
 
@@ -581,9 +593,12 @@ The 10 s margin (`RRA_WORK_CAPTURE_MARGIN_SECONDS`, bytes in `RRA_WORK_CAPTURE_M
 | 0.5 s | The store is sampled every 500 ms, and the grade bounds the capture from below only by the sample before it (`capturedAfterMs`) |
 | 6 s | The transition phase has to settle: a k6 start, its connect, the pre-transition `chat.history` read, 250 ms, then the RPC. In `rra-eaa61a458beaf344` the RPC alone, `session.visibility.set`, took 2168 ms (`1793839280186` to `1793839282354`) |
 
-With the default 30 s delay, the control waits at most 20 s after the `scheduled` result. The run's
-capture was first readable 10.252 s after it (`1793839272167` to `1793839282419`).
+With the default 30 s delay, the control waits at most 20 s after the `scheduled` result. How late a
+capture comes is not measured yet: the run's 10.252 s row may be the narrowing's own (above), so the
+next run's `captureGate` is the first measurement.
 
+- A capture later than the window reads MISSING `capture-unread-before-transition`. A longer
+  `_DELAY_SECONDS` widens the window: 60 s gives 50 s.
 - A delay of 10 s or less leaves no window.
 - A raised `_POLL_MS` uses up the transition budget. A transition that then settles after the
   earliest wake is MISSING `transition-not-before-wake`, never FAIL.
@@ -603,7 +618,8 @@ release never stands in for the store's order.
 
 **Which cases.** Only `work-revoked-visibility` reads its capture from the store. A grep of
 `captureFromStore`, `workEpochs` and `capture-not-before-transition` finds only its paths: the
-control's `workEpochs`, and the lib's `gradeWorkRefusalCase`. Every delegate case's binding is
+control's `workEpochs` (for `tool: 'continue_work'`) and now `awaitWorkCapture`, and the lib's
+`gradeWorkRefusalCase`. Every delegate case's binding is
 captured before its `scheduled` result (`continue-delegate-tool.ts:424-449` ->
 `delegate-flow-store.ts:432-452`), so that result already proves its capture came first, and no other
 case is gated.

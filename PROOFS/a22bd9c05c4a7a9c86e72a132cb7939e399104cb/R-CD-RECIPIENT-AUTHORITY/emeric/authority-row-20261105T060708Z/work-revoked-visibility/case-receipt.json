@@ -1,0 +1,138 @@
+{
+  "schema": "openclaw.k6.recipient-authority-case.v1",
+  "row": "R-CD-RECIPIENT-AUTHORITY",
+  "case": "work-revoked-visibility",
+  "runId": "rra-e0b97a595e89973b",
+  "candidateSha": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+  "docsSha": "6e1da8eb395b181d668b34ffa5611d714360019f",
+  "gates": {
+    "candidatePinned": true,
+    "buildInfoCommit": "a22bd9c05c4a7a9c86e72a132cb7939e399104cb",
+    "stateIsolated": true,
+    "modelSignIn": true,
+    "crossSessionTargetingEnabled": true,
+    "gatewayStartedByHarness": true
+  },
+  "gateway": {
+    "generations": [
+      {
+        "index": 0,
+        "startedByHarness": true,
+        "ownedListenerThroughout": true
+      }
+    ],
+    "restartedAtMs": null
+  },
+  "scenario": {
+    "controlRunId": "rra-e0b97a595e89973b",
+    "transitionRunId": "rra-e0b97a595e89973b",
+    "refusals": [],
+    "preflightOk": true
+  },
+  "keys": {
+    "parent": null,
+    "target": "031d0f5c0ddb131369ce0770ad1098d06c377b52370dedc4a5592af1e3e01902",
+    "ops": null
+  },
+  "dispatch": {
+    "accepted": true,
+    "status": "scheduled",
+    "capturedAtMs": 1793860533426,
+    "reasonHash": "7bc555956e81e111",
+    "reasonLength": 196,
+    "delegateMode": null,
+    "resultMode": null,
+    "resultDelaySeconds": 30,
+    "otherDelegateCalls": 0,
+    "otherWorkCalls": 0
+  },
+  "child": {
+    "spawned": null,
+    "bound": false,
+    "done": false
+  },
+  "target": {
+    "primed": true,
+    "probeRan": true,
+    "probeSentAtMs": 1793860587589,
+    "probeTextSha256": "3cacb24184f3d7abfc19e46f3f238cac57545f2bcda6f8af58ad20a677866404",
+    "probeReplied": true,
+    "ackRuns": 0,
+    "wakeAckRuns": 0,
+    "probeAckRows": 0,
+    "primingAckRows": 0,
+    "uncreditedAckRows": 0,
+    "foreignRuns": 0,
+    "unattributedAssistantRows": 0,
+    "returnMarkerRows": 0,
+    "adoptedDeliveryRows": 0
+  },
+  "parent": {
+    "ackRows": null
+  },
+  "ack": null,
+  "preTransition": {
+    "ackRuns": 0,
+    "foreignRuns": 0,
+    "adoptedDeliveryRows": 0
+  },
+  "transition": {
+    "method": "session.visibility.set",
+    "ok": true,
+    "requestedAtMs": 1793860542575,
+    "settledAtMs": 1793860542587
+  },
+  "park": {
+    "deliveredToTargetAtMs": null,
+    "deliveredFromChildAtMs": null
+  },
+  "witness": null,
+  "captureGate": {
+    "deadlineAtMs": 1793860553426,
+    "captured": "ada64f568d6e772a0f54d56c67132cde054cd9aa89fa143e27b9188ae06751b8",
+    "capturedAfterMs": 1793860541753,
+    "capturedByMs": 1793860542259,
+    "releasedAtMs": 1793860542266,
+    "heldUntilMs": null
+  },
+  "routing": null,
+  "sweep": null,
+  "epochs": {
+    "captured": "ada64f568d6e772a0f54d56c67132cde054cd9aa89fa143e27b9188ae06751b8",
+    "capturedAfterMs": 1793860541753,
+    "capturedByMs": 1793860542259,
+    "afterTransition": "492dffe3ffc0cf9bb604b3c2302a43f33d4c2b7d4c352e2a2c07d6736c208450",
+    "final": "492dffe3ffc0cf9bb604b3c2302a43f33d4c2b7d4c352e2a2c07d6736c208450"
+  },
+  "reason": {
+    "kind": "work-refused",
+    "stage": "wake",
+    "stages": [
+      "wake"
+    ],
+    "reasonTexts": [
+      "recipient-authority-changed"
+    ],
+    "observedAtMs": 1793860572232,
+    "generation": 0,
+    "flowIdHash": "bd66c53928e0d17ead998d3cbaae47dafe9e4837839fb72494ab158dc9287add",
+    "distinctFlowIds": 1,
+    "lines": 1
+  },
+  "config": null,
+  "trace": null,
+  "cleanup": {
+    "gatewayStopped": true,
+    "residue": false
+  },
+  "grade": {
+    "verdict": "PASS-candidate",
+    "missing": [],
+    "contradictions": [],
+    "partial": []
+  },
+  "integrity": {
+    "algorithm": "hmac-sha256-proof-observer-key-v1",
+    "signature": "1425336e87060e374458f933a704c63b530778f9a0994f340621782b655c6dcf"
+  }
+}

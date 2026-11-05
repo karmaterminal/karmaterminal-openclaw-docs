@@ -705,7 +705,7 @@ The two files at `93a93786`: the dry run 35 of 47, the unit file 45 of 62. Every
 from the work probe:
 
 - the work case's fixture names `3cacb241…`, which that lib does not know;
-- the registration test reads this head's docs;
+- the registration test expects this head's status line, which those docs do not have;
 - the scenario-source pin expects `rraCaseProbe`;
 - the work probe's own test needs `rraWorkProbeText`, which that lib does not have.
 
@@ -882,7 +882,7 @@ from.
 |---|---|---|---|
 | (o1) capture in time | the capture lands 1, 6, 12 or 19 s after the `scheduled` result. The drive narrows nothing and hands over. The control reads the store until the row is there and releases no earlier. The transition phase narrows after `capturedByMs`: PASS | GREEN | RED: the drive sent `session.visibility.set` itself, with no handoff and no gate |
 | (o2) no capture | no capture ever, or one only after the deadline: no transition is sent, MISSING `capture-unread-before-transition`, never FAIL. The election, its delay and the electing run are kept. A result with no delay: one read, nothing released | GREEN | RED: the drive sent the transition whatever the store held |
-| (o3) the run's shape | `rra-eaa61a458beaf344`'s receipt times, assembled by the control and graded: MISSING with `capture-not-before-transition`, `transition-did-not-advance-epoch`, `refusal-reason-not-observed` and `probe-turn-unobserved`, no contradiction. A gate that claims a release changes nothing. Since the work probe, also `probe-text-unbound` (it named `509c3feb…`); named by the work probe's hash, exactly the four | GREEN | GREEN: the oracle is unchanged |
+| (o3) the run's shape | `rra-eaa61a458beaf344`'s receipt times, assembled by the control and graded: MISSING with `capture-not-before-transition`, `transition-did-not-advance-epoch`, `refusal-reason-not-observed` and `probe-turn-unobserved`, no contradiction. A gate that claims a release changes nothing. Since the work probe, also `probe-text-unbound` (it named `509c3feb…`); named by the work probe's hash, exactly the four | GREEN | GREEN when the capture gate landed: the oracle is unchanged. This head's (o3) is RED there on `probe-text-unbound` alone, which that lib did not know: there it reads exactly the four |
 | (o4) wake turn | the gated transition, then a wake turn that ran, or one that also elected again: FAIL `target-woken` | GREEN | RED: no gate. The FAIL itself was already graded there |
 
 ## The fresh 13's misses at `2907e656`

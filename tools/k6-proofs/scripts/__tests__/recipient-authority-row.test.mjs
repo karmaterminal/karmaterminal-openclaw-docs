@@ -2709,7 +2709,7 @@ test('work-revoked-visibility: bound to its own probe, the shared, "this turn" a
 // sealed through 93a93786 (its probe the shared one, 509c3feb…, and no count of the reason's marker)
 // grades here as it graded there but for the probe's hash, which 🌊's ruling (a) changed: named by the
 // work probe's hash, exactly as there; as sealed, with probe-text-unbound added and nothing else. The
-// expected grades are 93a93786's own, read from its lib.
+// expected grades are written out here; each is what 93a93786's lib gives that receipt as sealed.
 test('work-revoked-visibility: a receipt sealed through 93a93786 grades as it did there but for the probe\'s hash: no new transcript-not-read, no new FAIL', () => {
   const sealedAt93 = (fn = () => {}) => mutate(completeRecord(WORK_CASE), (r) => {
     r.target.probeTextSha256 = RRA_PROBE_TEXT_SHA256;

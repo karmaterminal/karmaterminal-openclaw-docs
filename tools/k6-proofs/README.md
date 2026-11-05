@@ -826,6 +826,7 @@ true at `2273ef64d5`.
 | R-CD-MODEL-TOKEN | `r-cd-model-token` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
 | R-CD-MODEL-TOOL | `r-cd-model-tool` | websocket/typed-tool | PASS on authoritative requested/observed match; mismatch FAIL; unavailable metadata PARTIAL |
 | R-CD-RETURN-COVENANT-AUTHORITY | `run-return-covenant-restart-control.mjs` | disposable-gateway restart/read-only | PASS-candidate only with the full receipt chain; manual-only restart control on a stopped proof-gw gateway, review required before fold |
+| R-CD-RECIPIENT-AUTHORITY | `run-recipient-authority-row.mjs` | websocket/typed-tool (disposable gateway at the merged j12′ a22bd9c05c) | work-revoked-visibility has its own unconditional probe; grading unchanged; owner fires a fresh whole 13 after 🌿's review. At `a22bd9c05c` (re-pinned; `2907e656` refused): 🕯's whole 13 `rra-3dd1c2a556ae087f` regraded 12 PASS, 1 MISSING: `work-revoked-visibility` proved its product claims but left its probe unanswered, so 🌊's ruling (a) (room msg 1567736961190596741) gives it its own hash-bound probe, `Reply exactly PROBE-OK <probeNonce>.` (SHA-256 `3cacb241…`), every other case keeping the shared conditional probe and `509c3feb…`. 🕯's whole 13 `rra-eaa61a458beaf344` before it graded MISSING; its `work-revoked-visibility` transition came before its capture, so the control now reads the election's capture in the store before it sends the transition, at most until `capturedAtMs + (resultDelaySeconds − 10 s)` (none by then: no transition, MISSING `capture-unread-before-transition`). At `2907e656`: 11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61` (🌊's room msg 1567623059727458526: a parked case's transition sent only once the control witnessed its return's queued copy, the early-enqueue ordering pinned apart as a dry-run case; `allowed`'s probe-mediated fallback only after a woken run with no ack; 🌊's room msg 1567656724549075047: the probe's condition the target's context, as the priming's is); `663fafdc` was not a gate-3 PASS. MISSING until one run's thirteen cases grade, PASS-candidate only when every case's signed receipt does; manual-only, the control starts and owns an isolated proof-gw gateway, review required before fold |
 | R-CD-RETURN-OVERLAP | `r-cd-return-overlap` | offline/read-only | PASS-candidate; static committed-packet validator, no fresh gateway behavior |
 | R-CD-SILENT | `r-cd-silent` | websocket/typed-tool | PASS-candidate; runnable candidate requiring row review |
 | R-CD-TOKEN | `r-cd-token-bracket-delegate` | websocket/bracket-token | PASS-candidate; runnable candidate requiring row review |
@@ -914,6 +915,71 @@ grade non-PASS with `negativeControl.holds: true`. The fallback control's restor
 is old-process restoration, never fresh-successor proof. Raw process output stays in
 `<artifact-dir>.private`, which is never published. See
 [`docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md`](docs/R-CD-RETURN-COVENANT-RESTART-CONTROL.md).
+
+### R-CD-RECIPIENT-AUTHORITY live recipient-authority row at j12′
+
+🌊's rulings (room msgs 1567077062139838485 and 1567104742604406896, 2026-11-03; docs#536): a live,
+isolated-gateway row, separate from the restart control above and from the fixture matrix, pinned to
+the merged j12′, the explicit-refusal successor with the delegate dispatch grant and the incognito
+fanout refusal (`a22bd9c05c4a7a9c86e72a132cb7939e399104cb`, gate 3 at the merged head; j12
+`352f56029dc9` is the named baseline only, the refused chain `e9dc1c31` the row's former interim pin,
+`1ab5a73e`, the merged head before the grant, a former pin, and `2907e656`, the grant's head, the pin
+before this one; 🕯, room msg 1567674372905505001, and 🌊, room msg 1567670360353149102). The control,
+the scenario and the grade refuse every one of them. On one disposable gateway that
+`scripts/run-recipient-authority-row.mjs` starts and owns, twelve cases each drive a real
+`continue_delegate` with `targetSessionKey` from a model turn and change the target's authority
+through a public RPC between dispatch and return. `allowed` and `allowed-across-reset` must be
+adopted and acknowledged exactly once. `allowed-silent`, the control for the refusal cases' absence,
+must be acknowledged exactly once by the primed target in the probe's own run, sent after the router
+delivered its return (🌊's ruling (a), room msg 1567556038281007235: no `sessions.send` row carries
+the product's adoption marker, so the marker is never required). Every delegate case that probes sends the
+same conditional probe (🌊, room msg 1567590902694936678), its condition the target's context, as
+the priming's is (🌊, room msg 1567656724549075047): a target whose context holds the return follows
+its priming and acks, any other replies `PROBE-OK <probeNonce>`, and the probe names neither the ack
+nor the row nonce. A refusal passes on that `PROBE-OK` and no ack, `allowed-silent` on the ack, and
+neither needs both. A receipt whose probe ran names that probe by the text's hash, or the case is
+MISSING (`probe-text-unbound`). `work-revoked-visibility` has no return for that condition to hand
+back, so it is sent its own unconditional probe, `Reply exactly PROBE-OK <probeNonce>.`, bound by its
+own hash (🌊's ruling (a), room msg 1567736961190596741). Its grading is unchanged: the reason's
+`RCDRA-WOKE <nonce>` in that probe's run is not graded (🌊, room msg 1567741018395115581: "A model
+echo of `RCDRA-WOKE` alone is not evidence of adoption."). 🌊's room msg 1567623059727458526 adds two rules. A parked case
+(`revoked-*`, `reassigned`, `replay-restart`) sends its transition only once the control has seen the
+router's `Delivered to` line for its target from its child, the one public witness of the return's
+queued copy: its drive ends at the child's return and its transition runs in a phase of its own, else
+MISSING (`parked-copy-unwitnessed`). A transition that beats the enqueue is refused at `stage=enqueue`;
+that ordering is pinned apart as a dry-run case and never satisfies a revoked case. `allowed` passes
+on one ack in its woken run (direct wake); only when that run has no ack does it send the same
+conditional probe, and exactly one ack in the probe's own run, after the delivered return, is credited
+and labelled `probe-mediated`, never as an ack in the wake turn. No ack on either path is MISSING,
+never FAIL.
+`unauthorized-admission` and `unauthorized-dispatch` must show the cross-session policy refusal.
+`revoked-visibility`, `revoked-membership`, `revoked-owner`, `reassigned`,
+`wake-revoked-visibility`, `wake-reassigned` and `replay-restart` must each show j12′'s
+`[continuation:return-refused]` line for the target at the case's pinned stage (prompt drain, replay
+or enqueue), no `Delivered to` line for the return once its transition settled, and no `TARGET-ACK`
+in the probe run or any later run, wake or final effect. j12's `recipient authority changed` lines never
+count. The thirteenth, `work-revoked-visibility`, elects a `continue_work` wake, which j12′ binds to
+its session's authority, narrows that session's visibility once the election is captured, and must
+show j12′'s `[continuation:work-refused]` line at `stage=wake` and no wake turn or adoption. Its drive
+ends at the `scheduled` result, and the control sends the narrowing only once it has read the
+election's capture in the store, at most until `capturedAtMs + (resultDelaySeconds − 10 s)`; with none
+by then no transition is sent, and the case is MISSING (`capture-unread-before-transition`), never FAIL. Since
+`2907e656` each fired delegate spawns under the k6 operator's bounded dispatch grant, captured at
+election (`delegate-flow-store.ts:443-451`) and restored at dispatch
+(`delegate-dispatch.ts:449-484`), so the k6 connection need not outlive it. That the row's
+shared-token owner client gets a grant is read from the bytes; no product test pins that shape, and
+the row cannot tell a grant spawn from one under its open connection. The grant changes no case's
+stage or oracle, and its revocation, ceiling and expiry are the product's unit pins, not this row's.
+`a22bd9c05c` refuses an incognito requester's `tree`/`all` fanout election at the binding, before any
+record, and keeps incognito memory-store maintenance off the durable state database. No case reaches
+either: every case's sessions are durable and every delegate case elects one explicit target. So no
+case's stage or oracle moves, and both are the product's unit pins, not this row's.
+The control refuses a candidate other than j12′, a non-disposable or live-overlapping target, a
+missing isolated model sign-in, a disabled cross-session policy and any gateway it did not start; the
+live-run guard refuses the manifest (`orchestration-required`). Every case stays MISSING until an
+owner runs it. See [`docs/R-CD-RECIPIENT-AUTHORITY.md`](docs/R-CD-RECIPIENT-AUTHORITY.md) for the
+j12′ path table, each case's stage and the bytes behind it, the cases mapped to ClawSweeper's items
+and the operator procedure.
 
 ### Required preflights: R-CW-5A/6A gate R-CW-5/6
 

@@ -19,6 +19,9 @@ import {
   signRcd2SelectedContextReceipt,
 } from '../../lib/r-cd-2-authority-context.mjs';
 import { publicTempoStatusCode } from '../../lib/public-tempo-trace.mjs';
+import { RRA_CASES, RRA_CASE_IDS, RRA_ROW } from '../../lib/recipient-authority-row.mjs';
+import { renderRowTaskTemplate } from '../../lib/row-child-correlation.mjs';
+import { traceContract } from '../collect-continuation-trace.mjs';
 import { signedSeatReadinessFixture } from './helpers/seat-readiness-fixture.mjs';
 
 const execFileAsync = promisify(execFile);
@@ -2200,5 +2203,96 @@ test('R-CD-2 isolated-gateway receipt validates end to end: collector env name -
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+// R-CD-RECIPIENT-AUTHORITY dispatches silent-wake in some cases and silent in others, declares both
+// in invocation.modes, and records each case's own mode in its evidence. 🕯's run at 2907e656
+// (rra-88e4fd22f0b122a8): the collector refused every silent case against the manifest's default
+// mode, and the owner had to collect them from a hand-edited manifest copy.
+const rraManifestPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../manifests/r-cd-recipient-authority.json');
+const rraFiringCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].expectChild !== false && RRA_CASES[caseId].tool !== 'continue_work');
+
+async function rraCaseRun(caseId, evidenceOverrides = {}) {
+  const manifest = JSON.parse(await readFile(rraManifestPath, 'utf8'));
+  const nonce = 'RCDRA-1800000000000-k6rra0a1';
+  const reason = renderRowTaskTemplate(manifest.invocation.promptTemplate, nonce);
+  const evidence = {
+    row: RRA_ROW,
+    case: caseId,
+    phase: 'drive',
+    nonce,
+    started: '2026-11-04T14:05:00.000Z',
+    ended: '2026-11-04T14:08:00.000Z',
+    dispatch_accepted_at_ms: Date.parse('2026-11-04T14:05:10.000Z'),
+    reason_hash: createHash('sha256').update(reason).digest('hex').slice(0, 16),
+    reason_length: reason.length,
+    delegate_mode: RRA_CASES[caseId].mode,
+    ...evidenceOverrides,
+  };
+  return { manifest, evidence };
+}
+
+test('a row that declares invocation.modes collects each case under its own mode, never the manifest default', async () => {
+  const modes = new Set(rraFiringCases.map((caseId) => RRA_CASES[caseId].mode));
+  assert.deepEqual([...modes].sort(), ['silent', 'silent-wake'], 'the row fires both modes');
+  for (const caseId of rraFiringCases) {
+    const { manifest, evidence } = await rraCaseRun(caseId);
+    const contract = traceContract(manifest, evidence);
+    assert.equal(contract.mode, RRA_CASES[caseId].mode, caseId);
+    assert.equal(contract.fingerprintSource, 'manifest-nonce', caseId);
+  }
+});
+
+test('a row that declares invocation.modes refuses a case mode it does not declare, or none', async () => {
+  const { manifest, evidence } = await rraCaseRun('revoked-visibility');
+  assert.throws(() => traceContract(manifest, { ...evidence, delegate_mode: 'normal' }), /evidence delegate_mode normal is not one of the row's invocation\.modes \(silent-wake, silent\)/);
+  const { delegate_mode: _mode, ...modeless } = evidence;
+  assert.throws(() => traceContract(manifest, modeless), /row declares invocation\.modes, so the evidence must record its own delegate_mode/);
+  assert.throws(() => traceContract(manifest, { ...evidence, delegate_mode: '' }), /must record its own delegate_mode/);
+});
+
+test('a row with one declared mode still refuses evidence of another mode', async () => {
+  const { manifest, evidence } = await rraCaseRun('revoked-visibility');
+  const { modes: _modes, ...single } = manifest.invocation;
+  assert.throws(() => traceContract({ ...manifest, invocation: single }, evidence), /evidence delegate_mode mismatch: expected silent-wake, got silent/);
+  assert.equal(traceContract({ ...manifest, invocation: single }, { ...evidence, delegate_mode: 'silent-wake' }).mode, 'silent-wake');
+});
+
+test('collects a silent R-CD-RECIPIENT-AUTHORITY case from the row manifest as committed', async () => {
+  const traceId = '44444444444444444444444444444444';
+  const { evidence } = await rraCaseRun('revoked-visibility');
+  const dir = await mkdtemp(path.join(os.tmpdir(), 'continuation-trace-rra-'));
+  await writeFile(path.join(dir, 'evidence.jsonl'), `${JSON.stringify(evidence)}\n`);
+  let observedQuery = '';
+  const server = await listen((request, response) => {
+    const url = new URL(request.url, 'http://localhost');
+    response.setHeader('content-type', 'application/json');
+    if (url.pathname === '/api/search') {
+      observedQuery = url.searchParams.get('q') || '';
+      response.end(JSON.stringify({ traces: [{ traceID: traceId }] }));
+      return;
+    }
+    response.end(JSON.stringify(traceFixture({ traceId, reasonHash: evidence.reason_hash, reasonLength: evidence.reason_length, mode: 'silent' })));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script,
+      '--run-dir', dir,
+      '--manifest', rraManifestPath,
+      '--seat', 'emeric',
+      '--tempo-url', server.url,
+      '--timeout-ms', '100',
+      '--poll-ms', '10',
+    ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: '' } });
+    const result = JSON.parse(stdout);
+    const receipt = JSON.parse(await readFile(path.join(dir, result.receiptFile), 'utf8'));
+    assert.equal(result.traceId, traceId);
+    assert.equal(receipt.delegate.mode, 'silent');
+    assert.equal(receipt.reason.hash, evidence.reason_hash);
+    assert.match(observedQuery, /\.delegate\.mode="silent"/);
+  } finally {
+    await server.close();
+    await rm(dir, { recursive: true, force: true });
   }
 });

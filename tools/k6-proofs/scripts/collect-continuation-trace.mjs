@@ -142,7 +142,19 @@ export function traceContract(manifest, evidence) {
     template = manifest.invocation.promptTemplate;
     const manifestMode = manifest.invocation.mode;
     const evidenceMode = evidence.delegate_mode;
-    if (manifestMode && evidenceMode && manifestMode !== evidenceMode) {
+    const declaredModes = manifest.invocation.modes;
+    if (Array.isArray(declaredModes)) {
+      // A row whose cases dispatch different modes declares them all, and each case's evidence
+      // records the mode it dispatched: that mode, never the manifest's default, is the trace's.
+      if (typeof evidenceMode !== 'string' || !evidenceMode) {
+        throw new Error('row declares invocation.modes, so the evidence must record its own delegate_mode');
+      }
+      if (!declaredModes.includes(evidenceMode)) {
+        throw new Error(
+          `evidence delegate_mode ${evidenceMode} is not one of the row's invocation.modes (${declaredModes.join(', ')})`,
+        );
+      }
+    } else if (manifestMode && evidenceMode && manifestMode !== evidenceMode) {
       throw new Error(
         `evidence delegate_mode mismatch: expected ${manifestMode}, got ${evidenceMode}`,
       );

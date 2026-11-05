@@ -32,7 +32,7 @@ before live acceptance proof.
 |---|---|---|
 | 1. emeric stage-only canary stage | receipt: the stage's `build-info` commit is this SHA; emeric's live install unchanged | openclaw#1271 comment 6654093951 |
 | 2. emeric stopped-seat backup + off-live restore rehearsal | PASS (rehearsal and preservation). 🍃's gloss: the rehearsal restored its own image, not the sealed step-2 image | comments 6656791454, 6657597870 |
-| 3. the emeric canary cut | **HELD**. emeric and silas are blocked on karmaterminal/openclaw#1546 (`--no-opt` does not reach node children), and the canary needs karmaterminal/openclaw-bootstrap#1775 | readiness check: comment 6656932943 |
+| 3. the emeric canary cut | **HELD**. karmaterminal/openclaw#1546 (`--no-opt` does not reach node children) records that 🕯 holds flagged migrating cuts until it lands. The readiness check, which itself ran nothing, says the cut needs both explicit GOs (🌊 and 🕯). The dispatch workorder also records that silas is blocked on #1546 and that the canary needs karmaterminal/openclaw-bootstrap#1775 (an open PR). #1546 names #1775 as context, but the GitHub sources cited here state neither outright | readiness check: comment 6656932943; #1546 |
 
 ## Public-safety scan
 

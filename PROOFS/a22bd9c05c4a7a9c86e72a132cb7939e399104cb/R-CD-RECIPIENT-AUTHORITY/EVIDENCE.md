@@ -1,12 +1,13 @@
-# R-CD-RECIPIENT-AUTHORITY at `a22bd9c05c`: PASS-candidate (gate 3), held at `partial`
+# R-CD-RECIPIENT-AUTHORITY at `a22bd9c05c`: PASS-candidate (gate 3), not folded
 
 **Candidate verdict: `PASS-candidate`.** 🌊 ruled it for gate 3 (karmaterminal-openclaw-docs#620
 comment 6651745479), on 🌿's regrade (comment 6651654909).
 
-**Corpus state: `partial`, not folded.** This is not a behavior gap: every case grades
-PASS-candidate. The row is held below `pass` because the fold needs things this packet does not
-have (below). F′ and `08c37a15` held a ruled R-CD-2 PASS-candidate the same way when the method
-required more than the receipt.
+**Corpus state: `missing`, not folded.** The row stays at the seed state that F′ kept for every
+row until its reviewed fold, with its candidate verdict recorded. This is not a behavior finding:
+graded with verified receipts, every case is PASS-candidate. The fold needs things this packet does
+not have (below), and the row's own grader returns MISSING-candidate until the receipts are verified
+with the observer key.
 
 ## What ran
 
@@ -14,7 +15,7 @@ required more than the receipt.
 |---|---|
 | run | `rra-e0b97a595e89973b`: all 13 cases in one run, dispatch captures 2026-11-05 06:07Z to 06:37Z |
 | product | `a22bd9c05c4a7a9c86e72a132cb7939e399104cb`; every receipt's `gates.buildInfoCommit` is this SHA |
-| harness | docs `6e1da8eb395b181d668b34ffa5611d714360019f` (head of draft docs#620; bound issue docs#536) |
+| harness | docs `6e1da8eb395b181d668b34ffa5611d714360019f` (head of draft docs#620; bound issue docs#536). The manifest's `manifest` path, `tools/k6-proofs/manifests/r-cd-recipient-authority.json`, names a file at that ref, not in this tree |
 | owner, seat | 🕯 emeric, on a harness-owned isolated proof gateway; trace service `emeric-proof-comp-a22bd9c0`. Not a fleet seat |
 | public bundle | `frond/thornfield-artifacts/proof-runs/2026-11-05/rra-e0b97a595e89973b-public.tar.gz`, sha256 `7e29caf5310e877b4dcd5755c1719389b2b929237cfe14d686491ce04da06409` |
 | receipts here | `emeric/authority-row-20261105T060708Z/`: the bundle's 33 public files (13 case receipts, 10 Tempo trace projections, 10 trace-correlation files), byte-identical; checksums in `emeric/authority-row-20261105T060708Z.sha256` |
@@ -91,7 +92,7 @@ Two cases, from their public receipts:
   (`recipient-authority-changed`). The epoch went `ada64f56…` → `492dffe3…`. Its own probe
   (`3cacb241…`) was answered. Foreign runs and adopted deliveries are 0.
 
-## Fold gaps: why this is not `pass`
+## Fold gaps: why this is not folded
 
 1. **No corpus fold review.** 🌊's ruling covers the fire, not the fold. The row doc makes folding a
    reviewed coordinator step at j12′, in which the reviewer checks each trace file (the collector

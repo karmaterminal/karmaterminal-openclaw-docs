@@ -5,7 +5,8 @@
   "ruling": {
     "verdict": "PASS-candidate",
     "authority": "🌊, karmaterminal/openclaw#1271 comment 6653747059",
-    "scope": "clears the candidate-owned Mode-B precondition at this SHA; does not clear corpus promotion, exact-head fleet readiness or the terminal acceptance gate; a product change reopens it"
+    "scope": "clears the candidate-owned Mode-B precondition at this SHA",
+    "scope_limits_verbatim": "This does not clear fold review, immutable corpus promotion, exact-head fleet readiness, or the terminal 38-row acceptance gate. A product change reopens this gate at the new head."
   },
   "mode_b": {
     "run_id": 41927761314,

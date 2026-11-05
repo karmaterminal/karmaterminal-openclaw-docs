@@ -28,6 +28,7 @@
   "exact_target_execution_rows": [
     "R-CD-RECIPIENT-AUTHORITY"
   ],
+  "exact_target_execution_note": "true for the one fired row only (R-CD-RECIPIENT-AUTHORITY, on an isolated proof gateway); no other row has run at this SHA, and no fleet seat runs it",
   "exact_target_mode_b": true,
   "exact_product_fleet_runtime": false,
   "harness": {
@@ -77,7 +78,7 @@
   "required_matrix": {
     "count": 37,
     "basis": "F′ f15237ec92 required_rows (38), less R-CW-5A and R-CW-6A, which 🌊's F″ method ruling (Discord 1565895695586558120; docs#616, merged) makes required preflight attachments of R-CW-5/6 in any corpus folded after it, plus R-CD-RECIPIENT-AUTHORITY, gate 3 of the j12′ gate list (🌊, room msgs 1567077062139838485 and 1567194866507841678).",
-    "note": "The terminal matrix and its count are not decided here. openclaw#1271 names a 38-row terminal rollup; this packet records the 37 rows the current method yields and makes no terminal claim."
+    "note": "Provisional: the terminal matrix and its count are not decided here. openclaw#1271 names a 38-row terminal rollup, and 🌊's Gate 4 ruling (#1271 comment 6653747059, after F″) still says \"the terminal 38-row acceptance gate\". This packet records the 37 rows the current method yields, pending 🌊's matrix, and makes no terminal claim."
   },
   "dispatch_allocation": {
     "emeric-isolated-gateway-gate3": [
@@ -122,7 +123,7 @@
       "R-TRACE-REDACTION-1121"
     ]
   },
-  "dispatch_allocation_note": "No bucket authorizes a fire. R-CD-RECIPIENT-AUTHORITY fired once (rra-e0b97a595e89973b) and is consumed. The held rows get owners only from a later allocation, after exact-head fleet readiness.",
+  "dispatch_allocation_note": "No bucket authorizes a fire. R-CD-RECIPIENT-AUTHORITY's ruled whole-13 run is rra-e0b97a595e89973b; three earlier runs at this SHA (rra-eaa61a458beaf344, rra-3dd1c2a556ae087f, rra-89f6172167abb906) graded MISSING and are not carried. The held rows get owners only from a later allocation, after exact-head fleet readiness.",
   "preflight_attachments": [
     {
       "attachment": "R-CW-5A",
@@ -142,11 +143,11 @@
   "rollup": {
     "total_rows": 37,
     "pass": 0,
-    "partial": 1,
+    "partial": 0,
     "thin": 0,
     "fail": 0,
     "honest_limit": 0,
-    "missing": 36
+    "missing": 37
   },
   "gates": [
     {
@@ -196,11 +197,9 @@
         "step": 3,
         "what": "the emeric canary cut",
         "state": "HELD",
-        "blockers": [
-          "karmaterminal/openclaw#1546 (--no-opt does not reach node children; blocks emeric and silas)",
-          "karmaterminal/openclaw-bootstrap#1775 (the canary needs it)"
-        ],
-        "readiness_check": "openclaw#1271 comment 6656932943"
+        "held_by": "karmaterminal/openclaw#1546 (--no-opt does not reach node children): its body records that 🕯 holds flagged migrating cuts until it lands",
+        "also_from_the_dispatch_workorder": "silas is blocked on #1546 too, and the canary needs karmaterminal/openclaw-bootstrap#1775 (an open PR); #1546 names #1775 as context, but the GitHub sources cited here state neither outright",
+        "readiness_check": "openclaw#1271 comment 6656932943 (it ran nothing): the cut needs both explicit GOs (🌊 and 🕯)"
       }
     ]
   },
@@ -375,13 +374,14 @@
       "row": "R-CD-RECIPIENT-AUTHORITY",
       "title": "Live recipient-authority row at j12′: 13 cases (allowed, allowed-across-reset, allowed-silent, two unauthorized, four revoked or reassigned, two wake-mode, work-revoked-visibility, replay-restart) on a harness-owned isolated gateway.",
       "owner": "🕯 emeric: the gate-3 owner fire on an isolated proof gateway (comp-a22bd9c0)",
-      "state": "partial",
-      "fold_status": "held below pass: not folded (see fold_gaps)",
+      "state": "missing",
+      "fold_status": "not folded: the row stays at the seed state with its PASS-candidate recorded (see fold_gaps)",
       "dir": "PROOFS/a22bd9c05c4a7a9c86e72a132cb7939e399104cb/R-CD-RECIPIENT-AUTHORITY/",
       "evidence_doc": "PROOFS/a22bd9c05c4a7a9c86e72a132cb7939e399104cb/R-CD-RECIPIENT-AUTHORITY/EVIDENCE.md",
       "manifest": "tools/k6-proofs/manifests/r-cd-recipient-authority.json",
       "manifest_docs_sha": "6e1da8eb395b181d668b34ffa5611d714360019f",
       "manifest_on_docs_main": false,
+      "manifest_note": "the manifest path names a file of docs#620 at 6e1da8eb; it is not in this tree",
       "candidate_verdict": "PASS-candidate",
       "verdict_authority": "🌊 Gate 3 ruling, docs#620 comment 6651745479: PASS-candidate for the gate-3 fire only; it does not fold the corpus verdict",
       "review_status": "gate 3 ruled PASS-candidate (🌊); regraded PASS-candidate by 🌿 (docs#620 comment 6651654909); no corpus fold review",
@@ -404,7 +404,7 @@
         "The row's method (manifest, control, grader) is on draft docs#620 at 6e1da8eb, not on docs main, so this corpus's own docs base cannot judge the receipts.",
         "openclaw#1271 orders exact-head readiness on all six seats before live acceptance proof; no seat runs a22bd9c05c. Whether an isolated-gateway row is exempt is 🌊's call."
       ],
-      "summary": "Single whole-13 run rra-e0b97a595e89973b at docs 6e1da8eb, product a22bd9c05c: every gate true, every buildInfoCommit a22bd9c05c, clean teardown. All 13 cases grade PASS-candidate; the 10 fired delegates correlate with their Tempo traces. Held at partial with its PASS-candidate kept, as F′ and 08c37a15 held a ruled R-CD-2 PASS-candidate by method. This is not a behavior gap.",
+      "summary": "Ruled whole-13 run rra-e0b97a595e89973b at docs 6e1da8eb, product a22bd9c05c: every gate true, every buildInfoCommit a22bd9c05c, clean teardown. Graded with the observer-verified receipts, all 13 cases are PASS-candidate and the 10 fired delegates correlate with their Tempo traces. Not folded: the state stays missing, the seed state F′ kept for every row until its reviewed fold, because the row's own grader returns MISSING-candidate until the receipts are verified with the observer key. This is not a behavior finding.",
       "last_known_good": "NEW-ROW-NO-PRIOR-PASS: no corpus has folded this row. Earlier owner runs stay their SHA's and are not carried: rra-88e4fd22f0b122a8 and rra-a4d5318d426ad728 (2907e656, refused by the a22b pin); rra-eaa61a458beaf344, rra-3dd1c2a556ae087f and rra-89f6172167abb906 (a22bd9c05c, each MISSING).",
       "test_cases_executed": [
         "rra-e0b97a595e89973b/allowed",

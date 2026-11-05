@@ -1,9 +1,10 @@
 # Gate 4 at `a22bd9c05c`: Mode-B and the locally run cut shards
 
 **Ruling: PASS-candidate** (🌊, karmaterminal/openclaw#1271 comment 6653747059). It clears the
-candidate-owned Mode-B precondition at this exact SHA. It is not a claim that Mode-B was green, and
-it does not clear corpus promotion, exact-head fleet readiness or the terminal acceptance gate. A
-product change reopens it.
+candidate-owned Mode-B precondition at this exact SHA. In his words: "This is a candidate-owned
+regression gate, not a claim that Mode-B was green or that #1271 acceptance is closed." And: "This
+does not clear fold review, immutable corpus promotion, exact-head fleet readiness, or the terminal
+38-row acceptance gate. A product change reopens this gate at the new head."
 
 This file and `gate-4-summary.json` are summaries. The raw logs are not published here: they are
 13 MB of test output with local paths, and this repository is public. They stay in the evidence

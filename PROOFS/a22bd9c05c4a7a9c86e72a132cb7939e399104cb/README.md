@@ -4,13 +4,15 @@
 
 - **It holds:** gates 3 and 4 and the j12′ fold source review at this exact SHA, each as its own
   receipt under `gates/`.
-- **Every other row is `missing`:** none has fired at this SHA.
+- **No row is folded:** every row's state is `missing`.
+  - `R-CD-RECIPIENT-AUTHORITY` carries its gate-3 `PASS-candidate` as a recorded candidate verdict.
+  - The other 36 rows have not fired at this SHA.
 - **Outstanding, and downstream of this packet:** exact-head fleet readiness, and every remaining
   live row. No seat runs `a22bd9c05c` yet; step 3 of the fleet readiness (the emeric canary cut) is
   held.
 - **`a22bd9c05c` is preserved for presentation.** This lane did not touch the presentation ref or
   any openclaw branch.
-- **`PROOFS/INDEX.json` does not point here,** and nothing here is a terminal or 38-PASS claim.
+- **`PROOFS/INDEX.json` does not point here.** Nothing here is a terminal rollup claim of any count.
 
 Structural completeness is not proof. Read `RESOLVED-SHA.md` for the identities and the fleet
 state, and `METHOD.md` for how the packet was built.
@@ -19,9 +21,9 @@ state, and `METHOD.md` for how the packet was built.
 
 | total | pass | partial | thin | fail | honest_limit | missing |
 |---|---|---|---|---|---|---|
-| 37 | 0 | 1 | 0 | 0 | 0 | 36 |
+| 37 | 0 | 0 | 0 | 0 | 0 | 37 |
 
-**Why 37 rows, not 38.** F′'s 38 required rows, less `R-CW-5A` and `R-CW-6A`, plus
+**Why 37 rows (provisional).** F′'s 38 required rows, less `R-CW-5A` and `R-CW-6A`, plus
 `R-CD-RECIPIENT-AUTHORITY`:
 
 - 🌊's F″ method ruling (docs#616, merged) makes R-CW-5A and R-CW-6A required preflight
@@ -29,8 +31,9 @@ state, and `METHOD.md` for how the packet was built.
   `preflight_attachments`, both `missing`.
 - `R-CD-RECIPIENT-AUTHORITY` is gate 3 of the j12′ gate list.
 
-openclaw#1271's terminal rollup names 38 rows. That terminal matrix is 🌊's to set, and this packet
-does not decide it.
+openclaw#1271 names a 38-row terminal rollup, and 🌊's Gate 4 ruling, which came after F″, still
+says "the terminal 38-row acceptance gate". The terminal matrix is 🌊's to set; this packet only
+records what the current method yields.
 
 ## The gates (distinct receipts)
 
@@ -42,12 +45,15 @@ does not decide it.
 
 ## Rows
 
-`R-CD-RECIPIENT-AUTHORITY` is the only row with a receipt at this SHA. It is held at `partial` with
-its PASS-candidate kept: not a behavior gap, but four fold gaps named in its `EVIDENCE.md`. They
-are:
+`R-CD-RECIPIENT-AUTHORITY` is the only row with receipts at this SHA. It is not folded: its state
+stays `missing`, the seed state F′ kept for every row until its reviewed fold, with
+`candidate_verdict: PASS-candidate`.
+
+This is not a behavior finding. The row's own grader returns MISSING-candidate until the receipts
+are verified with the run owner's observer key, and three other fold gaps remain open (its
+`EVIDENCE.md` names all four):
 
 - no corpus fold review yet;
-- the HMAC receipts are verifiable only by the observer-key holder;
 - the row's method is on draft docs#620, not docs main;
 - openclaw#1271's fleet order.
 
@@ -63,7 +69,7 @@ are:
 | `R-CD-MODEL-DEFAULT` | `missing` | not fired at this SHA |
 | `R-CD-MODEL-TOKEN` | `missing` | not fired at this SHA |
 | `R-CD-MODEL-TOOL` | `missing` | not fired at this SHA |
-| `R-CD-RECIPIENT-AUTHORITY` | `partial` | `PASS-candidate` (gate 3, not folded) |
+| `R-CD-RECIPIENT-AUTHORITY` | `missing` | `PASS-candidate` (gate 3; not folded) |
 | `R-CD-RETURN-COVENANT-AUTHORITY` | `missing` | not fired at this SHA |
 | `R-CD-RETURN-OVERLAP` | `missing` | not fired at this SHA |
 | `R-CD-SILENT` | `missing` | not fired at this SHA |
@@ -102,8 +108,9 @@ Required preflight attachments (F″; not rows, outside the rollup):
 
 `proofs-manifest.json::dispatch_allocation` authorizes no fire.
 
-- `R-CD-RECIPIENT-AUTHORITY` fired once (run `rra-e0b97a595e89973b`, 🕯 on emeric's isolated proof
-  gateway) and is consumed.
+- `R-CD-RECIPIENT-AUTHORITY`'s ruled whole-13 run is `rra-e0b97a595e89973b` (🕯, on emeric's
+  isolated proof gateway).
+- Three earlier runs at this SHA graded MISSING and are not carried.
 - The other 36 rows are held. They get owners only from a later allocation, after exact-head fleet
   readiness.
 

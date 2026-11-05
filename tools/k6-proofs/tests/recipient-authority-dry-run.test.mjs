@@ -1369,13 +1369,12 @@ test('dry run: (o3) a receipt shaped like rra-eaa61a458beaf344, its transition b
   assert.equal(record.captureGate ?? null, null, 'the 8bf9baf9 control had no gate');
   // The capture order's oracle is unchanged: these four codes. The receipt now also reads
   // probe-text-unbound, because it named the shared conditional probe (509c3feb…), never the work
-  // probe (🌊's ruling (a), room msg 1567736961190596741; pin (w2)), and transcript-not-read, because
-  // it predates the probe run's RCDRA-WOKE count (probeWokeRows; pin (w5)).
+  // probe (🌊's ruling (a), room msg 1567736961190596741; pin (w2)). Nothing else: no transcript-not-read.
   const captureOrder = ['capture-not-before-transition', 'transition-did-not-advance-epoch', 'refusal-reason-not-observed', 'probe-turn-unobserved'];
-  const expected = { verdict: 'MISSING-candidate', missing: ['transcript-not-read', ...captureOrder, 'probe-text-unbound'], contradictions: [], partial: [] };
+  const expected = { verdict: 'MISSING-candidate', missing: [...captureOrder, 'probe-text-unbound'], contradictions: [], partial: [] };
   assert.deepEqual(gradeRecipientAuthorityCase(record), expected);
-  const withWorkProbe = { ...record, target: { ...record.target, probeTextSha256: WORK_PROBE_SHA256, probeWokeRows: 0 } };
-  assert.deepEqual(gradeRecipientAuthorityCase(withWorkProbe), { ...expected, missing: captureOrder }, 'with the work probe\'s two additions, the four codes it read at 8bf9baf9');
+  const withWorkProbe = { ...record, target: { ...record.target, probeTextSha256: WORK_PROBE_SHA256 } };
+  assert.deepEqual(gradeRecipientAuthorityCase(withWorkProbe), { ...expected, missing: captureOrder }, 'with the work probe\'s hash, the four codes it read at 8bf9baf9');
   // A gate that claims a release never stands in for the store's order: the same grade.
   const claimed = assemble({ deadlineAtMs: t.capturedAtMs + 20_000, captured: record.epochs.captured, capturedAfterMs: t.capturedAfterMs, capturedByMs: t.capturedByMs, releasedAtMs: t.requestedAtMs - 1 });
   assert.deepEqual(gradeRecipientAuthorityCase(claimed), expected);
@@ -1434,14 +1433,14 @@ test('dry run: (w1) the work case is sent its own unconditional probe, answers P
   assert.equal(record.target.probeTextSha256, WORK_PROBE_SHA256);
   assert.notEqual(WORK_PROBE_SHA256, SHARED_PROBE_SHA256);
   // The product claims: the capture before the transition, the epoch advanced, the work line at
-  // stage=wake before the probe, no wake run, no adoption, and the reason's marker not in the probe run.
+  // stage=wake before the probe, no wake run, no adoption.
   assert.ok(record.captureGate.capturedByMs <= record.captureGate.releasedAtMs && record.epochs.capturedByMs < record.transition.requestedAtMs, JSON.stringify([record.captureGate, record.epochs]));
   assert.notEqual(record.epochs.afterTransition, record.epochs.captured);
   assert.deepEqual([record.reason.kind, record.reason.stage, record.reason.distinctFlowIds], ['work-refused', 'wake', 1]);
   assert.ok(record.reason.observedAtMs < record.target.probeSentAtMs);
   assert.deepEqual(
-    [record.target.probeRan, record.target.probeReplied, record.target.foreignRuns, record.target.ackRuns, record.target.adoptedDeliveryRows, record.target.probeWokeRows],
-    [true, true, 0, 0, 0, 0],
+    [record.target.probeRan, record.target.probeReplied, record.target.foreignRuns, record.target.ackRuns, record.target.adoptedDeliveryRows],
+    [true, true, 0, 0, 0],
   );
   assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
 });
@@ -1488,21 +1487,38 @@ test('dry run: (w4) the work probe unanswered is MISSING probe-turn-unobserved, 
   }
 });
 
-test('dry run: (w5) the reason\'s RCDRA-WOKE in the work probe\'s run is FAIL, with or without PROBE-OK beside it; a wake turn stays FAIL as before', async () => {
-  for (const probeAck of ['woke', 'woke-only']) {
-    const { record, graded } = await grade(workCase, { probeAck });
-    assert.equal(record.target.probeTextSha256, WORK_PROBE_SHA256, probeAck);
-    assert.deepEqual([record.target.probeWokeRows, record.target.probeReplied, record.target.foreignRuns], [1, probeAck === 'woke', 0], probeAck);
-    assert.equal(graded.verdict, 'FAIL-candidate', `${probeAck}: ${JSON.stringify(graded)}`);
-    assert.deepEqual(graded.contradictions, ['probe-answered-wake-reason'], probeAck);
-    // With PROBE-OK beside it, nothing else is missing.
-    if (probeAck === 'woke') assert.deepEqual(graded.missing, [], probeAck);
+// 🌊, room msg 1567741018395115581: "Agreed: drop `probeWokeRows > 0`. Keep this change to the
+// work-case probe text and its hash; leave the existing grading/oracles unchanged. A model echo of
+// `RCDRA-WOKE` alone is not evidence of adoption."
+test('dry run: (w5) a model echo of RCDRA-WOKE alone is not evidence of adoption: the reason\'s marker in the work probe\'s run is not graded, and only a wake run or the adoption marker is FAIL', async () => {
+  const plain = await grade(workCase);
+  assert.deepEqual(plain.graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  // RCDRA-WOKE <nonce> beside PROBE-OK in the work probe's run: PASS, the grade of the run without it.
+  const woke = await grade(workCase, { probeAck: 'woke' });
+  assert.equal(woke.record.target.probeTextSha256, WORK_PROBE_SHA256);
+  assert.deepEqual([woke.record.target.probeRan, woke.record.target.probeReplied, woke.record.target.foreignRuns, woke.record.target.adoptedDeliveryRows], [true, true, 0, 0]);
+  assert.deepEqual(woke.graded, plain.graded);
+  // The record counts it nowhere: it carries the counts it carried at 93a93786.
+  assert.deepEqual(Object.keys(woke.record.target).sort(), Object.keys(plain.record.target).sort());
+  assert.ok(!Object.keys(woke.record.target).some((key) => /woke/iu.test(key)), Object.keys(woke.record.target).join(', '));
+  // RCDRA-WOKE alone: the probe is unanswered, MISSING probe-turn-unobserved as with no reply (w4),
+  // never FAIL.
+  const wokeOnly = await grade(workCase, { probeAck: 'woke-only' });
+  assert.deepEqual([wokeOnly.record.target.probeReplied, wokeOnly.record.target.foreignRuns], [false, 0]);
+  assert.deepEqual(wokeOnly.graded, (await grade(workCase, { probeAck: 'silent' })).graded);
+  assert.deepEqual(wokeOnly.graded, { verdict: 'MISSING-candidate', missing: ['probe-turn-unobserved'], contradictions: [], partial: [] });
+  // The case's only contradictions are the ones it had at 93a93786: a wake turn that answered the
+  // reason in a run of its own (o4), and the product's adoption marker. Each is FAIL with its own code
+  // alone, the marker in the probe run beside it or not.
+  for (const [label, world, code] of [
+    ['a wake run', { workWake: true }, 'target-woken'],
+    ['a wake run, and the marker in the probe run', { workWake: true, probeAck: 'woke' }, 'target-woken'],
+    ['the adoption marker', { probeMarker: true }, 'refused-work-adopted'],
+    ['the adoption marker, and the marker in the probe run', { probeMarker: true, probeAck: 'woke' }, 'refused-work-adopted'],
+  ]) {
+    const { graded } = await grade(workCase, world);
+    assert.deepEqual([graded.verdict, graded.contradictions], ['FAIL-candidate', [code]], label);
   }
-  // A wake turn that answered the reason in a run of its own is the wake itself (o4): the probe run
-  // holds no marker, and the contradiction is the wake's alone.
-  const woken = await grade(workCase, { workWake: true });
-  assert.deepEqual([woken.record.target.probeWokeRows, woken.record.target.foreignRuns], [0, 1]);
-  assert.deepEqual([woken.graded.verdict, woken.graded.contradictions], ['FAIL-candidate', ['target-woken']]);
 });
 
 test('dry run: outside the control the scenario refuses before it sends a frame', async () => {

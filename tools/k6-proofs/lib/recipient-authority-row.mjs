@@ -144,9 +144,9 @@ export const RRA_PROBE_TEXT_SHA256 = '509c3febd79eac28a443041501ad1c23efb1f72d26
  * probe handed that session's turn back to its election's "perform the call, then no other action",
  * and both whole 13s at its "your context" wording (rra-eaa61a458beaf344 at docs 8bf9baf9,
  * rra-3dd1c2a556ae087f at docs 93a93786) left this case's probe unanswered (🌿's classification on
- * #620, comment 6648556457). It names no ack, row nonce, condition or RRA_WORK_WAKE_MARKER, so that
- * marker in the probe's run answers the wake's reason, which the session's context also holds in its
- * election's own instruction, never this text. The 4f86dd78 probe was
+ * #620, comment 6648556457). It names no ack, row nonce, condition or RRA_WORK_WAKE_MARKER, so it asks
+ * for none of them. That marker in the probe's run is not graded (gradeWorkRefusalCase): the
+ * session's context holds it in its election's own instruction. The 4f86dd78 probe was
  * `reply exactly`, lower case, so its hash is not this one.
  */
 export function rraWorkProbeText(probeNonce) {
@@ -986,10 +986,6 @@ function heartbeatAckCalls(list, nonce) {
  * - unattributedAssistantRows: assistant rows with no run id; they cannot be placed, so a case
  *   that has any is MISSING.
  * - returnMarkerRows: assistant rows that repeat the child's return marker.
- * - probeWokeRows: rows of the probe run that answer the continue_work reason, `RCDRA-WOKE <nonce>`
- *   (RRA_WORK_WAKE_MARKER). work-revoked-visibility's own probe names neither that marker nor the
- *   reason and asks for PROBE-OK alone, so there such a row answers the wake's reason, not the probe
- *   (gradeWorkRefusalCase).
  * - probeReplied: the probe run answered `PROBE-OK <probeNonce>`.
  * - adoptedDeliveryRows: rows carrying the product's adoption marker,
  *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:53-71 at j12′), which
@@ -1008,7 +1004,6 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
   const foreignRuns = new Set();
   let unattributedAssistantRows = 0;
   let returnMarkerRows = 0;
-  let probeWokeRows = 0;
   let probeReplied = false;
   let probeAckRows = 0;
   let primingAckRows = 0;
@@ -1034,7 +1029,6 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     }
     if (probe && runId === probe && acked) probeAckRows += 1;
     if (hasExactSentinelText(text, RRA_RETURN_MARKER, nonce)) returnMarkerRows += 1;
-    if (probe && runId === probe && hasExactSentinelText(text, RRA_WORK_WAKE_MARKER, nonce)) probeWokeRows += 1;
     if (probe && runId === probe && probeNonce && hasExactSentinelText(text, RRA_PROBE_MARKER, probeNonce)) {
       probeReplied = true;
     }
@@ -1059,7 +1053,6 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     foreignRuns: foreignRuns.size,
     unattributedAssistantRows,
     returnMarkerRows,
-    probeWokeRows,
     probeReplied,
     adoptedDeliveryRows,
   };
@@ -1683,15 +1676,11 @@ function gradeCaseRecord(record, specs) {
  * - the probe is the case's own, unconditional (rraWorkProbeText; 🌊's ruling (a), room msg
  *   1567736961190596741), named by RRA_WORK_PROBE_TEXT_SHA256, else MISSING `probe-text-unbound`: the
  *   shared conditional probe's hash included. Its reply oracle is unchanged: `PROBE-OK <probeNonce>` in
- *   the probe's run, else MISSING `probe-turn-unobserved`. That probe names neither the reason nor
- *   its `RCDRA-WOKE`, and asks for PROBE-OK alone, so under it that marker in the probe's run
- *   (probeWokeRows) answers the wake's reason, not the probe: FAIL `probe-answered-wake-reason`
- *   (docs#620's workorder). The reason is also in the session's context, in the election's own
- *   instruction, so the row cannot tell the refused wake reaching the turn from the model echoing its
- *   election; the work line, read before the probe, says which. Under any other probe the marker is
- *   not judged: that receipt is already `probe-text-unbound`, and the shared probe handed the turn back
- *   to the election, which asks for the marker. An unread count is MISSING `transcript-not-read`, and
- *   only adds MISSING: every other count still shows its contradiction.
+ *   the probe's run, else MISSING `probe-turn-unobserved`. The reason's `RCDRA-WOKE` in the probe's
+ *   run is not graded, as through 93a93786 (🌊, room msg 1567741018395115581: "A model echo of
+ *   `RCDRA-WOKE` alone is not evidence of adoption."): the session's context holds it in its
+ *   election's own instruction. Only a wake run (`target-woken`) or the adoption marker
+ *   (`refused-work-adopted`) contradicts.
  * A deviation by the model or the setup is MISSING; a wake turn once the premise holds is FAIL.
  */
 function gradeWorkRefusalCase(record, spec) {
@@ -1725,8 +1714,6 @@ function gradeWorkRefusalCase(record, spec) {
     ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows'].every((key) => isCount(target[key])),
     'transcript-not-read',
   );
-  // The probe run read for the reason's marker; a receipt without the count leaves only that unread.
-  const wokeRead = need(isCount(target.probeWokeRows), 'transcript-not-read');
   if (counted && target.unattributedAssistantRows > 0) missing.push('unattributable-target-rows');
   // The electing run plays the priming run's part: without its id, the model's own echo of the
   // reason could not be told from a wake turn.
@@ -1780,13 +1767,11 @@ function gradeWorkRefusalCase(record, spec) {
   need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
   // Its own probe (🌊's ruling (a), room msg 1567736961190596741): the shared conditional one, or any
   // other, leaves the case unbound.
-  const workProbe = target.probeRan === true && target.probeTextSha256 === RRA_WORK_PROBE_TEXT_SHA256;
-  if (target.probeRan === true) need(workProbe, 'probe-text-unbound');
+  if (target.probeRan === true) need(target.probeTextSha256 === RRA_WORK_PROBE_TEXT_SHA256, 'probe-text-unbound');
   if (counted) {
     if (target.foreignRuns > 0) contradict('target-woken');
     if (target.adoptedDeliveryRows > 0) contradict('refused-work-adopted');
   }
-  if (wokeRead && workProbe && target.probeWokeRows > 0) contradict('probe-answered-wake-reason');
   if (record.cleanup?.gatewayStopped !== true || record.cleanup?.residue !== false) partial.push('cleanup-incomplete');
   if (contradictions.length) return result('FAIL-candidate');
   if (missing.length) return result('MISSING-candidate');

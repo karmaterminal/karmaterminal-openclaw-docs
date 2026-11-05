@@ -290,10 +290,8 @@ const manifest = loadManifestFromEnv();
 // is rendered the same way (lib/row-child-correlation.mjs).
 const DEFAULT_TASK_TEMPLATE =
   'RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.';
-// The continue_work case's reason. A wake turn, if one ran, would answer it with a visible row in a
-// run of its own. The case's own probe names neither the reason nor its RCDRA-WOKE and asks for
-// PROBE-OK alone, so that marker in the probe's run answers the reason, which the session's context
-// holds from this election: FAIL (lib, probeWokeRows).
+// The continue_work case's reason. A wake turn, if one ran, would answer it with a visible row; the
+// marker is counted nowhere, so the model repeating it in the probe turn decides nothing.
 const DEFAULT_WORK_REASON_TEMPLATE =
   'RCDRA:{{nonceSuffix16}} Proof wake {{nonce}}: when this continuation runs, reply exactly RCDRA-WOKE {{nonce}}. Do not mutate files. Do not post to any channel.';
 

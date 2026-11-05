@@ -145,13 +145,14 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
   // The status line: work-revoked-visibility has its own unconditional probe (🌊's ruling (a), room msg
-  // 1567736961190596741), and what the owner runs next. Under it, the pin's own runs: re-pinned to
+  // 1567736961190596741), its grading unchanged (🌊, room msg 1567741018395115581), and what the owner
+  // runs next. Under it, the pin's own runs: re-pinned to
   // a22bd9c05c (🕯, room msg 1567674372905505001), the grant's head refused, 🕯's second whole 13 there,
   // whose work-revoked-visibility probe went unanswered, and the first, whose transition came before
   // its capture. Under that, the pin before it, as it stood: the owner's fresh 13 at 2907e656, the two
   // cases it left open now fixed, where the fixes landed, and that 663fafdc was no gate-3 PASS (🌊,
   // room msg 1567656724549075047).
-  const statusLine = /^Status: \*\*work-revoked-visibility has its own unconditional probe; owner fires a fresh whole 13 after 🌿's review of the text and hash\.\*\* In no corpus\.\nAt `a22bd9c05c` \(re-pinned; `2907e656` refused\): \*\*🕯's whole 13 `rra-3dd1c2a556ae087f` \(docs `93a93786`\) regraded 12 PASS, 1 MISSING; its `work-revoked-visibility` probe went unanswered\. `rra-eaa61a458beaf344` \(docs `8bf9baf9`\) before it graded MISSING; its transition came before its capture\.\*\*\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
+  const statusLine = /^Status: \*\*work-revoked-visibility has its own unconditional probe; grading unchanged; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\.\nAt `a22bd9c05c` \(re-pinned; `2907e656` refused\): \*\*🕯's whole 13 `rra-3dd1c2a556ae087f` \(docs `93a93786`\) regraded 12 PASS, 1 MISSING; its `work-revoked-visibility` probe went unanswered\. `rra-eaa61a458beaf344` \(docs `8bf9baf9`\) before it graded MISSING; its transition came before its capture\.\*\*\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
   assert.ok(statusLine, 'the status line, the pin\'s own run under it, and the former pin\'s status under that');
   assert.match(docs, /1567674372905505001/, '🕯\'s re-pin message');
   assert.notEqual(statusLine[1], '663fafdc', 'the fixes landed after 663fafdc');
@@ -233,7 +234,7 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.match(readmeLine, /disposable gateway at the merged j12′ a22bd9c05c\)/);
   assert.doesNotMatch(readmeLine, /1ab5a73e/);
   assert.doesNotMatch(readmeLine, /interim/i);
-  assert.ok(readmeLine.includes('| work-revoked-visibility has its own unconditional probe; owner fires a fresh whole 13 after 🌿\'s review of the text and hash.'), 'the README line says the docs\' status');
+  assert.ok(readmeLine.includes('| work-revoked-visibility has its own unconditional probe; grading unchanged; owner fires a fresh whole 13 after 🌿\'s review.'), 'the README line says the docs\' status');
   assert.ok(readmeLine.includes('At `a22bd9c05c` (re-pinned; `2907e656` refused): 🕯\'s whole 13 `rra-3dd1c2a556ae087f` regraded 12 PASS, 1 MISSING'), 'and the pin\'s own runs');
   assert.ok(readmeLine.includes('🕯\'s whole 13 `rra-eaa61a458beaf344` before it graded MISSING'), 'the first of them');
   assert.ok(readmeLine.includes('`Reply exactly PROBE-OK <probeNonce>.` (SHA-256 `3cacb241…`)') && readmeLine.includes('`509c3feb…`'), 'both probes, by their hashes');
@@ -248,6 +249,24 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.doesNotMatch(pipelineRow, /INTERIM|e9dc1c318a2f|1ab5a73e1430|2907e656a892/);
   assert.match(pipelineRow, /work-revoked-visibility/);
   assert.match(pipeline, /<Manifest>tools\/k6-proofs\/manifests\/r-cd-recipient-authority\.json<\/Manifest>/);
+  // 🌊's agreement on 🌿's correction, quoted: the work probe's grading is unchanged. The FAIL the work
+  // probe's lane added for the reason's marker, and its count, are named nowhere but in that quote.
+  assert.ok(flat.includes('"Agreed: drop `probeWokeRows > 0`. Keep this change to the work-case probe text and its hash; leave the existing grading/oracles unchanged. A model echo of `RCDRA-WOKE` alone is not evidence of adoption."'), '🌊\'s agreement, quoted');
+  assert.match(docs, /1567741018395115581 \(the work probe's grading unchanged\), on 🌿's correction \(room msg\s+1567740969225555989\)/);
+  assert.equal(docs.split('probeWokeRows').length, 2, 'the count is named once, in 🌊\'s quote');
+  const sources = {
+    docs,
+    readme,
+    pipeline,
+    manifest: readFileSync(manifestPath, 'utf8'),
+    scenario: readFileSync(path.join(k6Root, 'scenarios', 'r-cd-recipient-authority.js'), 'utf8'),
+    lib: readFileSync(path.join(k6Root, 'lib', 'recipient-authority-row.mjs'), 'utf8'),
+    control: readFileSync(path.join(k6Root, 'scripts', 'run-recipient-authority-row.mjs'), 'utf8'),
+  };
+  for (const [label, text] of Object.entries(sources)) {
+    assert.ok(!text.includes('probe-answered-wake-reason'), `${label}: the added FAIL`);
+    if (label !== 'docs') assert.ok(!text.includes('probeWokeRows'), `${label}: the added count`);
+  }
 });
 
 test('the scenario header cites the j12′ product path at every boundary the verdict rests on', () => {
@@ -527,9 +546,8 @@ function completeRecord(caseId) {
     record.keys = { parent: null };
     record.dispatch = { accepted: true, status: 'scheduled', capturedAtMs: 1000, reasonHash: 'abcdef0123456789', reasonLength: 140, delegateMode: null, resultMode: null, resultDelaySeconds: 30, otherDelegateCalls: 0, otherWorkCalls: 0 };
     record.child = { spawned: null, bound: false, done: false };
-    // Its own unconditional probe, answered PROBE-OK, and no RCDRA-WOKE in that run (🌊's ruling (a),
-    // room msg 1567736961190596741).
-    record.target = { ...record.target, probeSentAtMs: 50_000, probeTextSha256: rowLib.RRA_WORK_PROBE_TEXT_SHA256, probeWokeRows: 0 };
+    // Its own unconditional probe, answered PROBE-OK (🌊's ruling (a), room msg 1567736961190596741).
+    record.target = { ...record.target, probeSentAtMs: 50_000, probeTextSha256: rowLib.RRA_WORK_PROBE_TEXT_SHA256 };
     record.parent = { ackRows: null };
     record.preTransition = { ackRuns: 0, foreignRuns: 0, adoptedDeliveryRows: 0 };
     record.park = { deliveredToTargetAtMs: null };
@@ -1275,7 +1293,7 @@ test('work-revoked-visibility\'s own probe: the ruled text, its hash against nod
     assert.deepEqual(rowLib.rraCaseProbe(caseId, options), { text: expected, problems: [] }, caseId);
   }
   assert.deepEqual(RRA_CASE_IDS.filter((caseId) => rowLib.rraCaseProbe(caseId, options).text === text), [WORK_CASE]);
-  // The reason asks a wake that ran for the marker the probe run is read for, in the committed manifest
+  // The reason asks a wake that ran for the marker the work probe's text test refuses, in the committed manifest
   // and in the scenario's default alike.
   assert.equal(rowLib.RRA_WORK_WAKE_MARKER, 'RCDRA-WOKE');
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
@@ -1734,7 +1752,6 @@ test('target transcript: priming runs never count, any later ack does, and a hea
     foreignRuns: 0,
     unattributedAssistantRows: 0,
     returnMarkerRows: 0,
-    probeWokeRows: 0,
     probeReplied: true,
     adoptedDeliveryRows: 0,
   }, 'the priming run\'s ack is counted apart, never as an ack of the return');
@@ -1814,22 +1831,11 @@ test('target transcript: priming runs never count, any later ack does, and a hea
   }
   assert.equal(observeTargetTranscript([...messages, say('hello')], { nonce, primingRunIds: ['run-prime'] }).unattributedAssistantRows, 1);
   assert.equal(observeTargetTranscript([...messages, say(`RCDRA-RETURN ${nonce}`, 'run-probe')], { nonce, primingRunIds: ['run-prime'], probeRunId: 'run-probe' }).returnMarkerRows, 1);
-  // The continue_work reason's marker is counted in the probe run only (🌊's ruling (a), room msg
-  // 1567736961190596741): never in the electing run, a wake run (a wake of its own), with another
-  // nonce, or in a row that quotes the harness prompt.
-  const woke = (rows) => observeTargetTranscript([...messages, ...rows], probeOpts).probeWokeRows;
-  assert.equal(woke([say(`RCDRA-WOKE ${nonce}`, 'run-probe')]), 1);
-  assert.equal(woke([say(`RCDRA-WOKE ${nonce}\nPROBE-OK probe-1`, 'run-probe'), say(`RCDRA-WOKE ${nonce}`, 'run-probe')]), 2);
-  for (const [label, row] of [
-    ['the electing run', say(`RCDRA-WOKE ${nonce}`, 'run-prime')],
-    ['a wake run', say(`RCDRA-WOKE ${nonce}`, 'run-wake')],
-    ['another nonce', say('RCDRA-WOKE RCDRA-9-zzz', 'run-probe')],
-    ['a run-on nonce', say(`RCDRA-WOKE ${nonce}x`, 'run-probe')],
-    ['the harness prompt quoted', say(`[k6-proof-harness] Call the continue_work tool: reply exactly RCDRA-WOKE ${nonce}.`, 'run-probe')],
-  ]) {
-    assert.equal(woke([row]), 0, label);
-  }
-  assert.equal(observeTargetTranscript([...messages, say(`RCDRA-WOKE ${nonce}`, 'run-probe')], { nonce, primingRunIds: ['run-prime'] }).probeWokeRows, 0, 'no probe run, no probe-run marker');
+  // The continue_work reason's marker in the probe run is counted nowhere, as through 93a93786 (🌊, room
+  // msg 1567741018395115581: "A model echo of `RCDRA-WOKE` alone is not evidence of adoption."): alone
+  // or beside PROBE-OK, every count reads as without it. In a run of its own it is a wake (foreignRuns).
+  assert.deepEqual(observeTargetTranscript([...messages, say(`RCDRA-WOKE ${nonce}`, 'run-probe')], probeOpts), observeTargetTranscript(messages, probeOpts));
+  assert.deepEqual(observeTargetTranscript([...messages, say(`RCDRA-WOKE ${nonce}\nPROBE-OK probe-1`, 'run-probe')], probeOpts), observeTargetTranscript(messages, probeOpts));
   assert.equal(countParentAcks([say(`TARGET-ACK ${nonce}`, 'run-d')], nonce), 1);
 });
 
@@ -2651,13 +2657,15 @@ test('work-revoked-visibility is never PASS without the observed absence, and a 
     assert.ok(graded.contradictions.includes(code), `${code}: ${graded.contradictions}`);
   }
   // The delegate cases' markers, the return's and the ack, are none of this case's: they decide nothing
-  // here, and only a run is a wake. The reason's own marker in the probe run is FAIL (below).
+  // here, and only a run is a wake. The reason's own marker in the probe run decides nothing either
+  // (below).
   assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.returnMarkerRows = 1; r.target.ackRuns = 1; })).verdict, 'PASS-candidate');
 });
 
-// 🌊's ruling (a), room msg 1567736961190596741, and docs#620's workorder: the work case's receipt is
-// bound to its own probe's hash; its reply oracle is unchanged; RCDRA-WOKE in its probe's run is FAIL.
-test('work-revoked-visibility: bound to its own probe, the shared, "this turn" and 4f86dd78 probes unbound, and the reason\'s RCDRA-WOKE in the probe run FAIL', () => {
+// 🌊's ruling (a), room msg 1567736961190596741: the work case's receipt is bound to its own probe's
+// hash, and its reply oracle is unchanged. 🌊, room msg 1567741018395115581: its grading is otherwise
+// unchanged, and RCDRA-WOKE in its probe's run is not graded.
+test('work-revoked-visibility: bound to its own probe, the shared, "this turn" and 4f86dd78 probes unbound, and the reason\'s RCDRA-WOKE in the probe run not graded', () => {
   const hash = (value) => createHash('sha256').update(value).digest('hex');
   const thisTurn = hash(`[k6-proof-harness] ${RRA_ROW} probe ${RRA_PROBE_NONCE_SLOT}: If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK ${RRA_PROBE_NONCE_SLOT}.`);
   const unconditional4f86 = hash(`[k6-proof-harness] ${RRA_ROW} probe ${RRA_PROBE_NONCE_SLOT}: reply exactly PROBE-OK ${RRA_PROBE_NONCE_SLOT}.`);
@@ -2675,43 +2683,56 @@ test('work-revoked-visibility: bound to its own probe, the shared, "this turn" a
   }
   // The reply oracle is unchanged: no PROBE-OK is the probe turn unobserved, never FAIL.
   assert.deepEqual(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.probeReplied = false; })), { verdict: 'MISSING-candidate', missing: ['probe-turn-unobserved'], contradictions: [], partial: [] });
-  // RCDRA-WOKE in the work probe's run, with or without PROBE-OK: FAIL. It answers the reason, not the
-  // probe, so its code says that much and no more (review finding: the reason is also in the session's
-  // context, in the election's own instruction).
-  for (const [label, fn] of [
-    ['beside PROBE-OK', (r) => { r.target.probeWokeRows = 1; }],
-    ['alone', (r) => { r.target.probeWokeRows = 1; r.target.probeReplied = false; }],
-    ['twice', (r) => { r.target.probeWokeRows = 2; }],
-  ]) {
-    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), fn));
-    assert.equal(graded.verdict, 'FAIL-candidate', `${label}: ${JSON.stringify(graded)}`);
-    assert.deepEqual(graded.contradictions, ['probe-answered-wake-reason'], label);
-  }
-  // Under another probe the marker is not judged: the shared one handed the turn back to the election,
-  // which asks for it. That receipt is unbound already; a wake turn in it is still FAIL.
-  for (const value of [RRA_PROBE_TEXT_SHA256, null]) {
-    const unbound = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.probeWokeRows = 1; r.target.probeTextSha256 = value; }));
-    assert.deepEqual(unbound, { verdict: 'MISSING-candidate', missing: ['probe-text-unbound'], contradictions: [], partial: [] }, String(value));
-    const woken = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.probeWokeRows = 1; r.target.probeTextSha256 = value; r.target.foreignRuns = 1; }));
-    assert.deepEqual([woken.verdict, woken.contradictions], ['FAIL-candidate', ['target-woken']], String(value));
-  }
-  // A probe run never read for it leaves the absence unread: MISSING, never PASS.
-  for (const value of [null, undefined, -1, 1.5, '0']) {
+  // 🌊, room msg 1567741018395115581: "A model echo of `RCDRA-WOKE` alone is not evidence of adoption."
+  // The record carries no count of the reason's marker and the grade reads none, as at 93a93786. A
+  // receipt that carries one anyway, as the work-probe lane's control sealed it (78e27f50), at any
+  // value or none, grades as without it: no FAIL, and no transcript-not-read.
+  for (const value of [0, 1, 2, null, undefined, -1, '0']) {
     const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.probeWokeRows = value; }));
-    assert.deepEqual(graded, { verdict: 'MISSING-candidate', missing: ['transcript-not-read'], contradictions: [], partial: [] }, String(value));
+    assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, String(value));
   }
-  // Review finding (work-probe lane): the unread count only adds MISSING. A receipt without it, as
-  // every receipt sealed before it, keeps every FAIL the counts it did read show.
-  for (const [code, fn] of [['target-woken', (r) => { r.target.foreignRuns = 1; }], ['refused-work-adopted', (r) => { r.target.adoptedDeliveryRows = 1; }]]) {
-    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { delete r.target.probeWokeRows; fn(r); }));
-    assert.deepEqual([graded.verdict, graded.contradictions, graded.missing], ['FAIL-candidate', [code], ['transcript-not-read']], code);
+  // Its contradictions are the two it had at 93a93786, each FAIL with its own code alone, bound to its
+  // own probe or not.
+  for (const value of [rowLib.RRA_WORK_PROBE_TEXT_SHA256, RRA_PROBE_TEXT_SHA256, null]) {
+    for (const [code, fn] of [['target-woken', (r) => { r.target.foreignRuns = 1; }], ['refused-work-adopted', (r) => { r.target.adoptedDeliveryRows = 1; }]]) {
+      const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.target.probeTextSha256 = value; r.target.probeWokeRows = 1; fn(r); }));
+      assert.deepEqual([graded.verdict, graded.contradictions], ['FAIL-candidate', [code]], `${code}, ${value}`);
+    }
   }
-  // Where the premise fails, a marker in the probe run is not judged: MISSING, as a wake turn is.
-  const unjudged = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.epochs.capturedByMs = 5_500; r.target.probeWokeRows = 1; }));
-  assert.deepEqual([unjudged.verdict, unjudged.missing, unjudged.contradictions], ['MISSING-candidate', ['capture-not-before-transition'], []]);
-  // Every delegate case's grade is unchanged: it never reads the count.
+  // Every delegate case's grade is unchanged by such a field too.
   for (const caseId of RRA_CASE_IDS.filter((id) => !RRA_CASES[id].tool)) {
     assert.deepEqual(gradeRecipientAuthorityCase(mutate(completeRecord(caseId), (r) => { r.target.probeWokeRows = 1; })), gradeRecipientAuthorityCase(completeRecord(caseId)), caseId);
+  }
+});
+
+// 🌊, room msg 1567741018395115581: "leave the existing grading/oracles unchanged". A work receipt as
+// sealed through 93a93786 (its probe the shared one, 509c3feb…, and no count of the reason's marker)
+// grades here as it graded there but for the probe's hash, which 🌊's ruling (a) changed: named by the
+// work probe's hash, exactly as there; as sealed, with probe-text-unbound added and nothing else. The
+// expected grades are 93a93786's own, read from its lib.
+test('work-revoked-visibility: a receipt sealed through 93a93786 grades as it did there but for the probe\'s hash: no new transcript-not-read, no new FAIL', () => {
+  const sealedAt93 = (fn = () => {}) => mutate(completeRecord(WORK_CASE), (r) => {
+    r.target.probeTextSha256 = RRA_PROBE_TEXT_SHA256;
+    delete r.target.probeWokeRows;
+    fn(r);
+  });
+  const grade = (verdict, missing = [], contradictions = []) => ({ verdict, missing, contradictions, partial: [] });
+  for (const [label, fn, at93] of [
+    ['every product claim shown', () => {}, grade('PASS-candidate')],
+    // 🕯's rra-3dd1c2a556ae087f: every product claim shown, its probe unanswered.
+    ['the probe unanswered', (r) => { r.target.probeReplied = false; }, grade('MISSING-candidate', ['probe-turn-unobserved'])],
+    ['a wake run', (r) => { r.target.foreignRuns = 1; }, grade('FAIL-candidate', [], ['target-woken'])],
+    ['the adoption marker', (r) => { r.target.adoptedDeliveryRows = 1; }, grade('FAIL-candidate', [], ['refused-work-adopted'])],
+    ['a wake run, its probe unanswered', (r) => { r.target.foreignRuns = 1; r.target.probeReplied = false; }, grade('FAIL-candidate', ['probe-turn-unobserved'], ['target-woken'])],
+    ['the transcript unread', (r) => { r.target.ackRuns = null; }, grade('MISSING-candidate', ['transcript-not-read'])],
+  ]) {
+    const asSealed = gradeRecipientAuthorityCase(sealedAt93(fn));
+    const rebound = gradeRecipientAuthorityCase(sealedAt93((r) => { fn(r); r.target.probeTextSha256 = rowLib.RRA_WORK_PROBE_TEXT_SHA256; }));
+    assert.deepEqual(rebound, at93, `${label}, named by the work probe's hash`);
+    const unbound = { ...at93, verdict: at93.verdict === 'PASS-candidate' ? 'MISSING-candidate' : at93.verdict, missing: [...at93.missing, 'probe-text-unbound'] };
+    assert.deepEqual(asSealed, unbound, `${label}, as sealed`);
+    assert.equal(asSealed.missing.includes('transcript-not-read'), at93.missing.includes('transcript-not-read'), label);
+    assert.deepEqual(asSealed.contradictions, at93.contradictions, label);
   }
 });
 
@@ -2940,9 +2961,8 @@ function workEvidence() {
   const revoked = revokedEvidence();
   return {
     ...revoked,
-    // Its own probe, by its hash, and its probe run read for the reason's marker (🌊's ruling (a)).
+    // Its own probe, by its hash (🌊's ruling (a)).
     probe_text_sha256: rowLib.RRA_WORK_PROBE_TEXT_SHA256,
-    target_obs: { ...revoked.target_obs, probeWokeRows: 0 },
     case: WORK_CASE,
     keys: { parent: null, target: 'agent:main:r-cd-ra-work-revoked-visibility-target-abc', ops: null },
     delegate_mode: null,
@@ -2982,15 +3002,13 @@ test('the control assembles the continue_work case: its capture from the store, 
   assert.equal(gradeRecipientAuthorityCase(record).verdict, 'PASS-candidate', JSON.stringify(gradeRecipientAuthorityCase(record)));
   const publicText = JSON.stringify(record);
   for (const secret of [key, FLOW_ID, e1, e2]) assert.ok(!publicText.includes(secret), `public record leaks ${secret}`);
-  // Its probe, by its own hash, and the probe run's RCDRA-WOKE count carried from the scenario.
-  assert.deepEqual([record.target.probeTextSha256, record.target.probeWokeRows], [rowLib.RRA_WORK_PROBE_TEXT_SHA256, 0]);
-  const wokeGrade = gradeRecipientAuthorityCase(assemble({ evidence: { ...evidence, target_obs: { ...evidence.target_obs, probeWokeRows: 1 } } }));
-  assert.deepEqual([wokeGrade.verdict, wokeGrade.contradictions], ['FAIL-candidate', ['probe-answered-wake-reason']]);
-  // Evidence that never read the count, as every scenario before the work probe's: unread, never PASS.
-  const { probeWokeRows: _unread, ...unreadObs } = evidence.target_obs;
-  const unread = assemble({ evidence: { ...evidence, target_obs: unreadObs } });
-  assert.equal(unread.target.probeWokeRows, null);
-  assert.deepEqual(gradeRecipientAuthorityCase(unread).missing, ['transcript-not-read']);
+  // Its probe, by its own hash. Evidence that carries a count of the reason's marker, as the
+  // work-probe lane's scenario sent it (78e27f50), is assembled without it and grades as without it
+  // (🌊, room msg 1567741018395115581).
+  assert.equal(record.target.probeTextSha256, rowLib.RRA_WORK_PROBE_TEXT_SHA256);
+  assert.equal(Object.hasOwn(record.target, 'probeWokeRows'), false);
+  const counted = assemble({ evidence: { ...evidence, target_obs: { ...evidence.target_obs, probeWokeRows: 1 } } });
+  assert.deepEqual(counted, record);
   // The delegate cases' records carry no work field.
   const delegateRecord = assembleCaseRecord({ caseId: 'revoked-visibility', runId: RUN, docsSha: 'd'.repeat(40), gates: completeRecord('allowed').gates, evidence: revokedEvidence(), ...revokedHarness(revokedEvidence()), generations: [{ index: 0, startedByHarness: true, ownedListenerThroughout: true }], cleanup: { gatewayStopped: true, residue: false }, startedAtMs: 500 });
   assert.equal(Object.hasOwn(delegateRecord.dispatch, 'otherWorkCalls'), false);

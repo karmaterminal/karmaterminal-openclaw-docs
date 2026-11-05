@@ -130,7 +130,8 @@
  *      1567556038281007235). The probe is conditional (🌊, room msg 1567590902694936678; its
  *      condition reads the target's context, as the priming does, room msg 1567656724549075047): a
  *      target whose context holds the return follows its priming, any other answers PROBE-OK; the
- *      unconditional probe before it won over the priming, so allowed-silent's ack could never show;
+ *      unconditional probe before it won over the priming, so allowed-silent's ack could never show.
+ *      work-revoked-visibility, which has no return, is sent its own unconditional probe (7.);
  *    - sessions.delete (and sessions.reset) consume the session's queued events
  *      (src/gateway/server-methods/sessions-delete.ts:454-470 -> src/gateway/session-lifecycle-cleanup.ts:74-92
  *      -> src/gateway/session-reset-runtime-cleanup.ts:77-93 -> src/gateway/session-reset-runtime-state.ts:11-51
@@ -189,7 +190,11 @@
  *    run rra-eaa61a458beaf344, sent the narrowing before the capture). So the drive ends at the
  *    `scheduled` result; the control reads the store until the capture is there, at most until the
  *    result's own deadline (lib rraWorkCaptureDeadline: capturedAtMs + (delay - 10 s)), and only then
- *    runs the transition phase. With no capture by then it sends none.
+ *    runs the transition phase. With no capture by then it sends none. Its probe is its own and
+ *    unconditional, `Reply exactly PROBE-OK <probeNonce>.` (lib rraWorkProbeText; 🌊's ruling (a), room
+ *    msg 1567736961190596741): the shared probe's condition handed its turn back to the election's
+ *    "perform the call, then no other action", and both whole 13s at that wording
+ *    (rra-eaa61a458beaf344, rra-3dd1c2a556ae087f) left it unanswered.
  *
  * 8. The delegate dispatch grant (2907e656; 🌊's ruling A, room msg 1567487338383413250). This
  *    scenario's connection is a Gateway operator: the shared token over loopback, no device, admitted
@@ -255,10 +260,9 @@ import {
   findOwnerAssignment,
   findWorkElection,
   observeTargetTranscript,
+  rraCaseProbe,
   rraCaseSpec,
   rraProofId,
-  rraProbeText,
-  rraProbeTextProblems,
   scenarioMethodsFor,
 } from '../lib/recipient-authority-row.mjs';
 
@@ -286,8 +290,9 @@ const manifest = loadManifestFromEnv();
 // is rendered the same way (lib/row-child-correlation.mjs).
 const DEFAULT_TASK_TEMPLATE =
   'RCDRA:{{nonceSuffix16}} Proof nonce {{nonce}}: reply exactly RCDRA-RETURN {{nonce}}. Do not mutate files. Do not post to any channel.';
-// The continue_work case's reason. A wake turn, if one ran, would answer it with a visible row; the
-// marker is counted nowhere, so the model repeating it in the probe turn decides nothing.
+// The continue_work case's reason. A wake turn, if one ran, would answer it with a visible row in a
+// run of its own. The case's own probe names neither the reason nor its RCDRA-WOKE, so that marker in
+// the probe's run is the refused wake's instruction answered there: FAIL (lib, probeWokeRows).
 const DEFAULT_WORK_REASON_TEMPLATE =
   'RCDRA:{{nonceSuffix16}} Proof wake {{nonce}}: when this continuation runs, reply exactly RCDRA-WOKE {{nonce}}. Do not mutate files. Do not post to any channel.';
 
@@ -845,19 +850,21 @@ export default function () {
 
     function probeThenFinal({ fallback = false } = {}) {
       // 🌊's conditional probe (room msgs 1567590902694936678 and 1567656724549075047), the same text
-      // for every case: a target whose context holds the return (drained by this turn, or on allowed's
-      // fallback by its woken run) follows its priming and acks; any other answers PROBE-OK
+      // for every delegate case: a target whose context holds the return (drained by this turn, or on
+      // allowed's fallback by its woken run) follows its priming and acks; any other answers PROBE-OK
       // <probeNonce>. It never names the ack or the row nonce, so an ack in its run is the primed
-      // target answering a return in its context, never an echo of this text. A text that fails the
-      // text test is never sent.
-      const instruction = rraProbeText(probeNonce);
-      const problems = rraProbeTextProblems(instruction, { rowNonce, probeNonce });
+      // target answering a return in its context, never an echo of this text. work-revoked-visibility
+      // has no return to hand back, and its election's "no other action" is all the condition would
+      // hand its turn back to: it gets its own unconditional probe (🌊's ruling (a), room msg
+      // 1567736961190596741). A text that fails its text test is never sent.
+      const { text: instruction, problems } = rraCaseProbe(control.caseId, { rowNonce, probeNonce });
       if (problems.length) {
         refuse(`probe text refused: ${problems.join(', ')}`);
         return finalReads();
       }
       // The receipt names the probe it sent by its text's hash, its nonce written as the slot
-      // (RRA_PROBE_TEXT_SHA256): a receipt with any other probe, or none, is never PASS.
+      // (RRA_PROBE_TEXT_SHA256, or RRA_WORK_PROBE_TEXT_SHA256 for the work case): a receipt with any
+      // other probe, or none, is never PASS.
       evidence.probe_text_sha256 = crypto.sha256(instruction.replaceAll(probeNonce, RRA_PROBE_NONCE_SLOT), 'hex');
       // A prompt-drain refusal must come from this turn's drain, and allowed-silent's ack must follow
       // the return's Delivered to line, so both are timed against the send.

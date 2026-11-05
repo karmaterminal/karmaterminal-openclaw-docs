@@ -47,6 +47,8 @@
  *   elects one (`work-revoked-visibility`) has its capture read from the store. Its transition waits
  *   for the control to read that capture there, at most until rraWorkCaptureDeadline
  *   (record.captureGate; 🕯's whole 13, run rra-eaa61a458beaf344, where the transition came first).
+ *   It has no return for the shared probe's condition to hand back, so it is sent its own
+ *   unconditional probe (rraWorkProbeText; 🌊's ruling (a), room msg 1567736961190596741).
  */
 import { TASK_IDENTITY_NONCE_SUFFIX_CHARS } from './row-child-correlation.mjs';
 import { toolCallTarget } from './tool-call-identity.mjs';
@@ -75,6 +77,11 @@ export const RRA_ACK_MARKER = 'TARGET-ACK';
 export const RRA_READY_MARKER = 'TARGET-READY';
 export const RRA_RETURN_MARKER = 'RCDRA-RETURN';
 export const RRA_PROBE_MARKER = 'PROBE-OK';
+/**
+ * What the continue_work case's reason asks a wake that ran to reply (the scenario's
+ * DEFAULT_WORK_REASON_TEMPLATE, the manifest's workReasonTemplate): `RCDRA-WOKE <nonce>`.
+ */
+export const RRA_WORK_WAKE_MARKER = 'RCDRA-WOKE';
 /** Every prompt the harness sends opens with it; hasExactSentinelText credits no sentinel in text carrying it. */
 const HARNESS_MARKER = '[k6-proof-harness]';
 
@@ -104,7 +111,8 @@ export function rraProofId(rowNonce) {
 }
 
 /**
- * The one probe text, the same for every case but for its own nonce: the harness header, then
+ * The shared probe text, the same for every case but work-revoked-visibility (rraWorkProbeText) but
+ * for its own nonce: the harness header, then
  * 🌊's two sentences word for word: the condition as room msg 1567656724549075047 words it, then
  * room msg 1567590902694936678's `Otherwise reply exactly PROBE-OK ‹probe nonce›.`. The header's tag
  * keeps a model that echoes the probe from being credited with its PROBE-OK (hasExactSentinelText).
@@ -118,14 +126,52 @@ export function rraProbeText(probeNonce) {
 /** What a receipt hashes in place of its probe's nonce, so every probe of this text hashes alike. */
 export const RRA_PROBE_NONCE_SLOT = '<probeNonce>';
 /**
- * SHA-256 (hex) of rraProbeText(RRA_PROBE_NONCE_SLOT): the probe every probing case's receipt must
- * name (target.probeTextSha256). The scenario hashes the text it sent, its own nonce written as the
- * slot. A receipt naming no probe, or another, is not about this probe: `probe-text-unbound`. The
- * others include the unconditional probe before 🌊's first ruling, and the "this turn" probe of the
- * conditional-probe lane (bound by hash from 153d547d, head 53c1c192) to 663fafdc, whose hash was
- * d6187455…. The unit tests pin it against node:crypto.
+ * SHA-256 (hex) of rraProbeText(RRA_PROBE_NONCE_SLOT): the probe every probing delegate case's
+ * receipt must name (target.probeTextSha256). The scenario hashes the text it sent, its own nonce
+ * written as the slot. A receipt naming no probe, or another, is not about this probe:
+ * `probe-text-unbound`. The others include the unconditional probe before 🌊's first ruling, the
+ * "this turn" probe of the conditional-probe lane (bound by hash from 153d547d, head 53c1c192) to
+ * 663fafdc, whose hash was d6187455…, and work-revoked-visibility's own (RRA_WORK_PROBE_TEXT_SHA256).
+ * The unit tests pin it against node:crypto.
  */
 export const RRA_PROBE_TEXT_SHA256 = '509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512';
+
+/**
+ * work-revoked-visibility's own probe (🌊's ruling (a), room msg 1567736961190596741): "give that case
+ * a separate hash-bound, unconditional `PROBE-OK ‹nonce>` instruction. Its election priming says 'no
+ * other action,' and a work wake has no task completion, so the shared conditional is the wrong probe
+ * for this case." The shared probe's header, then one instruction with no condition. The shared
+ * probe handed that session's turn back to its election's "perform the call, then no other action",
+ * and both whole 13s at its "your context" wording (rra-eaa61a458beaf344 at docs 8bf9baf9,
+ * rra-3dd1c2a556ae087f at docs 93a93786) left this case's probe unanswered (🌿's classification on
+ * #620, comment 6648556457). It names no ack, row nonce, condition or RRA_WORK_WAKE_MARKER, so that
+ * marker in the probe's run answers the wake's reason, never this text. The 4f86dd78 probe was
+ * `reply exactly`, lower case, so its hash is not this one.
+ */
+export function rraWorkProbeText(probeNonce) {
+  return `${HARNESS_MARKER} ${RRA_ROW} probe ${probeNonce}: Reply exactly ${RRA_PROBE_MARKER} ${probeNonce}.`;
+}
+
+/**
+ * SHA-256 (hex) of rraWorkProbeText(RRA_PROBE_NONCE_SLOT): the probe work-revoked-visibility's receipt
+ * must name. The shared probe's hash, and every other, on that case is `probe-text-unbound`, as this
+ * one is on every other case. The unit tests pin it against node:crypto.
+ */
+export const RRA_WORK_PROBE_TEXT_SHA256 = '3cacb24184f3d7abfc19e46f3f238cac57545f2bcda6f8af58ad20a677866404';
+
+// The checks every probe this row sends must pass, whichever its wording.
+function probeTextBaseProblems(text, { rowNonce, probeNonce }) {
+  const problems = [];
+  const upper = text.toUpperCase();
+  if (upper.includes(RRA_ACK_MARKER) || upper.includes('RRA_ACK_MARKER')) problems.push('probe-names-ack');
+  const proofId = rraProofId(rowNonce);
+  if (!proofId) problems.push('row-nonce-unknown');
+  else if (upper.includes(rowNonce.toUpperCase()) || upper.includes(proofId.toUpperCase())) problems.push('probe-names-row-nonce');
+  const nonceOk = typeof probeNonce === 'string' && probeNonce.length > 0;
+  const asked = nonceOk && new RegExp(`(?:^|[^A-Za-z0-9_-])${escapeRegex(RRA_PROBE_MARKER)} ${escapeRegex(probeNonce)}(?=$|[^A-Za-z0-9_-])`, 'u').test(text);
+  if (!asked) problems.push('probe-nonce-missing');
+  return problems;
+}
 
 /**
  * The text test: why `text` is not a probe this row may send, as codes, none when it is.
@@ -139,16 +185,29 @@ export const RRA_PROBE_TEXT_SHA256 = '509c3febd79eac28a443041501ad1c23efb1f72d26
  */
 export function rraProbeTextProblems(text, { rowNonce, probeNonce } = {}) {
   if (typeof text !== 'string' || !text) return ['probe-text-missing'];
-  const problems = [];
-  const upper = text.toUpperCase();
-  if (upper.includes(RRA_ACK_MARKER) || upper.includes('RRA_ACK_MARKER')) problems.push('probe-names-ack');
-  const proofId = rraProofId(rowNonce);
-  if (!proofId) problems.push('row-nonce-unknown');
-  else if (upper.includes(rowNonce.toUpperCase()) || upper.includes(proofId.toUpperCase())) problems.push('probe-names-row-nonce');
+  const problems = probeTextBaseProblems(text, { rowNonce, probeNonce });
   const nonceOk = typeof probeNonce === 'string' && probeNonce.length > 0;
-  const asked = nonceOk && new RegExp(`(?:^|[^A-Za-z0-9_-])${escapeRegex(RRA_PROBE_MARKER)} ${escapeRegex(probeNonce)}(?=$|[^A-Za-z0-9_-])`, 'u').test(text);
-  if (!asked) problems.push('probe-nonce-missing');
   if (!nonceOk || text !== rraProbeText(probeNonce)) problems.push('probe-not-conditional-wording');
+  return problems;
+}
+
+/**
+ * The work probe's text test: rraProbeTextProblems' first three checks, then
+ * - probe-names-condition: it carries the shared probe's condition, "If your context" or the old
+ *   "this turn", in any case;
+ * - probe-names-wake-marker: it carries the reason's RRA_WORK_WAKE_MARKER, in any case, or the
+ *   constant's name;
+ * - probe-not-work-wording: it is not rraWorkProbeText(probeNonce).
+ * The scenario sends no work probe that fails it.
+ */
+export function rraWorkProbeTextProblems(text, { rowNonce, probeNonce } = {}) {
+  if (typeof text !== 'string' || !text) return ['probe-text-missing'];
+  const problems = probeTextBaseProblems(text, { rowNonce, probeNonce });
+  const upper = text.toUpperCase();
+  if (upper.includes('IF YOUR CONTEXT') || upper.includes('THIS TURN')) problems.push('probe-names-condition');
+  if (upper.includes(RRA_WORK_WAKE_MARKER) || upper.includes('RRA_WORK_WAKE_MARKER')) problems.push('probe-names-wake-marker');
+  const nonceOk = typeof probeNonce === 'string' && probeNonce.length > 0;
+  if (!nonceOk || text !== rraWorkProbeText(probeNonce)) problems.push('probe-not-work-wording');
   return problems;
 }
 
@@ -202,7 +261,7 @@ export const RRA_PARKED_COPY_WITNESS_BYTES =
  * the same row may carry, and why. `otherFirstStages` names another first stage the bytes give the
  * case under an ordering the harness cannot prevent, each with its own bytes, later stages and the
  * product line that must witness it (`sweepArmedInTransition`); only `reassigned` has one. `tool` is `continue_work` for the one case that elects a kept
- * wake instead of a delegate (graded by gradeWorkRefusalCase). `fallbackProbe` marks the one case
+ * wake instead of a delegate (graded by gradeWorkRefusalCase, and sent its own probe, rraCaseProbe). `fallbackProbe` marks the one case
  * whose woken run may be followed by the conditional probe when it has no ack (🌊's ruling,
  * RRA_ORDERING_RULING). `clawSweeper` quotes the open item on openclaw/openclaw#129388 (comment
  * 5442236054) it answers.
@@ -374,7 +433,8 @@ export const RRA_CASES = Object.freeze({
   // right after the claim, before the busy, fold, admission and turn-start-fence branches that would
   // run it. There is no parent, child or
   // router line: the electing session is the recipient. The narrowing is sent only once the control
-  // read the election's capture in the store, by rraWorkCaptureDeadline (record.captureGate).
+  // read the election's capture in the store, by rraWorkCaptureDeadline (record.captureGate). Its
+  // probe is its own, unconditional (rraWorkProbeText): it has no return for a condition to hand back.
   'work-revoked-visibility': Object.freeze({
     family: 'refusal',
     tool: 'continue_work',
@@ -444,6 +504,19 @@ export function rraCaseSpec(caseId) {
   if (Object.hasOwn(RRA_CASES, caseId)) return RRA_CASES[caseId];
   if (Object.hasOwn(RRA_EARLY_ENQUEUE_PINS, caseId)) return RRA_EARLY_ENQUEUE_PINS[caseId];
   return null;
+}
+
+/**
+ * The probe a case sends, as { text, problems } (its text test's codes): the `continue_work` case's
+ * own unconditional probe (rraWorkProbeText), the shared conditional probe for every other.
+ */
+export function rraCaseProbe(caseId, { rowNonce, probeNonce } = {}) {
+  if (rraCaseSpec(caseId)?.tool === 'continue_work') {
+    const text = rraWorkProbeText(probeNonce);
+    return { text, problems: rraWorkProbeTextProblems(text, { rowNonce, probeNonce }) };
+  }
+  const text = rraProbeText(probeNonce);
+  return { text, problems: rraProbeTextProblems(text, { rowNonce, probeNonce }) };
 }
 
 /**
@@ -912,6 +985,9 @@ function heartbeatAckCalls(list, nonce) {
  * - unattributedAssistantRows: assistant rows with no run id; they cannot be placed, so a case
  *   that has any is MISSING.
  * - returnMarkerRows: assistant rows that repeat the child's return marker.
+ * - probeWokeRows: rows of the probe run that answer the continue_work reason, `RCDRA-WOKE <nonce>`
+ *   (RRA_WORK_WAKE_MARKER). work-revoked-visibility's own probe names neither that marker nor the
+ *   reason, so there such a row is the refused wake's instruction answered in the probe turn.
  * - probeReplied: the probe run answered `PROBE-OK <probeNonce>`.
  * - adoptedDeliveryRows: rows carrying the product's adoption marker,
  *   `__openclaw.sessionDeliveryAckIds` (session-system-event-adoption.ts:53-71 at j12′), which
@@ -930,6 +1006,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
   const foreignRuns = new Set();
   let unattributedAssistantRows = 0;
   let returnMarkerRows = 0;
+  let probeWokeRows = 0;
   let probeReplied = false;
   let probeAckRows = 0;
   let primingAckRows = 0;
@@ -955,6 +1032,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     }
     if (probe && runId === probe && acked) probeAckRows += 1;
     if (hasExactSentinelText(text, RRA_RETURN_MARKER, nonce)) returnMarkerRows += 1;
+    if (probe && runId === probe && hasExactSentinelText(text, RRA_WORK_WAKE_MARKER, nonce)) probeWokeRows += 1;
     if (probe && runId === probe && probeNonce && hasExactSentinelText(text, RRA_PROBE_MARKER, probeNonce)) {
       probeReplied = true;
     }
@@ -979,6 +1057,7 @@ export function observeTargetTranscript(messages, { nonce, primingRunIds = [], p
     foreignRuns: foreignRuns.size,
     unattributedAssistantRows,
     returnMarkerRows,
+    probeWokeRows,
     probeReplied,
     adoptedDeliveryRows,
   };
@@ -1186,11 +1265,11 @@ function isHash(value) {
  *   the probe's own run, sent after the router's `Delivered to` line from its child, and none before
  *   (🌊's ruling (a), room msg 1567556038281007235). The ack is the model's, so a missing, doubled or
  *   other-nonce ack is MISSING; a wake turn is FAIL.
- * - Every probing case gets the same conditional probe (rraProbeText; 🌊, room msg
+ * - Every probing delegate case gets the same conditional probe (rraProbeText; 🌊, room msg
  *   1567590902694936678). Its reply is graded as one of two answers, never both required: a refusal
  *   needs `PROBE-OK <probeNonce>` and no ack; allowed-silent needs the ack, PROBE-OK or not. A probe
  *   that ran must be named by its text's hash (RRA_PROBE_TEXT_SHA256), else MISSING
- *   `probe-text-unbound`.
+ *   `probe-text-unbound`. work-revoked-visibility gets its own (gradeWorkRefusalCase).
  * - A parked case (revoked-*, reassigned, replay-restart) holds only with the control's witness of the
  *   return's queued copy before it released the transition (record.witness, the router's `Delivered
  *   to` line from the case's child; 🌊's ruling, RRA_ORDERING_RULING), else MISSING
@@ -1599,6 +1678,12 @@ function gradeCaseRecord(record, specs) {
  *   one election. The handoff fails the record before it reports (work-recipient-authority.ts
  *   :133-141), and a failed record is never driven again (work-store.ts:226, 260), so a line logged
  *   before the probe was sent leaves the probe turn nothing to adopt.
+ * - the probe is the case's own, unconditional (rraWorkProbeText; 🌊's ruling (a), room msg
+ *   1567736961190596741), named by RRA_WORK_PROBE_TEXT_SHA256, else MISSING `probe-text-unbound`: the
+ *   shared conditional probe's hash included. Its reply oracle is unchanged: `PROBE-OK <probeNonce>` in
+ *   the probe's run, else MISSING `probe-turn-unobserved`. That probe names neither the reason nor
+ *   its `RCDRA-WOKE`, so that marker in the probe's run (probeWokeRows) is the refused wake's
+ *   instruction answered there: FAIL, as a wake turn is.
  * A deviation by the model or the setup is MISSING; a wake turn once the premise holds is FAIL.
  */
 function gradeWorkRefusalCase(record, spec) {
@@ -1629,7 +1714,7 @@ function gradeWorkRefusalCase(record, spec) {
   unless(Array.isArray(record.scenario?.refusals) && record.scenario.refusals.length === 0, 'scenario-refused');
   unless(record.scenario?.preflightOk === true, 'preflight-not-ok');
   const counted = need(
-    ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'adoptedDeliveryRows'].every((key) => isCount(target[key])),
+    ['ackRuns', 'foreignRuns', 'unattributedAssistantRows', 'returnMarkerRows', 'probeWokeRows', 'adoptedDeliveryRows'].every((key) => isCount(target[key])),
     'transcript-not-read',
   );
   if (counted && target.unattributedAssistantRows > 0) missing.push('unattributable-target-rows');
@@ -1683,10 +1768,12 @@ function gradeWorkRefusalCase(record, spec) {
     need(isTime(target.probeSentAtMs) && reason.observedAtMs < target.probeSentAtMs, 'reason-not-before-probe');
   }
   need(target.probeRan === true && target.probeReplied === true, 'probe-turn-unobserved');
-  if (target.probeRan === true) need(target.probeTextSha256 === RRA_PROBE_TEXT_SHA256, 'probe-text-unbound');
+  // Its own probe (🌊's ruling (a), room msg 1567736961190596741): the shared conditional one, or any
+  // other, leaves the case unbound.
+  if (target.probeRan === true) need(target.probeTextSha256 === RRA_WORK_PROBE_TEXT_SHA256, 'probe-text-unbound');
   if (counted) {
     if (target.foreignRuns > 0) contradict('target-woken');
-    if (target.adoptedDeliveryRows > 0) contradict('refused-work-adopted');
+    if (target.probeWokeRows > 0 || target.adoptedDeliveryRows > 0) contradict('refused-work-adopted');
   }
   if (record.cleanup?.gatewayStopped !== true || record.cleanup?.residue !== false) partial.push('cleanup-incomplete');
   if (contradictions.length) return result('FAIL-candidate');

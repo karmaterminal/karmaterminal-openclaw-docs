@@ -809,6 +809,8 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, tr
       foreignRuns: target.foreignRuns ?? null,
       unattributedAssistantRows: target.unattributedAssistantRows ?? null,
       returnMarkerRows: target.returnMarkerRows ?? null,
+      // The continue_work case: its reason's RCDRA-WOKE answered in its own probe's run.
+      ...(spec.tool === 'continue_work' ? { probeWokeRows: target.probeWokeRows ?? null } : {}),
       adoptedDeliveryRows: target.adoptedDeliveryRows ?? null,
     },
     parent: { ackRows: final.parent_ack_rows ?? null },

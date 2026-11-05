@@ -48,6 +48,12 @@ const PROBE_CONDITION = 'If your context includes the internal task completion f
 // 1567590902694936678 first worded it. The scripted model reads it literally; only pin (h) sends it.
 const THIS_TURN_CONDITION = 'If this turn includes the internal task completion for the proof you were primed for, follow that priming instruction instead.';
 const probeTextFor = (probeNonce) => `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: ${PROBE_CONDITION} Otherwise reply exactly PROBE-OK ${probeNonce}.`;
+// work-revoked-visibility's own probe (🌊's ruling (a), room msg 1567736961190596741), as docs#620's
+// workorder words it, quoted here rather than imported, and its hash from that text.
+const workProbeTextFor = (probeNonce) => `[k6-proof-harness] ${RRA_ROW} probe ${probeNonce}: Reply exactly PROBE-OK ${probeNonce}.`;
+const slotHash = (text) => createHash('sha256').update(text).digest('hex');
+const WORK_PROBE_SHA256 = slotHash(workProbeTextFor('<probeNonce>'));
+const SHARED_PROBE_SHA256 = slotHash(probeTextFor('<probeNonce>'));
 const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' && frame.method === 'sessions.send' && String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`));
 
 /**
@@ -76,7 +82,8 @@ const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' &&
  * ack alone), 'none' (PROBE-OK only), 'wrong-nonce' (the ack with the probe's nonce), 'twice' (two
  * ack rows), 'heartbeat-refused' (the ack through a heartbeat_respond call the turn refuses, then
  * PROBE-OK), 'probe-ok-other' (PROBE-OK with another probe's nonce), 'probe-ok-row-nonce' (PROBE-OK
- * with the row nonce). `probeMarker`, and
+ * with the row nonce), 'silent' (no row in the probe run), 'woke' (one row: the continue_work reason's
+ * `RCDRA-WOKE <nonce>` and PROBE-OK), 'woke-only' (`RCDRA-WOKE <nonce>` alone). `probeMarker`, and
  * `adoptOnProbe` by default, put the marker on the probe row: a product no pin is, kept so the
  * marker check stays covered. `markerOnly` keeps the old meaning: the marker and no ack.
  * `primingAck` adds an ack row to the priming run; `wakeAck` a woken run that acks before the probe.
@@ -93,6 +100,15 @@ const probeFrames = (frames) => frames.filter((frame) => frame.type === 'req' &&
  * through 663fafdc, holds only one that this turn's drain adopted, so on allowed's fallback
  * it is answered PROBE-OK. Until 663fafdc this model read both wordings as "in context", which is
  * why the dry run passed allowed's fallback while a literal model could not.
+ *
+ * The continue_work case's session is primed by its election alone, whose instruction ends "perform
+ * the call, then no other action". "If your context includes" hands that session's turn back to the
+ * election, and the model stays silent: both whole 13s at that wording (rra-eaa61a458beaf344 at docs
+ * 8bf9baf9, rra-3dd1c2a556ae087f at docs 93a93786) left the case's probe unanswered, while the
+ * "this turn" wording, which no turn of it meets, was answered (rra-a4d5318d426ad728; 🌿's
+ * classification on #620, comment 6648556457). Its own unconditional probe asks for PROBE-OK alone.
+ * Until docs#620's work-probe lane this model answered PROBE-OK to every probe in that case, which is
+ * why the dry run passed it while both live runs could not.
  */
 function gatewayFor(world, sessions = {}) {
   const spec = specOf(world.caseId);
@@ -158,7 +174,10 @@ function gatewayFor(world, sessions = {}) {
           const inContext = drained || woken;
           const marker = world.probeMarker ?? world.adoptOnProbe === true;
           const handsBack = message.includes(PROBE_CONDITION) ? inContext : message.includes(THIS_TURN_CONDITION) ? drained : false;
-          const answer = world.probeAck ?? (handsBack && !world.markerOnly ? 'ack-only' : 'none');
+          // The continue_work session's context holds its election, which the context condition hands
+          // the turn back to: "no other action".
+          const backToElection = spec.tool === 'continue_work' && message.includes(PROBE_CONDITION);
+          const answer = world.probeAck ?? (backToElection ? 'silent' : handsBack && !world.markerOnly ? 'ack-only' : 'none');
           // A silent return that woke the target anyway, and whose wake acked it.
           if (world.wakeAck) push(p.key, say(`TARGET-ACK ${nonce}`, 'run-wake'));
           // allowed's woken run's ack, seen only after the fallback decision.
@@ -176,6 +195,10 @@ function gatewayFor(world, sessions = {}) {
           else if (answer === 'ack-only') push(p.key, say(`TARGET-ACK ${nonce}`, 'run-probe'));
           else if (answer === 'probe-ok-other') push(p.key, say('PROBE-OK RCDRA-PROBE-1800000000000-otherprb', 'run-probe'));
           else if (answer === 'probe-ok-row-nonce') push(p.key, say(`PROBE-OK ${nonce}`, 'run-probe'));
+          else if (answer === 'silent') {
+            // The model stays silent: no row in the probe run.
+          } else if (answer === 'woke') push(p.key, say(`RCDRA-WOKE ${nonce}\nPROBE-OK ${probe[1]}`, 'run-probe'));
+          else if (answer === 'woke-only') push(p.key, say(`RCDRA-WOKE ${nonce}`, 'run-probe'));
           else if (answer === 'wrong-nonce') push(p.key, say(`TARGET-ACK ${probe[1]}\nPROBE-OK ${probe[1]}`, 'run-probe'));
           else if (answer === 'twice') {
             push(p.key, say(`TARGET-ACK ${nonce}`, 'run-probe'));
@@ -675,14 +698,16 @@ test('dry run: an ack of the nonce in a refusal case\'s probe run fails it, with
  */
 const refusalCases = RRA_CASE_IDS.filter((caseId) => RRA_CASES[caseId].family === 'refusal');
 
-test('dry run: (a) a refusal with no return is sent the conditional probe, answers PROBE-OK <probe nonce> and no ack, and passes', async () => {
+test('dry run: (a) a refusal with no return is sent its probe, answers PROBE-OK <probe nonce> and no ack, and passes: the conditional probe for a delegate case, its own for the work case', async () => {
   for (const caseId of refusalCases) {
     const { final, frames, record, graded } = await grade(caseId);
     assert.deepEqual([record.target.probeReplied, record.target.probeAckRows, record.target.ackRuns], [true, 0, 0], caseId);
     assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] }, caseId);
-    // The same stimulus allowed-silent gets: nothing in the refusal case's probe asks for PROBE-OK
-    // unconditionally (at 4f86dd78 it did).
-    assert.deepEqual(probeFrames(frames).map((frame) => frame.params.message), [probeTextFor(final.probe_nonce)], caseId);
+    // A delegate refusal gets the same stimulus allowed-silent gets: nothing in its probe asks for
+    // PROBE-OK unconditionally (at 4f86dd78 it did). work-revoked-visibility has no return to hand back,
+    // and gets its own unconditional probe (🌊's ruling (a), room msg 1567736961190596741).
+    const expected = RRA_CASES[caseId].tool === 'continue_work' ? workProbeTextFor(final.probe_nonce) : probeTextFor(final.probe_nonce);
+    assert.deepEqual(probeFrames(frames).map((frame) => frame.params.message), [expected], caseId);
   }
 });
 
@@ -724,11 +749,13 @@ test('dry run: (d) a PROBE-OK with any nonce but the probe\'s is never credited'
   }
 });
 
-test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own nonce, and the text test refuses one naming TARGET-ACK or the row nonce', async () => {
+test('dry run: (e) every delegate case that probes sends one probe text, 🌊\'s wording with its own nonce, the work case its own, and each text test refuses one naming TARGET-ACK or the row nonce', async () => {
   // The text test and the receipt's binding are new with the conditional probe; the rest of this
-  // file needs nothing new.
+  // file needs nothing new. The work probe's text test is read through the namespace (🌊's ruling (a),
+  // room msg 1567736961190596741).
   const { RRA_PROBE_TEXT_SHA256, rraProbeTextProblems } = await import('../lib/recipient-authority-row.mjs');
   const texts = new Set();
+  const workTexts = new Set();
   const receipts = [];
   for (const caseId of RRA_CASE_IDS) {
     const { drive, final, frames, record } = await grade(caseId, { ack: 'wake' });
@@ -740,11 +767,34 @@ test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own
       assert.deepEqual(sent, [], caseId);
       continue;
     }
-    assert.deepEqual(sent, [probeTextFor(final.probe_nonce)], caseId);
+    const work = RRA_CASES[caseId].tool === 'continue_work';
+    assert.deepEqual(sent, [work ? workProbeTextFor(final.probe_nonce) : probeTextFor(final.probe_nonce)], caseId);
     const [text] = sent;
-    texts.add(text.replaceAll(final.probe_nonce, '<probe nonce>'));
+    (work ? workTexts : texts).add(text.replaceAll(final.probe_nonce, '<probe nonce>'));
     const rowNonce = drive.nonce;
     const options = { rowNonce, probeNonce: final.probe_nonce };
+    if (work) {
+      // The work probe's own text test: no ack, row nonce, proof id, condition or the reason's marker.
+      const workProblems = (value) => rowLib.rraWorkProbeTextProblems?.(value, options) ?? ['no-work-text-test'];
+      assert.deepEqual(workProblems(text), [], caseId);
+      for (const [label, bad, code] of [
+        ['the ack marker', `${text} TARGET-ACK`, 'probe-names-ack'],
+        ['the ack marker, lower case', text.replace('Reply exactly', 'target-ack: Reply exactly'), 'probe-names-ack'],
+        ['the ack constant', `${text} RRA_ACK_MARKER`, 'probe-names-ack'],
+        ['the row nonce', `${text} ${rowNonce}`, 'probe-names-row-nonce'],
+        ['the proof id', `${text} proof ${rowNonce.slice(-16)}`, 'probe-names-row-nonce'],
+        ['the shared condition', text.replace('Reply exactly', `${PROBE_CONDITION} Otherwise reply exactly`), 'probe-names-condition'],
+        ['the "this turn" condition', text.replace('Reply exactly', `${THIS_TURN_CONDITION} Otherwise reply exactly`), 'probe-names-condition'],
+        ['the reason\'s marker', `${text} RCDRA-WOKE`, 'probe-names-wake-marker'],
+        ['the shared probe', probeTextFor(final.probe_nonce), 'probe-names-condition'],
+        ['the probe at 4f86dd78', `[k6-proof-harness] ${RRA_ROW} probe ${final.probe_nonce}: reply exactly PROBE-OK ${final.probe_nonce}.`, 'probe-not-work-wording'],
+      ]) {
+        assert.ok(workProblems(bad).includes(code), `${caseId} ${label}: ${workProblems(bad)}`);
+      }
+      // The shared text test refuses the work probe, so neither text passes for the other.
+      assert.deepEqual(rraProbeTextProblems(text, options), ['probe-not-conditional-wording'], caseId);
+      continue;
+    }
     assert.deepEqual(rraProbeTextProblems(text, options), [], caseId);
     for (const [label, bad, code] of [
       ['the ack marker', `${text} TARGET-ACK`, 'probe-names-ack'],
@@ -753,11 +803,13 @@ test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own
       ['the row nonce', `${text} ${rowNonce}`, 'probe-names-row-nonce'],
       ['the proof id the priming names', text.replace('the proof you were primed for', `proof ${rowNonce.slice(-16)}`), 'probe-names-row-nonce'],
       ['the probe at 4f86dd78', `[k6-proof-harness] ${RRA_ROW} probe ${final.probe_nonce}: reply exactly PROBE-OK ${final.probe_nonce}.`, 'probe-not-conditional-wording'],
+      ['the work probe', workProbeTextFor(final.probe_nonce), 'probe-not-conditional-wording'],
     ]) {
       assert.ok(rraProbeTextProblems(bad, options).includes(code), `${caseId} ${label}: ${rraProbeTextProblems(bad, options)}`);
     }
   }
   assert.equal(texts.size, 1, [...texts].join('\n'));
+  assert.deepEqual([...workTexts], [workProbeTextFor('<probe nonce>')]);
   // Each receipt names the probe it sent, by the text's hash with its nonce as the slot; a case that
   // sends no probe names none.
   for (const { caseId, final, sent, record } of receipts) {
@@ -765,7 +817,9 @@ test('dry run: (e) every case sends one probe text, 🌊\'s wording with its own
       assert.equal(record.target.probeTextSha256, null, caseId);
       continue;
     }
-    assert.equal(record.target.probeTextSha256, RRA_PROBE_TEXT_SHA256, caseId);
+    const work = RRA_CASES[caseId].tool === 'continue_work';
+    assert.equal(record.target.probeTextSha256, work ? WORK_PROBE_SHA256 : RRA_PROBE_TEXT_SHA256, caseId);
+    if (work) assert.equal(record.target.probeTextSha256, rowLib.RRA_WORK_PROBE_TEXT_SHA256, caseId);
     assert.equal(record.target.probeTextSha256, createHash('sha256').update(sent[0].replaceAll(final.probe_nonce, '<probeNonce>')).digest('hex'), caseId);
   }
 });
@@ -1271,7 +1325,7 @@ test('dry run: (o2) a capture never readable by the deadline: no transition is s
   assert.ok(noDelay.captureGate.capturedByMs !== null, 'the capture was readable, and still nothing is released');
 });
 
-test('dry run: (o3) a receipt shaped like rra-eaa61a458beaf344, its transition before its capture, still grades MISSING capture-not-before-transition, unchanged', async () => {
+test('dry run: (o3) a receipt shaped like rra-eaa61a458beaf344, its transition before its capture, still grades MISSING capture-not-before-transition, and its probe now reads unbound', async () => {
   const { drive } = await runCase(workCase, {});
   const key = drive.keys.target;
   const t = RRA_EAA61;
@@ -1312,8 +1366,15 @@ test('dry run: (o3) a receipt shaped like rra-eaa61a458beaf344, its transition b
   assert.ok(record.epochs.captured === record.epochs.afterTransition && record.epochs.afterTransition === record.epochs.final, JSON.stringify(record.epochs));
   assert.deepEqual([record.target.probeRan, record.target.probeReplied, record.target.foreignRuns], [true, false, 1]);
   assert.equal(record.captureGate ?? null, null, 'the 8bf9baf9 control had no gate');
-  const expected = { verdict: 'MISSING-candidate', missing: ['capture-not-before-transition', 'transition-did-not-advance-epoch', 'refusal-reason-not-observed', 'probe-turn-unobserved'], contradictions: [], partial: [] };
+  // The capture order's oracle is unchanged: these four codes. The receipt now also reads
+  // probe-text-unbound, because it named the shared conditional probe (509c3feb…), never the work
+  // probe (🌊's ruling (a), room msg 1567736961190596741; pin (w2)), and transcript-not-read, because
+  // it predates the probe run's RCDRA-WOKE count (probeWokeRows; pin (w5)).
+  const captureOrder = ['capture-not-before-transition', 'transition-did-not-advance-epoch', 'refusal-reason-not-observed', 'probe-turn-unobserved'];
+  const expected = { verdict: 'MISSING-candidate', missing: ['transcript-not-read', ...captureOrder, 'probe-text-unbound'], contradictions: [], partial: [] };
   assert.deepEqual(gradeRecipientAuthorityCase(record), expected);
+  const withWorkProbe = { ...record, target: { ...record.target, probeTextSha256: WORK_PROBE_SHA256, probeWokeRows: 0 } };
+  assert.deepEqual(gradeRecipientAuthorityCase(withWorkProbe), { ...expected, missing: captureOrder }, 'with the work probe\'s two additions, the four codes it read at 8bf9baf9');
   // A gate that claims a release never stands in for the store's order: the same grade.
   const claimed = assemble({ deadlineAtMs: t.capturedAtMs + 20_000, captured: record.epochs.captured, capturedAfterMs: t.capturedAfterMs, capturedByMs: t.capturedByMs, releasedAtMs: t.requestedAtMs - 1 });
   assert.deepEqual(gradeRecipientAuthorityCase(claimed), expected);
@@ -1338,6 +1399,109 @@ test('dry run: the continue_work case\'s transition phase continues only a drive
     assert.ok(evidence.refusals.some((refusal) => refusal.includes('continues only a drive that handed over')), `${JSON.stringify(state)}: ${evidence.refusals}`);
     assert.equal(frames.length, 0, JSON.stringify(state));
   }
+});
+
+/*
+ * 🌊's ruling (a), room msg 1567736961190596741: "Rule **(a)** for `work-revoked-visibility`: give that
+ * case a separate hash-bound, unconditional `PROBE-OK ‹nonce>` instruction. Its election priming says
+ * 'no other action,' and a work wake has no task completion, so the shared conditional is the wrong
+ * probe for this case. Keep the existing nonce, timing, wrong/replay/duplicate negatives and the refusal
+ * oracle unchanged." 🕯's rra-3dd1c2a556ae087f (docs 93a93786): this case proved its product claims, but
+ * `probeReplied: false` (🌿's classification on #620, comment 6648556457). Pins (w1)-(w5).
+ */
+// The driver's work probe as a gateway at 93a93786 would have read it: the shared conditional text on
+// the wire, with the same probe nonce.
+const sharedOnTheWire = (gateway) => (frame) => {
+  if (frame?.type !== 'req' || frame.method !== 'sessions.send' || !String(frame.params?.idempotencyKey).startsWith(`${RRA_ROW}-PROBE-`)) return gateway(frame);
+  const probeNonce = /probe (\S+):/.exec(String(frame.params.message))[1];
+  return gateway({ ...frame, params: { ...frame.params, message: probeTextFor(probeNonce) } });
+};
+const THIS_TURN_PROBE_SHA256 = slotHash(`[k6-proof-harness] ${RRA_ROW} probe <probeNonce>: ${THIS_TURN_CONDITION} Otherwise reply exactly PROBE-OK <probeNonce>.`);
+const UNCONDITIONAL_4F86_SHA256 = slotHash(`[k6-proof-harness] ${RRA_ROW} probe <probeNonce>: reply exactly PROBE-OK <probeNonce>.`);
+
+test('dry run: (w1) the work case is sent its own unconditional probe, answers PROBE-OK <probe nonce>, and passes with every product claim shown', async () => {
+  const { drive, final, frames, record, graded } = await grade(workCase);
+  // Exactly the ruled text, once, from the transition phase, after the narrowing and the wake's due time.
+  const sent = probeFrames(frames);
+  assert.deepEqual(sent.map((frame) => [frame.phase, frame.params.message]), [['transition', workProbeTextFor(final.probe_nonce)]]);
+  // Its nonce is the probe nonce the scenario mints, as before, never the row nonce. Its timing, the
+  // delay and _PARK_MS after the narrowing, is pinned on the scenario's source (row test).
+  assert.match(final.probe_nonce, /^RCDRA-PROBE-/u);
+  assert.notEqual(final.probe_nonce, drive.nonce);
+  assert.ok(final.probe_sent_at_ms > final.transition.settled_at_ms, 'the probe follows the narrowing');
+  // The receipt names it by its own hash.
+  assert.equal(record.target.probeTextSha256, WORK_PROBE_SHA256);
+  assert.notEqual(WORK_PROBE_SHA256, SHARED_PROBE_SHA256);
+  // The product claims: the capture before the transition, the epoch advanced, the work line at
+  // stage=wake before the probe, no wake run, no adoption, and the reason's marker not in the probe run.
+  assert.ok(record.captureGate.capturedByMs <= record.captureGate.releasedAtMs && record.epochs.capturedByMs < record.transition.requestedAtMs, JSON.stringify([record.captureGate, record.epochs]));
+  assert.notEqual(record.epochs.afterTransition, record.epochs.captured);
+  assert.deepEqual([record.reason.kind, record.reason.stage, record.reason.distinctFlowIds], ['work-refused', 'wake', 1]);
+  assert.ok(record.reason.observedAtMs < record.target.probeSentAtMs);
+  assert.deepEqual(
+    [record.target.probeRan, record.target.probeReplied, record.target.foreignRuns, record.target.ackRuns, record.target.adoptedDeliveryRows, record.target.probeWokeRows],
+    [true, true, 0, 0, 0, 0],
+  );
+  assert.deepEqual(graded, { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+});
+
+test('dry run: (w2) the work case under the shared conditional probe: the model stays silent, and a receipt naming that probe, the "this turn" one or 4f86dd78\'s is MISSING probe-text-unbound', async () => {
+  // The shared conditional text on the wire: its condition hands the session back to its election's
+  // "no other action", and the model stays silent, 🕯's rra-3dd1c2a556ae087f shape.
+  const shared = await grade(workCase, {}, {}, sharedOnTheWire(gatewayFor({ caseId: workCase })));
+  assert.deepEqual([shared.record.target.probeRan, shared.record.target.probeReplied, shared.record.target.foreignRuns, shared.record.target.adoptedDeliveryRows], [true, false, 0, 0]);
+  assert.deepEqual(shared.graded, { verdict: 'MISSING-candidate', missing: ['probe-turn-unobserved'], contradictions: [], partial: [] });
+  // Sealed as the 93a93786 driver sealed it, naming the shared probe's hash: unbound as well.
+  const sealed = gradeRecipientAuthorityCase({ ...shared.record, target: { ...shared.record.target, probeTextSha256: SHARED_PROBE_SHA256 } });
+  assert.deepEqual([sealed.verdict, sorted(sealed.missing), sealed.contradictions], ['MISSING-candidate', sorted(['probe-turn-unobserved', 'probe-text-unbound']), []]);
+  // A receipt that answered PROBE-OK but names another probe than its own is unbound: the shared
+  // conditional, the "this turn" one and the unconditional one before 🌊's first ruling.
+  const { record } = await grade(workCase);
+  assert.equal(gradeRecipientAuthorityCase(record).verdict, 'PASS-candidate');
+  for (const [label, hash] of [['shared', SHARED_PROBE_SHA256], ['this turn', THIS_TURN_PROBE_SHA256], ['4f86dd78', UNCONDITIONAL_4F86_SHA256], ['none', null]]) {
+    const unbound = gradeRecipientAuthorityCase({ ...record, target: { ...record.target, probeTextSha256: hash } });
+    assert.deepEqual(unbound, { verdict: 'MISSING-candidate', missing: ['probe-text-unbound'], contradictions: [], partial: [] }, label);
+  }
+  assert.equal(new Set([WORK_PROBE_SHA256, SHARED_PROBE_SHA256, THIS_TURN_PROBE_SHA256, UNCONDITIONAL_4F86_SHA256]).size, 4, 'four distinct probes');
+});
+
+test('dry run: (w3) a delegate case\'s receipt naming the work probe is MISSING probe-text-unbound', async () => {
+  // Every delegate case that probes, and allowed on its fallback, sends the shared probe and passes
+  // bound to it; named by the work probe's hash instead, it is unbound.
+  for (const [label, caseId, world] of [...delegateRefusalCases.map((id) => [id, id, {}]), ['allowed-silent', 'allowed-silent', {}], ['allowed, probe-mediated', 'allowed', { ack: 'wake-no-ack' }]]) {
+    const { record, graded } = await grade(caseId, world);
+    assert.equal(record.target.probeTextSha256, SHARED_PROBE_SHA256, label);
+    assert.equal(graded.verdict, 'PASS-candidate', `${label}: ${JSON.stringify(graded)}`);
+    const unbound = gradeRecipientAuthorityCase({ ...record, target: { ...record.target, probeTextSha256: WORK_PROBE_SHA256 } });
+    assert.deepEqual(unbound, { verdict: 'MISSING-candidate', missing: ['probe-text-unbound'], contradictions: [], partial: [] }, label);
+  }
+});
+
+test('dry run: (w4) the work probe unanswered is MISSING probe-turn-unobserved, never FAIL', async () => {
+  for (const probeAck of ['silent', 'probe-ok-other', 'probe-ok-row-nonce']) {
+    const { final, frames, record, graded } = await grade(workCase, { probeAck });
+    assert.deepEqual(probeFrames(frames).map((frame) => frame.params.message), [workProbeTextFor(final.probe_nonce)], probeAck);
+    assert.equal(record.target.probeTextSha256, WORK_PROBE_SHA256, probeAck);
+    assert.deepEqual([record.target.probeRan, record.target.probeReplied], [true, false], probeAck);
+    assert.deepEqual(graded, { verdict: 'MISSING-candidate', missing: ['probe-turn-unobserved'], contradictions: [], partial: [] }, probeAck);
+  }
+});
+
+test('dry run: (w5) the reason\'s RCDRA-WOKE in the work probe\'s run is FAIL, with or without PROBE-OK beside it; a wake turn stays FAIL as before', async () => {
+  for (const probeAck of ['woke', 'woke-only']) {
+    const { record, graded } = await grade(workCase, { probeAck });
+    assert.equal(record.target.probeTextSha256, WORK_PROBE_SHA256, probeAck);
+    assert.deepEqual([record.target.probeWokeRows, record.target.probeReplied, record.target.foreignRuns], [1, probeAck === 'woke', 0], probeAck);
+    assert.equal(graded.verdict, 'FAIL-candidate', `${probeAck}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.contradictions, ['refused-work-adopted'], probeAck);
+    // With PROBE-OK beside it, nothing else is missing.
+    if (probeAck === 'woke') assert.deepEqual(graded.missing, [], probeAck);
+  }
+  // A wake turn that answered the reason in a run of its own is the wake itself (o4): the probe run
+  // holds no marker, and the contradiction is the wake's alone.
+  const woken = await grade(workCase, { workWake: true });
+  assert.deepEqual([woken.record.target.probeWokeRows, woken.record.target.foreignRuns], [0, 1]);
+  assert.deepEqual([woken.graded.verdict, woken.graded.contradictions], ['FAIL-candidate', ['target-woken']]);
 });
 
 test('dry run: outside the control the scenario refuses before it sends a frame', async () => {

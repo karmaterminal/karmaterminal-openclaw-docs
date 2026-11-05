@@ -1039,8 +1039,10 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
           platform,
         });
         captureGate = { ...read, releasedAtMs: null };
-        if (read.inTime && verifyOwnership(current, target, platform)) {
-          captureGate.releasedAtMs = platform.now();
+        // The release itself is held to the deadline too, not only the read before it.
+        const releaseAtMs = platform.now();
+        if (read.inTime && releaseAtMs <= read.deadlineAtMs && verifyOwnership(current, target, platform)) {
+          captureGate.releasedAtMs = releaseAtMs;
           transitionEvidence = await runScenario({ caseId, phase: 'transition', state: evidence, runId, target, options, privateDir, platform });
         }
       }

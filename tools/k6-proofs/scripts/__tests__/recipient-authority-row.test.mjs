@@ -67,6 +67,8 @@ import {
   sealCaseReceipt,
   verifyCaseReceipt,
 } from '../run-recipient-authority-row.mjs';
+// The control's capture gate for work-revoked-visibility (docs#620) is read through the namespace too.
+import * as controlNs from '../run-recipient-authority-row.mjs';
 
 const k6Root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const repoRoot = path.resolve(k6Root, '../..');
@@ -141,13 +143,14 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   for (const old of FORMER_PINS) {
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
-  // The status line: re-pinned to a22bd9c05c (🕯, room msg 1567674372905505001), the grant's head
-  // refused, and what the owner runs next.
-  // Under it, the pin before it, as it stood: the owner's fresh 13 at 2907e656, the two cases it left
-  // open now fixed, where the fixes landed, and that 663fafdc was no gate-3 PASS (🌊, room msg
-  // 1567656724549075047).
-  const statusLine = /^Status: \*\*re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\.\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
-  assert.ok(statusLine, 'the status line, and the former pin\'s status under it');
+  // The status line: work-revoked-visibility's control waits for the capture (docs#620), and what the
+  // owner runs next. Under it, the pin's own run: re-pinned to a22bd9c05c (🕯, room msg
+  // 1567674372905505001), the grant's head refused, and 🕯's whole 13 there, whose
+  // work-revoked-visibility transition came before its capture. Under that, the pin before it, as it
+  // stood: the owner's fresh 13 at 2907e656, the two cases it left open now fixed, where the fixes
+  // landed, and that 663fafdc was no gate-3 PASS (🌊, room msg 1567656724549075047).
+  const statusLine = /^Status: \*\*`work-revoked-visibility`'s control waits for the capture; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\.\nAt `a22bd9c05c` \(re-pinned; `2907e656` refused\): \*\*🕯's whole 13 `rra-eaa61a458beaf344` \(docs `8bf9baf9`\) graded MISSING; its `work-revoked-visibility` transition came before its capture\.\*\*\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
+  assert.ok(statusLine, 'the status line, the pin\'s own run under it, and the former pin\'s status under that');
   assert.match(docs, /1567674372905505001/, '🕯\'s re-pin message');
   assert.notEqual(statusLine[1], '663fafdc', 'the fixes landed after 663fafdc');
   const status = docs.slice(0, docs.indexOf('## What it proves'));
@@ -169,6 +172,21 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
     assert.match(docs, new RegExp(`^\\| \`${caseId}\` \\|[^\\n]*witness`, 'm'), `${caseId}: the witness in the case table`);
   }
   assert.match(docs, /^\| `allowed` \|[^\n]*\*\*Direct wake:\*\*[^\n]*\*\*Probe-mediated fallback\*\*/m);
+  // docs#620: work-revoked-visibility's capture gate, the run's receipt it rests on, its margin and pins.
+  assert.ok(docs.includes('\n### `work-revoked-visibility`: the capture read before the transition\n'), 'the capture gate\'s section');
+  assert.match(docs, /^\| `work-revoked-visibility` \|[^\n]*control read the election's capture in the store[^\n]*`capture-unread-before-transition`/m);
+  for (const evidence of [
+    'dispatch.accepted: true, status: scheduled, capturedAtMs: 1793839272167, resultDelaySeconds: 30',
+    'transition: session.visibility.set, ok: true, requestedAtMs: 1793839280186, settledAtMs: 1793839282354',
+    'epochs: captured = afterTransition = final = ff5b4d9f…, capturedAfterMs: 1793839281828, capturedByMs: 1793839282419',
+    'target: probeRan true, probeReplied false, foreignRuns 1',
+    'comment 6646547903',
+    '`RRA_WORK_CAPTURE_MARGIN_SECONDS`',
+    '`continue-work-tool.ts:99-100`',
+    '`work-dispatch.ts:662-668`',
+  ]) assert.ok(docs.includes(evidence), evidence);
+  for (const pin of ['(o1) capture in time', '(o2) no capture', '(o3) the run\'s shape', '(o4) wake turn']) assert.match(docs, new RegExp(`^\\| ${pin.replace(/[()]/gu, '\\$&')} \\|`, 'm'), pin);
+  assert.doesNotMatch(docs, /_CAPTURE_WAIT_MS` \(8000/u, 'the fixed wait is gone from the procedure');
   for (const heading of ['### `revoked-*`: the parked copy witnessed before the transition', '### The early-enqueue ordering, pinned apart', '### `allowed`: the direct-wake path and the probe-mediated fallback']) {
     assert.ok(docs.includes(`\n${heading}\n`), heading);
   }
@@ -205,7 +223,8 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.match(readmeLine, /disposable gateway at the merged j12′ a22bd9c05c\)/);
   assert.doesNotMatch(readmeLine, /1ab5a73e/);
   assert.doesNotMatch(readmeLine, /interim/i);
-  assert.ok(readmeLine.includes('re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿\'s review'), 'the README line says the docs\' status');
+  assert.ok(readmeLine.includes('`work-revoked-visibility`\'s control waits for the capture; owner fires a fresh whole 13 after 🌿\'s review'), 'the README line says the docs\' status');
+  assert.ok(readmeLine.includes('At `a22bd9c05c` (re-pinned; `2907e656` refused): 🕯\'s whole 13 `rra-eaa61a458beaf344` graded MISSING'), 'and the pin\'s own run');
   assert.ok(readmeLine.includes(`fixes landed at \`${statusLine[1]}\``) && readmeLine.includes('`663fafdc` was not a gate-3 PASS'), 'and the former pin\'s');
   const readmeSection = /### R-CD-RECIPIENT-AUTHORITY [^\n]*\n[\s\S]*?(?=\n### )/.exec(readme)?.[0] ?? '';
   assert.match(readmeSection, new RegExp(MERGED_J12P));
@@ -502,6 +521,9 @@ function completeRecord(caseId) {
     record.park = { deliveredToTargetAtMs: null };
     record.routing = null;
     record.epochs = { captured: H('a'), capturedAfterMs: 1500, capturedByMs: 2000, afterTransition: H('b'), final: H('b') };
+    // The control read that capture in the store at 2.25 s, before its deadline (1 s + (30 - 10) s),
+    // and only then released the transition (docs#620).
+    record.captureGate = { deadlineAtMs: 21_000, captured: H('a'), capturedAfterMs: 1500, capturedByMs: 2000, releasedAtMs: 2_250 };
     record.reason = { kind: 'work-refused', stage: 'wake', stages: ['wake'], reasonTexts: ['recipient-authority-changed'], observedAtMs: 32_000, generation: 0, flowIdHash: H('f'), distinctFlowIds: 1, lines: 1 };
     record.trace = null;
   }
@@ -2027,6 +2049,106 @@ test('the control releases a parked case\'s transition only after the router\'s 
   assert.throws(() => parseArgs([], { OPENCLAW_RCD_RA_WITNESS_WAIT_MS: '0' }), /positive integer/);
 });
 
+// docs#620: 🕯's whole 13 at a22bd9c05c (rra-eaa61a458beaf344) sent work-revoked-visibility's transition
+// 8 s after its scheduled result, before the election's capture was in the store. The control now
+// reads the capture there first, at most until capturedAtMs + (resultDelaySeconds - 10) s.
+test('the control releases work-revoked-visibility\'s transition only once it read the capture in the store, by the deadline its scheduled result sets', async () => {
+  const target = 'agent:main:r-cd-ra-work-revoked-visibility-target-abc';
+  const captured = '11111111-1111-4111-8111-111111111111';
+  const advanced = '22222222-2222-4222-8222-222222222222';
+  for (const [label, rowAfterMs, gated, releases, driveExtra = {}] of [
+    ['the capture lands 6 s after the scheduled result', 6_000, true, true],
+    ['the capture lands 19 s after it', 19_000, true, true],
+    ['the capture is already there', 0, true, true],
+    ['no capture ever', null, true, false],
+    ['the capture lands only after the deadline', 25_000, true, false],
+    ['a scheduled result with no delay', 0, true, false, { dispatch: { result_delay_seconds: null } }],
+    ['a drive that recorded a refusal', 6_000, false, false, { refusals: ['websocket error'] }],
+    ['a drive whose preflight failed', 6_000, false, false, { preflight: { ok: false } }],
+    ['a drive that handed nothing over', 6_000, false, false, { handoff: undefined }],
+  ]) {
+    const fixture = proofGwFixture();
+    try {
+      let clock = 1_000_000;
+      let scheduledAt = null;
+      let transitionAt = null;
+      const phases = [];
+      // One clock for the sampler and the control's wait: every sleep, whoever sleeps, moves it 50 ms.
+      const { platform } = fakePlatform(fixture, {
+        now: () => clock,
+        sleep: async () => { clock += 50; },
+        listenerOwner: () => ({ pid: 4242, startTicks: 77 }),
+        spawnGateway: () => ({ pid: 4242, lines: [], exited: new Promise(() => {}), signal: () => {} }),
+        // The session's row first appears `rowAfterMs` after the scheduled result; the transition advances it.
+        readAuthorityTable: () => ({
+          state: 'read',
+          rows: scheduledAt !== null && rowAfterMs !== null && clock >= scheduledAt + rowAfterMs ? [{ session_key: target, epoch: transitionAt === null ? captured : advanced }] : [],
+        }),
+        runK6: async ({ env }) => {
+          const phase = env.OPENCLAW_RCD_RA_PHASE;
+          phases.push(phase);
+          const evidence = { row: RRA_ROW, case: env.OPENCLAW_RCD_RA_CASE, phase, control_run_id: env.OPENCLAW_RCD_RA_RUN, candidate_sha: RRA_PINNED, keys: { parent: null, target, ops: null }, refusals: [], preflight: { ok: true } };
+          if (phase === 'drive') {
+            scheduledAt = clock;
+            Object.assign(evidence, {
+              target_primed: true,
+              priming_run_ids: ['run-e'],
+              dispatch: { status: 'scheduled', accepted: true, result_mode: null, result_delay_seconds: 30, observed_at_ms: clock, ...driveExtra.dispatch },
+              transition: { method: 'session.visibility.set', ok: null, requested_at_ms: null, settled_at_ms: null },
+              handoff: { ready_for_capture: true },
+            });
+            for (const [key, value] of Object.entries(driveExtra)) if (key !== 'dispatch') evidence[key] = value;
+          } else {
+            // The transition phase continues the drive's state, and narrows the session now.
+            const state = JSON.parse(env.OPENCLAW_RCD_RA_STATE);
+            assert.deepEqual([state.keys.target, state.handoff], [target, { ready_for_capture: true }], label);
+            transitionAt = clock;
+            evidence.transition = { method: 'session.visibility.set', ok: true, requested_at_ms: clock, settled_at_ms: clock + 1 };
+          }
+          return { code: 0, log: `R_CD_RECIPIENT_AUTHORITY_EVIDENCE ${JSON.stringify(evidence)}\n` };
+        },
+      });
+      const result = await runRecipientAuthorityRow(controlOptions(fixture, { cases: [WORK_CASE] }), platform);
+      assert.equal(result.ok, true, label);
+      assert.deepEqual(phases, releases ? ['drive', 'transition'] : ['drive'], label);
+      const receipt = JSON.parse(readFileSync(path.join(fixture.home, 'artifacts', WORK_CASE, 'case-receipt.json'), 'utf8'));
+      const deadline = driveExtra.dispatch ? null : scheduledAt + 20_000;
+      if (!gated) {
+        assert.equal(receipt.captureGate, null, `${label}: no gate ran`);
+        assert.ok(!receipt.grade.missing.includes('capture-unread-before-transition'), `${label}: ${receipt.grade.missing}`);
+      } else if (releases) {
+        const gate = receipt.captureGate;
+        assert.equal(gate.deadlineAtMs, deadline, label);
+        assert.equal(gate.captured, sha256Hex(captured), `${label}: the captured epoch, hashed`);
+        assert.ok(gate.capturedByMs >= scheduledAt + rowAfterMs && gate.capturedByMs <= gate.releasedAtMs && gate.releasedAtMs <= deadline, `${label}: ${JSON.stringify(gate)}`);
+        assert.ok(transitionAt >= gate.releasedAtMs && receipt.transition.requestedAtMs === transitionAt, `${label}: ${JSON.stringify([gate, receipt.transition])}`);
+        // The capture the gate read is the one the grade reads.
+        assert.deepEqual([gate.captured, gate.capturedAfterMs, gate.capturedByMs], [receipt.epochs.captured, receipt.epochs.capturedAfterMs, receipt.epochs.capturedByMs], label);
+        assert.equal(receipt.epochs.afterTransition, sha256Hex(advanced), label);
+        for (const code of ['capture-unread-before-transition', 'capture-not-before-transition', 'transition-did-not-advance-epoch', 'transition-not-observed']) {
+          assert.ok(!receipt.grade.missing.includes(code), `${label} ${code}: ${receipt.grade.missing}`);
+        }
+      } else {
+        assert.equal(receipt.captureGate.deadlineAtMs, deadline, label);
+        assert.equal(receipt.captureGate.releasedAtMs, null, `${label}: nothing released`);
+        assert.equal(receipt.transition.requestedAtMs, null, `${label}: no transition was sent`);
+        assert.equal(transitionAt, null, label);
+        assert.equal(receipt.grade.verdict, 'MISSING-candidate', label);
+        assert.ok(receipt.grade.missing.includes('capture-unread-before-transition'), `${label}: ${receipt.grade.missing}`);
+        assert.deepEqual(receipt.grade.contradictions, [], label);
+        // The case's other receipts are kept.
+        assert.deepEqual([receipt.dispatch.accepted, receipt.dispatch.status, receipt.dispatch.capturedAtMs], [true, 'scheduled', scheduledAt], label);
+      }
+      const publicText = JSON.stringify(receipt);
+      for (const secret of [target, captured, advanced]) assert.ok(!publicText.includes(secret), `${label}: ${secret} stays private`);
+    } finally {
+      fixture.cleanup();
+    }
+  }
+  // The continue_work case's wait has no knob: its deadline is its own scheduled result's.
+  assert.equal(Object.hasOwn(parseArgs([], { OPENCLAW_RCD_RA_CAPTURE_WAIT_MS: '8000' }).timing, 'OPENCLAW_RCD_RA_CAPTURE_WAIT_MS'), false);
+});
+
 /* ------------------------------------------------------------------------------------ */
 /* Case records: assembly, public safety, signature, row grade                           */
 /* ------------------------------------------------------------------------------------ */
@@ -2416,6 +2538,97 @@ test('work-revoked-visibility: a capture not seen before the transition, a late 
   // Just inside the bound the premise holds, and the same wake is FAIL.
   const inside = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.transition.settledAtMs = 30_400; woke(r); }));
   assert.equal(inside.verdict, 'FAIL-candidate', JSON.stringify(inside));
+});
+
+// docs#620: 🕯's whole 13 at a22bd9c05c (rra-eaa61a458beaf344) sent work-revoked-visibility's transition
+// before its capture. The control now reads the capture in the store first (record.captureGate).
+test('work-revoked-visibility: a gate that released no transition is MISSING capture-unread-before-transition, never FAIL; a released gate, or none, changes nothing', () => {
+  const woke = (r) => { r.target.foreignRuns = 1; };
+  // The gate released the transition once the capture was read: the complete chain passes, and a
+  // receipt sealed by a control without a gate is graded as before.
+  assert.deepEqual(gradeRecipientAuthorityCase(completeRecord(WORK_CASE)), { verdict: 'PASS-candidate', missing: [], contradictions: [], partial: [] });
+  assert.deepEqual(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { r.captureGate = null; })).verdict, 'PASS-candidate');
+  assert.equal(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { delete r.captureGate; woke(r); })).verdict, 'FAIL-candidate');
+  // No capture read by the deadline: no transition was sent. Whatever the session then did, MISSING.
+  const withheld = (r) => {
+    r.captureGate = { deadlineAtMs: 21_000, captured: null, capturedAfterMs: null, capturedByMs: null, releasedAtMs: null };
+    r.transition = { method: 'session.visibility.set', ok: null, requestedAtMs: null, settledAtMs: null };
+    r.preTransition = null;
+    r.reason = null;
+    r.epochs = { captured: null, capturedAfterMs: null, capturedByMs: null, afterTransition: null, final: null };
+    r.target = { ...r.target, probeRan: false, probeSentAtMs: null, probeTextSha256: null, probeReplied: false };
+  };
+  for (const [label, fn] of [['withheld', withheld], ['withheld, and a wake turn ran', (r) => { withheld(r); woke(r); }]]) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), fn));
+    assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
+    for (const code of ['capture-unread-before-transition', 'transition-not-observed', 'capture-unobserved']) assert.ok(graded.missing.includes(code), `${label} ${code}: ${graded.missing}`);
+    assert.deepEqual(graded.contradictions, [], label);
+  }
+  // The code alone: a gate that released nothing beside an otherwise complete chain, a wake turn included.
+  for (const fn of [(r) => { r.captureGate.releasedAtMs = null; }, (r) => { r.captureGate.releasedAtMs = null; woke(r); }]) {
+    assert.deepEqual(gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), fn)), { verdict: 'MISSING-candidate', missing: ['capture-unread-before-transition'], contradictions: [], partial: [] });
+  }
+  // A released gate never stands in for the store's order, nor for the epoch's advance.
+  for (const [code, fn] of [
+    ['capture-not-before-transition', (r) => { r.epochs.capturedByMs = 5_500; }],
+    ['transition-did-not-advance-epoch', (r) => { r.epochs.afterTransition = r.epochs.captured; }],
+  ]) {
+    const graded = gradeRecipientAuthorityCase(mutate(completeRecord(WORK_CASE), (r) => { fn(r); woke(r); }));
+    assert.equal(graded.verdict, 'MISSING-candidate', `${code}: ${JSON.stringify(graded)}`);
+    assert.deepEqual(graded.missing, [code], code);
+    assert.deepEqual(graded.contradictions, [], code);
+  }
+});
+
+test('the capture gate\'s deadline: the scheduled result\'s own time and delay, less a 10 s margin read from the bytes', () => {
+  assert.equal(rowLib.RRA_WORK_CAPTURE_MARGIN_SECONDS, 10);
+  assert.equal(rowLib.rraWorkCaptureDeadline({ capturedAtMs: 1793839272167, resultDelaySeconds: 30 }), 1793839292167);
+  assert.equal(rowLib.rraWorkCaptureDeadline({ capturedAtMs: 1_000, resultDelaySeconds: 60 }), 51_000);
+  for (const bad of [{}, { capturedAtMs: null, resultDelaySeconds: 30 }, { capturedAtMs: 1_000, resultDelaySeconds: null }, { capturedAtMs: 1_000, resultDelaySeconds: Number.NaN }, { capturedAtMs: 0, resultDelaySeconds: 30 }]) {
+    assert.equal(rowLib.rraWorkCaptureDeadline(bad), null, JSON.stringify(bad));
+  }
+  // The margin's bytes: when the wake can be due, how the delay is reported, and the run that set it.
+  for (const anchor of ['work-dispatch.ts:662-668', 'work-store.ts:335-345', 'work-dispatch.ts:169-199', 'continue-work-tool.ts:99-100', 'OPENCLAW_RCD_RA_POLL_MS', '2168 ms', 'rra-eaa61a458beaf344', '10.252 s']) {
+    assert.ok(rowLib.RRA_WORK_CAPTURE_MARGIN_BYTES.includes(anchor), anchor);
+  }
+});
+
+test('the control\'s capture read: the first readable sample holding the row, by the deadline, and never with no deadline', async () => {
+  const key = 'agent:main:r-cd-ra-work-revoked-visibility-target-abc';
+  const epoch = '11111111-1111-4111-8111-111111111111';
+  const run = async (rowAtMs, { deadlineAtMs = 20_000, unreadable = [] } = {}) => {
+    let clock = 0;
+    let reads = 0;
+    const timeline = [];
+    const sample = () => {
+      while ((timeline.at(-1)?.atMs ?? -500) + 500 <= clock) {
+        const atMs = (timeline.at(-1)?.atMs ?? -500) + 500;
+        timeline.push(unreadable.includes(atMs) ? { atMs, state: 'unreadable', rows: [] } : { atMs, state: 'read', rows: rowAtMs !== null && atMs >= rowAtMs ? [{ session_key: key, epoch }] : [] });
+      }
+    };
+    sample();
+    const platform = { now: () => { reads += 1; return clock; }, sleep: async (ms) => { clock += ms; sample(); } };
+    const read = await controlNs.awaitWorkCapture({ timeline, key, sinceMs: 0, deadlineAtMs, platform });
+    return { read, clock, reads };
+  };
+  assert.equal(typeof controlNs.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
+  const seen = await run(6_000);
+  assert.deepEqual(seen.read, { deadlineAtMs: 20_000, captured: sha256Hex(epoch), capturedAfterMs: 5_500, capturedByMs: 6_000, inTime: true });
+  assert.ok(seen.clock >= 6_000 && seen.clock < 6_500, `read once the row was there: ${seen.clock}`);
+  // An unreadable sample bounds nothing: the readable one before it does.
+  assert.equal((await run(6_000, { unreadable: [5_500] })).read.capturedAfterMs, 5_000);
+  // Never there: the read ends at the first check past the deadline, in time for nothing.
+  const never = await run(null);
+  assert.deepEqual(never.read, { deadlineAtMs: 20_000, captured: null, capturedAfterMs: null, capturedByMs: null, inTime: false });
+  assert.ok(never.clock > 20_000 && never.clock <= 20_250, `${never.clock}`);
+  // There only after the deadline: not in time.
+  assert.equal((await run(20_500)).read.inTime, false);
+  // No deadline: one read, never in time, even with the row already there.
+  const unbounded = await run(0, { deadlineAtMs: null });
+  assert.deepEqual([unbounded.reads, unbounded.read.inTime, unbounded.read.capturedByMs, unbounded.read.deadlineAtMs], [1, false, 0, null]);
+  // A deadline already past: one read, never in time.
+  const past = await run(0, { deadlineAtMs: -1 });
+  assert.deepEqual([past.reads, past.read.inTime], [1, false]);
 });
 
 /** j12′'s refused-work line as the console prints it (return-refusal.ts:38-46). */

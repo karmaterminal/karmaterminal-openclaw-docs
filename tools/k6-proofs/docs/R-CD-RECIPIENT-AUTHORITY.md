@@ -1,10 +1,20 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **re-pinned to `a22bd9c05c`; `2907e656` refused; owner fires a fresh whole 13 after 🌿's review.** In no corpus.
+Status: **`work-revoked-visibility`'s control waits for the capture; owner fires a fresh whole 13 after 🌿's review.** In no corpus.
+At `a22bd9c05c` (re-pinned; `2907e656` refused): **🕯's whole 13 `rra-eaa61a458beaf344` (docs `8bf9baf9`) graded MISSING; its `work-revoked-visibility` transition came before its capture.**
 At `2907e656`, before the re-pin: **11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61`; `663fafdc` was not a gate-3 PASS.**
 Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head
 with the delegate dispatch grant and the incognito fanout refusal, karmaterminal/openclaw
 `a22bd9c05c4a7a9c86e72a132cb7939e399104cb` (branch `codeagent/j12prime-candidate`).
+
+**🕯's whole 13 at `a22bd9c05c`.** Run `rra-eaa61a458beaf344` (docs `8bf9baf9`, product `a22bd9c05c`) is
+not a gate-3 pass: its row verdict is MISSING-candidate (🌿's classification on #620, comment
+6646547903). This head changes one thing for it. `work-revoked-visibility`'s transition came before
+the election's capture, so the case could not show the epoch's advance. The control now reads the
+capture in the store before it sends the transition
+([the capture gate](#work-revoked-visibility-the-capture-read-before-the-transition)). This is a
+harness-order fix, not a ruling. Every grade oracle is unchanged, and the run's other cases stay
+where that classification left them.
 
 **The re-pin.** 🕯 (room msg 1567674372905505001): "docs `8897ef7b` still hard-pins
 `RRA_PINNED = 2907e656` in the row library, so its preflight will refuse `a22bd9c05c` … The docs row
@@ -195,8 +205,8 @@ through the model's ack, without reading SQLite.
 
 And a kept `continue_work` wake, which the merged head binds to its session's recipient authority,
 is refused once that authority moves (`work-revoked-visibility`). The session elects its own wake,
-its visibility narrows after the election is captured, and the dispatcher's handoff refuses the
-wake when it is due. It logs
+its visibility narrows after the election is captured (the control reads the capture in the store
+before it sends the narrowing), and the dispatcher's handoff refuses the wake when it is due. It logs
 `[continuation:work-refused] stage=wake reason=recipient-authority-changed session=<key> flowId=<id>`,
 and no wake turn runs, nothing is adopted and no notice reaches the session.
 
@@ -412,7 +422,7 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 | `reassigned` | `sessions.delete` then `sessions.create` of the same key, once the parked copy was witnessed | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:202-203`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`). **Or** `stage=prompt-drain`, when a pending sweep replayed the row between that consume and the deletion's epoch commit and re-queued the copy (`server-restart-sentinel-delivery.ts:263-274, 307-314`) ([the two orderings](#reassigned-two-orderings-each-with-its-bytes)) | `[continuation:return-refused]` for the target, with a `deliveryId`: after the transition at `replay`, after the probe was sent at `prompt-drain` | as above |
 | `wake-revoked-visibility` | `session.visibility.set` to `read-only` after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`: the router's first authority read refuses it before any row (`targeting.ts:277-280`) | `[continuation:return-refused]` for the target, with **no** `deliveryId`, after the transition | no `Delivered to` line for it at all, and the rest as above: no ack in the probe run or later, no wake turn or final effect |
 | `wake-reassigned` | `sessions.delete` then `sessions.create` of the same key, after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`, as above | as above | as above |
-| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); once the election is captured, `session.visibility.set` to `read-only` on that session, before the wake is due | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), an answered probe turn. Adoption into the probe turn is ruled out by the bytes, not a marker: the work line precedes the probe (below the table, its own paragraph after "How absence is observed"); the marker count is a check only |
+| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); `session.visibility.set` to `read-only` on that session, sent only once the control read the election's capture in the store, at most until `capturedAtMs + (resultDelaySeconds − 10 s)`, before the wake is due ([the capture gate](#work-revoked-visibility-the-capture-read-before-the-transition)). No capture by then: no transition, MISSING `capture-unread-before-transition` | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), an answered probe turn. Adoption into the probe turn is ruled out by the bytes, not a marker: the work line precedes the probe (below the table, its own paragraph after "How absence is observed"); the marker count is a check only |
 | `replay-restart` | `session.visibility.set` once the parked copy was witnessed, then a supervised restart before any prompt | silent | `stage=replay` on the replacement: no copy survives the restart, so its boot recovery refuses the row (`server-restart-sentinel.ts:138-153` -> `server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | as `reassigned`, from the replacement generation, after the restart | as above, on the replacement |
 
 "Parked" means the router's `Delivered to <target>` line precedes the transition: the return was
@@ -425,7 +435,10 @@ The control samples the epoch every 500 ms: captured after the `scheduled` toolR
 before the transition, again after it, and at the end. For `work-revoked-visibility` the capture
 follows the `scheduled` toolResult. During a case only the capture and the case's own transition
 write that session's row, so the first sample holding it is the capture, and the sample before it,
-without the row, bounds it from below.
+without the row, bounds it from below. The control reads that same capture before it sends the
+transition: the case's drive ends at its `scheduled` result, and its transition runs in a phase of
+its own that the control starts only once the capture is in the store
+([the capture gate](#work-revoked-visibility-the-capture-read-before-the-transition)).
 
 **One stage per ordering.** Each refused return's stage comes from where its queued copy is when its
 epoch advances. The bytes allow exactly one first refusal per case, except `reassigned`, which has
@@ -498,6 +511,116 @@ leave a visible row. That marker is counted nowhere, so a model repeating it in 
 decides nothing. Adoption into the probe turn is ruled out by the bytes, not by a marker: the work
 line is logged only after the record failed, a failed record is never claimed again, and the line
 must precede the probe (`reason-not-before-probe`).
+
+## The whole 13 at `a22bd9c05c`
+
+🕯's whole 13, run `rra-eaa61a458beaf344` (docs `8bf9baf9`, product `a22bd9c05c`), graded MISSING
+(🌿's classification on #620, comment 6646547903). This head changes only `work-revoked-visibility`'s
+order. It is a harness-order fix, and no ruling is cited for it.
+
+### `work-revoked-visibility`: the capture read before the transition
+
+**What the run showed.** The case's public receipt (docs#620's workorder):
+
+```text
+dispatch.accepted: true, status: scheduled, capturedAtMs: 1793839272167, resultDelaySeconds: 30
+transition: session.visibility.set, ok: true, requestedAtMs: 1793839280186, settledAtMs: 1793839282354
+epochs: captured = afterTransition = final = ff5b4d9f…, capturedAfterMs: 1793839281828, capturedByMs: 1793839282419
+target: probeRan true, probeReplied false, foreignRuns 1
+```
+
+Grade: MISSING with `capture-not-before-transition`, `transition-did-not-advance-epoch`,
+`refusal-reason-not-observed` and `probe-turn-unobserved`. The first readable sample holding the
+session's authority row came after the transition request. The control's own comment
+(`run-recipient-authority-row.mjs`, `captureFromStore`) says why that can happen: "Its `scheduled`
+toolResult is written before the turn schedules the election and captures the epoch". The election
+captures only after the turn's attempt (`agent-runner-continuation-signal.ts:467` ->
+`work-dispatch.ts:662-665`). In this run the capture was first readable 10.252 s after the scenario
+read the `scheduled` result, and the scenario had sent the narrowing after a fixed 8 s
+(`_CAPTURE_WAIT_MS`). So the transition raced the capture.
+
+The grade's rule was right, and it stays: with the transition first, the case can never show the
+epoch's advance. It also can't tell a capture that landed late (a race) from an election that never
+captured (a product question). That one foreign run is 🌿's open question to 🕯 on #620. With the
+transition first, the grade judges no contradiction either way.
+
+**The order now.** The scenario cannot read the store, so the control orders the case, as it does
+for a parked case's witness:
+
+1. The drive elects and ends at the `scheduled` result: `handoff.ready_for_capture`, no transition.
+2. The control reads its own store timeline: the read-only `session_recipient_authority` sample it
+   takes every 500 ms. It reads every 250 ms (`awaitWorkCapture`) until the capture is there. The
+   capture is the first readable sample holding the session's authority row, as `captureFromStore`
+   defines it, so it is the same capture the grade reads.
+3. It waits at most until `capturedAtMs + (resultDelaySeconds − 10) × 1000` (`rraWorkCaptureDeadline`),
+   both values from the case's own `scheduled` result. The release itself is held to that deadline
+   too.
+4. Only then does it start the transition phase: the pre-transition read, the narrowing, and the
+   probe after the delay and `_PARK_MS`.
+
+The receipt records the gate as `captureGate`: `deadlineAtMs`, the captured epoch as SHA-256,
+`capturedAfterMs`, `capturedByMs` and `releasedAtMs`. If no capture is readable by the deadline, no
+transition is sent. The same holds for a result with no delay, which sets no deadline. The case is
+then MISSING `capture-unread-before-transition`, never FAIL. It keeps its other receipts: the
+accepted election, its delay, the electing run.
+
+**The margin, from the bytes.** The wake is due no earlier than the election plus its delay:
+
+- `work-dispatch.ts:662-668` captures, then takes `electedAt` and `dueAt = electedAt + delayMs`,
+  where `delayMs` is `clampDelayMs` (`:647`).
+- An anchored wake is due at its anchor plus `delayMs`, and an overdue one at its anchor, never
+  before `electedAt + delayMs` (`work-store.ts:335-345`).
+- The work timer fires at `dueAt` (`work-dispatch.ts:169-199`).
+
+The 10 s margin (`RRA_WORK_CAPTURE_MARGIN_SECONDS`, bytes in `RRA_WORK_CAPTURE_MARGIN_BYTES`) holds back:
+
+| Held back | Why |
+|---|---|
+| 1 s | The tool reports `Math.round` of the clamped delay in seconds (`continue-work-tool.ts:99-100`), so `resultDelaySeconds` may be 0.5 s longer than `delayMs`. The grade already holds back a whole second (`transition-not-before-wake`) |
+| 2.5 s | `capturedAtMs` is the scenario reading the `scheduled` result. That read can come up to one `chat.history` poll (`_POLL_MS`, 2000 ms by default) and its round trip after the result was written, and the election may capture right after it |
+| 0.5 s | The store is sampled every 500 ms, and the grade bounds the capture from below only by the sample before it (`capturedAfterMs`) |
+| 6 s | The transition phase has to settle: a k6 start, its connect, the pre-transition `chat.history` read, 250 ms, then the RPC. In `rra-eaa61a458beaf344` the RPC alone, `session.visibility.set`, took 2168 ms (`1793839280186` to `1793839282354`) |
+
+With the default 30 s delay, the control waits at most 20 s after the `scheduled` result. The run's
+capture was first readable 10.252 s after it (`1793839272167` to `1793839282419`).
+
+- A delay of 10 s or less leaves no window.
+- A raised `_POLL_MS` uses up the transition budget. A transition that then settles after the
+  earliest wake is MISSING `transition-not-before-wake`, never FAIL.
+
+**What the grade keeps.** Every oracle is unchanged:
+
+- `capture-not-before-transition`, read from the store timeline;
+- `transition-did-not-advance-epoch`;
+- `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session,
+  before the probe;
+- the answered probe;
+- FAIL on a wake turn that ran.
+
+The gate only adds MISSING. A receipt with no gate, as the `8bf9baf9` control sealed, is graded as
+before, so `rra-eaa61a458beaf344`'s receipt still reads exactly those four codes. A gate that claims a
+release never stands in for the store's order.
+
+**Which cases.** Only `work-revoked-visibility` reads its capture from the store. A grep of
+`captureFromStore`, `workEpochs` and `capture-not-before-transition` finds only its paths: the
+control's `workEpochs`, and the lib's `gradeWorkRefusalCase`. Every delegate case's binding is
+captured before its `scheduled` result (`continue-delegate-tool.ts:424-449` ->
+`delegate-flow-store.ts:432-452`), so that result already proves its capture came first, and no other
+case is gated.
+
+**The pins.** Each pin below is a dry-run test through the real case driver and the control's own
+`awaitWorkCapture` (`tests/recipient-authority-dry-run.test.mjs`). Their record-level and control twins
+are in `scripts/__tests__/recipient-authority-row.test.mjs`: the grade rule, the deadline and its
+bytes, the control's read, and its release through `runRecipientAuthorityRow`. The last column is
+those same tests run against the lib, scenario and control at `8bf9baf9`, the head this lane started
+from.
+
+| Pin | Shape | At this head | At `8bf9baf9` |
+|---|---|---|---|
+| (o1) capture in time | the capture lands 1, 6, 10.252 or 19 s after the `scheduled` result. The drive narrows nothing and hands over. The control reads the store until the row is there and releases no earlier. The transition phase narrows after `capturedByMs`: PASS | GREEN | RED: the drive sent `session.visibility.set` itself, with no handoff and no gate |
+| (o2) no capture | no capture ever, or one only after the deadline: no transition is sent, MISSING `capture-unread-before-transition`, never FAIL. The election, its delay and the electing run are kept. A result with no delay: one read, nothing released | GREEN | RED: the drive sent the transition whatever the store held |
+| (o3) the run's shape | `rra-eaa61a458beaf344`'s receipt times, assembled by the control and graded: MISSING with exactly `capture-not-before-transition`, `transition-did-not-advance-epoch`, `refusal-reason-not-observed` and `probe-turn-unobserved`, no contradiction. A gate that claims a release changes nothing | GREEN | GREEN: the oracle is unchanged |
+| (o4) wake turn | the gated transition, then a wake turn that ran, or one that also elected again: FAIL `target-woken` | GREEN | RED: no gate. The FAIL itself was already graded there |
 
 ## The fresh 13's misses at `2907e656`
 
@@ -1608,6 +1731,9 @@ refusal becomes provable.
   - **MISSING**, never FAIL, when its premise fails: no electing run recorded, another
     `continue_work` or a `continue_delegate` call, no capture seen in the store
     (`capture-unobserved`) or none before the transition (`capture-not-before-transition`), a
+    capture gate that released no transition because none was readable by its deadline
+    (`capture-unread-before-transition`; the gate only adds MISSING, and a receipt without one is
+    graded as before), a
     transition that settled after the earliest due time (the sample before the capture plus the
     reported delay less one second, `transition-not-before-wake`), an epoch the transition did not
     advance, or a wake turn already before the transition;
@@ -1669,15 +1795,18 @@ interim `e9dc1c31`.
    `OPENCLAW_RCD_RA_DELAY_SECONDS` (30), `_PARK_MS` (15000), `_SWEEP_WAIT_MS` (160000, two sweep
    periods), `_WINDOW_MS`, `_POLL_MS`, `_BOOT_WAIT_MS`, `_DUPLICATE_WAIT_MS`, `_SAMPLE_GAP_MS`
    (2000, also the wake-mode cases' wait before their transition, which must stay well inside the
-   delay), `_CAPTURE_WAIT_MS` (8000, `work-revoked-visibility`'s wait after its `scheduled`
-   result for the election's capture, which must also stay well inside the delay),
-   `_PROBE_SETTLE_MS` (10000, the wait after the probe run's first answer before the final read, so a
+   delay), `_PROBE_SETTLE_MS` (10000, the wait after the probe run's first answer before the final read, so a
    later ack row of that run is counted) and the control's own `_WITNESS_WAIT_MS` (120000, its wait
    for a parked case's witness; with none, no transition is sent and the case is MISSING). A refusal
    prints the refusal JSON and exits 2 before anything starts. The control reads the gateway's
    console, where the router's line and both refusal lines land at their default levels. A parked
    case runs as two k6 phases, drive and transition, and the control starts the transition only once
    that console shows the router's `Delivered to` line for the case's target from its child.
+   `work-revoked-visibility` runs as two phases too. Its drive ends at the `scheduled` result, and the
+   control starts its transition only once the election's capture is in the store. It waits at most
+   until `capturedAtMs + (resultDelaySeconds − 10) s`, 20 s at the default delay; with none by then
+   no transition is sent and the case is MISSING. That wait has no knob: `_CAPTURE_WAIT_MS` is gone,
+   and a `_DELAY_SECONDS` of 10 or less leaves it no window.
 7. **Collect each fired delegate's trace** with `collect-continuation-trace.mjs --run-dir
    <artifact-dir>.private/<case> --manifest tools/k6-proofs/manifests/r-cd-recipient-authority.json
    --seat <seat>` (the case's `evidence.jsonl` is there), and copy `continuation-trace-correlation.json`
@@ -1696,7 +1825,8 @@ interim `e9dc1c31`.
 
 If a case is MISSING for a setup reason, fix the setup and rerun the whole row. Examples: no member
 identity to add for `revoked-membership`, a model that never made the call, a wake-mode transition
-that settled after the fire, or a `continue_work` capture not seen before its transition. Each run
+that settled after the fire, or a `continue_work` capture not seen before its transition or not
+readable by its deadline. Each run
 is a new run id, and the row needs every case from one run: receipts from different runs grade it
 MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis only.
 
@@ -1706,8 +1836,8 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 |---|---|
 | `manifests/r-cd-recipient-authority.json` | the row manifest (orchestration-required, `disposable-real-process`, the merged pin, cases, receipts) |
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
-| `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, the parked copy's witness before a parked case's transition phase, restart, signed receipts, `--grade-row` |
-| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the parked-copy witness's bytes, the early-enqueue pins, the j12′ reason matchers, the probe text with its text test and pinned hash, transcript observation and verdict rules (`allowed`'s two paths included) |
-| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, every former pin (`e9dc1c31`, `1ab5a73e`, `2907e656`) refused by the grade, the control's preflight and `--grade-row`, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, gates, signed receipts |
-| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. It refuses `2907e656` as a candidate before it sends a frame. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording |
+| `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, the parked copy's witness before a parked case's transition phase, the store read of `work-revoked-visibility`'s capture before its transition phase (`awaitWorkCapture`), restart, signed receipts, `--grade-row` |
+| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the parked-copy witness's bytes, the capture gate's deadline and its margin's bytes, the early-enqueue pins, the j12′ reason matchers, the probe text with its text test and pinned hash, transcript observation and verdict rules (`allowed`'s two paths included) |
+| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, every former pin (`e9dc1c31`, `1ab5a73e`, `2907e656`) refused by the grade, the control's preflight and `--grade-row`, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, the capture gate (`capture-unread-before-transition`, the deadline, the control's store read and its release), gates, signed receipts |
+| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. It refuses `2907e656` as a candidate before it sends a frame. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording. For `work-revoked-visibility` it reads the store through the control's own `awaitWorkCapture` on a scripted 500 ms sampler: pins (o1) the capture in time, (o2) none by the deadline, (o3) `rra-eaa61a458beaf344`'s shape and (o4) a wake turn after the gated transition |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

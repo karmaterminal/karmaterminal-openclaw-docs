@@ -1204,14 +1204,14 @@ const isNarrowing = (frame) => frame.type === 'req' && frame.method === 'session
 const workDeadline = (drive) => drive.dispatch.observed_at_ms + (30 - 10) * 1000;
 
 test('dry run: (o1) a capture that lands after the scheduled result and before the deadline: the control waits, then transitions after capturedByMs, and the case passes', async () => {
-  assert.equal(typeof control.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
-  assert.equal(rowLib.RRA_WORK_CAPTURE_MARGIN_SECONDS, 10);
   for (const captureAfterMs of [1_000, 6_000, 10_252, 19_000]) {
     const { drive, transition, frames, record, captureGate, storeReads, graded } = await grade(workCase, {}, { capture: { captureAfterMs } });
     // The drive ends at the scheduled result, narrowing nothing, and hands over for the capture.
-    assert.deepEqual(drive.handoff, { ready_for_capture: true }, `${captureAfterMs}`);
-    assert.equal(drive.transition.requested_at_ms, null, `${captureAfterMs}`);
     assert.deepEqual(frames.filter((frame) => frame.phase === 'drive' && isNarrowing(frame)), [], `${captureAfterMs}: no transition in the drive`);
+    assert.equal(drive.transition.requested_at_ms, null, `${captureAfterMs}`);
+    assert.deepEqual(drive.handoff, { ready_for_capture: true }, `${captureAfterMs}`);
+    assert.equal(typeof control.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
+    assert.equal(rowLib.RRA_WORK_CAPTURE_MARGIN_SECONDS, 10);
     // The capture lands after the scheduled result was read, before the deadline that result sets.
     assert.equal(captureGate.deadlineAtMs, workDeadline(drive), `${captureAfterMs}`);
     assert.ok(captureGate.capturedAfterMs >= drive.dispatch.observed_at_ms, `${captureAfterMs}: a row-less sample after the result`);
@@ -1237,15 +1237,15 @@ test('dry run: (o1) a capture that lands after the scheduled result and before t
 });
 
 test('dry run: (o2) a capture never readable by the deadline: no transition is sent, MISSING capture-unread-before-transition, never FAIL', async () => {
-  assert.equal(typeof control.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
   for (const [label, captureAfterMs] of [['never', null], ['only after the deadline', 25_000]]) {
     const { drive, transition, frames, record, captureGate, graded } = await grade(workCase, {}, { capture: { captureAfterMs } });
+    assert.deepEqual(frames.filter(isNarrowing), [], `${label}: no transition is sent`);
     assert.deepEqual(drive.handoff, { ready_for_capture: true }, label);
+    assert.equal(typeof control.awaitWorkCapture, 'function', 'the control reads the capture before it releases the transition');
     // The control waited out the deadline, read no capture, and released nothing.
     assert.equal(captureGate.deadlineAtMs, workDeadline(drive), label);
     assert.deepEqual([captureGate.captured, captureGate.capturedByMs, captureGate.releasedAtMs], [null, null, null], label);
     assert.equal(transition, null, `${label}: no transition phase`);
-    assert.deepEqual(frames.filter(isNarrowing), [], `${label}: no transition is sent`);
     assert.deepEqual([record.transition.ok, record.transition.requestedAtMs, record.transition.settledAtMs], [null, null, null], label);
     assert.deepEqual(record.captureGate, { deadlineAtMs: workDeadline(drive), captured: null, capturedAfterMs: null, capturedByMs: null, releasedAtMs: null }, label);
     assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
@@ -1261,6 +1261,10 @@ test('dry run: (o2) a capture never readable by the deadline: no transition is s
   // A scheduled result with no delay sets no deadline: the control reads once and sends nothing,
   // even with the capture already in the store.
   const { drive } = await runCase(workCase, {}, { capture: { captureAfterMs: 0 } });
+  // With none ever there, the control reads until its first check past the deadline, and no longer.
+  const waited = await gateCapture(drive, { captureAfterMs: null, startAt: drive.dispatch.observed_at_ms + 100 });
+  assert.ok(waited.now > waited.captureGate.deadlineAtMs && waited.now <= waited.captureGate.deadlineAtMs + 250, `${waited.now} vs ${waited.captureGate.deadlineAtMs}`);
+  assert.equal(waited.reads, Math.floor((waited.now - drive.dispatch.observed_at_ms - 100) / 250) + 1);
   const noDelay = await gateCapture({ ...drive, dispatch: { ...drive.dispatch, result_delay_seconds: null } }, { captureAfterMs: -1_000, startAt: drive.dispatch.observed_at_ms + 500 });
   assert.deepEqual([noDelay.captureGate.deadlineAtMs, noDelay.captureGate.releasedAtMs, noDelay.reads], [null, null, 1]);
   assert.ok(noDelay.captureGate.capturedByMs !== null, 'the capture was readable, and still nothing is released');

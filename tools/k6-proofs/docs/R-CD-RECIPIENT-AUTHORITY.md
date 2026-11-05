@@ -1,11 +1,22 @@
 # R-CD-RECIPIENT-AUTHORITY: live recipient-authority row at j12′
 
-Status: **`work-revoked-visibility`'s control waits for the capture; owner fires a fresh whole 13 after 🌿's review.** In no corpus.
-At `a22bd9c05c` (re-pinned; `2907e656` refused): **🕯's whole 13 `rra-eaa61a458beaf344` (docs `8bf9baf9`) graded MISSING; its `work-revoked-visibility` transition came before its capture.**
+Status: **work-revoked-visibility has its own unconditional probe; owner fires a fresh whole 13 after 🌿's review of the text and hash.** In no corpus.
+At `a22bd9c05c` (re-pinned; `2907e656` refused): **🕯's whole 13 `rra-3dd1c2a556ae087f` (docs `93a93786`) regraded 12 PASS, 1 MISSING; its `work-revoked-visibility` probe went unanswered. `rra-eaa61a458beaf344` (docs `8bf9baf9`) before it graded MISSING; its transition came before its capture.**
 At `2907e656`, before the re-pin: **11/13 at `rra-a4d5318d426ad728`; fixes landed at `48656f61`; `663fafdc` was not a gate-3 PASS.**
 Bound issue: karmaterminal/karmaterminal-openclaw-docs#536. Pinned product: j12′, the merged head
 with the delegate dispatch grant and the incognito fanout refusal, karmaterminal/openclaw
 `a22bd9c05c4a7a9c86e72a132cb7939e399104cb` (branch `codeagent/j12prime-candidate`).
+
+**🕯's second whole 13 at `a22bd9c05c`.** Run `rra-3dd1c2a556ae087f` (docs `93a93786`, product
+`a22bd9c05c`) is not a gate-3 pass. 🌿's regrade with the row library (#620, comment 6648556457) is
+12 PASS and 1 MISSING. `work-revoked-visibility` proved every product claim it makes: the capture
+before the transition, the epoch's advance, `[continuation:work-refused] stage=wake`, no wake run and
+no adoption. Its probe went unanswered (`probeReplied: false`), so it reads MISSING
+`probe-turn-unobserved`. 🌊's ruling (a) (room msg 1567736961190596741) gives that case its own
+hash-bound, unconditional probe, and this head sends it
+([its own probe](#work-revoked-visibility-its-own-unconditional-probe)). Every other case keeps the
+shared conditional probe, its text and its hash `509c3feb…` byte-unchanged. 🌊 asked to review the
+exact text and hash before the next whole 13, and gate 3 stays held.
 
 **🕯's whole 13 at `a22bd9c05c`.** Run `rra-eaa61a458beaf344` (docs `8bf9baf9`, product `a22bd9c05c`) is
 not a gate-3 pass: its row verdict is MISSING-candidate (🌿's classification on #620, comment
@@ -153,12 +164,21 @@ Rulings:
   that small successor before 🕯 fires a fresh whole 13; `663fafdc` is not a gate-3 PASS."
 - 🌊, room msg 1567670360353149102 (the re-pin to `a22bd9c05c`): "🕯 should stage the resulting
   exact product head for the fresh 13. This is a ratchet/candidate go, not a gate-3 or gate-4 pass".
+- 🌊, room msg 1567736961190596741 (ruling (a), `work-revoked-visibility`'s own probe), on 🌿's
+  classification of `rra-3dd1c2a556ae087f` (#620, comment 6648556457): "Rule **(a)** for
+  `work-revoked-visibility`: give that case a separate hash-bound, unconditional `PROBE-OK ‹nonce>`
+  instruction. Its election priming says 'no other action,' and a work wake has no task completion,
+  so the shared conditional is the wrong probe for this case. Keep the existing nonce, timing,
+  wrong/replay/duplicate negatives and the refusal oracle unchanged. Review the exact text/hash
+  before the next whole 13; gate 3 stays held."
 - The workorder also names 🌊's room msg 1567147669971796039 (b3).
 
 - [What it proves, and what it does not](#what-it-proves-and-what-it-does-not)
 - [Its own row](#its-own-row)
 - [The product path at j12′](#the-product-path-at-j12)
 - [The cases](#the-cases)
+- [The second whole 13 at `a22bd9c05c`](#the-second-whole-13-at-a22bd9c05c)
+- [The whole 13 at `a22bd9c05c`](#the-whole-13-at-a22bd9c05c)
 - [The fresh 13's misses at `2907e656`](#the-fresh-13s-misses-at-2907e656)
 - [The live run's misses at `2907e656`](#the-live-runs-misses-at-2907e656)
 - [The merged head's other lanes on the row's gateway](#the-merged-heads-other-lanes-on-the-rows-gateway)
@@ -422,7 +442,7 @@ Each case is its own signed receipt, in this order, on one gateway the control s
 | `reassigned` | `sessions.delete` then `sessions.create` of the same key, once the parked copy was witnessed | silent | `stage=replay`: the delete consumes the queued copy (`sessions-delete.ts:454` -> `session-reset-cleanup.ts:202-203`), so the pending sweep refuses the row (`server-restart-sentinel-delivery.ts:271-281` -> `:66-71`). **Or** `stage=prompt-drain`, when a pending sweep replayed the row between that consume and the deletion's epoch commit and re-queued the copy (`server-restart-sentinel-delivery.ts:263-274, 307-314`) ([the two orderings](#reassigned-two-orderings-each-with-its-bytes)) | `[continuation:return-refused]` for the target, with a `deliveryId`: after the transition at `replay`, after the probe was sent at `prompt-drain` | as above |
 | `wake-revoked-visibility` | `session.visibility.set` to `read-only` after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`: the router's first authority read refuses it before any row (`targeting.ts:277-280`) | `[continuation:return-refused]` for the target, with **no** `deliveryId`, after the transition | no `Delivered to` line for it at all, and the rest as above: no ack in the probe run or later, no wake turn or final effect |
 | `wake-reassigned` | `sessions.delete` then `sessions.create` of the same key, after the `scheduled` result, before the delegate fires | silent-wake | `stage=enqueue`, as above | as above | as above |
-| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); `session.visibility.set` to `read-only` on that session, sent only once the control read the election's capture in the store, at most until `capturedAtMs + (resultDelaySeconds − 10 s)`, before the wake is due ([the capture gate](#work-revoked-visibility-the-capture-read-before-the-transition)). No capture by then: no transition, MISSING `capture-unread-before-transition` | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), an answered probe turn. Adoption into the probe turn is ruled out by the bytes, not a marker: the work line precedes the probe (below the table, its own paragraph after "How absence is observed"); the marker count is a check only |
+| `work-revoked-visibility` | the session elects its own `continue_work` wake (30 s delay); `session.visibility.set` to `read-only` on that session, sent only once the control read the election's capture in the store, at most until `capturedAtMs + (resultDelaySeconds − 10 s)`, before the wake is due ([the capture gate](#work-revoked-visibility-the-capture-read-before-the-transition)). No capture by then: no transition, MISSING `capture-unread-before-transition` | n/a (`continue_work`) | `stage=wake`: the dispatcher's handoff refuses the stale binding (`work-dispatch.ts:529` -> `work-recipient-authority.ts:102-152`) | `[continuation:work-refused] stage=wake reason=recipient-authority-changed` for the session, naming one election, after the transition and before the probe | no wake turn (no assistant run but the electing run and the probe's), and its own unconditional probe answered `PROBE-OK <probeNonce>` with no `RCDRA-WOKE <nonce>` in that run ([its own probe](#work-revoked-visibility-its-own-unconditional-probe)). Adoption into the probe turn is ruled out by the bytes: the work line precedes the probe (below the table, its own paragraph after "How absence is observed"); the adoption-marker count is a check only |
 | `replay-restart` | `session.visibility.set` once the parked copy was witnessed, then a supervised restart before any prompt | silent | `stage=replay` on the replacement: no copy survives the restart, so its boot recovery refuses the row (`server-restart-sentinel.ts:138-153` -> `server-restart-sentinel-delivery.ts:271-281` -> `:66-71`) | as `reassigned`, from the replacement generation, after the restart | as above, on the replacement |
 
 "Parked" means the router's `Delivered to <target>` line precedes the transition: the return was
@@ -507,10 +527,177 @@ would be FAIL (`refused-return-adopted`). It is never the evidence of an adoptio
 For `work-revoked-visibility`, the electing run plays the priming run's part: it is the one run
 excluded, because the model may quote its own reason there. Any other assistant run but the
 probe's is a wake turn. The wake's reason asks for `RCDRA-WOKE <nonce>`, so a wake that ran would
-leave a visible row. That marker is counted nowhere, so a model repeating it in the probe turn
-decides nothing. Adoption into the probe turn is ruled out by the bytes, not by a marker: the work
-line is logged only after the record failed, a failed record is never claimed again, and the line
-must precede the probe (`reason-not-before-probe`).
+leave a visible row in a run of its own. The case's own probe names neither the reason nor that
+marker, so the marker in the probe's run (`probeWokeRows`) is the refused wake's instruction
+answered there: FAIL (`refused-work-adopted`), as a wake turn is. Through `93a93786` that marker was
+counted nowhere ([its own probe](#work-revoked-visibility-its-own-unconditional-probe)). Adoption
+into the probe turn is ruled out by the bytes: the work line is logged only after the record failed,
+a failed record is never claimed again, and the line must precede the probe
+(`reason-not-before-probe`).
+
+## The second whole 13 at `a22bd9c05c`
+
+🕯's second whole 13, run `rra-3dd1c2a556ae087f` (docs `93a93786`, product `a22bd9c05c`), is not a
+gate-3 pass. 🌿 fetched its public bundle, matched its SHA-256 to 🕯's, and regraded it with the row
+library: 12 PASS, 1 MISSING (#620, comment 6648556457). The ten delegate and wake cases carry only
+`trace-receipt-pending`, and each one's trace correlation matches, so they credit to PASS.
+`revoked-owner` passes this time. This head changes only `work-revoked-visibility`'s probe.
+
+### `work-revoked-visibility`: its own unconditional probe
+
+**What the run showed.** 🌿's classification, from the case's receipt:
+
+- the capture gate read the capture at `…278046` and released at `…278053`; the transition was
+  requested at `…278351`, after it;
+- the epoch advanced, `b1e1bfbc…` → `c5fd0bee…`;
+- `[continuation:work-refused] stage=wake` was logged once, at `…307721`;
+- there was no wake run and no adoption (`foreignRuns 0`, `ackRuns 0`, `adoptedDeliveryRows 0`,
+  before and after);
+- the probe was sent at `…323365`, its receipt naming `509c3feb…`, but `probeReplied: false`.
+
+Grade: MISSING `probe-turn-unobserved`, and nothing else.
+
+**Why the probe went unanswered.** The shared probe's condition hands the turn back to "that
+priming instruction". This case's only priming is its election, whose instruction ends "This is a
+proof run: perform the call, then no other action", and a work wake has no internal task completion.
+So the condition plausibly sends the model back to "no other action".
+
+- Both whole 13s at the "your context" wording left this case's probe unanswered:
+  `rra-eaa61a458beaf344` at docs `8bf9baf9` and `rra-3dd1c2a556ae087f` at docs `93a93786`.
+- Under the "this turn" wording before them the case passed (`rra-a4d5318d426ad728` at `2907e656`),
+  which needs `probeReplied: true`.
+
+🌿 called this a hypothesis with evidence from two runs, not proof. 🌊 ruled (a) on it (quoted in the
+rulings list above).
+
+**The two probes.** The scenario now takes each case's probe from `rraCaseProbe` in
+`lib/recipient-authority-row.mjs`. Each receipt names the probe it sent by the SHA-256 of its text,
+its nonce written `<probeNonce>`. Both hashes are computed by `node:crypto`, never written by hand,
+and the unit tests pin them against it.
+
+| Probe | Sent by | SHA-256 |
+|---|---|---|
+| the shared conditional probe (`rraProbeText`, `RRA_PROBE_TEXT_SHA256`), byte-unchanged | every delegate case that probes: `allowed-silent`, the nine delegate refusals, and `allowed` on its fallback | `509c3febd79eac28a443041501ad1c23efb1f72d26772ede0b7f1d8e0e294512` |
+| `work-revoked-visibility`'s own (`rraWorkProbeText`, `RRA_WORK_PROBE_TEXT_SHA256`) | `work-revoked-visibility` only | `3cacb24184f3d7abfc19e46f3f238cac57545f2bcda6f8af58ad20a677866404` |
+
+The shared conditional probe:
+
+```text
+[k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK <probeNonce>.
+```
+
+`work-revoked-visibility`'s own:
+
+```text
+[k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: Reply exactly PROBE-OK <probeNonce>.
+```
+
+- **The text.** It is the workorder's text as written. Its header is the shared probe's, byte for
+  byte (`[k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: `), then one instruction
+  with no condition. The `4f86dd78` probe read `reply exactly`, lower case, so its hash
+  (`aff7d1ff142887f61ddd81c900f0ce7eee92d79ddbea2bf077e36bf7f447634b`) is not this one, and a receipt
+  naming it stays unbound.
+- **The text test** (`rraWorkProbeTextProblems`). It refuses a work probe that:
+  - names the ack (`TARGET-ACK` in any case, or `RRA_ACK_MARKER`): `probe-names-ack`;
+  - names the row nonce or its proof id: `probe-names-row-nonce`;
+  - lacks `PROBE-OK <probeNonce>`: `probe-nonce-missing`;
+  - carries the shared condition, "If your context" or the old "this turn", in any case:
+    `probe-names-condition`;
+  - names the reason's `RCDRA-WOKE` in any case, or `RRA_WORK_WAKE_MARKER`: `probe-names-wake-marker`;
+  - is not exactly that text: `probe-not-work-wording`.
+
+  Neither text passes the other's test. The scenario runs the case's own test before it sends, and
+  a probe that fails it is never sent.
+
+**How it is graded** (`gradeWorkRefusalCase`):
+
+- The receipt must name `RRA_WORK_PROBE_TEXT_SHA256`, else MISSING `probe-text-unbound`. That
+  includes the shared probe's `509c3feb…`, the "this turn" probe's `d6187455…` and the `4f86dd78`
+  probe's `aff7d1ff…`. A delegate case's receipt naming the work probe's hash is `probe-text-unbound`
+  too: its grade still needs `509c3feb…`.
+- The reply oracle is unchanged: `PROBE-OK <probeNonce>` in the probe's own run. No reply, or one with
+  another nonce, is MISSING `probe-turn-unobserved`, never FAIL.
+- `RCDRA-WOKE <nonce>` in the probe's run (`probeWokeRows`) is FAIL `refused-work-adopted`, with or
+  without `PROBE-OK` beside it. The work probe names neither the reason nor that marker, so in that
+  run it can only answer the wake's reason. Through `93a93786` the marker was counted nowhere, and a
+  probe run that held it beside `PROBE-OK` graded PASS. The count is new, so a receipt that never read
+  it, every receipt sealed before this head, is MISSING `transcript-not-read`.
+- A wake turn stays FAIL `target-woken`, and an adoption marker FAIL `refused-work-adopted`.
+
+Kept, unchanged:
+
+- the nonce: the scenario mints a fresh `RCDRA-PROBE-…` probe nonce for the phase that sends the
+  probe, never the row nonce;
+- the timing: the probe is sent `delaySeconds × 1000 + _PARK_MS` after the narrowing
+  (`afterWorkTransition`);
+- the capture gate and the refusal oracle (`[continuation:work-refused] stage=wake`, logged before
+  the probe);
+- the wrong-nonce, replay and duplicate negatives;
+- every delegate case's text, hash, grade and record. The control carries `probeWokeRows` into the
+  work case's record only.
+
+**An ack is not changed.** 🌿's classification said "an ACK or `RCDRA-WOKE` in the probe run is still
+a FAIL", and the workorder repeats it. At `93a93786` neither was FAIL for this case. This head makes
+`RCDRA-WOKE` FAIL (pin (w5)). It leaves a `TARGET-ACK` in this case's probe run as it was: not graded.
+The session is never primed with the ack, so nothing in it asks for one, and only the model could
+type it. The unit test that pins this is unchanged. That choice is open to 🌿's review.
+
+**Old receipts, at this head.**
+
+- `rra-3dd1c2a556ae087f`'s `work-revoked-visibility` receipt named `509c3feb…` and never read the
+  marker count: MISSING with `transcript-not-read`, `probe-turn-unobserved` and `probe-text-unbound`.
+  Its other twelve receipts grade as before: the delegate grade reads no count, and their hash is
+  still bound.
+- `rra-eaa61a458beaf344`'s reads the same two new codes beside its four (pin (o3)).
+- A run's receipts are graded together (`receipts-from-different-runs`), so the owner's fresh whole
+  13 at this head is every case's receipt.
+
+**The scripted model.** The dry run's model now reads the shared condition as both live runs did in
+this case:
+
+- "If your context includes …" hands its turn back to the election's "no other action", and it stays
+  silent;
+- the "this turn" wording, which no turn of it meets, is answered `PROBE-OK`;
+- its own unconditional probe is answered `PROBE-OK`.
+
+Until this head it answered every probe in this case `PROBE-OK`, which is why the dry run passed it
+while both live runs could not. It also has three new answers: `silent`, `woke` (`RCDRA-WOKE <nonce>`
+beside `PROBE-OK`) and `woke-only`.
+
+Its limits:
+
+- The reply is still the model's. A model that answers neither way reads MISSING.
+- A model that types `RCDRA-WOKE <nonce>` in the probe turn with no wake in its context fails the
+  case. The work line, read first, shows such a FAIL for what it is, as an unprompted ack does in a
+  delegate refusal.
+- The dry run shows what the driver sends and how each answer grades. It is not evidence that a real
+  model answers the work probe. The owner's run is.
+
+**The pins.** Each is a dry-run test through the real case driver
+(`tests/recipient-authority-dry-run.test.mjs`). Their record-level twins are in
+`scripts/__tests__/recipient-authority-row.test.mjs`. The last column is this head's two test files
+run against the lib, scenario, control and docs at `93a93786`.
+
+| Pin | Shape | At this head | At `93a93786` |
+|---|---|---|---|
+| (w1) the work probe | the work case is sent exactly the ruled text once, from its transition phase, its own probe nonce, and answers `PROBE-OK <probeNonce>`. Its receipt names `3cacb241…`, and every product claim shows: the capture before the transition, the epoch advanced, the work line at `stage=wake` before the probe, no wake run, no adoption, no `RCDRA-WOKE`: PASS | GREEN | RED: it was sent the shared conditional text, and the model, sent back to its election, stays silent: MISSING `probe-turn-unobserved`, 🕯's shape |
+| (w2) the shared hash on the work case | the shared text on the wire leaves the model silent: MISSING `probe-turn-unobserved`. Sealed with `509c3feb…` it is also `probe-text-unbound`, and a receipt that answered `PROBE-OK` but names `509c3feb…`, `d6187455…`, `aff7d1ff…` or nothing is MISSING `probe-text-unbound` alone | GREEN | RED: `509c3feb…` was this case's own hash, so it read `probe-turn-unobserved` only |
+| (w3) the work hash on a delegate case | each delegate refusal, `allowed-silent` and `allowed`'s fallback, driven and passing on `509c3feb…`, then sealed with `3cacb241…`: MISSING `probe-text-unbound` | GREEN | GREEN: any hash but `509c3feb…` was already unbound there. New here, a guard that the delegate grade did not move |
+| (w4) the work probe unanswered | no reply, or `PROBE-OK` with another probe's nonce or the row nonce: MISSING `probe-turn-unobserved`, never FAIL | GREEN | RED on the text sent, the shared one. The verdict there was the same MISSING, so the grading half is new-only |
+| (w5) `RCDRA-WOKE` in the probe run | the reason's `RCDRA-WOKE <nonce>` beside `PROBE-OK`, or alone: FAIL `refused-work-adopted`. A wake turn that answered it in a run of its own stays FAIL `target-woken`, alone | GREEN | RED: the marker was counted nowhere. Beside `PROBE-OK` it graded PASS, and alone MISSING `probe-turn-unobserved` |
+
+The other pins this lane touched:
+
+- (a) and (e) now expect the work case's own text, through its own text test and hash. At `93a93786`
+  they are RED: the work case was sent the shared text and stayed silent.
+- (o3) keeps its four codes, and now reads two more beside them, `probe-text-unbound` and
+  `transcript-not-read`. At `93a93786` it is RED on those two.
+- (h) and (o4) are RED at `93a93786` for the same reason as (w1): the shared text left the work
+  case's probe unanswered, with this head's scripted model. At this head they are GREEN.
+
+The two files at `93a93786`: the dry run 35 of 47, the unit file 44 of 61. Every unit RED there comes
+from the work probe: the work case's fixture names `3cacb241…`, which that lib does not know, and the
+registration test reads this head's docs. At this head both files pass, 47 of 47 and 61 of 61.
 
 ## The whole 13 at `a22bd9c05c`
 
@@ -628,8 +815,10 @@ next run's `captureGate` is the first measurement.
 - FAIL on a wake turn that ran.
 
 The gate only adds MISSING. A receipt with no gate, as the `8bf9baf9` control sealed, is graded as
-before, so `rra-eaa61a458beaf344`'s receipt still reads exactly those four codes. A gate that claims a
-release never stands in for the store's order.
+before, so `rra-eaa61a458beaf344`'s receipt still reads those four codes. Since
+`work-revoked-visibility` got its own probe it reads two more beside them, `probe-text-unbound` and
+`transcript-not-read` ([its own probe](#work-revoked-visibility-its-own-unconditional-probe)). A gate
+that claims a release never stands in for the store's order.
 
 **Which cases.** Only `work-revoked-visibility` reads its capture from the store. A grep of
 `captureFromStore`, `workEpochs` and `capture-not-before-transition` finds only its paths: the
@@ -651,7 +840,7 @@ from.
 |---|---|---|---|
 | (o1) capture in time | the capture lands 1, 6, 12 or 19 s after the `scheduled` result. The drive narrows nothing and hands over. The control reads the store until the row is there and releases no earlier. The transition phase narrows after `capturedByMs`: PASS | GREEN | RED: the drive sent `session.visibility.set` itself, with no handoff and no gate |
 | (o2) no capture | no capture ever, or one only after the deadline: no transition is sent, MISSING `capture-unread-before-transition`, never FAIL. The election, its delay and the electing run are kept. A result with no delay: one read, nothing released | GREEN | RED: the drive sent the transition whatever the store held |
-| (o3) the run's shape | `rra-eaa61a458beaf344`'s receipt times, assembled by the control and graded: MISSING with exactly `capture-not-before-transition`, `transition-did-not-advance-epoch`, `refusal-reason-not-observed` and `probe-turn-unobserved`, no contradiction. A gate that claims a release changes nothing | GREEN | GREEN: the oracle is unchanged |
+| (o3) the run's shape | `rra-eaa61a458beaf344`'s receipt times, assembled by the control and graded: MISSING with `capture-not-before-transition`, `transition-did-not-advance-epoch`, `refusal-reason-not-observed` and `probe-turn-unobserved`, no contradiction. A gate that claims a release changes nothing. Since the work probe, also `probe-text-unbound` (it named `509c3feb…`) and `transcript-not-read` (no `probeWokeRows`); with those two supplied, exactly the four | GREEN | GREEN: the oracle is unchanged |
 | (o4) wake turn | the gated transition, then a wake turn that ran, or one that also elected again: FAIL `target-woken` | GREEN | RED: no gate. The FAIL itself was already graded there |
 
 ## The fresh 13's misses at `2907e656`
@@ -802,7 +991,7 @@ receipt now says which path it took: `ack.path` is `direct-wake`, else MISSING
    (`_DUPLICATE_WAIT_MS`), the scenario reads the target once more. A woken run with no ack sends the
    probe; an ack, or no woken run, sends nothing. The read is recorded (`ack.fallbackDecision`:
    `decidedAtMs`, `wokenRuns`, `ackRuns`).
-2. The probe is the conditional probe every probing case sends, its condition the target's context
+2. The probe is the conditional probe every probing delegate case sends, its condition the target's context
    (🌊, room msg 1567656724549075047; [the context wording](#the-probes-context-wording)). It goes
    through the same text test and is named by the same hash (`probeTextSha256`, else
    `probe-text-unbound`).
@@ -1114,8 +1303,9 @@ instruction". The priming asks for `TARGET-ACK <nonce>` only on a later turn who
 this proof's task completion. The probe asked every turn for `PROBE-OK <probeNonce>` and nothing else,
 and on `allowed-silent`'s turn that won.
 
-Every case that probes now sends this text (`rraProbeText` in `lib/recipient-authority-row.mjs`),
-the same but for its own nonce:
+Every delegate case that probes sends this text (`rraProbeText` in `lib/recipient-authority-row.mjs`),
+the same but for its own nonce. `work-revoked-visibility` has sent its own unconditional probe since
+🌊's ruling (a) ([its own probe](#work-revoked-visibility-its-own-unconditional-probe)):
 
 ```text
 [k6-proof-harness] R-CD-RECIPIENT-AUTHORITY probe <probeNonce>: If your context includes the internal task completion for the proof you were primed for, follow that priming instruction instead. Otherwise reply exactly PROBE-OK <probeNonce>.
@@ -1134,7 +1324,7 @@ the same but for its own nonce:
   `allowed` does the same, and sends one only on its fallback, when its woken run has no ack
   ([the fallback](#allowed-the-direct-wake-path-and-the-probe-mediated-fallback)). Every other case
   sends exactly one: a parked case from its transition phase, `replay-restart` from its observe
-  phase.
+  phase. `work-revoked-visibility` sends its own text from its transition phase.
 - **The text test.** `rraProbeTextProblems` refuses a probe that:
   - names the ack (`TARGET-ACK` in any case, or `RRA_ACK_MARKER`);
   - names the row nonce, or the proof id the priming names (its last 16 characters);
@@ -1155,7 +1345,7 @@ How the probe's reply is graded. One of two answers counts, never both:
 | Case | What the target's context holds at the probe | PASS needs | Otherwise |
 |---|---|---|---|
 | each delegate refusal | no return | `PROBE-OK <probeNonce>` in the probe run, and no `TARGET-ACK` in it or later | an ack, with or without `PROBE-OK`: FAIL `refused-return-adopted`; no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved` |
-| `work-revoked-visibility` | no return, no priming | `PROBE-OK <probeNonce>`, and no wake turn | no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved`. An ack is not graded here: the session is never primed |
+| `work-revoked-visibility`, on its own unconditional probe | no return, no priming | `PROBE-OK <probeNonce>`, the receipt naming its own probe, no `RCDRA-WOKE <nonce>` in the probe run and no wake turn | no `PROBE-OK`, or one with another nonce: MISSING `probe-turn-unobserved`; another probe's hash: MISSING `probe-text-unbound`; `RCDRA-WOKE`: FAIL `refused-work-adopted`. An ack is not graded here: the session is never primed |
 | `allowed-silent` | the return, drained by that turn | exactly one `TARGET-ACK <nonce>` in the probe run, after `Delivered to` from its child ([the oracle](#allowed-silent-the-probe-runs-target-ack), unchanged) | `PROBE-OK` alone: MISSING `probe-ack-unobserved`, the old run's shape. `PROBE-OK` beside the ack is neither required nor refused |
 | `allowed`, on its fallback only | the return's completion, adopted by its woken run, which gave no ack | exactly one `TARGET-ACK <nonce>` in the probe run, after `Delivered to` from its child, none in a wake turn, labelled `probe-mediated` ([the fallback](#allowed-the-direct-wake-path-and-the-probe-mediated-fallback)) | `PROBE-OK` alone: MISSING `probe-ack-unobserved`. `PROBE-OK` beside the ack is neither required nor refused |
 
@@ -1195,11 +1385,11 @@ run passed `allowed-silent` while the live run could not.
 
 | Pin | Shape | At this head | At `4f86dd78` |
 |---|---|---|---|
-| (a) | every refusal case, no return: the conditional probe, answered `PROBE-OK <probeNonce>`, no ack | PASS-candidate | RED: the case's grade was PASS there too, but its probe was the unconditional text |
+| (a) | every refusal case, no return: the conditional probe (`work-revoked-visibility`: its own, since 🌊's ruling (a)), answered `PROBE-OK <probeNonce>`, no ack | PASS-candidate | RED: the case's grade was PASS there too, but its probe was the unconditional text |
 | (b) | `allowed-silent`, the return in the probe turn: exactly one ack, no `PROBE-OK` | PASS-candidate | RED: MISSING `probe-ack-unobserved`, 🕯's shape |
 | (c) | `allowed-silent` answered `PROBE-OK` only | MISSING `probe-ack-unobserved` | the same; a pin of the old run's shape, new here |
 | (d) | `PROBE-OK` with another probe's nonce, or the row nonce: every refusal case, and `allowed-silent` | MISSING (`probe-turn-unobserved`; `probe-ack-unobserved`) | the same; a pin, new here |
-| (e) | every probing case sends one text, 🌊's wording with its own nonce, which passes the text test, and its receipt names it by hash; that text with `TARGET-ACK`, `RRA_ACK_MARKER`, the row nonce or its proof id added fails it | passes | RED: the probe was the unconditional text; the text test and the hash are new |
+| (e) | every probing delegate case sends one text, 🌊's wording with its own nonce, which passes the text test, and its receipt names it by hash; that text with `TARGET-ACK`, `RRA_ACK_MARKER`, the row nonce or its proof id added fails it. `work-revoked-visibility` sends its own, through its own text test and hash | passes | RED: the probe was the unconditional text; the text test and the hash are new |
 
 The unit tests in `scripts/__tests__/recipient-authority-row.test.mjs` pin three things:
 
@@ -1251,7 +1441,7 @@ The condition now asks what the priming asks. Only that sentence and the hash ch
 - **Unchanged:**
   - the rest of the text: the header and `Otherwise reply exactly PROBE-OK <probeNonce>.` with the
     probe's own nonce. It still names no `TARGET-ACK`, `RRA_ACK_MARKER`, row nonce or proof id, and
-    every probing case still sends the same text;
+    every probing case still sent the same text, until `work-revoked-visibility` got its own;
   - the binding (`probeTextSha256`, else `probe-text-unbound`) and the `PROBE-OK` refusal path;
   - the ACK oracle: exactly one nonce-bound ack in the probe's own run, after `Delivered to`;
   - every negative.
@@ -1260,7 +1450,8 @@ How each case reads the new condition:
 
 | Case | The target's context at the probe | A literal model answers |
 |---|---|---|
-| each refusal | no return | `PROBE-OK <probeNonce>` |
+| each delegate refusal | no return | `PROBE-OK <probeNonce>` |
+| `work-revoked-visibility`, under this text | its election, whose instruction ends "no other action" | nothing: both live runs at this wording left it silent, so it now gets its own probe |
 | `allowed-silent` | the return, drained by the probe turn | the ack |
 | `allowed`, on its fallback | the return, taken in by its woken run | the ack, in the probe run |
 | `allowed` on its direct path, `allowed-across-reset` | no probe is sent | n/a |
@@ -1313,8 +1504,8 @@ context" and so (f) passed there.
 ### The refusal cases' absence: no ack in the probe run
 
 This is the delegate refusal cases' absence. `work-revoked-visibility` has no return to ack and no
-priming; its absence is no wake turn, and the bytes rule out adoption into its probe turn
-([above](#the-cases)). The same priming and the same probe make the delegate refusal cases' absence
+priming; its absence is no wake turn and no `RCDRA-WOKE <nonce>` in its own probe's run, and the
+bytes rule out adoption into its probe turn ([above](#the-cases)). The same priming and the same probe make the delegate refusal cases' absence
 real. A refused return never reaches the target, so the target has nothing to ack: an ack of the
 nonce in the probe run (`probeAckRows`) or any later run (`ackRuns`) is FAIL
 (`refused-return-adopted`), and an ack the case cannot credit (another nonce, none, a row quoting the harness prompt, or a
@@ -1737,13 +1928,16 @@ refusal becomes provable.
   (`probe-not-after-return`, `return-not-routed-from-child`). The product's marker is not required,
   and neither is `PROBE-OK`: the probe tells a target whose context holds the return to follow its
   priming instead.
-- Every case that probes sends the same conditional probe (🌊, room msg 1567590902694936678;
+- Every delegate case that probes sends the same conditional probe (🌊, room msg 1567590902694936678;
   [the conditional probe](#the-conditional-probe)), its condition the target's context, as the
   priming's is (🌊, room msg 1567656724549075047; [the context wording](#the-probes-context-wording)).
   A text that fails the text test is never sent. Its reply is graded as one of two answers, never both: a refusal needs
   `PROBE-OK <probeNonce>` and no ack, and `allowed-silent` needs the ack. A `PROBE-OK` naming another
   nonce is never credited. A probe that ran must be named in the receipt by its text's hash, or the
-  case is MISSING (`probe-text-unbound`); a contradiction is still FAIL.
+  case is MISSING (`probe-text-unbound`); a contradiction is still FAIL. `work-revoked-visibility`
+  sends its own unconditional probe instead (🌊's ruling (a), room msg 1567736961190596741;
+  [its own probe](#work-revoked-visibility-its-own-unconditional-probe)), named by its own hash:
+  either hash on the other's case is `probe-text-unbound`.
 - A delegate refusal case's ack it cannot credit leaves its absence unread: MISSING
   (`ack-uncredited`).
 - A missing or untyped observation is **MISSING-candidate**. A refusal case without its product
@@ -1772,9 +1966,12 @@ refusal becomes provable.
   - **MISSING** without its reason: j12′'s work line for the session after the transition, at
     `stage=wake` on every line, with `recipient-authority-changed` (an unbound record's
     `recipient-authority-unverifiable` is not this case's), naming one election, logged before the
-    probe was sent; or without an answered probe;
-  - **FAIL** once the premise holds: a wake turn (`target-woken`) or an adoption marker
-    (`refused-work-adopted`). It fires nothing, so it owes no trace.
+    probe was sent; or without its own probe answered: `PROBE-OK <probeNonce>` in the probe's run
+    (`probe-turn-unobserved`), the receipt naming `RRA_WORK_PROBE_TEXT_SHA256`
+    (`probe-text-unbound`), and the probe run read for the reason's marker (`transcript-not-read`);
+  - **FAIL** once the premise holds: a wake turn (`target-woken`), or the reason's `RCDRA-WOKE
+    <nonce>` in the probe's run or an adoption marker (`refused-work-adopted`). It fires nothing, so
+    it owes no trace.
 - A residual condition is **PARTIAL-candidate**: a policy change not restored, cleanup incomplete,
   or a fired delegate's Tempo trace not correlated (`trace-receipt-pending`). The trace counts only
   from a `continuation-trace-correlation.json` of this row whose reason hash and length are the
@@ -1869,7 +2066,7 @@ MISSING (`receipts-from-different-runs`). `--cases` runs a subset for diagnosis 
 | `manifests/r-cd-recipient-authority.json` | the row manifest (orchestration-required, `disposable-real-process`, the merged pin, cases, receipts) |
 | `scenarios/r-cd-recipient-authority.js` | the k6 case driver, with the j12′ path map; refuses outside the control |
 | `scripts/run-recipient-authority-row.mjs` | the control: gates, harness-owned gateway, log and epoch capture, the parked copy's witness before a parked case's transition phase, the store read of `work-revoked-visibility`'s capture before its transition phase (`awaitWorkCapture`), restart, signed receipts, `--grade-row` |
-| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the parked-copy witness's bytes, the capture gate's deadline and its margin's bytes, the early-enqueue pins, the j12′ reason matchers, the probe text with its text test and pinned hash, transcript observation and verdict rules (`allowed`'s two paths included) |
-| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, every former pin (`e9dc1c31`, `1ab5a73e`, `2907e656`) refused by the grade, the control's preflight and `--grade-row`, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, the capture gate (`capture-unread-before-transition`, the deadline, the control's store read and its release), gates, signed receipts |
-| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. It refuses `2907e656` as a candidate before it sends a frame. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording. For `work-revoked-visibility` it reads the store through the control's own `awaitWorkCapture` on a scripted 500 ms sampler: pins (o1) the capture in time, (o2) none by the deadline, (o3) `rra-eaa61a458beaf344`'s shape and (o4) a wake turn after the gated transition |
+| `lib/recipient-authority-row.mjs` | the case table with each stage's bytes, the parked-copy witness's bytes, the capture gate's deadline and its margin's bytes, the early-enqueue pins, the j12′ reason matchers, the shared probe text and `work-revoked-visibility`'s own, each with its text test and pinned hash (`rraCaseProbe` picks a case's), transcript observation and verdict rules (`allowed`'s two paths included) |
+| `scripts/__tests__/recipient-authority-row.test.mjs` | registration, guard, every former pin (`e9dc1c31`, `1ab5a73e`, `2907e656`) refused by the grade, the control's preflight and `--grade-row`, verdict, stages, j12-line and `Delivered to` negatives, the `continue_work` case, its own probe (the ruled text, its hash against `node:crypto`, its text test, the binding, `RCDRA-WOKE` in the probe run FAIL), the probe's text test and the grade of each probe answer, the "this turn" probe's receipts read `probe-text-unbound`, the parked-copy witness, the early-enqueue pins, `allowed`'s direct-wake and probe-mediated paths, the control's release on the router's line, the capture gate (`capture-unread-before-transition`, the deadline, the control's store read and its release), gates, signed receipts |
+| `tests/recipient-authority-dry-run.test.mjs` | the case driver under `k6-node-runtime` against a j12′-shaped scripted gateway, one case or all thirteen on one session store under one run id. It refuses `2907e656` as a candidate before it sends a frame. Its probe turn writes no marker, and its primed model reads the probe literally (an unconditional `PROBE-OK` wins over the priming; 🌊's condition hands a target whose context holds the return back to it, where "this turn" would hand back only a return the probe turn drained). It has a negative for each ack `allowed-silent` and the refusal cases reject, the conditional probe's pins (a)-(e), 🌊's ordering ruling's pins: (p) the parked-copy witness, (q) an enqueue refusal failing the parked-copy case, (r) the early-enqueue pins, (w) `allowed`'s direct-wake path, (f) its fallback and (g) the fallback's negatives, and (h) the fallback under the context wording and under the old "this turn" wording. For `work-revoked-visibility` it reads the store through the control's own `awaitWorkCapture` on a scripted 500 ms sampler: pins (o1) the capture in time, (o2) none by the deadline, (o3) `rra-eaa61a458beaf344`'s shape and (o4) a wake turn after the gated transition. For its own probe (🌊's ruling (a)), its model stays silent under the shared condition, as both live runs did: pins (w1) the work probe answered, (w2) the shared probe and other hashes unbound, (w3) the work hash on a delegate case unbound, (w4) the work probe unanswered and (w5) `RCDRA-WOKE` in its run |
 | `scripts/collect-continuation-trace.mjs` (shared) | collects a fired delegate's Tempo trace under the case's own mode (`invocation.modes`); tests in `scripts/__tests__/collect-continuation-trace.test.mjs` |

@@ -144,13 +144,14 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   for (const old of FORMER_PINS) {
     for (const stale of [`comp-${old.slice(0, 8)}`, `PROOFS/${old}`, `--candidate ${old}`, `setup ${old}`, `stop ${old}`]) assert.ok(!docs.includes(stale), stale);
   }
-  // The status line: work-revoked-visibility's control waits for the capture (docs#620), and what the
-  // owner runs next. Under it, the pin's own run: re-pinned to a22bd9c05c (🕯, room msg
-  // 1567674372905505001), the grant's head refused, and 🕯's whole 13 there, whose
-  // work-revoked-visibility transition came before its capture. Under that, the pin before it, as it
-  // stood: the owner's fresh 13 at 2907e656, the two cases it left open now fixed, where the fixes
-  // landed, and that 663fafdc was no gate-3 PASS (🌊, room msg 1567656724549075047).
-  const statusLine = /^Status: \*\*`work-revoked-visibility`'s control waits for the capture; owner fires a fresh whole 13 after 🌿's review\.\*\* In no corpus\.\nAt `a22bd9c05c` \(re-pinned; `2907e656` refused\): \*\*🕯's whole 13 `rra-eaa61a458beaf344` \(docs `8bf9baf9`\) graded MISSING; its `work-revoked-visibility` transition came before its capture\.\*\*\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
+  // The status line: work-revoked-visibility has its own unconditional probe (🌊's ruling (a), room msg
+  // 1567736961190596741), and what the owner runs next. Under it, the pin's own runs: re-pinned to
+  // a22bd9c05c (🕯, room msg 1567674372905505001), the grant's head refused, 🕯's second whole 13 there,
+  // whose work-revoked-visibility probe went unanswered, and the first, whose transition came before
+  // its capture. Under that, the pin before it, as it stood: the owner's fresh 13 at 2907e656, the two
+  // cases it left open now fixed, where the fixes landed, and that 663fafdc was no gate-3 PASS (🌊,
+  // room msg 1567656724549075047).
+  const statusLine = /^Status: \*\*work-revoked-visibility has its own unconditional probe; owner fires a fresh whole 13 after 🌿's review of the text and hash\.\*\* In no corpus\.\nAt `a22bd9c05c` \(re-pinned; `2907e656` refused\): \*\*🕯's whole 13 `rra-3dd1c2a556ae087f` \(docs `93a93786`\) regraded 12 PASS, 1 MISSING; its `work-revoked-visibility` probe went unanswered\. `rra-eaa61a458beaf344` \(docs `8bf9baf9`\) before it graded MISSING; its transition came before its capture\.\*\*\nAt `2907e656`, before the re-pin: \*\*11\/13 at `rra-a4d5318d426ad728`; fixes landed at `([0-9a-f]{8})`; `663fafdc` was not a gate-3 PASS\.\*\*$/m.exec(docs);
   assert.ok(statusLine, 'the status line, the pin\'s own run under it, and the former pin\'s status under that');
   assert.match(docs, /1567674372905505001/, '🕯\'s re-pin message');
   assert.notEqual(statusLine[1], '663fafdc', 'the fixes landed after 663fafdc');
@@ -207,6 +208,14 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.ok(docs.includes(`\`${RRA_PROBE_TEXT_SHA256}\``), 'its hash');
   assert.match(docs, /### The conditional probe/);
   assert.match(docs, /MISSING `probe-text-unbound`/, 'a receipt names the probe it sent');
+  // 🌊's ruling (a), quoted; work-revoked-visibility's own probe, both texts with their hashes, and its pins.
+  assert.ok(flat.includes('"Rule **(a)** for `work-revoked-visibility`: give that case a separate hash-bound, unconditional `PROBE-OK ‹nonce>` instruction. Its election priming says \'no other action,\' and a work wake has no task completion, so the shared conditional is the wrong probe for this case. Keep the existing nonce, timing, wrong/replay/duplicate negatives and the refusal oracle unchanged. Review the exact text/hash before the next whole 13; gate 3 stays held."'), 'ruling (a), quoted');
+  assert.match(docs, /1567736961190596741 \(ruling \(a\), `work-revoked-visibility`'s own probe\)/);
+  assert.ok(docs.includes('\n### `work-revoked-visibility`: its own unconditional probe\n'), 'the work probe\'s section');
+  assert.ok(docs.includes(`\n${rowLib.rraWorkProbeText?.('<probeNonce>')}\n`), 'the work probe text as sent');
+  assert.ok(docs.includes(`\`${rowLib.RRA_WORK_PROBE_TEXT_SHA256}\``) && docs.includes(`\`${RRA_PROBE_TEXT_SHA256}\``), 'both hashes');
+  for (const evidence of ['comment 6648556457', '`rra-3dd1c2a556ae087f`', '`probeReplied: false`', 'b1e1bfbc…', 'c5fd0bee…']) assert.ok(docs.includes(evidence), evidence);
+  for (const pin of ['(w1)', '(w2)', '(w3)', '(w4)', '(w5)']) assert.match(docs, new RegExp(`^\\| ${pin.replace(/[()]/gu, '\\$&')} [^\\n]*\\| GREEN \\|`, 'm'), pin);
   // 🌊's ruling (a), quoted, and the oracle it sets.
   assert.match(docs, /1567556038281007235/);
   assert.match(docs, /"TARGET-ACK\s+on the probe\s+turn, bound to this case's nonce and the target's priming\./);
@@ -224,8 +233,10 @@ test('the row is registered: manifest, control, scenario, docs, README line and 
   assert.match(readmeLine, /disposable gateway at the merged j12′ a22bd9c05c\)/);
   assert.doesNotMatch(readmeLine, /1ab5a73e/);
   assert.doesNotMatch(readmeLine, /interim/i);
-  assert.ok(readmeLine.includes('`work-revoked-visibility`\'s control waits for the capture; owner fires a fresh whole 13 after 🌿\'s review'), 'the README line says the docs\' status');
-  assert.ok(readmeLine.includes('At `a22bd9c05c` (re-pinned; `2907e656` refused): 🕯\'s whole 13 `rra-eaa61a458beaf344` graded MISSING'), 'and the pin\'s own run');
+  assert.ok(readmeLine.includes('| work-revoked-visibility has its own unconditional probe; owner fires a fresh whole 13 after 🌿\'s review of the text and hash.'), 'the README line says the docs\' status');
+  assert.ok(readmeLine.includes('At `a22bd9c05c` (re-pinned; `2907e656` refused): 🕯\'s whole 13 `rra-3dd1c2a556ae087f` regraded 12 PASS, 1 MISSING'), 'and the pin\'s own runs');
+  assert.ok(readmeLine.includes('🕯\'s whole 13 `rra-eaa61a458beaf344` before it graded MISSING'), 'the first of them');
+  assert.ok(readmeLine.includes('`Reply exactly PROBE-OK <probeNonce>.` (SHA-256 `3cacb241…`)') && readmeLine.includes('`509c3feb…`'), 'both probes, by their hashes');
   assert.ok(readmeLine.includes(`fixes landed at \`${statusLine[1]}\``) && readmeLine.includes('`663fafdc` was not a gate-3 PASS'), 'and the former pin\'s');
   const readmeSection = /### R-CD-RECIPIENT-AUTHORITY [^\n]*\n[\s\S]*?(?=\n### )/.exec(readme)?.[0] ?? '';
   assert.match(readmeSection, new RegExp(MERGED_J12P));

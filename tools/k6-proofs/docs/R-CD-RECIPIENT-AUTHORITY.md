@@ -560,9 +560,9 @@ for a parked case's witness:
    defines it, so it is the same capture the grade reads.
 3. It waits at most until `capturedAtMs + (resultDelaySeconds − 10) × 1000` (`rraWorkCaptureDeadline`),
    both values from the case's own `scheduled` result. It decides the release at the read that finds
-   the capture, so a release is never later than the deadline, and never on a gateway it no longer
-   owns. Until the transition is sent, only the capture writes the session's row, so the row it reads
-   is the election's capture.
+   the capture, so a release is never later than the deadline, and never on a gateway it does not own
+   at that read. Until the transition is sent, only the capture writes the session's row, so the row
+   it reads is the election's capture.
 4. Only then does it start the transition phase: the pre-transition read, the narrowing, and the
    probe after the delay and `_PARK_MS`.
 
@@ -570,10 +570,23 @@ The receipt records the gate as `captureGate`: `deadlineAtMs`, the captured epoc
 `capturedAfterMs`, `capturedByMs` and `releasedAtMs`. If no capture is readable by the deadline, no
 transition is sent. The same holds for a result with no delay, which sets no deadline. The case is
 then MISSING `capture-unread-before-transition`, never FAIL. It keeps its other receipts: the
-accepted election, its delay, the electing run. The control then holds the case until the kept wake
-was due and parked (the result plus its delay plus `_PARK_MS`), the span the transition phase would
-have waited. A wake the election did capture is still current and may run its turn, and that turn
-then lands in this case's gateway log, not in the next case's.
+accepted election, its delay, the electing run.
+
+A wake the election did capture is then still current and may run its turn. So the control holds
+the case until that wake was due and parked, and records the hold's end as `captureGate.heldUntilMs`:
+
+- The wake is due no earlier than its capture plus its delay. The hold ends at the store's
+  `capturedByMs` plus the result's delay plus `_PARK_MS`.
+- While the store shows no capture, the span runs from the hold's start. The store is read
+  throughout, and a capture that appears moves the end to its own `capturedByMs` plus the span.
+- So that turn lands in this case's gateway log, not in the next case's.
+- A capture that appears only after the hold is not covered.
+- A result with no delay holds nothing. Neither do the paths that never reach the gate: a drive that
+  recorded a refusal after its `scheduled` result, and a transition phase whose narrowing failed.
+
+A capture first seen during the hold is the measurement this run lacked: how late a capture comes. With
+no transition sent, that record also reads `capture-not-before-transition`. The gate's
+`capture-unread-before-transition` beside it says why, and the grade is unchanged by the hold.
 
 **The margin, from the bytes.** The wake is due no earlier than the election plus its delay:
 
@@ -581,8 +594,10 @@ then lands in this case's gateway log, not in the next case's.
   where `delayMs` is `clampDelayMs` (`:647`).
 - An anchored wake is due at its anchor plus `delayMs`, and an overdue one at its anchor, never
   before `electedAt + delayMs` (`work-store.ts:335-345`).
-- The work timer is armed at the session's soonest due record (`work-dispatch.ts:733` ->
-  `:423-431`), here the election's only one, and fires then (`work-dispatch.ts:169-199`).
+- The work timer is armed at the soonest due record. An election made outside its turn arms it at
+  the election (`work-dispatch.ts:733` -> `:423-431`). An election made inside its turn is due only
+  once anchored, and the dispatcher pass that anchors it re-arms the timer (`:497-504` -> `:551-564`).
+  Either way the timer fires then (`work-dispatch.ts:169-199`).
 
 The 10 s margin (`RRA_WORK_CAPTURE_MARGIN_SECONDS`, bytes in `RRA_WORK_CAPTURE_MARGIN_BYTES`) holds back:
 
@@ -627,13 +642,14 @@ case is gated.
 **The pins.** Each pin below is a dry-run test through the real case driver and the control's own
 `awaitWorkCapture` (`tests/recipient-authority-dry-run.test.mjs`). Their record-level and control twins
 are in `scripts/__tests__/recipient-authority-row.test.mjs`: the grade rule, the deadline and its
-bytes, the control's read, and its release through `runRecipientAuthorityRow`. The last column is
+bytes, the control's read and the release decided at it, and through `runRecipientAuthorityRow` the
+release, the ownership check, and the hold with its end anchored at the capture. The last column is
 those same tests run against the lib, scenario and control at `8bf9baf9`, the head this lane started
 from.
 
 | Pin | Shape | At this head | At `8bf9baf9` |
 |---|---|---|---|
-| (o1) capture in time | the capture lands 1, 6, 10.252 or 19 s after the `scheduled` result. The drive narrows nothing and hands over. The control reads the store until the row is there and releases no earlier. The transition phase narrows after `capturedByMs`: PASS | GREEN | RED: the drive sent `session.visibility.set` itself, with no handoff and no gate |
+| (o1) capture in time | the capture lands 1, 6, 12 or 19 s after the `scheduled` result. The drive narrows nothing and hands over. The control reads the store until the row is there and releases no earlier. The transition phase narrows after `capturedByMs`: PASS | GREEN | RED: the drive sent `session.visibility.set` itself, with no handoff and no gate |
 | (o2) no capture | no capture ever, or one only after the deadline: no transition is sent, MISSING `capture-unread-before-transition`, never FAIL. The election, its delay and the electing run are kept. A result with no delay: one read, nothing released | GREEN | RED: the drive sent the transition whatever the store held |
 | (o3) the run's shape | `rra-eaa61a458beaf344`'s receipt times, assembled by the control and graded: MISSING with exactly `capture-not-before-transition`, `transition-did-not-advance-epoch`, `refusal-reason-not-observed` and `probe-turn-unobserved`, no contradiction. A gate that claims a release changes nothing | GREEN | GREEN: the oracle is unchanged |
 | (o4) wake turn | the gated transition, then a wake turn that ran, or one that also elected again: FAIL `target-woken` | GREEN | RED: no gate. The FAIL itself was already graded there |

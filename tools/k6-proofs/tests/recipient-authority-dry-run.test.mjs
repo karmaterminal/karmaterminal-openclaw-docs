@@ -1204,7 +1204,7 @@ const isNarrowing = (frame) => frame.type === 'req' && frame.method === 'session
 const workDeadline = (drive) => drive.dispatch.observed_at_ms + (30 - 10) * 1000;
 
 test('dry run: (o1) a capture that lands after the scheduled result and before the deadline: the control waits, then transitions after capturedByMs, and the case passes', async () => {
-  for (const captureAfterMs of [1_000, 6_000, 10_252, 19_000]) {
+  for (const captureAfterMs of [1_000, 6_000, 12_000, 19_000]) {
     const { drive, transition, frames, record, captureGate, storeReads, graded } = await grade(workCase, {}, { capture: { captureAfterMs } });
     // The drive ends at the scheduled result, narrowing nothing, and hands over for the capture.
     assert.deepEqual(frames.filter((frame) => frame.phase === 'drive' && isNarrowing(frame)), [], `${captureAfterMs}: no transition in the drive`);
@@ -1247,7 +1247,8 @@ test('dry run: (o2) a capture never readable by the deadline: no transition is s
     assert.deepEqual([captureGate.captured, captureGate.capturedByMs, captureGate.releasedAtMs], [null, null, null], label);
     assert.equal(transition, null, `${label}: no transition phase`);
     assert.deepEqual([record.transition.ok, record.transition.requestedAtMs, record.transition.settledAtMs], [null, null, null], label);
-    assert.deepEqual(record.captureGate, { deadlineAtMs: workDeadline(drive), captured: null, capturedAfterMs: null, capturedByMs: null, releasedAtMs: null }, label);
+    // The control's hold for a wake still current is pinned through runRecipientAuthorityRow (row test).
+    assert.deepEqual(record.captureGate, { deadlineAtMs: workDeadline(drive), captured: null, capturedAfterMs: null, capturedByMs: null, releasedAtMs: null, heldUntilMs: null }, label);
     assert.equal(graded.verdict, 'MISSING-candidate', `${label}: ${JSON.stringify(graded)}`);
     assert.ok(graded.missing.includes('capture-unread-before-transition'), `${label}: ${graded.missing}`);
     assert.deepEqual(graded.contradictions, [], label);

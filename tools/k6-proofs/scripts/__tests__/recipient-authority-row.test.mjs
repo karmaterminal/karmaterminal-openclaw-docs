@@ -2056,12 +2056,15 @@ test('the control releases work-revoked-visibility\'s transition only once it re
   const target = 'agent:main:r-cd-ra-work-revoked-visibility-target-abc';
   const captured = '11111111-1111-4111-8111-111111111111';
   const advanced = '22222222-2222-4222-8222-222222222222';
-  for (const [label, rowAfterMs, gated, releases, driveExtra = {}, { loseOwner = false } = {}] of [
+  for (const [label, rowAfterMs, gated, releases, driveExtra = {}, { loseOwner = false, park = null } = {}] of [
     ['the capture lands 6 s after the scheduled result', 6_000, true, true],
     ['the capture lands 19 s after it', 19_000, true, true],
     ['the capture is already there', 0, true, true],
     ['no capture ever', null, true, false],
+    ['no capture ever, with a 1 s park', null, true, false, {}, { park: 1_000 }],
+    // A capture after the deadline: never released, and the hold runs from that capture.
     ['the capture lands only after the deadline', 25_000, true, false],
+    ['the capture lands well after the deadline', 40_000, true, false],
     ['a scheduled result with no delay', 0, true, false, { dispatch: { result_delay_seconds: null } }],
     ['a drive that recorded a refusal', 6_000, false, false, { refusals: ['websocket error'] }],
     ['a drive whose preflight failed', 6_000, false, false, { preflight: { ok: false } }],
@@ -2112,17 +2115,33 @@ test('the control releases work-revoked-visibility\'s transition only once it re
           return { code: 0, log: `R_CD_RECIPIENT_AUTHORITY_EVIDENCE ${JSON.stringify(evidence)}\n` };
         },
       });
-      const result = await runRecipientAuthorityRow(controlOptions(fixture, { cases: [WORK_CASE] }), platform);
+      const timing = park === null ? {} : { OPENCLAW_RCD_RA_PARK_MS: String(park) };
+      const result = await runRecipientAuthorityRow(controlOptions(fixture, { cases: [WORK_CASE], timing }), platform);
       assert.equal(result.ok, true, label);
       assert.deepEqual(phases, releases ? ['drive', 'transition'] : ['drive'], label);
       const receipt = JSON.parse(readFileSync(path.join(fixture.home, 'artifacts', WORK_CASE, 'case-receipt.json'), 'utf8'));
       const deadline = driveExtra.dispatch ? null : scheduledAt + 20_000;
       // The gateway is stopped once the case is done. A case whose gate released nothing, its result
-      // carrying a delay, is held until its kept wake was due and parked (the result, plus 30 s, plus
-      // the 15 s park); no other case is.
+      // carrying a delay, is held until a wake its election may have captured was due and parked: the
+      // store's capture (or, with none, the hold's start) plus 30 s plus the park. No other case is.
       const held = gated && !releases && !driveExtra.dispatch;
+      const span = 30_000 + (park ?? 15_000);
       const stopped = stoppedAt.find(([sig]) => sig === 'SIGTERM')?.[1];
-      assert.ok(held ? stopped >= scheduledAt + 45_000 : stopped < scheduledAt + 30_000, `${label}: stopped at +${stopped - scheduledAt} ms`);
+      if (held) {
+        const until = receipt.captureGate.heldUntilMs;
+        if (rowAfterMs === null) {
+          // No capture: the hold runs from the end of the read, just past the deadline.
+          assert.ok(until >= deadline + span && until <= deadline + span + 1_000, `${label}: held until +${until - scheduledAt} ms`);
+        } else {
+          // A capture, read by the gate or only during the hold: the hold runs from it.
+          assert.ok(receipt.epochs.capturedByMs >= scheduledAt + rowAfterMs, `${label}: ${JSON.stringify(receipt.epochs)}`);
+          assert.equal(until, receipt.epochs.capturedByMs + span, `${label}: held from the capture`);
+        }
+        assert.ok(stopped >= until && stopped < until + 2_000, `${label}: stopped at +${stopped - scheduledAt} ms, held until +${until - scheduledAt} ms`);
+      } else {
+        if (receipt.captureGate) assert.equal(receipt.captureGate.heldUntilMs, null, `${label}: not held`);
+        assert.ok(stopped < scheduledAt + 30_000, `${label}: stopped at +${stopped - scheduledAt} ms`);
+      }
       if (loseOwner) {
         assert.deepEqual([receipt.captureGate.releasedAtMs, receipt.transition.requestedAtMs], [null, null], `${label}: nothing released`);
         assert.ok(receipt.captureGate.capturedByMs !== null, `${label}: the capture was read`);
@@ -2153,6 +2172,13 @@ test('the control releases work-revoked-visibility\'s transition only once it re
         assert.deepEqual(receipt.grade.contradictions, [], label);
         // The case's other receipts are kept.
         assert.deepEqual([receipt.dispatch.accepted, receipt.dispatch.status, receipt.dispatch.capturedAtMs], [true, 'scheduled', scheduledAt], label);
+        if (rowAfterMs > 20_000) {
+          // The late capture, first seen during the hold, measures how late it came. With no
+          // transition sent it also reads capture-not-before-transition; the gate's code beside it
+          // says why. The grade is unchanged by the hold.
+          assert.equal(receipt.captureGate.capturedByMs, null, `${label}: not read by the deadline`);
+          assert.ok(receipt.grade.missing.includes('capture-not-before-transition'), `${label}: ${receipt.grade.missing}`);
+        }
       }
       const publicText = JSON.stringify(receipt);
       for (const secret of [target, captured, advanced]) assert.ok(!publicText.includes(secret), `${label}: ${secret} stays private`);
@@ -2603,7 +2629,12 @@ test('the capture gate\'s deadline: the scheduled result\'s own time and delay, 
     assert.equal(rowLib.rraWorkCaptureDeadline(bad), null, JSON.stringify(bad));
   }
   // The margin's bytes: when the wake can be due, how the delay is reported, and the run that set it.
-  for (const anchor of ['work-dispatch.ts:662-668', 'work-store.ts:335-345', 'work-dispatch.ts:169-199', 'continue-work-tool.ts:99-100', 'OPENCLAW_RCD_RA_POLL_MS', '2168 ms', 'rra-eaa61a458beaf344', '10.252 s']) {
+  for (const anchor of [
+    'work-dispatch.ts:662-668', 'work-store.ts:335-345', 'work-dispatch.ts:169-199', 'work-dispatch.ts:733 -> :423-431', ':497-504 -> :551-564',
+    'continue-work-tool.ts:99-100', 'OPENCLAW_RCD_RA_POLL_MS', '2168 ms', 'rra-eaa61a458beaf344', '10.252 s',
+    // The run's row may be the narrowing's own insert: no capture latency is claimed from it.
+    'session-accessor.sqlite-entry-mutation.ts:119-136', 'session-accessor.sqlite-recipient-authority.ts:17-37', '65 ms', '9.661 s', 'first measurement',
+  ]) {
     assert.ok(rowLib.RRA_WORK_CAPTURE_MARGIN_BYTES.includes(anchor), anchor);
   }
 });

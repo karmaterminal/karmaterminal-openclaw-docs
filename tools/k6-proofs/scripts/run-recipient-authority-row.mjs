@@ -32,7 +32,7 @@
  *      The continue_work case's drive ends at its `scheduled` result; the control reads the store
  *      until the election's capture is there, at most until rraWorkCaptureDeadline, and only then runs
  *      its transition phase. With no capture by then the transition is never sent, and the case is
- *      held until its kept wake was due and parked;
+ *      held until a wake its election may have captured was due and parked;
  *   4. for replay-restart, after the transition phase: gateway.restart.request, wait for the old process to
  *      exit 0, consume its restart handoff (`gateway restart-handoff consume --expected-pid`), start
  *      the replacement and run the observe phase;
@@ -605,10 +605,10 @@ function captureFromStore(timeline, key) {
  * only the capture writes the session's row, so the row read here is the election's capture.
  * Returns { deadlineAtMs, captured, capturedAfterMs, capturedByMs, inTime, releasedAtMs }: the
  * capture as last read (hashed); whether it was read at a check no later than the deadline; and that
- * check's time when `release()` (the control's ownership check) allowed the transition, else null.
- * So a release is never later than the deadline. A null deadline is checked once and is never in time.
+ * check's time when `release()` (the control's ownership check; without one, never) allowed the
+ * transition, else null. So a release is never later than the deadline. A null deadline is checked once and is never in time.
  */
-export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, platform, release = () => true, pollMs = CAPTURE_POLL_MS }) {
+export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, platform, release = () => false, pollMs = CAPTURE_POLL_MS }) {
   const deadline = Number.isFinite(deadlineAtMs) ? deadlineAtMs : null;
   for (;;) {
     const checkedAtMs = platform.now();
@@ -631,15 +631,29 @@ export async function awaitWorkCapture({ timeline, key, sinceMs, deadlineAtMs, p
 }
 
 /**
- * Where a continue_work case whose transition was never sent is held until: its kept wake due (the
- * `scheduled` result plus its delay) and parked, the span its transition phase would have waited.
- * Null when the result carries no time or delay.
+ * Hold a continue_work case whose gate released nothing until the kept wake its election may have
+ * captured was due and parked. That wake is due no earlier than its capture plus its delay, so the
+ * hold ends at the capture's capturedByMs plus the result's delay plus _PARK_MS. While the store
+ * shows no capture it runs from the hold's start, and the store is read throughout: a capture that
+ * appears moves the end to its own capturedByMs plus that span, once. A capture that appears only
+ * after the hold is not covered. A result with no delay holds nothing. Returns the hold's end, or
+ * null when nothing was held.
  */
-function workWakeParkedBy(dispatch, timing) {
-  const at = dispatch?.observed_at_ms;
+async function holdForWorkWake({ timeline, key, sinceMs, dispatch, timing, platform, pollMs = CAPTURE_POLL_MS }) {
   const delay = dispatch?.result_delay_seconds;
-  if (!Number.isFinite(at) || !Number.isFinite(delay)) return null;
-  return at + delay * 1000 + Number(timing?.OPENCLAW_RCD_RA_PARK_MS ?? PARK_MS);
+  if (!Number.isFinite(delay)) return null;
+  const span = delay * 1000 + Number(timing?.OPENCLAW_RCD_RA_PARK_MS ?? PARK_MS);
+  const capturedByMs = () => captureFromStore((Array.isArray(timeline) ? timeline : []).filter((sample) => sample.atMs >= sinceMs), key).byMs;
+  let seen = capturedByMs();
+  let until = (seen ?? platform.now()) + span;
+  while (platform.now() < until) {
+    if (seen === null) {
+      seen = capturedByMs();
+      if (seen !== null) until = seen + span;
+    }
+    await platform.sleep(pollMs);
+  }
+  return until;
 }
 
 /** The continue_work case's epochs: its capture from the store, then as for every case. */
@@ -833,7 +847,8 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, tr
       ? { parkedCopyAtMs: witness?.parkedCopyAtMs ?? null, releasedAtMs: witness?.releasedAtMs ?? null }
       : null,
     // The continue_work case: the control's read of the election's capture in the store, its deadline,
-    // and the release of the transition (null: none was sent). The epoch leaves as SHA-256 only.
+    // the release of the transition (null: none was sent), and with none, how long it held the case
+    // for a wake still current. The epoch leaves as SHA-256 only.
     captureGate: spec.timing === 'before-wake' && captureGate
       ? {
           deadlineAtMs: captureGate.deadlineAtMs ?? null,
@@ -841,6 +856,7 @@ export function assembleCaseRecord({ caseId, runId, docsSha, gates, evidence, tr
           capturedAfterMs: captureGate.capturedAfterMs ?? null,
           capturedByMs: captureGate.capturedByMs ?? null,
           releasedAtMs: captureGate.releasedAtMs ?? null,
+          heldUntilMs: captureGate.heldUntilMs ?? null,
         }
       : null,
     // Router lines for this return, the target named or its child as the source (the child key
@@ -1069,10 +1085,9 @@ export async function runRecipientAuthorityRow(options, platform = defaultPlatfo
           transitionEvidence = await runScenario({ caseId, phase: 'transition', state: evidence, runId, target, options, privateDir, platform });
         } else {
           // Nothing released: a wake the election did capture is still current and may run its turn.
-          // Hold the case until it was due and parked, so that turn lands in this case's gateway log,
-          // never in the next case's.
-          const parkedBy = workWakeParkedBy(evidence.dispatch, options.timing);
-          while (parkedBy !== null && platform.now() < parkedBy) await platform.sleep(CAPTURE_POLL_MS);
+          // Hold the case until it was due and parked, so that turn lands in this case's gateway log
+          // and not in the next case's.
+          captureGate.heldUntilMs = await holdForWorkWake({ timeline, key: evidence.keys?.target, sinceMs: caseStart, dispatch: evidence.dispatch, timing: options.timing, platform });
         }
       }
       if (spec.timing === 'parked' && evidence?.handoff?.ready_for_witness && driveClean) {

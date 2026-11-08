@@ -1,0 +1,335 @@
+== rows +30s 16:26:23Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +60s 16:26:53Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +91s 16:27:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +121s 16:27:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +151s 16:28:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +181s 16:28:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +211s 16:29:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +241s 16:29:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +271s 16:30:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +301s 16:30:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=1	last_error=turn-abandoned	failed_reason=
+== rows +331s 16:31:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +361s 16:31:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +391s 16:32:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +421s 16:32:54Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +451s 16:33:24Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +482s 16:33:55Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +512s 16:34:25Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +542s 16:34:55Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +572s 16:35:25Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +602s 16:35:55Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=2	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +632s 16:36:25Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +662s 16:36:55Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +692s 16:37:25Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +722s 16:37:55Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +752s 16:38:25Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +782s 16:38:55Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +813s 16:39:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +843s 16:39:56Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +873s 16:40:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +903s 16:40:56Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=3	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +933s 16:41:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +963s 16:41:56Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +993s 16:42:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1023s 16:42:56Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1053s 16:43:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1083s 16:43:56Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1113s 16:44:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1143s 16:44:56Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1173s 16:45:26Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1204s 16:45:57Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=4	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300002ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1234s 16:46:27Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1264s 16:46:57Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1294s 16:47:27Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1324s 16:47:57Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1354s 16:48:27Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1384s 16:48:57Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1414s 16:49:27Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1444s 16:49:57Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1474s 16:50:27Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1504s 16:50:57Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=5	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300001ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1534s 16:51:27Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	pending	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1565s 16:51:58Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1595s 16:52:28Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1625s 16:52:58Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1655s 16:53:28Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1685s 16:53:58Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1715s 16:54:28Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1745s 16:54:58Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1775s 16:55:28Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1805s 16:55:58Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1835s 16:56:28Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=6	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1865s 16:56:58Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	pending	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1895s 16:57:28Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	pending	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1925s 16:57:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	pending	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1956s 16:58:29Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +1986s 16:58:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2016s 16:59:29Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2046s 16:59:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2076s 17:00:29Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2106s 17:00:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2136s 17:01:29Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2166s 17:01:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2196s 17:02:29Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2226s 17:02:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	claimed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=
+== rows +2256s 17:03:29Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+== rows +2286s 17:03:59Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+== rows +2316s 17:04:30Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+== rows +2347s 17:05:00Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+== rows +2377s 17:05:30Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+== rows +2407s 17:06:00Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03	MSG-A	claimed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+== rows final 17:07:46Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+state/openclaw.sqlite	#05		completed	attempts=1	last_error=	failed_reason=
+== rows after-stop 17:07:47Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+state/openclaw.sqlite	#05		completed	attempts=1	last_error=	failed_reason=
+== rows final 17:07:52Z
+state/openclaw.sqlite	#01		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#03		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	#04	MSG-B	failed	attempts=7	last_error=Channel ingress claim→adoption stalled for event msg#04 on lane channel:<dm-channel> after 300000ms; applying retry policy (handler-timeout).	failed_reason=retry-limit-exceeded
+state/openclaw.sqlite	#05		completed	attempts=1	last_error=	failed_reason=

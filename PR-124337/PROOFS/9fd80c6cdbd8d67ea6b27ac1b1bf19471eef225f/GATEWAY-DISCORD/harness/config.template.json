@@ -1,0 +1,42 @@
+{
+  "gateway": { "mode": "local", "bind": "loopback", "port": __GWPORT__, "auth": { "mode": "token" } },
+  "tools": { "exec": { "mode": "full" }, "web": { "search": { "enabled": false } } },
+  "messages": {
+    "queue": { "mode": "__MODE__", "cap": __CAP__, "drop": "__DROP__" },
+    "inbound": { "debounceMs": 0 }
+  },
+  "channels": {
+    "discord": {
+      "enabled": true,
+      "token": "proof-token-not-a-credential",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["4000000000000000001"],
+      "groupPolicy": "open",
+      "guilds": { "1000000000000000001": { "requireMention": false, "users": ["4000000000000000001"] } },
+      "commands": { "native": false, "nativeSkills": false }
+    }
+  },
+  "plugins": {
+    "entries": {
+      "discord": { "enabled": true },
+      "codex": {
+        "enabled": true,
+        "config": {
+          "appServer": {
+            "command": "__CODEX__",
+            "homeScope": "agent",
+            "args": ["app-server", "-c", "openai_base_url=\"http://127.0.0.1:__PROVPORT__/v1\""]
+          }
+        }
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "__STATE__/workspace",
+      "model": { "primary": "openai/gpt-5.6-sol" },
+      "models": { "openai/gpt-5.6-sol": { "agentRuntime": { "id": "codex" } } }
+    }
+  },
+  "logging": { "file": "__STATE__/gateway-file.log" }
+}

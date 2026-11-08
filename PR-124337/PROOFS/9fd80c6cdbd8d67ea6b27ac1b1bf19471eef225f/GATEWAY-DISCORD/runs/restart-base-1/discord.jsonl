@@ -1,0 +1,48 @@
+{"t":"2026-10-24T16:30:15.132Z","kind":"listening","port":18875}
+{"t":"2026-10-24T16:30:28.412Z","kind":"rest","method":"GET","path":"/api/v10/users/@me","status":200}
+{"t":"2026-10-24T16:30:28.412Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:30:28.462Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:30:28.463Z","kind":"rest","method":"GET","path":"/api/v10/gateway/bot","status":200}
+{"t":"2026-10-24T16:30:28.477Z","kind":"gateway","event":"connected","url":"/?v=10&encoding=json"}
+{"t":"2026-10-24T16:30:28.478Z","kind":"rest","method":"GET","path":"/api/v10/users/%40me","status":200}
+{"t":"2026-10-24T16:30:28.480Z","kind":"gateway","event":"IDENTIFY","intents":46601,"token":"<redacted>"}
+{"t":"2026-10-24T16:30:28.488Z","kind":"gateway","event":"op 3"}
+{"t":"2026-10-24T16:30:34.229Z","kind":"human-dm","id":"msg#01","content":"HOLD-1 keep the turn busy","connected":true}
+{"t":"2026-10-24T16:30:34.276Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:30:35.586Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:30:38.665Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#02","content":"Working"}
+{"t":"2026-10-24T16:30:38.665Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:30:39.869Z","kind":"bot-edit","channel":"<dm-channel>","id":"msg#02","content":"ack HOLD-1"}
+{"t":"2026-10-24T16:30:39.869Z","kind":"rest","method":"PATCH","path":"/api/v10/channels/<dm-channel>/messages/msg#02","status":200}
+{"t":"2026-10-24T16:30:40.258Z","kind":"human-dm","id":"msg#03","content":"MSG-A queued across a restart","connected":true}
+{"t":"2026-10-24T16:30:40.419Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:30:41.581Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:30:47.585Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:30:53.590Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:30:59.583Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:31:05.585Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:31:08.483Z","kind":"rest","method":"DELETE","path":"/api/v10/channels/<dm-channel>/messages/msg#02","status":204}
+{"t":"2026-10-24T16:31:08.550Z","kind":"gateway","event":"closed","code":1000}
+{"t":"2026-10-24T16:31:23.488Z","kind":"rest","method":"GET","path":"/api/v10/users/@me","status":200}
+{"t":"2026-10-24T16:31:23.488Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:31:23.538Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:31:23.563Z","kind":"rest","method":"GET","path":"/api/v10/gateway/bot","status":200}
+{"t":"2026-10-24T16:31:23.578Z","kind":"gateway","event":"connected","url":"/?v=10&encoding=json"}
+{"t":"2026-10-24T16:31:23.579Z","kind":"rest","method":"GET","path":"/api/v10/users/%40me","status":200}
+{"t":"2026-10-24T16:31:23.581Z","kind":"gateway","event":"IDENTIFY","intents":46601,"token":"<redacted>"}
+{"t":"2026-10-24T16:31:23.589Z","kind":"gateway","event":"op 3"}
+{"t":"2026-10-24T16:31:23.841Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:31:24.926Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:31:25.040Z","kind":"rest","method":"POST","path":"/api/v10/users/@me/channels","status":200}
+{"t":"2026-10-24T16:31:25.054Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:31:25.058Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#04","content":"OpenClaw admitted a continuation of this request after the Gateway restarted. Recovery did not grant new permission or confirm that earlier work finished."}
+{"t":"2026-10-24T16:31:25.058Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:32:46.682Z","kind":"rest","method":"POST","path":"/api/v10/users/@me/channels","status":200}
+{"t":"2026-10-24T16:32:46.684Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:32:46.688Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#05","content":"ack HOLD-1"}
+{"t":"2026-10-24T16:32:46.688Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:32:47.844Z","kind":"rest","method":"POST","path":"/api/v10/users/@me/channels","status":200}
+{"t":"2026-10-24T16:32:47.846Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:32:47.850Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#06","content":"ack MSG-A"}
+{"t":"2026-10-24T16:32:47.850Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:33:09.006Z","kind":"gateway","event":"closed","code":1000}

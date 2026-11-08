@@ -1,0 +1,27 @@
+{"t":"2026-10-24T16:25:23.682Z","kind":"listening","port":18575}
+{"t":"2026-10-24T16:25:38.614Z","kind":"rest","method":"GET","path":"/api/v10/users/@me","status":200}
+{"t":"2026-10-24T16:25:38.615Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:25:38.701Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:25:38.704Z","kind":"rest","method":"GET","path":"/api/v10/gateway/bot","status":200}
+{"t":"2026-10-24T16:25:38.721Z","kind":"gateway","event":"connected","url":"/?v=10&encoding=json"}
+{"t":"2026-10-24T16:25:38.722Z","kind":"rest","method":"GET","path":"/api/v10/users/%40me","status":200}
+{"t":"2026-10-24T16:25:38.724Z","kind":"gateway","event":"IDENTIFY","intents":46601,"token":"<redacted>"}
+{"t":"2026-10-24T16:25:38.736Z","kind":"gateway","event":"op 3"}
+{"t":"2026-10-24T16:25:43.754Z","kind":"human-dm","id":"msg#01","content":"HOLD-1 keep the turn busy","connected":true}
+{"t":"2026-10-24T16:25:43.788Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:25:45.127Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:48.233Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#02","content":"Working"}
+{"t":"2026-10-24T16:25:48.233Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:25:49.528Z","kind":"bot-edit","channel":"<dm-channel>","id":"msg#02","content":"ack HOLD-1"}
+{"t":"2026-10-24T16:25:49.528Z","kind":"rest","method":"PATCH","path":"/api/v10/channels/<dm-channel>/messages/msg#02","status":200}
+{"t":"2026-10-24T16:25:49.773Z","kind":"human-dm","id":"msg#03","content":"MSG-A queued then stopped","connected":true}
+{"t":"2026-10-24T16:25:49.919Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:51.121Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:57.121Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:57.833Z","kind":"human-dm","id":"msg#04","content":"/stop","connected":true}
+{"t":"2026-10-24T16:25:57.886Z","kind":"rest","method":"DELETE","path":"/api/v10/channels/<dm-channel>/messages/msg#02","status":204}
+{"t":"2026-10-24T16:25:57.925Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:57.942Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:25:57.952Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#05","content":"⚙️ Agent was aborted."}
+{"t":"2026-10-24T16:25:57.952Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:30:14.172Z","kind":"gateway","event":"closed","code":1000}

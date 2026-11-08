@@ -1,0 +1,13 @@
+label=abandon-new-base-long tree=93a9fa4562b644e1e31dfed4b529bc2b1d378e2f dirty=0 start=16:25:23Z
+gateway#1 up health+4s discord={"connected":true,"sequence":1} 16:25:39Z
+dm 'HOLD-1 keep the turn busy' 16:25:44Z
+dm 'MSG-A takes the one queue slot' 16:25:50Z
+dm 'MSG-B rejected while the slot is full' 16:25:53Z
+HOLD-1 done 17:06:00Z
+dm 'MSG-C after the hold' 17:06:20Z
+C replied 17:07:36Z
+MSG-A sends: 1
+MSG-B sends: 0
+MSG-C sends: 1
+gateway#1 stopped 17:07:47Z
+A replied 17:07:47Z

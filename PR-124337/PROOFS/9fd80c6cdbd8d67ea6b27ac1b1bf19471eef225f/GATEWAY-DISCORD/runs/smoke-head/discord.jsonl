@@ -1,0 +1,16 @@
+{"t":"2026-10-24T15:36:49.632Z","kind":"listening","port":18575}
+{"t":"2026-10-24T15:38:45.845Z","kind":"rest","method":"GET","path":"/api/v10/users/@me","status":200}
+{"t":"2026-10-24T15:38:45.846Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T15:38:45.890Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T15:38:45.891Z","kind":"rest","method":"GET","path":"/api/v10/gateway/bot","status":200}
+{"t":"2026-10-24T15:38:45.905Z","kind":"gateway","event":"connected","url":"/?v=10&encoding=json"}
+{"t":"2026-10-24T15:38:45.905Z","kind":"rest","method":"GET","path":"/api/v10/users/%40me","status":200}
+{"t":"2026-10-24T15:38:45.908Z","kind":"gateway","event":"IDENTIFY","intents":46601,"token":"<redacted>"}
+{"t":"2026-10-24T15:38:45.916Z","kind":"gateway","event":"op 3"}
+{"t":"2026-10-24T15:38:51.247Z","kind":"human-dm","id":"msg#01","content":"hello MSG-PING","connected":true}
+{"t":"2026-10-24T15:38:51.280Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T15:38:52.754Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T15:38:54.535Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T15:38:54.543Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#02","content":"ack MSG-PING"}
+{"t":"2026-10-24T15:38:54.543Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T15:38:58.681Z","kind":"gateway","event":"closed","code":1000}

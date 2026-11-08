@@ -1,0 +1,122 @@
+{"t":"2026-10-24T16:17:05.915Z","kind":"listening","port":18575}
+{"t":"2026-10-24T16:17:19.031Z","kind":"rest","method":"GET","path":"/api/v10/users/@me","status":200}
+{"t":"2026-10-24T16:17:19.031Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:17:19.073Z","kind":"rest","method":"GET","path":"/api/v10/oauth2/applications/@me","status":200}
+{"t":"2026-10-24T16:17:19.074Z","kind":"rest","method":"GET","path":"/api/v10/gateway/bot","status":200}
+{"t":"2026-10-24T16:17:19.086Z","kind":"gateway","event":"connected","url":"/?v=10&encoding=json"}
+{"t":"2026-10-24T16:17:19.086Z","kind":"rest","method":"GET","path":"/api/v10/users/%40me","status":200}
+{"t":"2026-10-24T16:17:19.089Z","kind":"gateway","event":"IDENTIFY","intents":46601,"token":"<redacted>"}
+{"t":"2026-10-24T16:17:19.096Z","kind":"gateway","event":"op 3"}
+{"t":"2026-10-24T16:17:25.020Z","kind":"human-dm","id":"msg#01","content":"HOLD-1 keep the turn busy","connected":true}
+{"t":"2026-10-24T16:17:25.049Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:17:26.309Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:17:29.326Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#02","content":"Working"}
+{"t":"2026-10-24T16:17:29.326Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:17:30.823Z","kind":"bot-edit","channel":"<dm-channel>","id":"msg#02","content":"ack HOLD-1"}
+{"t":"2026-10-24T16:17:30.823Z","kind":"rest","method":"PATCH","path":"/api/v10/channels/<dm-channel>/messages/msg#02","status":200}
+{"t":"2026-10-24T16:17:31.033Z","kind":"human-dm","id":"msg#03","content":"MSG-A takes the one queue slot","connected":true}
+{"t":"2026-10-24T16:17:31.171Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:17:32.306Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:17:34.040Z","kind":"human-dm","id":"msg#04","content":"MSG-B rejected while the slot is full","connected":true}
+{"t":"2026-10-24T16:17:38.301Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:17:44.303Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:17:50.306Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:17:56.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:02.303Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:08.302Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:14.303Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:20.303Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:26.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:32.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:38.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:44.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:50.303Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:18:56.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:02.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:08.305Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:14.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:20.304Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:26.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:32.309Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:38.309Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:44.306Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:50.307Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:19:56.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:02.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:08.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:14.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:20.310Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:26.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:32.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:38.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:44.309Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:50.314Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:20:56.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:02.307Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:08.307Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:14.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:20.310Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:26.308Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:32.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:38.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:44.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:50.309Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:21:56.314Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:02.309Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:08.312Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:14.313Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:20.313Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:26.310Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:32.318Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:38.204Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:22:38.314Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:44.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:50.314Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:22:56.312Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:02.311Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:08.315Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:14.316Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:20.315Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:26.316Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:32.316Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:38.318Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:44.318Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:50.315Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:23:56.319Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:02.319Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:08.320Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:14.320Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:20.316Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:25.235Z","kind":"human-dm","id":"msg#05","content":"MSG-C after the hold","connected":true}
+{"t":"2026-10-24T16:24:26.316Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:32.317Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:38.317Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:44.317Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:50.321Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:56.319Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:59.570Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:24:59.575Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#06","content":"ack HOLD-1"}
+{"t":"2026-10-24T16:24:59.575Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:24:59.591Z","kind":"rest","method":"DELETE","path":"/api/v10/channels/<dm-channel>/messages/msg#02","status":204}
+{"t":"2026-10-24T16:24:59.616Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:24:59.624Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:24:59.632Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#07","content":"This message was not queued because the session queue is full. Please try again after the current response finishes."}
+{"t":"2026-10-24T16:24:59.632Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:24:59.847Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:00.034Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:00.042Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:25:00.049Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#08","content":"This message was not queued because the session queue is full. Please try again after the current response finishes."}
+{"t":"2026-10-24T16:25:00.049Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:25:00.625Z","kind":"rest","method":"POST","path":"/api/v10/users/@me/channels","status":200}
+{"t":"2026-10-24T16:25:00.626Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:25:00.629Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#09","content":"ack MSG-A"}
+{"t":"2026-10-24T16:25:00.629Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:25:01.033Z","kind":"rest","method":"POST","path":"/api/v10/users/@me/channels","status":200}
+{"t":"2026-10-24T16:25:01.035Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:25:01.039Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#10","content":"ack MSG-B"}
+{"t":"2026-10-24T16:25:01.039Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:25:01.278Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/typing","status":204}
+{"t":"2026-10-24T16:25:01.650Z","kind":"rest","method":"GET","path":"/api/v10/channels/<dm-channel>","status":200}
+{"t":"2026-10-24T16:25:01.653Z","kind":"bot-send","channel":"<dm-channel>","id":"msg#11","content":"ack MSG-C"}
+{"t":"2026-10-24T16:25:01.653Z","kind":"rest","method":"POST","path":"/api/v10/channels/<dm-channel>/messages","status":200}
+{"t":"2026-10-24T16:25:12.628Z","kind":"gateway","event":"closed","code":1000}

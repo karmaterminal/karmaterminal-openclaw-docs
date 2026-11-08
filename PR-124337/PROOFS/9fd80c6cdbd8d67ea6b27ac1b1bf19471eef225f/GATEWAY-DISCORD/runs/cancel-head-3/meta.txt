@@ -1,0 +1,8 @@
+label=cancel-head-3 tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0 start=16:41:11Z
+gateway#1 up health+4s discord={"connected":true,"sequence":1} 16:41:26Z
+dm 'HOLD-1 keep the turn busy' 16:41:31Z
+dm 'MSG-A queued then stopped' 16:41:37Z
+dm '/stop' 16:41:45Z
+A NOT replied by deadline
+gateway#1 stopped 16:46:02Z
+end=16:46:02Z

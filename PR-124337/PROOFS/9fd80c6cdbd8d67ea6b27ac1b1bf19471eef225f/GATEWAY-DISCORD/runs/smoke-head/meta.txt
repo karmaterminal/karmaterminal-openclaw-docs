@@ -1,0 +1,5 @@
+label=smoke-head tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0 start=15:36:49Z
+gateway#1 up health+4s discord={"connected":true,"sequence":1} 15:38:46Z
+dm 'hello MSG-PING' 15:38:51Z
+gateway#1 stopped 15:38:59Z
+end=15:38:59Z

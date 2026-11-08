@@ -1,0 +1,10 @@
+label=restart-head-1 tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0 start=16:30:15Z
+gateway#1 up health+4s discord={"connected":true,"sequence":1} 16:30:29Z
+dm 'HOLD-1 keep the turn busy' 16:30:34Z
+dm 'MSG-A queued across a restart' 16:30:40Z
+gateway#1 stopped 16:31:10Z
+gateway#2 up health+4s discord={"connected":true,"sequence":4} 16:31:23Z
+A replied 16:32:47Z
+A sends: 1
+gateway#2 stopped 16:33:08Z
+end=16:33:08Z

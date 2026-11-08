@@ -1,0 +1,14 @@
+### stable-seed / tree fe06181dc5ecc01cf8904abbfc26925925efefbc
+[seed] tree fe06181dc5ecc01cf8904abbfc26925925efefbc
+[seed-drain-1] recoverStaleClaims=0
+[seed-drain-1] dispatch ev-abandoned-over #1 sees {"attempts":0,"lastError":null} -> abandon
+[seed-drain-1] dispatch ev-abandoned-over #2 sees {"attempts":1,"lastError":"turn-abandoned"} -> abandon
+[seed-drain-1] dispatch ev-abandoned-over #3 sees {"attempts":2,"lastError":"turn-abandoned"} -> abandon
+[seed-drain-1] dispatch ev-abandoned-over #4 sees {"attempts":3,"lastError":"turn-abandoned"} -> abandon
+[seed-drain-1] dispatch ev-abandoned-over #5 sees {"attempts":4,"lastError":"turn-abandoned"} -> abandon
+[seed-drain-1] dispatch counts {"ev-abandoned-over":5}
+[seed-drain-2] recoverStaleClaims=0
+[seed-drain-2] dispatch ev-abandoned-over #1 sees {"attempts":5,"lastError":"turn-abandoned"} -> abandon
+[seed-drain-2] dispatch ev-abandoned-under #1 sees {"attempts":0,"lastError":null} -> abandon
+[seed-drain-2] dispatch counts {"ev-abandoned-over":1,"ev-abandoned-under":1}
+### exit=0

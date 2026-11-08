@@ -1,0 +1,16 @@
+### head-drain / tree cd8a6e26fecc7a256533c4bcf79219d63f8d7344
+[drain] tree cd8a6e26fecc7a256533c4bcf79219d63f8d7344
+[drain] recoverStaleClaims=1
+[drain] dispatch ev-abandoned-over #1 sees {"attempts":6,"lastError":"turn-abandoned"} -> abandon
+[drain] dispatch ev-abandoned-under #1 sees {"attempts":1,"lastError":"turn-abandoned"} -> abandon
+[drain] dispatch ev-pending #1 sees {"attempts":0,"lastError":null} -> complete
+[drain] dispatch ev-released #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+[drain] log spooled update ev-abandoned-over failed with non-retryable retry-limit-exceeded: turn-abandoned; dead-lettered
+[drain] log spooled update ev-abandoned-over on lane ev-abandoned-over reached retry limit after 7 attempts; dead-lettered
+[drain] log spooled update ev-abandoned-under failed; keeping for retry: turn-abandoned
+[drain] dispatch ev-cancel #1 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> cancel
+[drain] dispatch ev-owner #1 sees {"attempts":1,"lastError":null} -> complete
+[drain] dispatch ev-abandoned-under #2 sees {"attempts":2,"lastError":"turn-abandoned"} -> complete
+[drain] dispatch ev-cancel #2 sees {"attempts":2,"lastError":"stable-era delivery failure"} -> complete
+[drain] dispatch counts {"ev-abandoned-over":1,"ev-abandoned-under":2,"ev-pending":1,"ev-released":1,"ev-cancel":2,"ev-owner":1}
+### exit=0

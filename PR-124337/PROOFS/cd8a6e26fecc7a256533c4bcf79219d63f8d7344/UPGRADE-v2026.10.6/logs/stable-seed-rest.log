@@ -1,0 +1,7 @@
+### stable-seed-rest / tree fe06181dc5ecc01cf8904abbfc26925925efefbc
+[seed-rest] tree fe06181dc5ecc01cf8904abbfc26925925efefbc
+[seed-rest] ev-released: claimed and released twice with last_error
+[seed-rest] ev-cancel: claimed and released twice with last_error
+[seed-rest] ev-dead: claimed, failed (dead-letter)
+[seed-rest] ev-owner: claimed and left held; this process exits as a dead owner
+### exit=0

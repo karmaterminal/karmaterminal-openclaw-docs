@@ -1,0 +1,286 @@
+[openclaw] Staging pinned Bun fork openclaw-v1.4.4-20261019-ef37c31de3-webkit-a2976f02e6 (one-time download)…
+[openclaw] Bun fork unavailable (could not stage the pinned fork: Command failed: /bin/bash <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/scripts/stage-openclaw-bun.sh <home>/.cache/openclaw/bun/openclaw-v1.4.4-20261019-ef37c31de3-webkit-a2976f02e6/linux-x64/.stage-E8oKGc linux x64); using Node. Set OPENCLAW_VITEST_RUNTIME=node to silence.
+[gateway] startup phase: entry.run-main-import starting total=74.3ms
+[gateway] startup phase: entry.run-main-import 37.8ms total=112.1ms start=74.3ms
+[gateway] startup phase: cli.main.gateway-run-select-environment starting total=413.9ms
+[gateway] startup phase: cli.main.gateway-run-select-environment 244.3ms total=658.2ms start=413.9ms
+[gateway] startup phase: cli.main.gateway-run-imports starting total=670.2ms
+[gateway] startup phase: cli.main.gateway-run-imports 2.3ms total=672.5ms start=670.2ms
+[gateway] startup phase: cli.main.gateway-run-pre-bootstrap starting total=683.8ms
+[gateway] startup phase: cli.main.gateway-run-pre-bootstrap 3.3ms total=687.2ms start=683.8ms
+[gateway] startup phase: cli.main.gateway-run-bootstrap starting total=687.2ms
+[gateway] startup phase: cli.command.config-ready starting total=688.5ms
+[gateway] startup phase: cli.command.config-guard-import starting total=688.7ms
+[gateway] startup phase: cli.command.config-guard-import 14.0ms total=702.7ms start=688.7ms
+[gateway] startup phase: cli.bootstrap.admission.live-owner starting total=746.2ms
+[gateway] startup phase: cli.bootstrap.admission.live-owner 2.7ms total=748.9ms start=746.2ms
+[gateway] startup phase: cli.bootstrap.admission.core-config starting total=748.9ms
+[gateway] startup phase: cli.bootstrap.admission.core-config 1.9ms total=750.9ms start=748.9ms
+[gateway] startup phase: cli.bootstrap.admission.state-snapshot starting total=751.0ms
+[gateway] startup phase: cli.bootstrap.admission.core-recovery starting total=751.4ms
+[gateway] startup phase: cli.bootstrap.admission.core-recovery 0.5ms total=751.9ms start=751.4ms
+[gateway] startup phase: cli.bootstrap.admission.database-runtime-import starting total=752.1ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-config starting total=752.2ms
+[gateway] startup phase: cli.bootstrap.admission.database-runtime-import 33.5ms total=785.6ms start=752.1ms
+[gateway] startup phase: cli.bootstrap.admission.database-readiness starting total=785.8ms
+[gateway] startup phase: cli.bootstrap.admission.database-readiness 294.6ms total=1080.3ms start=785.8ms agentCount=1 schemaProcessCount=0 schemaInspectionCount=0 schemaSnapshotCount=0
+[gateway] startup phase: cli.bootstrap.admission.session-runtime-import starting total=1080.4ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-metadata-completion starting total=1080.5ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-metadata-completion 161.1ms total=1241.5ms start=1080.5ms
+[gateway] startup phase: cli.bootstrap.admission.plugin-config 489.6ms total=1241.7ms start=752.2ms registrySnapshotMs=221.35872299999994 manifestRegistryMs=19.579771000000164 ownerMapsMs=10.071326 totalMs=252.8564550000001 indexPluginCount=177 manifestPluginCount=177
+[gateway] startup phase: cli.bootstrap.admission.session-runtime-import 174.3ms total=1254.7ms start=1080.4ms
+[gateway] startup phase: cli.bootstrap.admission.session-targets starting total=1254.8ms
+[gateway] startup phase: cli.bootstrap.admission.session-targets 1.2ms total=1256.0ms start=1254.8ms agentCount=1 registeredDatabaseCount=0
+[gateway] startup phase: cli.bootstrap.admission.session-readiness starting total=1256.0ms
+[gateway] startup phase: cli.bootstrap.admission.session-readiness 0.2ms total=1256.3ms start=1256.0ms targetCount=1
+[gateway] startup phase: cli.bootstrap.admission.workspace-runtime-import starting total=1256.3ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-runtime-import 5.3ms total=1261.6ms start=1256.3ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-readiness starting total=1261.7ms
+[gateway] startup phase: cli.bootstrap.admission.workspace-readiness 1.8ms total=1263.5ms start=1261.7ms agentCount=1
+[gateway] startup phase: cli.bootstrap.admission.config-recovery starting total=1263.7ms
+[gateway] startup phase: cli.bootstrap.admission.config-recovery 0.4ms total=1264.2ms start=1263.7ms
+[gateway] startup phase: cli.bootstrap.admission.state-snapshot 513.3ms total=1264.2ms start=751.0ms
+[gateway] startup phase: cli.bootstrap.admission.config-guard starting total=1264.2ms
+[gateway] startup phase: cli.bootstrap.admission.config-guard 0.8ms total=1265.1ms start=1264.2ms
+[gateway] startup phase: cli.bootstrap.admission.device-identity starting total=1530.0ms
+[gateway] startup phase: cli.bootstrap.admission.device-identity 2.8ms total=1532.8ms start=1530.0ms
+[gateway] startup phase: cli.bootstrap.webhook-readiness starting total=1563.2ms
+[gateway] startup phase: cli.bootstrap.webhook-readiness 112.2ms total=1675.4ms start=1563.2ms
+[gateway] startup phase: cli.bootstrap.plugin-plan-import starting total=2173.6ms
+[gateway] startup phase: cli.bootstrap.plugin-plan-import 3.7ms total=2177.3ms start=2173.6ms
+[gateway] startup phase: cli.bootstrap.plugin-plan starting total=2177.4ms
+[gateway] startup phase: cli.bootstrap.plugin-plan 1.0ms total=2178.3ms start=2177.4ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification-import starting total=2196.5ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification-import 1.7ms total=2198.2ms start=2196.5ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification starting total=2198.2ms
+[gateway] startup phase: cli.bootstrap.plugin-payload-verification 39.1ms total=2237.3ms start=2198.2ms
+[gateway] startup phase: cli.command.config-ready 1553.8ms total=2242.3ms start=688.5ms
+[gateway] startup phase: cli.main.gateway-run-reload-environment starting total=2242.4ms
+[gateway] startup phase: cli.main.gateway-run-reload-environment 0.4ms total=2242.8ms start=2242.4ms
+[gateway] startup phase: cli.main.gateway-run-bootstrap 1555.6ms total=2242.9ms start=687.2ms
+2026-10-24T20:28:49.647-07:00 [gateway] loading configuration…
+2026-10-24T20:28:49.671-07:00 [gateway] resolving authentication…
+2026-10-24T20:28:49.673-07:00 [gateway] starting...
+[gateway] startup phase: cli.bootstrap.lifecycle-runtime starting total=2487.5ms
+[gateway] startup phase: cli.bootstrap.lifecycle-runtime 116.0ms total=2603.5ms start=2487.5ms
+[gateway] startup phase: cli.bootstrap.gateway-lock starting total=2604.6ms
+[gateway] startup phase: cli.bootstrap.gateway-lock 448.1ms total=3052.7ms start=2604.6ms
+2026-10-24T20:28:50.241-07:00 [gateway] shutdown budget at startup: drain=315000ms shutdown=325000ms reserve=10000ms exitMargin=5000ms; source=Gateway stop policy=330000ms
+[gateway] startup phase: cli.bootstrap.boot-lifecycle starting total=3054.9ms
+[gateway] startup phase: cli.bootstrap.boot-lifecycle 11.1ms total=3066.1ms start=3054.9ms
+2026-10-24T20:28:50.445-07:00 [gateway] spawn broker ready pid=466749
+[gateway] startup phase: gateway.server-start-import starting total=3260.3ms
+[gateway] startup phase: gateway.server-start-import 337.7ms total=3597.9ms start=3260.3ms
+2026-10-24T20:28:50.835-07:00 [gateway] startup phase: process.bootstrap 3647.1ms total=3647.1ms
+2026-10-24T20:28:51.137-07:00 [gateway] startup phase: state.schema-preflight starting total=3948.8ms
+2026-10-24T20:28:51.313-07:00 [gateway] startup phase: state.schema-preflight 176.7ms total=4125.5ms
+2026-10-24T20:28:51.331-07:00 [gateway] auto-enabled plugins for this runtime without writing config:
+- openai/gpt-5.6-sol model configured, enabled automatically.
+2026-10-24T20:28:51.338-07:00 [gateway] startup phase: config.auth starting total=4145.5ms
+2026-10-24T20:28:51.480-07:00 [plugins] loading deepseek from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/deepseek/index.js
+2026-10-24T20:28:51.676-07:00 [plugins] loading duckduckgo from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/duckduckgo/index.js
+2026-10-24T20:28:51.680-07:00 [plugins] loading exa from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/exa/index.js
+2026-10-24T20:28:51.683-07:00 [plugins] loading firecrawl from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/firecrawl/index.js
+2026-10-24T20:28:51.709-07:00 [plugins] loading moonshot from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/moonshot/index.js
+2026-10-24T20:28:51.718-07:00 [plugins] loading parallel from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/parallel/index.js
+2026-10-24T20:28:51.721-07:00 [plugins] loading perplexity from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/perplexity/index.js
+2026-10-24T20:28:51.725-07:00 [plugins] loading searxng from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/searxng/index.js
+2026-10-24T20:28:51.727-07:00 [plugins] loading tavily from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/tavily/index.js
+2026-10-24T20:28:51.733-07:00 [plugins] loading brave from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/brave/index.js
+2026-10-24T20:28:51.737-07:00 [plugins] loading codex from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/codex/index.js
+2026-10-24T20:28:51.816-07:00 [plugins] loading google from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/google/index.js
+2026-10-24T20:28:51.852-07:00 [plugins] loading minimax from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/minimax/index.js
+2026-10-24T20:28:51.884-07:00 [plugins] loading ollama from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/ollama/index.js
+2026-10-24T20:28:51.894-07:00 [plugins] loading xai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/xai/index.js
+2026-10-24T20:28:51.911-07:00 [plugins] loading qa-lab from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/extensions/qa-lab/index.ts
+2026-10-24T20:28:52.060-07:00 [plugins] loaded 16 plugin(s) (16 attempted) in 582.4ms
+2026-10-24T20:28:52.221-07:00 [gateway] startup phase: config.auth 887.1ms total=5032.6ms
+2026-10-24T20:28:52.239-07:00 [gateway] startup phase: state.desktop-approval-admission starting total=5051.4ms
+2026-10-24T20:28:52.266-07:00 [gateway] startup phase: state.desktop-approval-admission 26.7ms total=5078.1ms
+2026-10-24T20:28:52.267-07:00 [gateway] startup phase: sessions.admission starting total=5079.3ms
+2026-10-24T20:28:52.567-07:00 [gateway] startup phase: sessions.admission 299.7ms total=5379.0ms
+2026-10-24T20:28:53.423-07:00 [gateway] starting HTTP server...
+2026-10-24T20:28:53.605-07:00 [health-monitor] started (interval: 300s, startup-grace: 60s, channel-connect-grace: 120s)
+2026-10-24T20:28:53.770-07:00 [gateway] startup phase: http.bound 0.0ms total=6582.0ms
+2026-10-24T20:28:53.770-07:00 [gateway] startup phase: runtime.early starting total=6582.6ms
+2026-10-24T20:28:53.773-07:00 [gateway] startup phase: runtime.early.discovery starting total=6585.1ms
+2026-10-24T20:28:53.776-07:00 [gateway] startup phase: runtime.early.discovery 3.1ms total=6588.2ms
+2026-10-24T20:28:53.776-07:00 [gateway] startup phase: runtime.early.lazy-runtime-imports starting total=6588.4ms
+2026-10-24T20:28:53.777-07:00 [gateway] startup phase: runtime.early.lazy-runtime-imports 1.1ms total=6589.5ms
+2026-10-24T20:28:53.778-07:00 [gateway] startup phase: runtime.early.skills-listener starting total=6590.2ms
+2026-10-24T20:28:53.781-07:00 [gateway] startup phase: runtime.early.skills-listener 3.1ms total=6593.3ms
+2026-10-24T20:28:53.781-07:00 [gateway] startup phase: runtime.early 11.0ms total=6593.6ms
+2026-10-24T20:28:54.177-07:00 [gateway] startup phase: post-attach.system-ca starting total=6989.1ms
+2026-10-24T20:28:54.177-07:00 [gateway] startup phase: post-attach.system-ca 0.5ms total=6989.6ms
+2026-10-24T20:28:54.178-07:00 [scheduler] running maintenance:github-oauth
+2026-10-24T20:28:54.179-07:00 [scheduler] running maintenance:secret-expiry
+2026-10-24T20:28:54.181-07:00 [gateway] startup phase: plugins.runtime-post-bind starting total=6993.8ms
+2026-10-24T20:28:54.196-07:00 [plugins] loading proof-interactive from <home>/i_have_a_pet_human/bm124-tg/harness/proof-interactive/proof-interactive.cjs
+2026-10-24T20:28:54.424-07:00 [plugins] loading teams-meetings from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/teams-meetings/index.js
+2026-10-24T20:28:54.449-07:00 [plugins] loading zoom-meetings from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/zoom-meetings/index.js
+2026-10-24T20:28:54.454-07:00 [plugins] loading acpx from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/acpx/index.js
+2026-10-24T20:28:54.475-07:00 [plugins] loading anthropic from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/anthropic/index.js
+2026-10-24T20:28:54.494-07:00 [plugins] loading browser from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/browser/index.js
+2026-10-24T20:28:54.513-07:00 [plugins] loading canvas from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/canvas/index.js
+2026-10-24T20:28:54.519-07:00 [plugins] loading codex from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/codex/index.js
+2026-10-24T20:28:54.541-07:00 [plugins] loading cua-computer from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/cua-computer/index.js
+2026-10-24T20:28:54.550-07:00 [plugins] loading device-pair from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/device-pair/index.js
+2026-10-24T20:28:54.553-07:00 [plugins] loading file-transfer from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/file-transfer/index.js
+2026-10-24T20:28:54.562-07:00 [plugins] loading geolocation from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/geolocation/index.js
+2026-10-24T20:28:54.568-07:00 [plugins] loading github from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/github/index.js
+2026-10-24T20:28:54.572-07:00 [plugins] loading google-meet from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/google-meet/index.js
+2026-10-24T20:28:54.580-07:00 [plugins] loading linux-node from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/linux-node/index.js
+2026-10-24T20:28:54.585-07:00 [plugins] loading llama-cpp from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/llama-cpp/index.js
+2026-10-24T20:28:54.593-07:00 [plugins] loading memory-core from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/memory-core/index.js
+2026-10-24T20:28:54.629-07:00 [plugins] loading ollama from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/ollama/index.js
+2026-10-24T20:28:54.635-07:00 [plugins] loading openai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/openai/index.js
+2026-10-24T20:28:54.670-07:00 [plugins] loading talk-voice from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/talk-voice/index.js
+2026-10-24T20:28:54.675-07:00 [plugins] loading telegram from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/telegram/index.js
+2026-10-24T20:28:54.799-07:00 (node:466463) [DEP_PLUGIN_SDK] DeprecationWarning: Plugin telegram: createApproverRestrictedNativeApprovalCapability is deprecated; use createApproverRestrictedNativeApprovalCapabilityAsync instead. The legacy contract remains supported during its deprecation period. Final compatibility day: 2026-12-31. Removal ships in the first January 2027 stable release; no SDK major is required.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-24T20:28:54.800-07:00 [plugins] loading xai from <home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/xai/index.js
+2026-10-24T20:28:54.806-07:00 [plugins] loaded 22 plugin(s) (22 attempted) in 610.9ms
+2026-10-24T20:28:54.807-07:00 [gateway] [plugins] OpenClaw can't verify where this plugin came from. Review it with 'openclaw plugins inspect proof-interactive'. Adding it to plugins.allow lets it load, but does not make it trusted. If it's an official plugin, reinstall it from its official npm package or its official ClawHub listing to enable trusted features. reason=record-missing; registryPath="<home>/.openclaw-proof-124337-tg-restart-base-3/state/openclaw.sqlite"; origin="config"; installSource=null; installSpec=null. (plugin=proof-interactive, source=<home>/i_have_a_pet_human/bm124-tg/harness/proof-interactive/proof-interactive.cjs)
+2026-10-24T20:28:54.808-07:00 [gateway] startup phase: plugins.runtime-post-bind 627.0ms total=7620.8ms
+2026-10-24T20:28:54.808-07:00 [gateway] startup phase: plugins.runtime-attach starting total=7620.9ms
+2026-10-24T20:28:54.813-07:00 [gateway] startup phase: plugins.runtime-attach 4.5ms total=7625.5ms
+2026-10-24T20:28:54.819-07:00 [gateway] agent model: openai/gpt-5.6-sol (thinking=medium, fast=off)
+2026-10-24T20:28:54.819-07:00 [gateway] http server listening (22 plugins: acpx, anthropic, browser, canvas, codex, cua-computer, device-pair, file-transfer, geolocation, github, google-meet, linux-node, llama-cpp, memory-core, ollama, openai, proof-interactive, talk-voice, teams-meetings, telegram, xai, zoom-meetings; 4.6s)
+2026-10-24T20:28:54.819-07:00 [gateway] log file: <home>/.openclaw-proof-124337-tg-restart-base-3/gateway-file.log
+2026-10-24T20:28:54.819-07:00 [gateway] Older local CLI/SDK versions can bypass Gateway state mutation routing. Use matching CLI/SDK and Gateway versions; direct state writes from another process while this Gateway owns state are unsupported.
+2026-10-24T20:28:54.819-07:00 [gateway] native runtime: {"pid":466463,"platform":"linux","arch":"x64","node":"26.12.1","v8":"14.6.202.34-node.40","uv":"1.52.1","openssl":"3.5.9","sqlite":"3.54.0","sqliteClose":{"explicitSqliteCloseReleasesNativeResources":true,"decided":true,"reason":"Node runtime"}}
+2026-10-24T20:28:54.821-07:00 [gateway] worker startup state: {"workerCount":10,"postgresBridgeCount":0,"workerLifecycle":[{"script":"client-credential.worker.js","started":1,"retired":[]},{"script":"sqlite-store.worker.js","started":1,"retired":[]},{"script":"gateway-state-owner-heartbeat.worker.js","started":2,"retired":[{"reason":"exit","count":1}]},{"script":"worker-native-lifecycle.worker.js","started":1,"retired":[]},{"script":"openclaw-state-read.worker.js","started":2,"retired":[]},{"script":"openclaw-state-lease-heartbeat.worker.js","started":1,"retired":[]},{"script":"session-transcript.worker.js","started":2,"retired":[]},{"script":"plugin-generation-preparation.worker.js","started":1,"retired":[]}],"workerTaskMetrics":[{"workerClass":"singleton","script":"client-credential.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":27300656,"gc":[]},{"workerClass":"other","script":"openclaw-state-read.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":21578520,"gc":[]},{"workerClass":"other","script":"session-transcript.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":17537720,"gc":[]},{"workerClass":"other","script":"plugin-generation-preparation.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":17062032,"gc":[]},{"workerClass":"writer","script":"session-transcript.worker.js","tasksCompleted":0,"heapUsedHighWaterBytes":17464584,"gc":[]}],"compute":{"limit":15,"active":0,"waitingPools":0,"pendingTasks":0,"pendingBytes":0}}
+2026-10-24T20:28:54.826-07:00 [gateway] startup phase: sidecars.worker-environments starting total=7638.7ms
+2026-10-24T20:28:54.827-07:00 [gateway] startup phase: sidecars.worker-environments.github-ready starting total=7639.4ms
+2026-10-24T20:28:54.827-07:00 [gateway] startup phase: sidecars.worker-environments.github-ready 0.2ms total=7639.6ms
+2026-10-24T20:28:54.827-07:00 [gateway] startup phase: sidecars.worker-environments.workspaces starting total=7639.7ms
+2026-10-24T20:28:54.832-07:00 [gateway] startup phase: sidecars.worker-environments.workspaces 4.6ms total=7644.3ms
+2026-10-24T20:28:54.832-07:00 [gateway] startup phase: sidecars.worker-environments.active starting total=7644.5ms
+2026-10-24T20:28:54.834-07:00 [gateway] startup phase: sidecars.worker-environments.active 1.9ms total=7646.4ms
+2026-10-24T20:28:54.836-07:00 [gateway] startup phase: sidecars.worker-environments 9.9ms total=7648.5ms
+2026-10-24T20:28:54.836-07:00 [gateway] starting channels and sidecars...
+2026-10-24T20:28:54.837-07:00 [gateway] startup phase: sidecars.internal-hooks starting total=7649.2ms
+2026-10-24T20:28:54.838-07:00 [gateway] startup phase: sidecars.model-runtime starting total=7650.3ms
+2026-10-24T20:28:54.838-07:00 [gateway] startup phase: sidecars.reply-runtime starting total=7650.6ms
+2026-10-24T20:28:55.021-07:00 [gateway] startup phase: sidecars.internal-hooks 184.4ms total=7833.5ms
+2026-10-24T20:28:55.196-07:00 [gateway] startup phase: sidecars.reply-runtime 357.3ms total=8007.9ms
+2026-10-24T20:28:55.196-07:00 [gateway] startup phase: sidecars.worker-environments.publications starting total=8008.7ms
+2026-10-24T20:28:55.309-07:00 [gateway] startup phase: sidecars.model-runtime 471.5ms total=8121.9ms
+2026-10-24T20:28:55.316-07:00 [gateway] startup phase: sidecars.chat-metadata starting total=8128.5ms
+2026-10-24T20:28:55.317-07:00 [gateway] startup phase: sidecars.chat-metadata 0.5ms total=8129.0ms
+2026-10-24T20:28:55.317-07:00 [gateway] startup phase: sidecars.plugin-services starting total=8129.2ms
+2026-10-24T20:28:55.319-07:00 [gateway] startup phase: sidecars.channels starting total=8131.1ms
+2026-10-24T20:28:55.341-07:00 [plugins] embedded acpx runtime backend registered lazily
+2026-10-24T20:28:55.398-07:00 [gateway] startup phase: sidecars.plugin-services 80.8ms total=8209.9ms
+2026-10-24T20:28:55.400-07:00 [gateway] startup outcomes: internal-hooks=skipped (not-configured); internal-startup-hook=skipped (no-handlers-loaded); gateway-start-hooks=scheduled; gmail-watcher=skipped (hooks-disabled); gmail-model=skipped (not-configured)
+2026-10-24T20:28:55.402-07:00 [gateway] startup phase: runtime.worker-pool-metrics starting total=8214.3ms
+2026-10-24T20:28:55.405-07:00 [gateway] startup phase: runtime.worker-pool-metrics 3.0ms total=8217.2ms
+2026-10-24T20:28:55.439-07:00 [scheduler] running plugin-service:d06f2215-0a68-4370-8f6b-4ef786fd1b9e:codex/native-profile-recovery
+2026-10-24T20:28:55.440-07:00 [scheduler] running plugin-service:16392c29-294c-4314-861c-43b0a5cd5d05:<home>/.openclaw-proof-124337-tg-restart-base-3/agents/main/agent/openclaw-agent.sqlite
+2026-10-24T20:28:55.442-07:00 [scheduler] running startup:dependency-template-prewarm
+2026-10-24T20:28:55.452-07:00 [gateway] startup phase: sidecars.worker-environments.publications 255.9ms total=8264.5ms
+2026-10-24T20:28:55.604-07:00 [plugins] memory-core: created managed dreaming cron job.
+2026-10-24T20:28:55.902-07:00 [scheduler] running database:page-cache
+2026-10-24T20:28:55.902-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:28:55.903-07:00 [scheduler] running startup:maintenance
+2026-10-24T20:28:56.046-07:00 [scheduler] running cron-maintenance
+2026-10-24T20:28:56.152-07:00 [scheduler] running startup:post-ready-work
+2026-10-24T20:28:56.153-07:00 [gateway] startup phase: sidecars.main-session-recovery starting total=8965.0ms
+2026-10-24T20:28:56.176-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:56.182-07:00 [scheduler] running update.check
+2026-10-24T20:28:56.182-07:00 [scheduler] running update.remote-model-catalog
+2026-10-24T20:28:56.211-07:00 [gateway] remote model catalog refresh failed; next check in 6 hours, or run openclaw models refresh
+2026-10-24T20:28:56.402-07:00 [cron/maintenance] Session registry maintenance completed
+2026-10-24T20:28:56.416-07:00 [git/network] Git fetch hit a transient failure; retrying once operation=fetch attempt=1 maxAttempts=2 delayMs=1000 exitCode=128
+2026-10-24T20:28:56.491-07:00 [gateway] startup phase: sidecars.main-session-recovery 337.9ms total=9303.0ms
+2026-10-24T20:28:56.509-07:00 [telegram] [default] starting account (reason: startup)
+2026-10-24T20:28:56.510-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=none guildId=none teamId=none bindings=0
+2026-10-24T20:28:56.515-07:00 [gateway] startup phase: sidecars.channels 1195.9ms total=9327.0ms
+2026-10-24T20:28:56.544-07:00 [gateway] startup phase: sidecars.subagent-recovery starting total=9356.7ms
+2026-10-24T20:28:56.574-07:00 [hooks] running gateway_start (1 handlers)
+2026-10-24T20:28:56.582-07:00 [gateway] startup phase: ready 9.3ms total=9394.0ms
+2026-10-24T20:28:56.582-07:00 [gateway] ready
+2026-10-24T20:28:56.582-07:00 [gateway] startup phase: sidecars.subagent-recovery 37.8ms total=9394.5ms readersMs=0.0 execMs=37.4 registryLoadMs=3.4 registryActivationMs=2.7 registryActivationBindMs=0.6 registryActivationRequestersMs=0.2 registryActivationReserveMs=0.2 registryActivationResumeMs=0.5 registryActivationAuthorityRestoreMs=0.0 registryActivationPublishMs=0.0 registryActivationSessionReadMs=0.0 registryActivationYieldMs=0.0 registryActivationRuns=0.0 registryActivationActiveRuns=0.0 registryActivationRecoveredRuns=0.0 registryActivationPublishedRuns=0.0 outcome=success
+2026-10-24T20:28:56.589-07:00 [telegram] [default] starting provider (@proof_124337_bot)
+2026-10-24T20:28:56.677-07:00 [scheduler] running maintenance:device-pair-setup
+2026-10-24T20:28:56.699-07:00 [telegram] [diag] isolated polling ingress started account=default
+2026-10-24T20:28:56.703-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:56.954-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.163-07:00 [scheduler] running database:page-cache
+2026-10-24T20:28:57.163-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:28:57.204-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.290-07:00 [gateway] database page-cache residency: database=state scope=file-sample resident=100.0% readBytes=72021 diskBytes=0 payloadBytes=0 payloadMessages=0 elapsedMs=11.8 projectionQueryMs=n/a->n/a limited=false
+2026-10-24T20:28:57.454-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.468-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.499-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.507-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.513-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:28:57.744-07:00 [scheduler] running delivery:session-recovery
+2026-10-24T20:28:58.164-07:00 [scheduler] running startup:database-maintenance
+2026-10-24T20:28:58.172-07:00 [gateway] startup phase: post-ready.startup-maintenance starting total=10984.3ms
+2026-10-24T20:28:58.173-07:00 [gateway] startup phase: startup.maintenance.plugin-registry starting total=10985.0ms
+2026-10-24T20:28:58.174-07:00 [gateway] startup phase: startup.maintenance.channels starting total=10986.2ms
+2026-10-24T20:28:58.174-07:00 [gateway] startup phase: startup.maintenance.sessions starting total=10986.7ms
+2026-10-24T20:28:58.174-07:00 [gateway] startup phase: startup.maintenance.pairing starting total=10986.9ms
+2026-10-24T20:28:58.177-07:00 [gateway] startup phase: startup.maintenance.sessions 2.4ms total=10989.1ms
+2026-10-24T20:28:58.177-07:00 [gateway] startup phase: startup.maintenance.channels 3.6ms total=10989.8ms
+2026-10-24T20:28:58.181-07:00 [gateway] startup phase: startup.maintenance.pairing 6.4ms total=10993.2ms
+2026-10-24T20:28:58.482-07:00 [gateway] startup phase: startup.maintenance.plugin-registry 309.1ms total=11294.1ms
+2026-10-24T20:28:58.482-07:00 [gateway] startup phase: post-ready.startup-maintenance 310.1ms total=11294.4ms
+2026-10-24T20:28:58.777-07:00 [scheduler] running cron-maintenance
+2026-10-24T20:29:00.400-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:29:00.404-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:29:00.777-07:00 [scheduler] running startup:handler-prewarm
+2026-10-24T20:29:03.088-07:00 [telegram] [diag] isolated polling worker batch received queued=1
+2026-10-24T20:29:03.117-07:00 [telegram] [diag] isolated polling batch spooled updateId=900001
+2026-10-24T20:29:03.118-07:00 [telegram] [diag] isolated polling offset queued updateId=900001
+2026-10-24T20:29:03.129-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:29:03.179-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:29:05.351-07:00 [scheduler] running plugin-service:ab58d419-5b77-4e48-9e01-99b11e1270d3:notifications
+2026-10-24T20:29:05.499-07:00 [plugins] [hooks] running before_prompt_build (1 handlers, sequential)
+2026-10-24T20:29:09.131-07:00 [telegram] [diag] isolated polling worker batch received queued=1
+2026-10-24T20:29:09.135-07:00 [telegram] [diag] isolated polling batch spooled updateId=900002
+2026-10-24T20:29:09.136-07:00 [telegram] [diag] isolated polling offset queued updateId=900002
+2026-10-24T20:29:09.143-07:00 [routing] resolveAgentRoute: channel=telegram accountId=default peer=direct:<human> guildId=none teamId=none bindings=0
+2026-10-24T20:29:09.359-07:00 [diagnostic] message dispatch completed: channel=telegram sessionId=unknown sessionKey=agent:main:main source=replyResolver outcome=completed duration=73ms
+2026-10-24T20:29:09.360-07:00 [diagnostic] message processed: channel=telegram chatId=telegram:<human> messageId=cbq-1 sessionId=96bc2043-b617-40fb-ae6a-8153cec29c62 sessionKey=agent:main:main outcome=completed duration=79ms
+2026-10-24T20:29:11.494-07:00 [scheduler] running sessions:upstream-initial-probe
+2026-10-24T20:29:17.163-07:00 [admission] closed: restart-signal fence
+2026-10-24T20:29:17.169-07:00 [admission] closed: stop (SIGTERM)
+2026-10-24T20:29:17.169-07:00 [gateway] received SIGTERM; shutting down
+2026-10-24T20:29:17.171-07:00 [telegram] callback handler failed: TelegramRetryableCallbackError: turn-abandoned
+2026-10-24T20:29:17.172-07:00 [gateway] shutdown budget at shutdown: drain=315000ms shutdown=325000ms reserve=10000ms exitMargin=5000ms; source=Gateway stop policy=330000ms
+2026-10-24T20:29:17.174-07:00 [gateway] draining active work before stop with timeout 20000ms: queueSize=1 pendingReplies=1 embeddedRuns=1 agentRuns=1 sessionAdmissions=1 rootRequests=1
+2026-10-24T20:29:25.652-07:00 [scheduler] running maintenance:retained-plugin-generations
+2026-10-24T20:29:25.652-07:00 [scheduler] running maintenance:sqlite-snapshots
+2026-10-24T20:29:26.667-07:00 [scheduler] running skills.remote-bin-refresh
+2026-10-24T20:29:29.140-07:00 [telegram] reconnect delivery drain failed: Gateway is shutting down. Please try again once it is back online.
+2026-10-24T20:29:37.174-07:00 [gateway] active-work drain timeout reached; proceeding with shutdown: queueSize=1 pendingReplies=1 embeddedRuns=1 agentRuns=1 sessionAdmissions=1 rootRequests=1
+2026-10-24T20:29:37.174-07:00 [gateway] active-work drain settled; beginning server close
+2026-10-24T20:29:37.179-07:00 [shutdown] restart reply drain timed out after 0.024631000000226777ms with pendingReplies=1 still active; continuing shutdown
+2026-10-24T20:29:38.182-07:00 [shutdown] restart session marker did not settle within 1000ms; waiting before shutdown
+[sqlite/transaction] slow SQLite transaction step async=false busyTimeoutMs=5000 database=<home>/.openclaw-proof-124337-tg-restart-base-3/agents/main/agent/openclaw-agent.sqlite operation=session.entry-replacements elapsedMs=1831 isMainThread=false pid=466463 step=commit threadId=13
+2026-10-24T20:29:39.074-07:00 [main-session-restart-recovery] marked 1 interrupted main session(s) for restart recovery (gateway restart shutdown)
+2026-10-24T20:29:39.077-07:00 [shutdown] aborted 1 active run(s) during restart shutdown
+2026-10-24T20:29:39.078-07:00 [gateway] shutdown step restart.close.reply-drain settled after 1899ms
+2026-10-24T20:29:39.081-07:00 [diagnostic] message processed: channel=telegram chatId=telegram:<human> messageId=101 sessionId=96bc2043-b617-40fb-ae6a-8153cec29c62 sessionKey=agent:main:main outcome=skipped duration=35577ms reason=reply_operation_aborted
+2026-10-24T20:29:39.084-07:00 [turn/execution] visible channel turn dispatched with no queued reply payloads: channel=telegram messageId=101 sessionKey=agent:main:main cause=skipped:reply_operation_aborted
+[sqlite/transaction] slow SQLite transaction hold async=false callbackKind=application-transaction database=<home>/.openclaw-proof-124337-tg-restart-base-3/agents/main/agent/openclaw-agent.sqlite operation=session.entry-replacements elapsedMs=1868 phases={"prepareMs":9,"beginMs":0,"sqlMs":4,"hostAdmissionWaitMs":1,"databaseAdmissionWaitMs":0,"commitMs":1863} isMainThread=false mode=immediate pid=466463 threadId=13 thresholdMs=1000
+2026-10-24T20:29:39.156-07:00 [agent/embedded] codex app-server cancellation cleanup failed error={"name":"Error","message":"Codex background-terminal cleanup failed; inspect the thread's running terminals before starting more work.","stack":"Error: Codex background-terminal cleanup failed; inspect the thread's running terminals before starting more work.\n    at terminateCodexBackgroundTerminals (file://<home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/codex/.setup/attempt-client-cleanup-DLgsLUxJ.mjs:140:9)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file://<home>/i_have_a_pet_human/source/WORKTREES/bm-124337-base/dist/extensions/codex/.setup/run-attempt-BI-NDjUN.mjs:2787:9"}
+[state/agent-db] agent database clean-close receipt: written; agent=main
+2026-10-24T20:29:39.163-07:00 [auto-reply/reply-turn-admission] lease released: reason=restart-abort runId=7d17b11a-ca03-4b05-9545-47b0810fb757 kind=reply-admission
+2026-10-24T20:29:39.170-07:00 [telegram] stream preview cleanup failed: Network request for 'deleteMessage' failed! lane=answer chatId=<human>
+2026-10-24T20:29:39.328-07:00 [gmail-watcher] gmail watcher stopped
+[state/agent-db] agent database clean-close receipt: written; agent=main
+2026-10-24T20:29:39.863-07:00 [agent/embedded] codex app-server model call diagnostic ended with error
+2026-10-24T20:29:40.434-07:00 [agent/embedded] codex app-server thread unsubscribe cleanup failed
+2026-10-24T20:29:40.441-07:00 [agents/harness] Codex agent harness failed; not falling back to embedded OpenClaw backend harnessId=codex provider=openai modelId=gpt-5.6-sol error="Codex background-terminal cleanup failed; inspect the thread's running terminals before starting more work. | thread/backgroundTerminals/list transport failed after request write: codex app-server client is closed | CODEX_APP_SERVER_REQUEST_TRANSPORT_INDETERMINATE"
+2026-10-24T20:29:40.446-07:00 [diagnostic] lane task error: lane=main durationMs=35723 error="Codex background-terminal cleanup failed; inspect the thread's running terminals before starting more work. | thread/backgroundTerminals/list transport failed after request write: codex app-server client is closed | CODEX_APP_SERVER_REQUEST_TRANSPORT_INDETERMINATE" errorName=Error taskKind=turn sessionKey=agent:main:main runId=7d17b11a-ca03-4b05-9545-47b0810fb757
+2026-10-24T20:29:40.447-07:00 [model-fallback/decision] model fallback chain stopped: reason=caller_signal_aborted candidate=openai/gpt-5.6-sol errorName=Error
+2026-10-24T20:29:40.453-07:00 [gateway] shutdown step restart.close.session-sources settled after 1376ms
+2026-10-24T20:29:40.454-07:00 [gateway] shutdown step restart.close.session-effects settled after 1376ms
+2026-10-24T20:29:40.454-07:00 [gateway] shutdown step restart.close.session-admissions settled after 1376ms
+2026-10-24T20:29:40.454-07:00 [gateway] shutdown step restart.close.cleanup-work settled after 1119ms
+[state/agent-db] agent database clean-close receipt: written; agent=main
+2026-10-24T20:29:40.516-07:00 [shutdown] completed in 3338ms with warnings: restart-reply-drain, restart-main-session-marker
+2026-10-24T20:29:40.517-07:00 [gateway] shutdown step shutdown.gateway-close settled after 1386ms

@@ -1,0 +1,9 @@
+{"t":"2026-10-25T03:33:34.399Z","phase":"listening","port":18585,"ROUNDS":6,"STEP":20}
+{"t":"2026-10-25T03:33:54.191Z","n":1,"phase":"hold-sleep 1/6","markers":["HOLD-1"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:35:47.258Z","n":2,"phase":"hold-sleep 1/6","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":0,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:36:07.380Z","n":3,"phase":"hold-sleep 2/6","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":1,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:36:27.501Z","n":4,"phase":"hold-sleep 3/6","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":2,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:36:47.629Z","n":5,"phase":"hold-sleep 4/6","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":3,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:37:07.767Z","n":6,"phase":"hold-sleep 5/6","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":4,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:37:27.903Z","n":7,"phase":"hold-sleep 6/6","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":5,"model":"gpt-5.6-sol"}
+{"t":"2026-10-25T03:37:47.963Z","n":8,"phase":"reply","markers":["HOLD-1","MSG-SUBMIT"],"toolOutputs":6,"model":"gpt-5.6-sol"}

@@ -1,0 +1,13 @@
+label=restart-head-3 tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0 start=03:23:57Z netns=net:[4026535219] ifaces=lo,
+gateway#1 up health+poll 4s state={"polls":2,"lastPollAt":"2026-10-25T03:24:09.756Z","pending":[],"keyboards":[]} 03:24:09Z
+text 'HOLD-1 keep the turn busy' 03:24:14Z
+keyboard message_id=102 03:24:17Z
+press message_id=102 03:24:20Z
+gateway#1 stopped 03:24:50Z
+after shutdown: handler invocations=1 markup-edits on K=0 keyboards=[102]
+gateway#2 up health+poll 5s state={"polls":7,"lastPollAt":"2026-10-25T03:25:02.319Z","pending":[],"keyboards":[102]} 03:25:02Z
+SUBMIT reached the model 03:26:27Z
+SUBMIT replied 03:28:28Z
+final: handler invocations=2 callbackIds= 2 "callbackId":"cbq-1"; markup-edits on K=1 SUBMIT sends=1 keyboards=[]
+gateway#2 stopped 03:28:44Z
+end=03:28:44Z tree=9fd80c6cdbd8d67ea6b27ac1b1bf19471eef225f dirty=0

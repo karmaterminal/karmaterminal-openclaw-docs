@@ -1,0 +1,58 @@
+{"t":"2026-10-25T03:28:45.002Z","kind":"listening","port":18595}
+{"t":"2026-10-25T03:28:56.685Z","kind":"bot-call","method":"deleteMyCommands","params":[]}
+{"t":"2026-10-25T03:28:56.685Z","kind":"bot-call","method":"deleteWebhook","params":["drop_pending_updates"]}
+{"t":"2026-10-25T03:28:56.704Z","kind":"bot-call","method":"deleteMyCommands","params":["scope"]}
+{"t":"2026-10-25T03:29:03.081Z","kind":"inject","update_id":900001,"update":{"update_id":900001,"message":{"message_id":101,"from":{"id":<human>,"is_bot":false,"first_name":"Human","username":"proof_human"},"chat":{"id":<human>,"type":"private","first_name":"Human","username":"proof_human"},"date":1792898943,"text":"HOLD-1 keep the turn busy"}}}
+{"t":"2026-10-25T03:29:03.082Z","kind":"deliver","offset":0,"update_ids":[900001]}
+{"t":"2026-10-25T03:29:03.192Z","kind":"bot-call","method":"getUserProfilePhotos","params":["user_id","offset","limit"]}
+{"t":"2026-10-25T03:29:04.515Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:06.118Z","kind":"seed-keyboard","message_id":102,"text":"MSG-BTN pick one","reply_markup":{"inline_keyboard":[[{"text":"Approve","callback_data":"proof:approve"}]]}}
+{"t":"2026-10-25T03:29:07.565Z","kind":"bot-send","method":"sendMessage","message_id":103,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:29:08.563Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:09.130Z","kind":"inject","update_id":900002,"update":{"update_id":900002,"callback_query":{"id":"cbq-1","from":{"id":<human>,"is_bot":false,"first_name":"Human","username":"proof_human"},"chat_instance":"proof-chat-instance","message":{"message_id":102,"from":{"id":<bot>,"is_bot":true,"first_name":"ProofBot","username":"proof_124337_bot"},"chat":{"id":<human>,"type":"private","first_name":"Human","username":"proof_human"},"date":1792898946,"text":"MSG-BTN pick one","reply_markup":{"inline_keyboard":[[{"text":"Approve","callback_data":"proof:approve"}]]}},"data":"proof:approve"}}}
+{"t":"2026-10-25T03:29:09.130Z","kind":"deliver","offset":900002,"update_ids":[900002]}
+{"t":"2026-10-25T03:29:09.138Z","kind":"bot-answer-callback","callback_query_id":"cbq-1","text":null}
+{"t":"2026-10-25T03:29:12.528Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:16.528Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:20.530Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:25.883Z","kind":"bot-edit-text","message_id":103,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:29:26.892Z","kind":"bot-edit-text","message_id":103,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:29:28.508Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:32.528Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:52.597Z","kind":"bot-call","method":"deleteMyCommands","params":[]}
+{"t":"2026-10-25T03:29:52.602Z","kind":"bot-call","method":"deleteWebhook","params":["drop_pending_updates"]}
+{"t":"2026-10-25T03:29:52.603Z","kind":"bot-call","method":"deleteMyCommands","params":["scope"]}
+{"t":"2026-10-25T03:29:52.992Z","kind":"bot-answer-callback","callback_query_id":"cbq-1","text":null}
+{"t":"2026-10-25T03:29:53.034Z","kind":"bot-call","method":"getUserProfilePhotos","params":["user_id","offset","limit"]}
+{"t":"2026-10-25T03:29:53.997Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:54.989Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:29:55.989Z","kind":"bot-send","method":"sendMessage","message_id":104,"text":"OpenClaw admitted a continuation of this request after the Gateway restarted. Recovery did not grant new permission or confirm that earlier work finished.","reply_markup":null}
+{"t":"2026-10-25T03:30:01.001Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:07.004Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:13.005Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:19.005Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:25.003Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:31.003Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:37.002Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:43.008Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:49.004Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:30:55.004Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:31:01.003Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:31:07.006Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:31:13.006Z","kind":"bot-call","method":"sendChatAction","params":["chat_id","action"]}
+{"t":"2026-10-25T03:31:15.613Z","kind":"bot-send","method":"sendMessage","message_id":105,"text":"ack HOLD-1","reply_markup":null}
+{"t":"2026-10-25T03:31:16.613Z","kind":"bot-edit-markup","message_id":102,"reply_markup":{"inline_keyboard":[]}}
+{"t":"2026-10-25T03:31:18.188Z","kind":"bot-send","method":"sendMessage","message_id":106,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:31:36.527Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:31:37.538Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:31:56.611Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:31:57.628Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:32:16.729Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:32:17.745Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:32:36.870Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:32:37.887Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:32:56.974Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:32:57.988Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nBash: running","reply_markup":null}
+{"t":"2026-10-25T03:33:17.095Z","kind":"bot-edit-text","message_id":106,"text":"<b>Working</b>\nLast activity: Bash","reply_markup":null}
+{"t":"2026-10-25T03:33:18.099Z","kind":"bot-send","method":"sendMessage","message_id":107,"text":"ack HOLD-1 MSG-SUBMIT","reply_markup":null}
+{"t":"2026-10-25T03:33:19.096Z","kind":"bot-call","method":"deleteMessage","params":["chat_id","message_id"]}

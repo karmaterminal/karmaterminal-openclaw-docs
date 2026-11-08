@@ -1,0 +1,15 @@
+== rows queued 03:38:32Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002	MSG-BTN	claimed	attempts=0	last_error=	failed_reason=
+== rows after-stop 03:38:42Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002		completed	attempts=1	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900003		completed	attempts=0	last_error=	failed_reason=
+== rows before-second-press 03:40:12Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002		completed	attempts=1	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900003		completed	attempts=0	last_error=	failed_reason=
+== rows final 03:42:53Z
+state/openclaw.sqlite	0000000000900001		completed	attempts=0	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900002		completed	attempts=1	last_error=	failed_reason=
+state/openclaw.sqlite	0000000000900003		completed	attempts=0	last_error=	failed_reason=

@@ -142,7 +142,7 @@ function envReport(policy) {
 
 function printText(report) {
   console.log(`seat readiness: ${report.outcome}`);
-  console.log(`target RPC: authenticated=${report.target.authentication.authenticated}; client=${report.target.authentication.request?.client?.id || 'none'}; method=${report.target.authentication.request?.method || 'none'}`);
+  console.log(`target RPC: authenticated=${report.target.authentication.authenticated}; client=${report.target.authentication.request?.client?.id || 'none'}/${report.target.authentication.request?.client?.mode || 'none'}; auth=${report.target.authentication.response?.authMethod || 'none'}; method=${report.target.authentication.request?.method || 'none'}`);
   console.log(`gateway fingerprint: ${report.target.gatewayUrlFingerprint || 'invalid'}`);
   console.log(`depth: configured=${report.target.configuredMaxSpawnDepth ?? 'unknown'}; effective=${report.target.effectiveMaxSpawnDepth ?? 'unknown'}; required=${report.target.requiredMaxSpawnDepth ?? 'invalid'}; expected=${report.target.expectedMaxSpawnDepth ?? 'invalid'}`);
   console.log(`binding digest: ${report.bindingDigest || 'unsigned'}`);

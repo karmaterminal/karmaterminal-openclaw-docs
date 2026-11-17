@@ -24,7 +24,7 @@
     "integrity"
   ],
   "properties": {
-    "schema": { "const": "openclaw.k6.seat-readiness.v2" },
+    "schema": { "const": "openclaw.k6.seat-readiness.v3" },
     "generatedAt": { "type": "string", "format": "date-time" },
     "outcome": { "enum": ["PASS-candidate", "PARTIAL-candidate"] },
     "policy": {
@@ -82,8 +82,24 @@
           "properties": {
             "scheme": { "const": "gateway-token" },
             "authenticated": { "type": "boolean" },
-            "request": { "type": ["object", "null"] },
-            "response": { "type": ["object", "null"] }
+            "request": {
+              "type": ["object", "null"],
+              "properties": {
+                "client": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "const": "gateway-client" },
+                    "mode": { "const": "backend" }
+                  }
+                }
+              }
+            },
+            "response": {
+              "type": ["object", "null"],
+              "properties": {
+                "authMethod": { "enum": ["none", "token"] }
+              }
+            }
           }
         }
       }

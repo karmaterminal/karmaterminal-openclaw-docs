@@ -1,12 +1,70 @@
 import { createHash } from 'node:crypto';
-import assert from 'node:assert/strict';
+import { HARNESS_CLIENT_IDENTITY } from '../../../lib/gateway-client-identity.mjs';
 
+const NOT_PAIRED = Object.freeze({
+  code: 'NOT_PAIRED',
+  message: 'device identity required',
+  details: { code: 'DEVICE_IDENTITY_REQUIRED' },
+});
+const TOKEN_MISMATCH = Object.freeze({
+  code: 'INVALID_REQUEST',
+  message: 'unauthorized: gateway token mismatch',
+  details: { code: 'AUTH_TOKEN_MISMATCH', authReason: 'token_mismatch' },
+});
+
+/**
+ * How openclaw ab5a30ea79b776f149e24b1fccab9e79b0a5d299 answers a device-less operator
+ * connect. `locality` 'direct_local' is a loopback socket with no Origin or forwarding
+ * headers, which is what Node's WebSocket opens; 'remote' is any other attribution.
+ * - auth.mode=none authorizes every connect as method "none", token or not (auth.ts:554-570).
+ *   Only a local gateway-client/backend skips self-pairing (handshake-auth-helpers.ts:165-187,
+ *   connect-policy.ts:85-87) and keeps its scopes (connect-auth.ts:290-300); any other
+ *   device-less operator is NOT_PAIRED "device identity required" (connect-policy.ts:91-97,
+ *   connect-auth.ts:323-327).
+ * - auth.mode=token needs the shared token (auth.ts:598-608, connect-auth.ts:445-452). A local
+ *   backend keeps its scopes through the same skip, a local `cli` through
+ *   shouldPreserveLocalCliSharedAuthScopes (handshake-auth-helpers.ts:189-203); a remote
+ *   device-less operator is admitted with its scopes cleared (connect-policy.ts:57-67, 91-93).
+ * ab5a pins both modes over a real server in src/gateway/server.auth.compat-baseline.test.ts:78-151.
+ */
+export function ab5aDeviceLessOperatorAdmission({ authMode, token, locality = 'direct_local' }, params) {
+  const client = params?.client || {};
+  const local = locality === 'direct_local';
+  const backend = client.id === HARNESS_CLIENT_IDENTITY.id && client.mode === HARNESS_CLIENT_IDENTITY.mode;
+  const cli = client.id === 'cli' && client.mode === 'cli';
+  const scopes = Array.isArray(params?.scopes) ? params.scopes : [];
+  if (params?.device || params?.role !== 'operator') {
+    throw new Error('the readiness fixture models device-less operator connects only');
+  }
+  if (authMode === 'none') {
+    return local && backend
+      ? { ok: true, method: 'none', scopes }
+      : { ok: false, error: NOT_PAIRED };
+  }
+  if (authMode !== 'token') throw new Error(`unmodelled auth mode: ${authMode}`);
+  if (params?.auth?.token !== token) return { ok: false, error: TOKEN_MISMATCH };
+  return { ok: true, method: 'token', scopes: local && (backend || cli) ? scopes : [] };
+}
+
+/**
+ * A readiness target on `server`. It answers connect with the ab5a admission above and
+ * records every connect's public shape in the returned `connects`.
+ *
+ * `requireClient` (default: the harness identity) answers any other client with an
+ * INVALID_REQUEST instead, so a suite that only needs a working target still fails if
+ * readiness stops presenting the row scenarios' identity. Pass `null` to see ab5a's own
+ * answer to another identity.
+ */
 export function attachReadinessGateway(server, {
   token,
   runtimeSha,
   configuredDepth = 5,
   effectiveDepth = configuredDepth,
+  authMode = 'token',
+  locality = 'direct_local',
+  requireClient = HARNESS_CLIENT_IDENTITY,
 } = {}) {
+  const connects = [];
   const send = (socket, value) => {
     const payload = Buffer.from(JSON.stringify(value));
     const header = payload.length < 126
@@ -67,9 +125,32 @@ export function attachReadinessGateway(server, {
         }
         const frame = JSON.parse(payload.toString('utf8'));
         if (frame.method === 'connect') {
-          assert.equal(frame.params.client.id, 'cli');
-          assert.equal(frame.params.client.mode, 'cli');
-          assert.equal(frame.params.auth.token, token);
+          const params = frame.params || {};
+          connects.push({
+            client: { id: params.client?.id, mode: params.client?.mode },
+            role: params.role,
+            scopes: params.scopes,
+            device: params.device !== undefined,
+            tokenMatches: params.auth?.token === token,
+          });
+          const unexpectedClient = requireClient && (
+            params.client?.id !== requireClient.id || params.client?.mode !== requireClient.mode
+          );
+          const admission = unexpectedClient
+            ? {
+                ok: false,
+                error: {
+                  code: 'INVALID_REQUEST',
+                  message: 'readiness fixture: unexpected client identity',
+                  details: { code: 'FIXTURE_UNEXPECTED_CLIENT' },
+                },
+              }
+            : ab5aDeviceLessOperatorAdmission({ authMode, token, locality }, params);
+          if (!admission.ok) {
+            send(socket, { type: 'res', id: frame.id, ok: false, error: admission.error });
+            socket.end(Buffer.from([0x88, 0x02, 0x03, 0xf0]));
+            return;
+          }
           send(socket, {
             type: 'res',
             id: frame.id,
@@ -85,7 +166,7 @@ export function attachReadinessGateway(server, {
               },
               features: { methods: ['config.get'], events: ['connect.challenge'] },
               snapshot: {},
-              auth: { role: 'operator', scopes: ['operator.read'] },
+              auth: { method: admission.method, role: 'operator', scopes: admission.scopes },
               policy: { maxPayload: 1024, maxBufferedBytes: 2048, tickIntervalMs: 1000 },
             },
           });
@@ -120,4 +201,5 @@ export function attachReadinessGateway(server, {
       }
     });
   });
+  return { connects };
 }

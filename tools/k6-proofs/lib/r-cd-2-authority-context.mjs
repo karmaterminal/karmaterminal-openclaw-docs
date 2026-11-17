@@ -19,7 +19,11 @@ import {
   sealSignedObserverReceipt,
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
-import { validateReadinessReceipt } from '../scripts/target-readiness.mjs';
+import {
+  READINESS_CLIENT,
+  READINESS_SCHEMA,
+  validateReadinessReceipt,
+} from '../scripts/target-readiness.mjs';
 
 export const R_CD_2_ROW = 'R-CD-2';
 export const R_CD_2_RECEIPT_FILE = 'r-cd-2-authoritative-receipt.json';
@@ -300,7 +304,7 @@ function validateReadiness(readiness, selected, label, signingKey) {
     !readiness ||
     typeof readiness !== 'object' ||
     Array.isArray(readiness) ||
-    readiness.schema !== 'openclaw.k6.seat-readiness.v2' ||
+    readiness.schema !== READINESS_SCHEMA ||
     readiness.outcome !== 'PASS-candidate' ||
     !readiness.candidate ||
     typeof readiness.candidate !== 'object' ||
@@ -310,7 +314,7 @@ function validateReadiness(readiness, selected, label, signingKey) {
     typeof readiness.seat !== 'object' ||
     Array.isArray(readiness.seat) ||
     readiness.target?.authentication?.authenticated !== true ||
-    readiness.target?.authentication?.request?.client?.id !== 'cli' ||
+    readiness.target?.authentication?.request?.client?.id !== READINESS_CLIENT.id ||
     readiness.target?.authentication?.request?.method !== 'config.get' ||
     !DIGEST.test(readiness.bindingDigest || '') ||
     !DIGEST.test(readiness.integrity?.signature || '') ||

@@ -1,18 +1,26 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { canonicalJson } from '../lib/canonical-json.mjs';
+import { HARNESS_CLIENT_IDENTITY } from '../lib/gateway-client-identity.mjs';
 
-export const READINESS_SCHEMA = 'openclaw.k6.seat-readiness.v2';
+// v3: readiness connects as the row scenarios' backend identity (v2 connected as
+// `cli`, which an auth.mode=none Gateway refuses) and records the Gateway's auth method.
+export const READINESS_SCHEMA = 'openclaw.k6.seat-readiness.v3';
 export const READINESS_SIGNATURE_ALGORITHM = 'hmac-sha256-gateway-token-v1';
 export const READINESS_CLIENT = Object.freeze({
-  id: 'cli',
-  mode: 'cli',
-  version: 'k6-proof-readiness-v2',
+  id: HARNESS_CLIENT_IDENTITY.id,
+  mode: HARNESS_CLIENT_IDENTITY.mode,
+  version: 'k6-proof-readiness-v3',
   platform: 'node',
 });
+// hello-ok auth.method values that can admit this token-only, device-less connect:
+// "token" (the Gateway verified the shared token) or "none" (auth.mode=none; no
+// credential was verified, so the token only keys the receipt signature).
+export const READINESS_AUTH_METHODS = Object.freeze(['none', 'token']);
 
 const SHA = /^[0-9a-f]{40}$/u;
 const DIGEST = /^[0-9a-f]{64}$/u;
 const PUBLIC_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]*$/u;
+const ERROR_CODE = /^[A-Z][A-Z0-9_]{0,63}$/u;
 
 export function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
@@ -114,22 +122,34 @@ function publicServerIdentity(hello) {
     buildId: typeof server?.buildId === 'string' ? server.buildId : null,
     bootIdHash: typeof server?.bootId === 'string' ? sha256(server.bootId) : null,
     connectionIdHash: connId ? sha256(connId) : null,
+    authMethod: typeof hello?.auth?.method === 'string' ? hello.auth.method : null,
     authRole: hello?.auth?.role || null,
     authScopes: Array.isArray(hello?.auth?.scopes) ? [...hello.auth.scopes].sort() : null,
   };
 }
 
-function failure(reason) {
+// Public-safe form of a connect error: the Gateway's code and detail code only, never its message.
+function rejectionCode(error) {
+  const code = ERROR_CODE.test(error?.code || '') ? error.code : null;
+  const detail = ERROR_CODE.test(error?.details?.code || '') ? error.details.code : null;
+  return code ? [code, detail].filter(Boolean).join('/') : null;
+}
+
+function failure(reason, rejection = null) {
   return {
     authenticated: false,
     error: reason,
+    rejection,
     config: null,
     requestIdentity: null,
     responseIdentity: null,
   };
 }
 
-/** Authenticated read of config.get on the supplied target; no host config is consulted. */
+/**
+ * Read-only config.get on the supplied target, connecting as the row scenarios'
+ * backend identity with the token and no device; no host config is consulted.
+ */
 export async function inspectTarget(wsUrl, token, {
   WebSocketImpl = globalThis.WebSocket,
   timeoutMs = 5000,
@@ -210,8 +230,16 @@ export async function inspectTarget(wsUrl, token, {
 
       if (frame?.type !== 'res') return;
       if (frame.id === connectRequestId) {
-        if (frame.ok !== true || !validHello(frame.payload)) {
+        if (frame.ok !== true) {
+          finish(failure('gateway-auth-rejected', rejectionCode(frame.error)));
+          return;
+        }
+        if (!validHello(frame.payload)) {
           finish(failure('gateway-auth-rejected'));
+          return;
+        }
+        if (!READINESS_AUTH_METHODS.includes(frame.payload.auth.method)) {
+          finish(failure('gateway-auth-method-unexpected'));
           return;
         }
         hello = frame.payload;
@@ -285,6 +313,7 @@ export function evaluateTarget({
   const expected = positiveInteger(expectedDepth);
   if (!fingerprint) notes.push('gateway-url-invalid');
   if (rpc?.authenticated !== true) notes.push(rpc?.error || 'target-rpc-unreachable');
+  if (rpc?.authenticated !== true && rpc?.rejection) notes.push(`gateway-rejection:${rpc.rejection}`);
   if (!positiveInteger(configuredDepth)) notes.push('configured-depth-unknown');
   if (!positiveInteger(effectiveDepth)) notes.push('effective-depth-unknown');
   if (
@@ -395,6 +424,7 @@ export function validateReadinessReceipt(receipt, {
     receipt.target?.authentication?.response?.protocol !== 4 ||
     typeof receipt.target?.authentication?.response?.version !== 'string' ||
     !DIGEST.test(receipt.target?.authentication?.response?.connectionIdHash || '') ||
+    !READINESS_AUTH_METHODS.includes(receipt.target?.authentication?.response?.authMethod) ||
     receipt.target?.authentication?.response?.authRole !== 'operator' ||
     !Array.isArray(receipt.target?.authentication?.response?.authScopes) ||
     !receipt.target.authentication.response.authScopes.includes('operator.read') ||

@@ -23,6 +23,7 @@ export function signedSeatReadinessFixture({
   requiredDepth = 2,
   expectedDepth = 5,
   seatClass = 'message-body',
+  authMethod = 'token',
 }) {
   const connectRequestId = 'readiness-connect-fixture';
   const configRequestId = 'readiness-config-fixture';
@@ -63,6 +64,7 @@ export function signedSeatReadinessFixture({
           buildId: `2026.8.1-${runtimeSha.slice(0, 12)}-fixture`,
           bootIdHash: sha256('fixture-boot'),
           connectionIdHash: sha256('fixture-connection'),
+          authMethod,
           authRole: 'operator',
           authScopes: ['operator.read'],
           connectResponseId: connectRequestId,

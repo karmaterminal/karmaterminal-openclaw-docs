@@ -68,6 +68,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { fileURLToPath } from 'node:url';
 import { canonicalJson } from '../lib/canonical-json.mjs';
+import { HARNESS_CLIENT_IDENTITY } from '../lib/gateway-client-identity.mjs';
 import {
   RCC_CASES,
   RCC_CASE_BRANCH,
@@ -96,7 +97,10 @@ import {
 } from '../lib/return-covenant-restart-control.mjs';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-const CLIENT = Object.freeze({ id: 'cli', mode: 'cli', version: 'k6-proof-rcc-v1', platform: 'node' });
+// The harness identity the row scenarios and readiness use. The disposable gateway runs
+// auth.mode=token (evaluateDisposableTarget refuses any other), which admits it from loopback
+// with its scopes, as it did `cli`; an auth.mode=none gateway would refuse a device-less `cli`.
+const CLIENT = Object.freeze({ ...HARNESS_CLIENT_IDENTITY, version: 'k6-proof-rcc-v1', platform: 'node' });
 // --gateway-env is an allowlist: a denylist cannot fail closed (OPENCLAW_AGENT_DIR, for one,
 // would point the credential store at the live agent). Allowed: the two settings the
 // proof-gw unit itself passes, and the scripted test gateway's RCC_SCRIPT_* switches, which
@@ -1115,7 +1119,7 @@ async function executeControl({ options, platform, plan, target, docs, home, art
     });
 
     /* 2. one return authority. session.visibility.set needs the session owner or
-       operator.admin (sessions-sharing-authority.ts); a device-less CLI client is not the
+       operator.admin (sessions-sharing-authority.ts); a device-less client is not the
        owner, so this connection asks for operator.admin as the CLI does. */
     const establishScopes = ['operator.read', 'operator.write', 'operator.admin'];
     const establish = await gatewayRpc({

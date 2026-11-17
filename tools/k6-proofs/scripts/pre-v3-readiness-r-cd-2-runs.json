@@ -1,0 +1,24 @@
+{
+  "schema": "openclaw.k6.pre-v3-readiness-r-cd-2-runs.v1",
+  "ruling": "docs#624 reviews at 66268cc6 (ronan-dandelion-cult CHANGES_REQUESTED and silas-dandelion-cult, 2026-11-17) and the k6-readiness-backend-identity v2 workorder, finding F1",
+  "frozenAt": "9ba5518bdb079da3c3c75961fd8cd26be040eb1e",
+  "description": "Every committed R-CD-2 run whose run-local seat-readiness.json is a v2 receipt (connected as cli, no recorded auth method), each with the sha256 of that file's exact bytes, as on docs main at 9ba5518b. The runs are <candidate>/<row>/<seat>/<run> under the authority root (PROOFS/ in this repository, the matrix output root for a raw run). They back the R-CD-2 KEYED-AUTHORITY-REVIEW.json of corpora 08c37a15, 293c977f and f15237ec. lib/r-cd-2-authority-context.mjs re-verifies the v2 receipt of a listed run with the bytes pinned here, exactly as v2 did: v2 shape, signature, run bindings. No other v2 receipt is accepted anywhere, and no gate in front of a live run reads this list. This list is frozen: a run made after the v3 receipt never joins it, and changing an entry is a deliberate, reviewed act.",
+  "runs": [
+    {
+      "run": "08c37a15621790d8bd20ebdaa42d16a65b4059c3/R-CD-2/emeric-isolated-composite/20261029T213444Z-r-cd-2-7ec4c1cf",
+      "seatReadinessSha256": "3ec71f0a33bb2ac6586067c5e4c3e15d63760cf7598357fb909ff28080bb4510"
+    },
+    {
+      "run": "293c977f629f872a643fb94892603310b887293b/R-CD-2/emeric-isolated-composite/20261029T050321Z-r-cd-2-843e883b",
+      "seatReadinessSha256": "9f18c293c877561ddddf16b24b9a8860b8d0d9862a5245f23ae500aa719a83d3"
+    },
+    {
+      "run": "293c977f629f872a643fb94892603310b887293b/R-CD-2/matrix-012658Z/20261029T012745Z-r-cd-2-5e4ce138",
+      "seatReadinessSha256": "92602a22de356ecc5e6d54f4ed971892a1b1c0696cf661a82c46be6459653f06"
+    },
+    {
+      "run": "f15237ec921879d918482cdf372b0718d4c1aab9/R-CD-2/emeric-isolated-composite/20261030T013026Z-r-cd-2-44aa4c89",
+      "seatReadinessSha256": "a66ecde270856e4a27928089e20abdb9855e946929328bad882a80c8c3d50b2d"
+    }
+  ]
+}

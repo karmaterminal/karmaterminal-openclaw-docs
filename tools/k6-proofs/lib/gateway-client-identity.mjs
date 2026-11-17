@@ -1,11 +1,13 @@
 /**
  * The Gateway client identity the k6 harness presents on connect.
  *
- * Row scenarios (lib/gateway-ws.js connectFrame) and target readiness
- * (scripts/target-readiness.mjs) both import it, so readiness checks admission
- * with the identity the rows will actually use. Neither sends a device identity.
- * connectFrame still honours the HARNESS_CLIENT_ID / HARNESS_CLIENT_MODE overrides for a
- * scenario run; readiness always presents this identity, so its receipt covers only it.
+ * Row scenarios (lib/gateway-ws.js connectFrame), target readiness
+ * (scripts/target-readiness.mjs) and the return-covenant restart control
+ * (scripts/run-return-covenant-restart-control.mjs) all import it, so readiness checks
+ * admission with the identity the rows will actually use. None sends a device identity.
+ * connectFrame still honours the HARNESS_CLIENT_OVERRIDE_ENV variables for a scenario run;
+ * readiness always presents this identity, so it refuses to pass while either is set
+ * (harnessClientOverrides in scripts/target-readiness.mjs).
  *
  * A Gateway admits this device-less operator from loopback in both auth modes the
  * fleet runs (openclaw ab5a30ea79b776f149e24b1fccab9e79b0a5d299):
@@ -23,3 +25,6 @@ export const HARNESS_CLIENT_IDENTITY = Object.freeze({
   id: 'gateway-client',
   mode: 'backend',
 });
+
+/** The environment variables connectFrame reads to replace the identity's id and mode. */
+export const HARNESS_CLIENT_OVERRIDE_ENV = Object.freeze(['HARNESS_CLIENT_ID', 'HARNESS_CLIENT_MODE']);

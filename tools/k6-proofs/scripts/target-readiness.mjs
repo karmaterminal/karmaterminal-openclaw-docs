@@ -1,6 +1,10 @@
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { canonicalJson } from '../lib/canonical-json.mjs';
-import { HARNESS_CLIENT_IDENTITY } from '../lib/gateway-client-identity.mjs';
+import {
+  HARNESS_CLIENT_IDENTITY,
+  HARNESS_CLIENT_OVERRIDE_ENV,
+} from '../lib/gateway-client-identity.mjs';
 
 // v3: readiness connects as the row scenarios' backend identity (v2 connected as
 // `cli`, which an auth.mode=none Gateway refuses) and records the Gateway's auth method.
@@ -19,13 +23,36 @@ export const READINESS_CLIENT = Object.freeze({
 // but no seat runs one, so it fails closed here rather than pass unexamined.
 export const READINESS_AUTH_METHODS = Object.freeze(['none', 'token']);
 
+// The v2 receipt as the v2 harness wrote it: connected as `cli`, no recorded auth method.
+// No live gate accepts it. validatePreV3ReadinessReceipt re-verifies one only for a committed
+// run frozen, with its receipt's exact bytes, in PRE_V3_READINESS_RUNS_FILE.
+export const PRE_V3_READINESS_SCHEMA = 'openclaw.k6.seat-readiness.v2';
+export const PRE_V3_READINESS_CLIENT = Object.freeze({
+  id: 'cli',
+  mode: 'cli',
+  version: 'k6-proof-readiness-v2',
+  platform: 'node',
+});
+export const PRE_V3_READINESS_RUNS_FILE = new URL('./pre-v3-readiness-r-cd-2-runs.json', import.meta.url);
+const PRE_V3_READINESS_RUNS_SCHEMA = 'openclaw.k6.pre-v3-readiness-r-cd-2-runs.v1';
+
 const SHA = /^[0-9a-f]{40}$/u;
 const DIGEST = /^[0-9a-f]{64}$/u;
 const PUBLIC_ID = /^[A-Za-z0-9][A-Za-z0-9._:@/-]*$/u;
 const ERROR_CODE = /^[A-Z][A-Z0-9_]{0,63}$/u;
+const PRE_V3_RUN = /^[0-9a-f]{40}\/R-CD-2\/[A-Za-z0-9._:-]+\/[A-Za-z0-9._:-]+$/u;
 
 export function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
+}
+
+/**
+ * The HARNESS_CLIENT_OVERRIDE_ENV names present in `env`, even empty. A row scenario's
+ * connectFrame honours them, so while one is set the rows may connect as an identity
+ * readiness never checked; readiness refuses to pass instead of vouching for it.
+ */
+export function harnessClientOverrides(env = process.env) {
+  return HARNESS_CLIENT_OVERRIDE_ENV.filter((name) => Object.hasOwn(env, name));
 }
 
 export function gatewayUrlFingerprint(value) {
@@ -394,7 +421,85 @@ function equalJson(left, right) {
   return canonicalJson(left) === canonicalJson(right);
 }
 
-export function validateReadinessReceipt(receipt, {
+// The receipt shapes a validator accepts: the current v3, and the v2 shape exactly as the
+// v2 harness wrote it (v2 recorded no auth method, so one present is not that shape).
+const V3_RECEIPT = Object.freeze({
+  schema: READINESS_SCHEMA,
+  client: READINESS_CLIENT,
+  authMethodValid: (response) => READINESS_AUTH_METHODS.includes(response.authMethod),
+});
+const PRE_V3_RECEIPT = Object.freeze({
+  schema: PRE_V3_READINESS_SCHEMA,
+  client: PRE_V3_READINESS_CLIENT,
+  authMethodValid: (response) => !Object.hasOwn(response, 'authMethod'),
+});
+
+/**
+ * Validates a v3 receipt against the expected bindings. Every gate in front of a live run
+ * uses this: the preflight's self-check, verify-seat-readiness.mjs (run-proofs.sh and both
+ * workflows), the evidence writer and run-readiness-consumer.mjs. It refuses v1 and v2.
+ */
+export function validateReadinessReceipt(receipt, expected = {}) {
+  return validateReceiptShape(receipt, V3_RECEIPT, expected);
+}
+
+let preV3RunsCache;
+
+/**
+ * The frozen pre-v3 runs, as Map<run, receipt sha256>. Unreadable or malformed, it is empty
+ * and names why, so no v2 receipt is re-verified. Read only by validatePreV3ReadinessReceipt.
+ */
+function preV3ReadinessRuns() {
+  if (preV3RunsCache) return preV3RunsCache;
+  try {
+    const parsed = JSON.parse(readFileSync(PRE_V3_READINESS_RUNS_FILE, 'utf8'));
+    const runs = Array.isArray(parsed?.runs) ? parsed.runs : [];
+    if (
+      parsed?.schema !== PRE_V3_READINESS_RUNS_SCHEMA ||
+      runs.length === 0 ||
+      runs.some((entry) =>
+        !PRE_V3_RUN.test(entry?.run || '') || !DIGEST.test(entry?.seatReadinessSha256 || '')) ||
+      new Set(runs.map((entry) => entry.run)).size !== runs.length
+    ) {
+      throw new Error('runs is not a list of unique <candidate>/R-CD-2/<seat>/<run> entries with receipt digests');
+    }
+    preV3RunsCache = {
+      runs: new Map(runs.map((entry) => [entry.run, entry.seatReadinessSha256])),
+      error: null,
+    };
+  } catch (error) {
+    preV3RunsCache = { runs: new Map(), error: error.message };
+  }
+  return preV3RunsCache;
+}
+
+/**
+ * Re-verifies the v2 receipt of a committed R-CD-2 run (lib/r-cd-2-authority-context.mjs).
+ * `run` is the run's { candidateSha, row, seat, runId } under its authority root and `raw`
+ * the exact bytes of its seat-readiness.json. Only a run frozen in PRE_V3_READINESS_RUNS_FILE,
+ * with exactly those bytes, gets this far; its receipt must then have exactly the v2 shape
+ * and pass the signature and binding checks v2 had. No live gate calls this.
+ */
+export function validatePreV3ReadinessReceipt({ raw, run } = {}, expected = {}) {
+  const frozen = preV3ReadinessRuns();
+  if (frozen.error) return { valid: false, reason: 'pre-v3-run-list-unreadable' };
+  const key = [run?.candidateSha, run?.row, run?.seat, run?.runId].join('/');
+  if (!PRE_V3_RUN.test(key) || !frozen.runs.has(key)) {
+    return { valid: false, reason: 'pre-v3-run-not-listed' };
+  }
+  if (!Buffer.isBuffer(raw) || sha256(raw) !== frozen.runs.get(key)) {
+    return { valid: false, reason: 'pre-v3-receipt-bytes-mismatch' };
+  }
+  let receipt;
+  try {
+    receipt = JSON.parse(raw.toString('utf8'));
+  } catch {
+    return { valid: false, reason: 'invalid-receipt' };
+  }
+  return validateReceiptShape(receipt, PRE_V3_RECEIPT, expected);
+}
+
+function validateReceiptShape(receipt, shape, {
   signingKey,
   candidateSha,
   runtimeSha,
@@ -409,12 +514,12 @@ export function validateReadinessReceipt(receipt, {
 } = {}) {
   if (
     !receipt ||
-    receipt.schema !== READINESS_SCHEMA ||
+    receipt.schema !== shape.schema ||
     receipt.outcome !== 'PASS-candidate' ||
     receipt.target?.authentication?.authenticated !== true ||
-    receipt.target?.authentication?.request?.client?.id !== READINESS_CLIENT.id ||
-    receipt.target?.authentication?.request?.client?.mode !== READINESS_CLIENT.mode ||
-    receipt.target?.authentication?.request?.client?.version !== READINESS_CLIENT.version ||
+    receipt.target?.authentication?.request?.client?.id !== shape.client.id ||
+    receipt.target?.authentication?.request?.client?.mode !== shape.client.mode ||
+    receipt.target?.authentication?.request?.client?.version !== shape.client.version ||
     receipt.target?.authentication?.request?.role !== 'operator' ||
     !equalJson(receipt.target?.authentication?.request?.scopes, ['operator.read']) ||
     !DIGEST.test(receipt.target?.authentication?.request?.challengeHash || '') ||
@@ -426,7 +531,7 @@ export function validateReadinessReceipt(receipt, {
     receipt.target?.authentication?.response?.protocol !== 4 ||
     typeof receipt.target?.authentication?.response?.version !== 'string' ||
     !DIGEST.test(receipt.target?.authentication?.response?.connectionIdHash || '') ||
-    !READINESS_AUTH_METHODS.includes(receipt.target?.authentication?.response?.authMethod) ||
+    !shape.authMethodValid(receipt.target.authentication.response) ||
     receipt.target?.authentication?.response?.authRole !== 'operator' ||
     !Array.isArray(receipt.target?.authentication?.response?.authScopes) ||
     !receipt.target.authentication.response.authScopes.includes('operator.read') ||

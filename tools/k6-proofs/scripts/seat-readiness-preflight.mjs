@@ -8,6 +8,7 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   evaluateTarget,
+  harnessClientOverrides,
   inspectTarget,
   observedContinuation,
   observedDepths,
@@ -215,6 +216,9 @@ async function main() {
   if (requiredMissing.length > 0) {
     notes.push(`missing-required-env:${requiredMissing.map((entry) => entry.name).join(',')}`);
   }
+  // Readiness checks only the harness identity; with an override set the rows may not use it.
+  const overrides = harnessClientOverrides();
+  if (overrides.length > 0) notes.push(`harness-client-override-set:${overrides.join(',')}`);
 
   const pass = notes.length === 0;
   const baseReceipt = {

@@ -1,10 +1,18 @@
 #!/usr/bin/env node
 import { readFileSync } from 'node:fs';
-import { validateReadinessReceipt } from './target-readiness.mjs';
+import { harnessClientOverrides, validateReadinessReceipt } from './target-readiness.mjs';
 
 const receiptPath = process.argv[2];
 if (!receiptPath || process.argv.length !== 3) {
   console.error('usage: verify-seat-readiness.mjs <receipt.json>');
+  process.exit(2);
+}
+
+// run-proofs.sh runs k6 with this environment right after this check, and connectFrame
+// honours these overrides; the receipt vouches only for the harness identity.
+const overrides = harnessClientOverrides();
+if (overrides.length > 0) {
+  console.error(`seat readiness receipt rejected: harness-client-override-set:${overrides.join(',')}`);
   process.exit(2);
 }
 

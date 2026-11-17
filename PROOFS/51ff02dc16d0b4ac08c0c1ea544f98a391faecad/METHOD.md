@@ -42,3 +42,34 @@ The rows were therefore fired with `candidate_sha` = `runtime_sha` = `ab5a30ea79
 - Runner output is candidate evidence only, and no row is promoted. Every non-PASS row is classified (product / harness / infra / seat) against its last same-row PASS, which is diagnostic provenance only.
 - `live-suite` resolves to PREFLIGHT + 33 rows. `R-CW-5/5A/6/6A` are orchestration-required and excluded by design, so 33 is the honest live denominator. Four required rows are not fired by this lane: `R-CD-RECIPIENT-AUTHORITY` (its manifest is only on open docs#620), `R-CD-RETURN-COVENANT-AUTHORITY` (not in live-suite; its control restarts a disposable gateway), `R-CW-5` and `R-CW-6` (fixtures). They stay `missing`.
 - The six `static-corpus-row-validator` rows (`R-CD-COLLECTION-ON-COLLAPSE`, `R-CW-7`, `R-CW-DELEGATE-CHILD-LIVE`, `R-CW-DELEGATE-TOKEN`, `R-CW-MULTI`, `R-CW-MULTI-COLLAPSE`) validate pinned historical captures (🌊's ruling A). They are not live execution at this SHA.
+
+## Fire attempts (2026-11-17): blocked at readiness, nothing fired
+
+| run | inputs | result |
+|---|---|---|
+| [44082334447](https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/44082334447) | live, PREFLIGHT + 30 rows as one 433-character `rows` list | `failure` with **0 jobs**. The `rows` input is interpolated into the workflow `concurrency.group`, and a list this long overflows it, so GitHub rejected the run before creating a job. Nothing ran. (Workflow defect: the full non-alt live list cannot be dispatched as one run.) |
+| [44082522523](https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/44082522523) | live, batch A (PREFLIGHT + 15 rows) | `failure` at **Authenticated target readiness**: `PARTIAL-candidate`, notes `gateway-auth-rejected`, `configured/effective-depth-unknown`, `configured/effective-continuation-unready`, `runtime-sha-not-observed`. Every note after the first follows from the refused connect. **Run Project 81 proof suite: skipped.** No row dispatched. |
+
+Both ran workflow `project81-k6-proof.yml` at docs `9ba5518bdb079da3c3c75961fd8cd26be040eb1e` with `candidate_sha` = `runtime_sha` = `ab5a30ea79b776f149e24b1fccab9e79b0a5d299`.
+
+**Diagnosis (read-only, on emeric).**
+
+- The same readiness preflight, run from the runner's own checkout at `9ba5518b` with a dummy token, gives the identical notes. So the repository secret's value is not the cause.
+- A direct connect probe with the readiness identity `{id:"cli", mode:"cli"}` got `NOT_PAIRED` "device identity required".
+- With the scenarios' identity `{id:"gateway-client", mode:"backend"}` it got `hello-ok`: role `operator`, `config.get` available, `buildId` containing `ab5a30ea79b7`.
+- emeric's `gateway.auth.mode` is `"none"`. Only that mode string and key names were read. The token value was never read or printed.
+- At `ab5a30ea`, `sharedAuthOk` is true only for auth method `token`, `password` or `trusted-proxy` (`src/gateway/server/ws-connection/auth-context.ts:105-108`). A device-less operator that is not the local backend client needs `sharedAuthOk` (`connect-policy.ts:69-98`, `role-policy.ts:14-16`). Mode `none` yields method `"none"`, so readiness cannot pass on this gateway with any token.
+
+**Classification.** This is a seat prerequisite / harness-compatibility blocker, not a product finding.
+
+- The previous emeric corpora fired on isolated token-auth proof gateways (`f15237ec`, `08c37a15`, `293c977f`).
+- `3821eaef` fired on ronan's live gateway, which authenticated by token.
+- This is the first attempt on a live gateway configured `auth.mode=none`.
+
+**Remedies, none of which this lane may take:**
+
+1. 🕯 switches emeric's live gateway to token auth (its config already carries a token). That is a config change plus a restart. The repository secret does not hold emeric's token either, so the fire would then go through the operator-supplied token path (`run-proofs.sh --live` on emeric; the `3821eaef` precedent) or need a secret change.
+2. A reviewed docs change lets readiness authenticate as the local backend client on a loopback target. That changes the signed receipt's authentication claim.
+3. An isolated token-auth proof gateway at `ab5a30ea` on emeric (the `f15237ec` shape). This contradicts the live-gateway spec and needs a stage-only deploy.
+
+On a refire, the row list must also be split into dispatches of under ~350 characters, or the workflow's concurrency group must stop embedding `rows`.

@@ -149,6 +149,52 @@
   "corpus": "PROOFS/51ff02dc16d0b4ac08c0c1ea544f98a391faecad/",
   "method": "PROOFS/51ff02dc16d0b4ac08c0c1ea544f98a391faecad/METHOD.md",
   "generated": "2026-11-17 (frond-scribe lane k6-proofs-ab5a)",
+  "execution_status": "BLOCKED before any row fired: authenticated target readiness cannot pass on emeric's live gateway (gateway.auth.mode=none; the readiness client id 'cli' is refused NOT_PAIRED 'device identity required'). Every row is missing; nothing was consumed.",
+  "fire_attempts": [
+    {
+      "run": 44077455307,
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/44077455307",
+      "workflow_sha": "9ba5518bdb079da3c3c75961fd8cd26be040eb1e",
+      "dry_run": true,
+      "rows": "live-suite (PREFLIGHT + 33)",
+      "result": "success"
+    },
+    {
+      "run": 44077499825,
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/44077499825",
+      "workflow_sha": "9ba5518bdb079da3c3c75961fd8cd26be040eb1e",
+      "dry_run": true,
+      "rows": "R-CD-MODEL-TOOL,R-CD-MODEL-TOKEN,R-CD-MODEL-CHAINED-ALT (alt model openai/gpt-5.6-sol)",
+      "result": "success"
+    },
+    {
+      "run": 44082334447,
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/44082334447",
+      "workflow_sha": "9ba5518bdb079da3c3c75961fd8cd26be040eb1e",
+      "dry_run": false,
+      "rows": "PREFLIGHT + 30 (433-char list)",
+      "result": "failure with 0 jobs: rejected before any job was created; the rows input is interpolated into the workflow concurrency group, which a 433-character list overflows. Nothing ran."
+    },
+    {
+      "run": 44082522523,
+      "url": "https://github.com/karmaterminal/karmaterminal-openclaw-docs/actions/runs/44082522523",
+      "workflow_sha": "9ba5518bdb079da3c3c75961fd8cd26be040eb1e",
+      "dry_run": false,
+      "rows": "batch A: PREFLIGHT + 15",
+      "result": "failure at 'Authenticated target readiness' (PARTIAL-candidate; notes gateway-auth-rejected, configured/effective-depth-unknown, configured/effective-continuation-unready, runtime-sha-not-observed — every note after the first follows from the refused connect). 'Run Project 81 proof suite' skipped; no row dispatched."
+    }
+  ],
+  "blocker": {
+    "kind": "seat prerequisite / harness compatibility (not product)",
+    "observed": "emeric's live gateway runs gateway.auth.mode='none' on loopback. The readiness client (target-readiness.mjs READINESS_CLIENT {id:'cli', mode:'cli'}) is refused with NOT_PAIRED 'device identity required'. A read-only probe on emeric with the scenarios' identity {id:'gateway-client', mode:'backend'} got hello-ok (role operator, config.get present, buildId contains ab5a30ea79b7). The same probe with {id:'cli', mode:'cli'} got NOT_PAIRED. Both probes used a dummy token.",
+    "source_at_ab5a30ea": "src/gateway/server/ws-connection/auth-context.ts:105-108 (sharedAuthOk only for method token|password|trusted-proxy; mode none yields method 'none'); connect-policy.ts:69-98 evaluateMissingDeviceIdentity (local backend self-pairing allows gateway-client/backend; a device-less 'cli' operator needs sharedAuthOk); connect-auth.ts:324 NOT_PAIRED.",
+    "consequence": "No token value, including emeric's own configured token or a changed repository secret, can make the readiness gate pass on this gateway as configured. run-proofs.sh runs the same readiness and cannot fall through it by design.",
+    "remedies_outside_this_lane": [
+      "🕯: switch emeric's live gateway to token auth (the config already carries a token). This is a config change plus a gateway restart, which this lane is forbidden to do. The repository secret OPENCLAW_GATEWAY_TOKEN does not hold emeric's token either, so the fire would then also need the operator-supplied token path (run-proofs.sh on emeric, the 3821eaef precedent) or a secret change.",
+      "docs: a reviewed harness change letting readiness authenticate as the local backend client (gateway-client/backend, the identity every scenario already uses) on a loopback target. That changes the signed receipt's authentication claim from token to loopback self-pairing.",
+      "an isolated token-auth proof gateway at ab5a30ea on emeric (the f15237ec shape). This contradicts 🕯's live-gateway spec and needs a stage-only deploy."
+    ]
+  },
   "rows": [
     {
       "row": "R-CD-1",

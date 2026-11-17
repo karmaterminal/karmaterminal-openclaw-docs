@@ -139,12 +139,13 @@ OPENCLAW_GATEWAY_TOKEN="***" \
   node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
 ```
 
-The helper emits a signed `openclaw.k6.seat-readiness.v2` JSON receipt and never
-prints secret values. Stale v1 receipts are rejected. It records:
+The helper emits a signed `openclaw.k6.seat-readiness.v3` JSON receipt and never
+prints secret values. Stale v1 and v2 receipts are rejected. It records:
 
 - k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
 - every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
-- the canonical gateway URL fingerprint and authenticated `config.get` request/response identity
+- the canonical gateway URL fingerprint and authenticated `config.get` request/response identity,
+  including the client identity it connected as and the auth method the gateway reported (below)
 - configured depth from target `sourceConfig` and effective depth from target
   runtime `config`; host configuration is never read
 - candidate/runtime/docs SHA, seat, unit, selected rows, and required/expected
@@ -158,6 +159,43 @@ unknown/insufficient/mismatched, a binding is absent, or receipt verification
 fails, stop before model/k6/row traffic. `expected` depth is only an assertion;
 it never supplies configured or effective depth. `--no-gateway` is limited to
 offline failure-shape checks and can never emit `PASS-candidate`.
+
+#### Readiness client identity and auth path
+
+Readiness connects with the row scenarios' client identity, `{ id: 'gateway-client', mode:
+'backend' }`. The identity lives in `lib/gateway-client-identity.mjs`, which `lib/gateway-ws.js`
+`connectFrame()` also imports. Readiness asks for role `operator` and scope `operator.read` only,
+and sends the gateway token and no device identity. Up to receipt v2 it connected as `{ id: 'cli',
+mode: 'cli' }`. An `auth.mode=none` gateway refuses that device-less `cli` connect with
+`NOT_PAIRED` "device identity required". Pairing cannot help, because the connect carries no
+device (lane k6-proofs-ab5a-v2).
+
+At openclaw `ab5a30ea` the gateway admits the backend identity from loopback in both auth modes the
+fleet runs:
+
+| Gateway `auth.mode` | Admission | Receipt `response.authMethod` |
+| --- | --- | --- |
+| `none` (emeric, elliott, silas) | Authorized as method `none`; the token is not checked. The local backend self-pairing skip admits the device-less operator and keeps its scopes. | `none` |
+| `token` (cael, rune, ronan) | The shared token must match, or the connect is refused. Then the same skip applies. | `token` |
+
+The source is `src/gateway/auth.ts:554-570` and `598-608`,
+`src/gateway/server/ws-connection/handshake-auth-helpers.ts:165-187`, `connect-policy.ts:69-98`
+and `connect-auth.ts:272-335` and `445-452`. ab5a pins both modes over a real server in
+`src/gateway/server.auth.compat-baseline.test.ts:78-151`. The skip needs the gateway to see a local
+connect: a loopback socket with no `Origin` or forwarding headers. Behind a proxy an
+`auth.mode=none` gateway refuses readiness the way it refuses the rows.
+
+`authenticated: true` means the gateway admitted the connect and answered `config.get`.
+`response.authMethod` says how:
+
+- `token`: the gateway verified the shared token.
+- `none`: the gateway verified no credential. The token then only keys the receipt signature
+  (`hmac-sha256-gateway-token-v1`).
+
+Any other auth method fails closed as `gateway-auth-method-unexpected`. A hello that grants neither
+`operator.read` nor `operator.admin` fails closed as `gateway-auth-rejected`. A refused connect adds `gateway-rejection:<code>/<detail code>` to
+the notes, for example `gateway-rejection:NOT_PAIRED/DEVICE_IDENTITY_REQUIRED`. The gateway's
+message text is never copied.
 
 ### 2. Preflight check
 

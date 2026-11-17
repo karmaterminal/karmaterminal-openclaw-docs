@@ -468,8 +468,11 @@ function attachReadinessGateway(server, {
         }
         const frame = JSON.parse(payload.toString('utf8'));
         if (frame.method === 'connect') {
-          assert.equal(frame.params.client.id, 'cli');
-          assert.equal(frame.params.client.mode, 'cli');
+          // Readiness connects as the row scenarios' backend identity, not `cli`: an
+          // auth.mode=none Gateway refuses a device-less cli connect (lib/gateway-client-identity.mjs).
+          assert.equal(frame.params.client.id, 'gateway-client');
+          assert.equal(frame.params.client.mode, 'backend');
+          assert.equal(frame.params.device, undefined);
           assert.equal(frame.params.auth.token, APPROVED_TOKEN);
           send(socket, {
             type: 'res',
@@ -486,7 +489,7 @@ function attachReadinessGateway(server, {
               },
               features: { methods: ['config.get'], events: ['connect.challenge'] },
               snapshot: {},
-              auth: { role: 'operator', scopes: ['operator.read'] },
+              auth: { method: 'token', role: 'operator', scopes: ['operator.read'] },
               policy: { maxPayload: 1024, maxBufferedBytes: 2048, tickIntervalMs: 1000 },
             },
           });

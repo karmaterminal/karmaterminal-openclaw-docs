@@ -1,0 +1,56 @@
+{
+  "schema": "openclaw.k6.test-fixture.ab5a-connect-admission.v1",
+  "repository": "karmaterminal/openclaw",
+  "sha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+  "description": "Byte-exact excerpts of the device-less connect decision in openclaw ab5a30ea: the client id and mode constants, roleCanSkipDeviceIdentity, the local backend self-pairing skip, local cli scope preservation and the missing-device decision. readiness-gateway-ab5a-model.test.mjs runs them, with types stripped, against the readiness fixture model (helpers/readiness-gateway.mjs). Each excerpt is lines start..end of path at sha (blob is the file's git blob id there); re-check one with: git -C <openclaw> show <sha>:<path> | sed -n '<start>,<end>p' | sha256sum.",
+  "excerpts": [
+    {
+      "path": "packages/gateway-protocol/src/client-info.ts",
+      "blob": "60657159065ef1ff7ccf6e7ef82d2b06e42978a5",
+      "start": 10,
+      "end": 29,
+      "sha256": "3c93d3bcbaa17d52dd56e3f7ad5aa7b0e6727d1bfb7c6106f9876130b3c75abe",
+      "source": "export const GATEWAY_CLIENT_IDS = {\n  WEBCHAT_UI: \"webchat-ui\",\n  CONTROL_UI: \"openclaw-control-ui\",\n  BROWSER_COPILOT: \"openclaw-browser-copilot\",\n  TUI: \"openclaw-tui\",\n  WEBCHAT: \"webchat\",\n  CLI: \"cli\",\n  GATEWAY_CLIENT: \"gateway-client\",\n  MACOS_APP: \"openclaw-macos\",\n  // Native Linux UI uses the same trusted-client admission class as the macOS app.\n  LINUX_APP: \"openclaw-linux\",\n  IOS_APP: \"openclaw-ios\",\n  WATCHOS_APP: \"openclaw-watchos\",\n  ANDROID_APP: \"openclaw-android\",\n  NODE_HOST: \"node-host\",\n  WORKER: \"openclaw-worker\",\n  TEST: \"test\",\n  FINGERPRINT: \"fingerprint\",\n  PROBE: \"openclaw-probe\",\n} as const;\n"
+    },
+    {
+      "path": "packages/gateway-protocol/src/client-info.ts",
+      "blob": "60657159065ef1ff7ccf6e7ef82d2b06e42978a5",
+      "start": 39,
+      "end": 48,
+      "sha256": "cf7616b8b072948b76ce6779ac31f8b7e929d4095e6c4d8a89ef810b97faa844",
+      "source": "export const GATEWAY_CLIENT_MODES = {\n  WEBCHAT: \"webchat\",\n  CLI: \"cli\",\n  UI: \"ui\",\n  BACKEND: \"backend\",\n  NODE: \"node\",\n  WORKER: \"worker\",\n  PROBE: \"probe\",\n  TEST: \"test\",\n} as const;\n"
+    },
+    {
+      "path": "src/gateway/role-policy.ts",
+      "blob": "09247fd9cfeb26a2bf5642d325d41f3d397a709a",
+      "start": 14,
+      "end": 16,
+      "sha256": "0a324f05c66a4c5fe9516093617d30e1db194a84aafd07285df1082cf777ac66",
+      "source": "export function roleCanSkipDeviceIdentity(role: GatewayRole, sharedAuthOk: boolean): boolean {\n  return role === \"operator\" && sharedAuthOk;\n}\n"
+    },
+    {
+      "path": "src/gateway/server/ws-connection/handshake-auth-helpers.ts",
+      "blob": "bea19630a0b3a7d9340b7dc4e42d55a6acf1eed5",
+      "start": 113,
+      "end": 119,
+      "sha256": "c70826d44fe1f8cb53945b9a34eb9c668cdae7c6283f3dc5f2c4248df3860c98",
+      "source": "function isCliCliClient(client: ConnectParams[\"client\"]): boolean {\n  return client.id === GATEWAY_CLIENT_IDS.CLI && client.mode === GATEWAY_CLIENT_MODES.CLI;\n}\n\nfunction isSharedSecretAuthMethod(method: GatewayAuthResult[\"method\"]): boolean {\n  return method === \"token\" || method === \"password\";\n}\n"
+    },
+    {
+      "path": "src/gateway/server/ws-connection/handshake-auth-helpers.ts",
+      "blob": "bea19630a0b3a7d9340b7dc4e42d55a6acf1eed5",
+      "start": 165,
+      "end": 203,
+      "sha256": "dab4169022d525e9128f3d9cfaeccf9e7c65b7dd784a21a7e904ad978de3ea23",
+      "source": "export function shouldSkipLocalBackendSelfPairing(params: {\n  connectParams: ConnectParams;\n  locality: PairingLocalityKind;\n  hasBrowserOriginHeader: boolean;\n  sharedAuthOk: boolean;\n  authMethod: GatewayAuthResult[\"method\"];\n}): boolean {\n  const isBackendClient =\n    params.connectParams.client.id === GATEWAY_CLIENT_IDS.GATEWAY_CLIENT &&\n    params.connectParams.client.mode === GATEWAY_CLIENT_MODES.BACKEND;\n  const isLocal =\n    params.locality === \"direct_local\" || params.locality === \"shared_secret_loopback_local\";\n  if (!isBackendClient || !isLocal || params.hasBrowserOriginHeader) {\n    return false;\n  }\n  // No-auth local backend: scoped bypass — not shared secret, but local-only\n  // device-less operation is safe when auth.mode is explicitly \"none\".\n  return (\n    params.authMethod === \"none\" ||\n    params.authMethod === \"device-token\" ||\n    (params.sharedAuthOk && isSharedSecretAuthMethod(params.authMethod))\n  );\n}\n\nexport function shouldPreserveLocalCliSharedAuthScopes(params: {\n  connectParams: ConnectParams;\n  locality: PairingLocalityKind;\n  hasBrowserOriginHeader: boolean;\n  sharedAuthOk: boolean;\n  authMethod: GatewayAuthResult[\"method\"];\n}): boolean {\n  return (\n    isCliCliClient(params.connectParams.client) &&\n    (params.locality === \"direct_local\" || params.locality === \"cli_container_local\") &&\n    !params.hasBrowserOriginHeader &&\n    params.sharedAuthOk &&\n    isSharedSecretAuthMethod(params.authMethod)\n  );\n}\n"
+    },
+    {
+      "path": "src/gateway/server/ws-connection/connect-policy.ts",
+      "blob": "fbcd9f470e079f31d20eef3fc2b332431cb2eea0",
+      "start": 51,
+      "end": 98,
+      "sha256": "b821b2f708c4b99cf5b012bc4ac659055c9c5acd8bc978790e54c380c93485f7",
+      "source": "type MissingDeviceIdentityDecision =\n  | { kind: \"allow\" }\n  | { kind: \"reject-control-ui-insecure-auth\" }\n  | { kind: \"reject-unauthorized\" }\n  | { kind: \"reject-device-required\" };\n\nexport function shouldClearUnboundScopesForMissingDeviceIdentity(params: {\n  decision: MissingDeviceIdentityDecision;\n  authMethod: string | undefined;\n}): boolean {\n  return (\n    params.decision.kind !== \"allow\" ||\n    params.authMethod === \"token\" ||\n    params.authMethod === \"password\" ||\n    params.authMethod === \"trusted-proxy\"\n  );\n}\n\nexport function evaluateMissingDeviceIdentity(params: {\n  hasDeviceIdentity: boolean;\n  role: GatewayRole;\n  isControlUi: boolean;\n  trustedProxyAuthOk?: boolean;\n  localBackendSelfPairingOk?: boolean;\n  sharedAuthOk: boolean;\n  authOk: boolean;\n  hasSharedAuth: boolean;\n}): MissingDeviceIdentityDecision {\n  if (params.hasDeviceIdentity) {\n    return { kind: \"allow\" };\n  }\n  if (params.isControlUi && params.trustedProxyAuthOk) {\n    return { kind: \"allow\" };\n  }\n  if (params.localBackendSelfPairingOk && params.role === \"operator\") {\n    return { kind: \"allow\" };\n  }\n  if (params.isControlUi) {\n    return { kind: \"reject-control-ui-insecure-auth\" };\n  }\n  if (roleCanSkipDeviceIdentity(params.role, params.sharedAuthOk)) {\n    return { kind: \"allow\" };\n  }\n  if (!params.authOk && params.hasSharedAuth) {\n    return { kind: \"reject-unauthorized\" };\n  }\n  return { kind: \"reject-device-required\" };\n}\n"
+    }
+  ]
+}

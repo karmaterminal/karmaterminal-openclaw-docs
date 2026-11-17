@@ -50,7 +50,7 @@
  */
 import { spawn } from 'node:child_process';
 import { createHash, randomUUID } from 'node:crypto';
-import { accessSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { accessSync, appendFileSync, constants, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import http, { createServer } from 'node:http';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -145,6 +145,9 @@ const port = Number(args[args.indexOf('--port') + 1]);
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
 const token = config.gateway.auth.token;
 const bootsFile = path.join(stateDir, '.rcc-scripted-boots');
+// Every connect's public shape, one JSON line each, so a test can read the identity the
+// control presented (the token is never written).
+const connectsFile = path.join(stateDir, '.rcc-scripted-connects.jsonl');
 const externallySupervised = process.env.OPENCLAW_SUPERVISOR_MODE?.trim().toLowerCase() === 'external';
 const fallbackBlock = process.env.RCC_SCRIPT_FALLBACK_BLOCK ?? '';
 const sessions = new Map();
@@ -213,6 +216,12 @@ function respond(socket, id, ok, payload, error) {
 
 function handle(socket, connection, frame) {
   if (frame.method === 'connect') {
+    appendFileSync(connectsFile, `${JSON.stringify({
+      client: frame.params?.client ?? null,
+      role: frame.params?.role ?? null,
+      scopes: frame.params?.scopes ?? null,
+      device: frame.params?.device !== undefined,
+    })}\n`);
     if (frame.params?.auth?.token !== token) {
       respond(socket, frame.id, false, null, { code: 'UNAUTHORIZED', message: 'gateway token mismatch' });
       socket.end();

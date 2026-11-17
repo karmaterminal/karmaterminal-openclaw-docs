@@ -19,7 +19,14 @@ import {
   sealSignedObserverReceipt,
   validateSignedObserverReceiptIntegrity,
 } from './signed-observer-receipt.mjs';
-import { validateReadinessReceipt } from '../scripts/target-readiness.mjs';
+import {
+  PRE_V3_READINESS_CLIENT,
+  PRE_V3_READINESS_SCHEMA,
+  READINESS_CLIENT,
+  READINESS_SCHEMA,
+  validatePreV3ReadinessReceipt,
+  validateReadinessReceipt,
+} from '../scripts/target-readiness.mjs';
 
 export const R_CD_2_ROW = 'R-CD-2';
 export const R_CD_2_RECEIPT_FILE = 'r-cd-2-authoritative-receipt.json';
@@ -295,12 +302,19 @@ function selectArchivedProvenance(root, selectedMatrixId) {
   return { ...readJson(file, 'archived matrix provenance'), file };
 }
 
-function validateReadiness(readiness, selected, label, signingKey) {
+/**
+ * A run's readiness receipt is v3, or v2 only for a committed run frozen with its receipt's
+ * bytes in scripts/pre-v3-readiness-r-cd-2-runs.json. `raw` is the receipt file's bytes and
+ * `run` the run's path identity; validatePreV3ReadinessReceipt checks both against that list.
+ */
+function validateReadiness(readiness, selected, label, signingKey, { raw, run } = {}) {
+  const preV3 = readiness?.schema === PRE_V3_READINESS_SCHEMA;
+  const client = preV3 ? PRE_V3_READINESS_CLIENT : READINESS_CLIENT;
   if (
     !readiness ||
     typeof readiness !== 'object' ||
     Array.isArray(readiness) ||
-    readiness.schema !== 'openclaw.k6.seat-readiness.v2' ||
+    (readiness.schema !== READINESS_SCHEMA && !preV3) ||
     readiness.outcome !== 'PASS-candidate' ||
     !readiness.candidate ||
     typeof readiness.candidate !== 'object' ||
@@ -310,7 +324,7 @@ function validateReadiness(readiness, selected, label, signingKey) {
     typeof readiness.seat !== 'object' ||
     Array.isArray(readiness.seat) ||
     readiness.target?.authentication?.authenticated !== true ||
-    readiness.target?.authentication?.request?.client?.id !== 'cli' ||
+    readiness.target?.authentication?.request?.client?.id !== client.id ||
     readiness.target?.authentication?.request?.method !== 'config.get' ||
     !DIGEST.test(readiness.bindingDigest || '') ||
     !DIGEST.test(readiness.integrity?.signature || '') ||
@@ -324,7 +338,7 @@ function validateReadiness(readiness, selected, label, signingKey) {
   }
   same(readiness.candidate.sha, selected.candidateSha, `${label} candidate`);
   same(readiness.seat.name, selected.seat, `${label} seat`);
-  const integrity = validateReadinessReceipt(readiness, {
+  const expected = {
     signingKey,
     candidateSha: selected.candidateSha,
     runtimeSha: selected.runtimeBuildSha,
@@ -335,7 +349,10 @@ function validateReadiness(readiness, selected, label, signingKey) {
     rows: readiness.bindings.selectedRows,
     requiredDepth: readiness.bindings.requiredMaxSpawnDepth,
     expectedDepth: readiness.bindings.expectedMaxSpawnDepth,
-  });
+  };
+  const integrity = preV3
+    ? validatePreV3ReadinessReceipt({ raw, run }, expected)
+    : validateReadinessReceipt(readiness, expected);
   if (!integrity.valid) {
     throw new Error(`R-CD-2 ${label} failed integrity validation: ${integrity.reason}`);
   }
@@ -392,7 +409,10 @@ function reconcileArchivedProvenance({
   );
   const copiedReadiness = readJson(path.join(runDir, 'seat-readiness.json'), 'copied seat readiness');
   same(sha256(copiedReadiness.raw), seatReadinessSha256, 'copied runtime policy receipt digest');
-  validateReadiness(copiedReadiness.value, selected, 'copied seat readiness', signingKey);
+  validateReadiness(copiedReadiness.value, selected, 'copied seat readiness', signingKey, {
+    raw: copiedReadiness.raw,
+    run: pathIdentity,
+  });
   const matrixId = required(provenance.matrixId, PUBLIC_ID, 'archived matrix ID');
   same(matrixId, selected.matrixId, 'archived matrix');
   same(selected.candidateSha, pathIdentity.candidateSha, 'candidate path');

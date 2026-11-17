@@ -11,6 +11,7 @@
  *   sessions.send → { key }
  *   Don't assume uniformity; check per-method.
  */
+import { HARNESS_CLIENT_IDENTITY } from './gateway-client-identity.mjs';
 
 /**
  * Build a JSON-RPC-style request frame for the OpenClaw Gateway WS protocol.
@@ -37,10 +38,10 @@ export function connectFrame(token) {
     minProtocol: 3,
     maxProtocol: 4,
     client: {
-      id: __ENV.HARNESS_CLIENT_ID || 'gateway-client',
+      id: __ENV.HARNESS_CLIENT_ID || HARNESS_CLIENT_IDENTITY.id,
       version: '0.2.0',
       platform: 'linux',
-      mode: __ENV.HARNESS_CLIENT_MODE || 'backend',
+      mode: __ENV.HARNESS_CLIENT_MODE || HARNESS_CLIENT_IDENTITY.mode,
     },
     role: 'operator',
     // Deliberately does NOT request 'session.control'. A gateway that will not grant it

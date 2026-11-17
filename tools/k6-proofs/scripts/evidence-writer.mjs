@@ -27,7 +27,7 @@ import { copyFileSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { isRcd2AuthorityRequired } from '../lib/r-cd-2-authority-context.mjs';
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
-import { validateReadinessReceipt } from './target-readiness.mjs';
+import { harnessClientOverrides, validateReadinessReceipt } from './target-readiness.mjs';
 
 function parseArgs(argv) {
   const out = {};
@@ -141,6 +141,13 @@ const readinessResult = validateReadinessReceipt(readiness, {
 });
 if (!readinessResult.valid) {
   throw new Error(`seat readiness receipt rejected: ${readinessResult.reason}`);
+}
+// run-proof.sh refuses the identity overrides before k6; the writer runs in the shell that
+// ran k6 and refuses them too, so evidence from a run started another way is not accepted
+// while the scenario may have connected as an identity the receipt does not cover.
+const overrides = harnessClientOverrides();
+if (overrides.length > 0) {
+  throw new Error(`seat readiness receipt rejected: harness-client-override-set:${overrides.join(',')}`);
 }
 if (!readiness.bindings.selectedRows.includes(args.row.toUpperCase())) {
   throw new Error(`seat readiness receipt rejected: row ${args.row} is not selected`);

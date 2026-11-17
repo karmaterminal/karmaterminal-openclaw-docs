@@ -17,6 +17,21 @@ SCENARIOS_DIR="${SCRIPT_DIR}/scenarios"
 SCENARIO="${1:?Usage: ./run-proof.sh <scenario-name> [k6 args]}"
 shift || true
 
+# lib/gateway-ws.js connectFrame lets HARNESS_CLIENT_ID / HARNESS_CLIENT_MODE replace the
+# harness client identity, the only one seat readiness checks admission for. Refuse either,
+# from the environment (even empty) or anywhere in the k6 arguments (-e/--env), before k6 runs.
+for HARNESS_OVERRIDE in HARNESS_CLIENT_ID HARNESS_CLIENT_MODE; do
+  HARNESS_OVERRIDE_SET=""
+  [[ -n "${!HARNESS_OVERRIDE+set}" ]] && HARNESS_OVERRIDE_SET=1
+  for ARG in "$@"; do
+    [[ "$ARG" == *"$HARNESS_OVERRIDE"* ]] && HARNESS_OVERRIDE_SET=1
+  done
+  if [[ -n "$HARNESS_OVERRIDE_SET" ]]; then
+    echo "ERROR: harness-client-override-set:${HARNESS_OVERRIDE}; unset it: seat readiness vouches only for the harness client identity (lib/gateway-client-identity.mjs)" >&2
+    exit 2
+  fi
+done
+
 LOCK_FD=""
 if [[ -n "${OPENCLAW_ROW_MANIFEST:-}" ]]; then
   GUARD_VARS="$(node "${SCRIPT_DIR}/scripts/live-run-guard.mjs" --manifest "${OPENCLAW_ROW_MANIFEST}" --shell)"

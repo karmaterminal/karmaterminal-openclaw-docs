@@ -19,6 +19,7 @@ import {
 } from '../../lib/return-covenant-restart-control.mjs';
 // A namespace import, so a symbol a tree does not export yet fails only the test that reads it.
 import * as rcc from '../../lib/return-covenant-restart-control.mjs';
+import { HARNESS_CLIENT_IDENTITY } from '../../lib/gateway-client-identity.mjs';
 import { runRestartControl } from '../run-return-covenant-restart-control.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -251,6 +252,30 @@ test('positive: a real restart keeps the return authority through the gap and gr
   const privateDir = `${layout.artifactDir}.private`;
   assert.ok(readFileSync(path.join(privateDir, 'replacement.stdout.log'), 'utf8').includes('[gateway] ready'));
   assert.ok(existsSync(path.join(privateDir, 'transition-response.json')));
+});
+
+test('the control connects as the harness identity the row scenarios and readiness use, with no device', async () => {
+  const { layout, result } = await positive();
+  assert.equal(result.status, 'completed', JSON.stringify(result.grade, null, 2));
+  // The scripted gateway records every connect it answered: the sampler's hello probes and
+  // the authority, narrowing and restart connections, across both generations.
+  const connects = readFileSync(path.join(layout.dir, 'state', '.rcc-scripted-connects.jsonl'), 'utf8')
+    .trim()
+    .split('\n')
+    .map((line) => JSON.parse(line));
+  assert.ok(connects.length >= 4, `expected the probe, authority and restart connects, saw ${connects.length}`);
+  for (const connect of connects) {
+    // A device-less `cli` is refused by an auth.mode=none gateway (NOT_PAIRED); every
+    // harness connect presents the one identity readiness checked admission for.
+    assert.deepEqual({ id: connect.client?.id, mode: connect.client?.mode }, HARNESS_CLIENT_IDENTITY);
+    assert.equal(connect.client.version, 'k6-proof-rcc-v1');
+    assert.equal(connect.role, 'operator');
+    assert.equal(connect.device, false);
+  }
+  assert.ok(
+    connects.some((connect) => connect.scopes?.includes('operator.admin')),
+    'the authority and restart connections still ask for operator.admin',
+  );
 });
 
 // 🌻's negative: a supervised replacement that never serves (the row's own negative).

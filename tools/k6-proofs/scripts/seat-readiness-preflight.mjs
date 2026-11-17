@@ -8,6 +8,7 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   evaluateTarget,
+  harnessClientOverrides,
   inspectTarget,
   observedContinuation,
   observedDepths,
@@ -142,7 +143,7 @@ function envReport(policy) {
 
 function printText(report) {
   console.log(`seat readiness: ${report.outcome}`);
-  console.log(`target RPC: authenticated=${report.target.authentication.authenticated}; client=${report.target.authentication.request?.client?.id || 'none'}; method=${report.target.authentication.request?.method || 'none'}`);
+  console.log(`target RPC: authenticated=${report.target.authentication.authenticated}; client=${report.target.authentication.request?.client?.id || 'none'}/${report.target.authentication.request?.client?.mode || 'none'}; auth=${report.target.authentication.response?.authMethod || 'unknown'}; method=${report.target.authentication.request?.method || 'none'}`);
   console.log(`gateway fingerprint: ${report.target.gatewayUrlFingerprint || 'invalid'}`);
   console.log(`depth: configured=${report.target.configuredMaxSpawnDepth ?? 'unknown'}; effective=${report.target.effectiveMaxSpawnDepth ?? 'unknown'}; required=${report.target.requiredMaxSpawnDepth ?? 'invalid'}; expected=${report.target.expectedMaxSpawnDepth ?? 'invalid'}`);
   console.log(`binding digest: ${report.bindingDigest || 'unsigned'}`);
@@ -215,6 +216,9 @@ async function main() {
   if (requiredMissing.length > 0) {
     notes.push(`missing-required-env:${requiredMissing.map((entry) => entry.name).join(',')}`);
   }
+  // Readiness checks only the harness identity; with an override set the rows may not use it.
+  const overrides = harnessClientOverrides();
+  if (overrides.length > 0) notes.push(`harness-client-override-set:${overrides.join(',')}`);
 
   const pass = notes.length === 0;
   const baseReceipt = {

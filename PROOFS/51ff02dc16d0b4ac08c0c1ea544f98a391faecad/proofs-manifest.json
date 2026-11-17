@@ -211,7 +211,8 @@
         "connect_window_utc": "2026-11-17T14:14:26.328Z, 54 ms (epoch ms 1794924866327-1794924866381)",
         "connect": "inspectTarget('ws://127.0.0.1:18789', <dummy token>) imported from the emeric runner checkout at docs 9ba5518bdb079da3c3c75961fd8cd26be040eb1e; client {id:'cli', mode:'cli', version:'k6-proof-readiness-v2', platform:'node'}; result authenticated=false, error=gateway-auth-rejected",
         "after": "openclaw devices list --json (2 s later): pending=0 paired=1",
-        "printed_fields_only": "counts, plus requestId/clientId/clientMode/role/remoteIp/ts/silent/isRepair for pending entries (there were none). The list is the gateway's redacted view, so no bearer token was printed."
+        "printed_fields_only": "counts, plus requestId/clientId/clientMode/role/remoteIp/ts/silent/isRepair for pending entries (there were none). The list is the gateway's redacted view, so no bearer token was printed.",
+        "paired_entry": "the one paired entry is client cli/cli, role operator, created and approved 2026-05-25T08:32:42.661Z: the seat CLI's own pre-existing device. The probe's devices-list calls did not create it."
       },
       "seat_recheck_2026_11_17T14_14Z": "build-info.commit == HEAD == ab5a30ea79b776f149e24b1fccab9e79b0a5d299, 0 tracked modifications, 17 package dists; openclaw-gateway active/running since 2026-11-16 23:22:30 PST, NRestarts=0; diagnostics-otel bundled and enabled; gateway.auth.mode=none; gateway.nodes.pairing.autoApproveLocal unset",
       "options_requiring_a_decision": [

@@ -96,7 +96,7 @@ It was not executed. No device was approved, no config key was changed, and noth
 | one readiness connect: `inspectTarget("ws://127.0.0.1:18789", <dummy>)` from the emeric runner checkout at docs `9ba5518b`, window 14:14:26.328Z + 54 ms | `authenticated=false`, `gateway-auth-rejected` |
 | `openclaw devices list --json`, 2 s later | pending 0, paired 1 |
 
-Only counts and non-secret pending-entry fields were printed. The gateway's list is redacted and carries no bearer tokens.
+The one paired entry is client `cli`/`cli`, role `operator`, created and approved 2026-05-25T08:32:42Z. That is the seat CLI's own pre-existing device, not something the probe created. Only counts and non-secret entry fields were printed. The gateway's list is redacted and carries no bearer tokens.
 
 **Seat recheck (14:14Z).** `build-info.commit` == `HEAD` == `ab5a30ea…`, 0 tracked modifications, 17 package dists. `openclaw-gateway` active since 2026-11-16 23:22:30 PST with `NRestarts=0`. `diagnostics-otel` is bundled and enabled. `gateway.auth.mode` = `none`, and `gateway.nodes.pairing.autoApproveLocal` is unset.
 

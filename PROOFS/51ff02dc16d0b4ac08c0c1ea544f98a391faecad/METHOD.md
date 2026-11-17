@@ -73,3 +73,36 @@ Both ran workflow `project81-k6-proof.yml` at docs `9ba5518bdb079da3c3c75961fd8c
 3. An isolated token-auth proof gateway at `ab5a30ea` on emeric (the `f15237ec` shape). This contradicts the live-gateway spec and needs a stage-only deploy.
 
 On a refire, the row list must also be split into dispatches of under ~350 characters, or the workflow's concurrency group must stop embedding `rows`.
+
+## v2 (2026-11-17 14:12Z): 🕯's pairing decision cannot run with the current harness
+
+🕯's decision (Discord msg 1572252647791005697), verbatim: *"I choose pairing for the proof client only. Keep Emeric on `auth.mode=none`; do not switch it to token mode. Verify and approve the k6 proof-client identity in the gateway pairing flow, then revoke it after the receipt."*
+
+It was not executed. No device was approved, no config key was changed, and nothing on emeric was restarted.
+
+**Why no pairing request can appear.**
+
+- The readiness client carries no device identity. Its connect params are client `{id: "cli", mode: "cli"}`, role `operator`, scopes `[operator.read]` and `auth.token`, with no `device` field (`tools/k6-proofs/scripts/target-readiness.mjs:191-212` at `9ba5518b`). Nothing under `tools/k6-proofs` outside the tests signs a device identity.
+- At `ab5a30ea`, a device-less connect is decided in `handleMissingDeviceIdentity` (`src/gateway/server/ws-connection/connect-auth.ts:272-335`). `evaluateMissingDeviceIdentity` returns `reject-device-required` (`connect-policy.ts:69-98`), so the gateway answers `NOT_PAIRED` "device identity required" and closes 1008. That happens before the pairing branch.
+- `requestDevicePairing` is the only thing that creates a pending request, and it runs only inside `if (device && devicePublicKey)` (`connect-device-pairing.ts:146`, call at `:242`).
+- A device-bearing client would not produce a pending request on emeric either. `gateway.nodes.pairing.autoApproveLocal` is unset, which means on. A loopback client resolves to locality `direct_local` (`handshake-auth-helpers.ts:133`), and `shouldAllowSilentLocalPairing` returns true for a not-yet-paired local operator (`handshake-auth-helpers.ts:63-110`; `connect-pairing-approval-plan.ts:139`). The request would be created silent and approved by the gateway itself on first connect.
+- At `ab5a30ea`, `openclaw devices revoke` takes `--device` and `--role` and revokes one role token. Removing a paired-device entry is `openclaw devices remove <deviceId>`.
+
+**Probe receipt (emeric, 2026-11-17T14:14:26Z).**
+
+| step | result |
+|---|---|
+| `openclaw devices list --json` (ab5a CLI, `/home/figs/flesh_beast_tmp/openclaw/openclaw.mjs`) | pending 0, paired 1 |
+| one readiness connect: `inspectTarget("ws://127.0.0.1:18789", <dummy>)` from the emeric runner checkout at docs `9ba5518b`, window 14:14:26.328Z + 54 ms | `authenticated=false`, `gateway-auth-rejected` |
+| `openclaw devices list --json`, 2 s later | pending 0, paired 1 |
+
+Only counts and non-secret pending-entry fields were printed. The gateway's list is redacted and carries no bearer tokens.
+
+**Seat recheck (14:14Z).** `build-info.commit` == `HEAD` == `ab5a30ea…`, 0 tracked modifications, 17 package dists. `openclaw-gateway` active since 2026-11-16 23:22:30 PST with `NRestarts=0`. `diagnostics-otel` is bundled and enabled. `gateway.auth.mode` = `none`, and `gateway.nodes.pairing.autoApproveLocal` is unset.
+
+**Options, surfaced as a TROUBLE receipt; none taken:**
+
+- **A.** A reviewed docs change gives readiness a persisted Ed25519 device identity, signed against the connect challenge. On emeric it would pair silently on its first loopback connect. The lane would record its device id and public-key fingerprint and remove it after the final receipt. This changes the signed receipt's authentication claim.
+- **B.** A reviewed docs change makes readiness connect as `{id: "gateway-client", mode: "backend"}`. That is the identity every row scenario already uses, and local-backend self-pairing admits it with no pairing record. This also changes the receipt's authentication claim.
+- **C.** Token mode. 🕯 ruled this out.
+- **D.** An isolated token-auth proof gateway. This contradicts the live-gateway spec and needs a stage-only deploy.

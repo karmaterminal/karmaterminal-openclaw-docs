@@ -148,8 +148,8 @@
   "index_points_here": false,
   "corpus": "PROOFS/51ff02dc16d0b4ac08c0c1ea544f98a391faecad/",
   "method": "PROOFS/51ff02dc16d0b4ac08c0c1ea544f98a391faecad/METHOD.md",
-  "generated": "2026-11-17 (frond-scribe lane k6-proofs-ab5a)",
-  "execution_status": "BLOCKED before any row fired: authenticated target readiness cannot pass on emeric's live gateway (gateway.auth.mode=none; the readiness client id 'cli' is refused NOT_PAIRED 'device identity required'). Every row is missing; nothing was consumed.",
+  "generated": "2026-11-17 (frond-scribe lanes k6-proofs-ab5a, k6-proofs-ab5a-v2)",
+  "execution_status": "BLOCKED before any row fired: authenticated target readiness cannot pass on emeric's live gateway (gateway.auth.mode=none; the readiness client id 'cli' is refused NOT_PAIRED 'device identity required'). The v2 pairing remedy chosen by 🕯 cannot execute with the current harness: the readiness client carries no device identity, so no pairing request is created (receipt in blocker.pairing_decision_v2). Every row is missing; nothing was consumed.",
   "fire_attempts": [
     {
       "run": 44077455307,
@@ -193,7 +193,35 @@
       "🕯: switch emeric's live gateway to token auth (the config already carries a token). This is a config change plus a gateway restart, which this lane is forbidden to do. The repository secret OPENCLAW_GATEWAY_TOKEN does not hold emeric's token either, so the fire would then also need the operator-supplied token path (run-proofs.sh on emeric, the 3821eaef precedent) or a secret change.",
       "docs: a reviewed harness change letting readiness authenticate as the local backend client (gateway-client/backend, the identity every scenario already uses) on a loopback target. That changes the signed receipt's authentication claim from token to loopback self-pairing.",
       "an isolated token-auth proof gateway at ab5a30ea on emeric (the f15237ec shape). This contradicts 🕯's live-gateway spec and needs a stage-only deploy."
-    ]
+    ],
+    "pairing_decision_v2": {
+      "decided_by": "🕯 (Discord msg 1572252647791005697), relayed by the v2 workorder addendum 2026-11-17 14:12Z",
+      "decision_verbatim": "I choose pairing for the proof client only. Keep Emeric on `auth.mode=none`; do not switch it to token mode. Verify and approve the k6 proof-client identity in the gateway pairing flow, then revoke it after the receipt.",
+      "outcome": "not executable with the docs harness at 9ba5518b against product ab5a30ea; no device was approved, no config key was read beyond booleans/mode strings, nothing on emeric was changed",
+      "why": [
+        "The readiness client sends no device identity. Its connect params are client {id:'cli', mode:'cli'}, role operator, scopes [operator.read] and auth.token, with no `device` field (tools/k6-proofs/scripts/target-readiness.mjs:191-212 at 9ba5518b). Nothing under tools/k6-proofs outside tests signs a device identity.",
+        "At ab5a30ea a device-less connect is decided in handleMissingDeviceIdentity (src/gateway/server/ws-connection/connect-auth.ts:272-335): evaluateMissingDeviceIdentity returns reject-device-required (connect-policy.ts:69-98), which sends NOT_PAIRED 'device identity required' and closes 1008. That happens before the pairing branch.",
+        "requestDevicePairing, the only creator of a pending request, runs only inside `if (device && devicePublicKey)` (connect-device-pairing.ts:146, call at :242). A device-less client can never produce a pending request.",
+        "Even a device-bearing readiness client would not produce one on emeric. gateway.nodes.pairing.autoApproveLocal is unset (default on), a loopback client resolves to locality direct_local (handshake-auth-helpers.ts:133), and shouldAllowSilentLocalPairing returns true for a not-paired local operator (handshake-auth-helpers.ts:63-110; connect-pairing-approval-plan.ts:139). The request would be created silent and self-approved on first connect, leaving nothing pending to verify or approve.",
+        "At ab5a30ea `openclaw devices revoke` requires --device and --role and revokes one role token (src/cli/devices-cli.ts). Removing the paired-device entry is `openclaw devices remove <deviceId>`."
+      ],
+      "probe_receipt": {
+        "where": "emeric, as figs over ssh; openclaw CLI /home/figs/.local/bin/openclaw -> /home/figs/flesh_beast_tmp/openclaw/openclaw.mjs (ab5a30ea build)",
+        "before": "openclaw devices list --json: pending=0 paired=1",
+        "connect_window_utc": "2026-11-17T14:14:26.328Z, 54 ms (epoch ms 1794924866327-1794924866381)",
+        "connect": "inspectTarget('ws://127.0.0.1:18789', <dummy token>) imported from the emeric runner checkout at docs 9ba5518bdb079da3c3c75961fd8cd26be040eb1e; client {id:'cli', mode:'cli', version:'k6-proof-readiness-v2', platform:'node'}; result authenticated=false, error=gateway-auth-rejected",
+        "after": "openclaw devices list --json (2 s later): pending=0 paired=1",
+        "printed_fields_only": "counts, plus requestId/clientId/clientMode/role/remoteIp/ts/silent/isRepair for pending entries (there were none). The list is the gateway's redacted view, so no bearer token was printed."
+      },
+      "seat_recheck_2026_11_17T14_14Z": "build-info.commit == HEAD == ab5a30ea79b776f149e24b1fccab9e79b0a5d299, 0 tracked modifications, 17 package dists; openclaw-gateway active/running since 2026-11-16 23:22:30 PST, NRestarts=0; diagnostics-otel bundled and enabled; gateway.auth.mode=none; gateway.nodes.pairing.autoApproveLocal unset",
+      "options_requiring_a_decision": [
+        "A. Reviewed docs change: readiness carries a persisted Ed25519 device identity (stored on the emeric runner outside the job workspace) and signs the connect challenge. On emeric it would pair silently on its first loopback connect. The lane records the device id and public-key fingerprint, then runs `openclaw devices remove <deviceId>` after the final receipt. The signed readiness receipt's authentication claim changes. Docs PR and tests come first; fire after merge.",
+        "B. Reviewed docs change: readiness connects as {id:'gateway-client', mode:'backend'}, the identity every row scenario already uses, which local-backend self-pairing admits with no pairing record. The receipt's authentication claim changes.",
+        "C. Token mode on emeric (ruled out by 🕯).",
+        "D. An isolated token-auth proof gateway on emeric (contradicts the live-gateway spec; needs a stage-only deploy)."
+      ],
+      "trouble_receipt": "posted to #sprites by lane k6-proofs-ab5a-v2 at 2026-11-17 ~14:16Z"
+    }
   },
   "rows": [
     {

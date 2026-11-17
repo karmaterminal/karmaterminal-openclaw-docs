@@ -4,6 +4,8 @@ The reviewed continuation slice `51ff02dc` (`ronan/1547-forwardport-c6276079`), 
 
 **Status: BLOCKED before any row fired. All 37 required rows are `missing`; nothing was consumed.** This is a working corpus, not acceptance-complete. `PROOFS/INDEX.json` is not repointed.
 
+**v2 (14:12Z).** 🕯 chose to pair the proof client and keep emeric on `auth.mode=none`. That cannot run with the current harness. The readiness client sends no device identity, so the gateway refuses it before the pairing branch and never creates a pending request. A probe on emeric showed 0 pending requests before and after one readiness connect. With `autoApproveLocal` unset, a device-bearing loopback client would be paired silently, with nothing to approve. The receipt and the remaining options are in `METHOD.md` § v2 and `proofs-manifest.json` → `blocker.pairing_decision_v2`.
+
 ## Why it is blocked
 
 The authenticated target-readiness gate cannot pass on emeric's live gateway as it is configured.

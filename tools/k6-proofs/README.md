@@ -140,7 +140,8 @@ OPENCLAW_GATEWAY_TOKEN="***" \
 ```
 
 The helper emits a signed `openclaw.k6.seat-readiness.v3` JSON receipt and never
-prints secret values. Stale v1 and v2 receipts are rejected. It records:
+prints secret values. Stale v1 and v2 receipts are rejected; four frozen R-CD-2 runs keep
+their v2 receipts re-verifiable (below). It records:
 
 - k6 binary path and version, compared to the centralized policy expectation (`tools/k6-proofs/seat-readiness.policy.json`; override with `OPENCLAW_EXPECTED_K6_VERSION` or `--expected-k6-version` only when the row issue says so)
 - every binary candidate checked (`/home/figs/bin/k6`, common system paths, and `K6_BIN` when set)
@@ -164,11 +165,25 @@ offline failure-shape checks and can never emit `PASS-candidate`.
 
 Readiness connects with the row scenarios' client identity, `{ id: 'gateway-client', mode:
 'backend' }`. The identity lives in `lib/gateway-client-identity.mjs`, which `lib/gateway-ws.js`
-`connectFrame()` also imports. Readiness asks for role `operator` and scope `operator.read` only,
-and sends the gateway token and no device identity. Up to receipt v2 it connected as `{ id: 'cli',
-mode: 'cli' }`. An `auth.mode=none` gateway refuses that device-less `cli` connect with
-`NOT_PAIRED` "device identity required". Pairing cannot help, because the connect carries no
-device (lane k6-proofs-ab5a-v2).
+`connectFrame()` and the return-covenant restart control
+(`scripts/run-return-covenant-restart-control.mjs`) also import. Readiness asks for role
+`operator` and scope `operator.read` only, and sends the gateway token and no device identity. Up
+to receipt v2 it connected as `{ id: 'cli', mode: 'cli' }`. An `auth.mode=none` gateway refuses
+that device-less `cli` connect with `NOT_PAIRED` "device identity required". Pairing cannot help,
+because the connect carries no device (lane k6-proofs-ab5a-v2).
+
+`connectFrame()` lets `HARNESS_CLIENT_ID` and `HARNESS_CLIENT_MODE` replace the identity's id and
+mode, and `run-proofs.sh` runs k6 with the environment it verified the receipt in. While either
+variable is set, even empty, readiness refuses to pass, because the rows may not connect as the
+identity it checked:
+
+- the preflight records `harness-client-override-set:<names>` and emits an unsigned
+  `PARTIAL-candidate`;
+- `verify-seat-readiness.mjs` exits 2 with the same reason, before the matrix and again before
+  each row;
+- the evidence writer refuses the receipt (`run-proof.sh` checks no readiness of its own).
+
+Unset both for a proof run.
 
 At openclaw `ab5a30ea` the gateway admits the backend identity from loopback in both auth modes the
 fleet runs. The seat lists are the live gateways as of 2026-11-17; the receipt's `authMethod`
@@ -201,6 +216,10 @@ Some refusals don't depend on the identity, and refuse the rows the same way:
 - `none`: the gateway verified no credential. The token then only keys the receipt signature
   (`hmac-sha256-gateway-token-v1`).
 
+A passing receipt says nothing about `operator.write`. Readiness asks for `operator.read`, and the
+row scenarios ask for `operator.read` and `operator.write` (`lib/gateway-ws.js` `connectFrame()`),
+so a gateway that would grant read but not write still passes readiness. That gap predates v3.
+
 Any other auth method fails closed as `gateway-auth-method-unexpected`. That includes `password`:
 a password-mode gateway would take the token field as its password (`auth.ts:131-137`), but no seat
 runs one. A hello that grants neither `operator.read` nor `operator.admin` fails closed as
@@ -208,11 +227,49 @@ runs one. A hello that grants neither `operator.read` nor `operator.admin` fails
 notes, for example `gateway-rejection:NOT_PAIRED/DEVICE_IDENTITY_REQUIRED`. The gateway's message
 text is never copied.
 
-v2 receipts are rejected everywhere, as v1 receipts were after v2. That includes the run-local
-copies in four committed R-CD-2 runs, from isolated token-mode emeric gateways, under
-`PROOFS/08c37a15…`, `PROOFS/293c977f…` (two) and `PROOFS/f15237ec…`. Re-establishing R-CD-2
-authority for those runs (`lib/r-cd-2-authority-context.mjs`) now fails. All three corpora record
-R-CD-2 as `partial`.
+#### Receipt versions and the four frozen v2 runs
+
+Every gate in front of a live run accepts only v3, as it accepted only v2 after v1:
+
+- the preflight's check of its own receipt;
+- `verify-seat-readiness.mjs`, which `run-proofs.sh` runs before the matrix and on each row's
+  run-local copy, and which both workflows run;
+- the evidence writer;
+- `run-readiness-consumer.mjs`.
+
+One exception keeps four committed R-CD-2 runs re-verifiable. Their run-local `seat-readiness.json`
+is a v2 receipt, connected as `cli` to isolated token-mode emeric gateways. They back the R-CD-2
+`KEYED-AUTHORITY-REVIEW.json` of corpora `08c37a15…`, `293c977f…` and `f15237ec…`.
+`scripts/pre-v3-readiness-r-cd-2-runs.json` freezes the four runs, each with the sha256 of its
+receipt's exact bytes, as `scripts/pre-f2-ruling-corpora.json` freezes the pre-ruling corpora:
+
+| Run under `PROOFS/` | Receipt sha256 |
+| --- | --- |
+| `08c37a15…/R-CD-2/emeric-isolated-composite/20261029T213444Z-r-cd-2-7ec4c1cf` | `3ec71f0a…` |
+| `293c977f…/R-CD-2/emeric-isolated-composite/20261029T050321Z-r-cd-2-843e883b` | `9f18c293…` |
+| `293c977f…/R-CD-2/matrix-012658Z/20261029T012745Z-r-cd-2-5e4ce138` | `92602a22…` |
+| `f15237ec…/R-CD-2/emeric-isolated-composite/20261030T013026Z-r-cd-2-44aa4c89` | `a66ecde2…` |
+
+For a listed run, and only with those bytes, the R-CD-2 archived-run check
+(`lib/r-cd-2-authority-context.mjs`) re-verifies the receipt as v2 did
+(`validatePreV3ReadinessReceipt` in `scripts/target-readiness.mjs`):
+
+- exactly the v2 shape: schema v2, client `cli`/`cli`/`k6-proof-readiness-v2`, no `authMethod`;
+- its signature;
+- its run bindings.
+
+Any other v2 receipt is refused, and so are a v2 receipt from the backend identity and a v3 receipt
+from `cli`. No live gate reads the list, and no old receipt is relabelled or re-signed.
+
+Re-verifying one of these runs takes the proof gateway's token, as the keyed reviews did. Without
+it, `consumeRcd2Authority` stops at the selected context receipt (`invalid-integrity`), with or
+without v3. The committed `f15237ec…` run has no `PROOFS/harness-provenance/<matrix>.json`, so its
+keyed review ran on the raw run directory, which the list covers too: a run is named by its path
+under its authority root. All three corpora record R-CD-2 as `partial`, and none changes:
+`validate-corpus` checks R-CD-2 authority only for a row recorded `pass`.
+
+PROOFS holds 95 more v2 receipts, in other rows' run directories and `gates/`. No corpus check
+reads them.
 
 ### 2. Preflight check
 

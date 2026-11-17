@@ -90,7 +90,7 @@ OPENCLAW_GATEWAY_TOKEN=*** \
 node tools/k6-proofs/scripts/seat-readiness-preflight.mjs --json
 ```
 
-The signed v2 receipt must validate the authenticated target `config.get`
+The signed v3 receipt must validate the authenticated target `config.get`
 identity and every candidate/runtime/docs/URL/seat/unit/row/depth binding.
 Configured and effective depth come only from that target; expected depth is an
 assertion. Any mismatch is a pre-dispatch infrastructure stop.

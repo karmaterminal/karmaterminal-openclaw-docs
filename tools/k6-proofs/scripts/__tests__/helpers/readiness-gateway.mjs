@@ -21,7 +21,8 @@ const TOKEN_MISMATCH = Object.freeze({
  *   connect-policy.ts:85-87) and keeps its scopes (connect-auth.ts:290-300); any other
  *   device-less operator is NOT_PAIRED "device identity required" (connect-policy.ts:91-97,
  *   connect-auth.ts:323-327).
- * - auth.mode=token needs the shared token (auth.ts:598-608, connect-auth.ts:445-452). A local
+ * - auth.mode=token needs the shared token (auth.ts:598-608); a device-less connect with a wrong
+ *   one is refused as unauthorized (connect-policy.ts:94-96, connect-auth.ts:318-321). A local
  *   backend keeps its scopes through the same skip, a local `cli` through
  *   shouldPreserveLocalCliSharedAuthScopes (handshake-auth-helpers.ts:189-203); a remote
  *   device-less operator is admitted with its scopes cleared (connect-policy.ts:57-67, 91-93).

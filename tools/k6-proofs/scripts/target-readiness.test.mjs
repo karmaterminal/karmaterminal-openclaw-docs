@@ -85,8 +85,9 @@ test('the receipt must record an auth method that admits a token-only backend co
       });
     });
   }
-  // device-token needs a device; password and the proxy methods are not what a
-  // token-only connect gets; a missing method cannot say which path admitted it.
+  // device-token needs a device; the proxy methods are not what a token-only connect
+  // gets; password mode is not one the fleet runs (see READINESS_AUTH_METHODS); a missing
+  // method cannot say which path admitted it.
   for (const authMethod of [undefined, null, 'device-token', 'password', 'trusted-proxy', 'tailscale', 'NONE']) {
     await t.test(`rejects ${String(authMethod)}`, () => {
       const unsigned = structuredClone(signedSeatReadinessFixture(values));

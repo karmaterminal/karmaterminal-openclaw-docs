@@ -171,19 +171,28 @@ mode: 'cli' }`. An `auth.mode=none` gateway refuses that device-less `cli` conne
 device (lane k6-proofs-ab5a-v2).
 
 At openclaw `ab5a30ea` the gateway admits the backend identity from loopback in both auth modes the
-fleet runs:
+fleet runs. The seat lists are the live gateways as of 2026-11-17; the receipt's `authMethod`
+records what a given target actually did.
 
 | Gateway `auth.mode` | Admission | Receipt `response.authMethod` |
 | --- | --- | --- |
-| `none` (emeric, elliott, silas) | Authorized as method `none`; the token is not checked. The local backend self-pairing skip admits the device-less operator and keeps its scopes. | `none` |
-| `token` (cael, rune, ronan) | The shared token must match, or the connect is refused. Then the same skip applies. | `token` |
+| `none` (live: emeric, elliott, silas) | Authorized as method `none`; the token is not checked. The local backend self-pairing skip admits the device-less operator and keeps its scopes. | `none` |
+| `token` (live: cael, rune, ronan) | The shared token must match, or the connect is refused. Then the same skip applies. | `token` |
 
 The source is `src/gateway/auth.ts:554-570` and `598-608`,
 `src/gateway/server/ws-connection/handshake-auth-helpers.ts:165-187`, `connect-policy.ts:69-98`
-and `connect-auth.ts:272-335` and `445-452`. ab5a pins both modes over a real server in
-`src/gateway/server.auth.compat-baseline.test.ts:78-151`. The skip needs the gateway to see a local
-connect: a loopback socket with no `Origin` or forwarding headers. Behind a proxy an
-`auth.mode=none` gateway refuses readiness the way it refuses the rows.
+and `connect-auth.ts:272-337`. ab5a pins both modes over a real server in
+`src/gateway/server.auth.compat-baseline.test.ts:78-151`. Its none-mode case connects without a
+token; that a token on an `auth.mode=none` gateway changes nothing rests on `auth.ts:554-570`.
+
+Some refusals don't depend on the identity, and refuse the rows the same way:
+
+- The skip needs the gateway to see a local connect: a loopback socket with no `Origin` or
+  forwarding headers. Behind a proxy an `auth.mode=none` gateway refuses with `NOT_PAIRED`.
+- An `auth.mode=none` gateway with `gateway.roles` set refuses a device-less operator that has
+  no verified user (`connect-device-pairing.ts:119-137`).
+- Operator access policies refuse a connect with no user profile (`connect-operator-access.ts:26-27`).
+- A gateway still starting refuses operator connects (`connect-admission.ts:238-241`).
 
 `authenticated: true` means the gateway admitted the connect and answered `config.get`.
 `response.authMethod` says how:
@@ -192,10 +201,18 @@ connect: a loopback socket with no `Origin` or forwarding headers. Behind a prox
 - `none`: the gateway verified no credential. The token then only keys the receipt signature
   (`hmac-sha256-gateway-token-v1`).
 
-Any other auth method fails closed as `gateway-auth-method-unexpected`. A hello that grants neither
-`operator.read` nor `operator.admin` fails closed as `gateway-auth-rejected`. A refused connect adds `gateway-rejection:<code>/<detail code>` to
-the notes, for example `gateway-rejection:NOT_PAIRED/DEVICE_IDENTITY_REQUIRED`. The gateway's
-message text is never copied.
+Any other auth method fails closed as `gateway-auth-method-unexpected`. That includes `password`:
+a password-mode gateway would take the token field as its password (`auth.ts:131-137`), but no seat
+runs one. A hello that grants neither `operator.read` nor `operator.admin` fails closed as
+`gateway-auth-rejected`. A refused connect adds `gateway-rejection:<code>/<detail code>` to the
+notes, for example `gateway-rejection:NOT_PAIRED/DEVICE_IDENTITY_REQUIRED`. The gateway's message
+text is never copied.
+
+v2 receipts are rejected everywhere, as v1 receipts were after v2. That includes the run-local
+copies in four committed R-CD-2 runs, from isolated token-mode emeric gateways, under
+`PROOFS/08c37a15…`, `PROOFS/293c977f…` (two) and `PROOFS/f15237ec…`. Re-establishing R-CD-2
+authority for those runs (`lib/r-cd-2-authority-context.mjs`) now fails. All three corpora record
+R-CD-2 as `partial`.
 
 ### 2. Preflight check
 

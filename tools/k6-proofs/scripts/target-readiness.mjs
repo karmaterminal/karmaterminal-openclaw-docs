@@ -12,9 +12,11 @@ export const READINESS_CLIENT = Object.freeze({
   version: 'k6-proof-readiness-v3',
   platform: 'node',
 });
-// hello-ok auth.method values that can admit this token-only, device-less connect:
+// hello-ok auth.method values readiness vouches for, the two auth modes the fleet runs:
 // "token" (the Gateway verified the shared token) or "none" (auth.mode=none; no
-// credential was verified, so the token only keys the receipt signature).
+// credential was verified, so the token only keys the receipt signature). A password-mode
+// Gateway would also take the token field as its password (openclaw ab5a auth.ts:131-137),
+// but no seat runs one, so it fails closed here rather than pass unexamined.
 export const READINESS_AUTH_METHODS = Object.freeze(['none', 'token']);
 
 const SHA = /^[0-9a-f]{40}$/u;

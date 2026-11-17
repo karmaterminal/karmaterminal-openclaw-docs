@@ -14,7 +14,8 @@
  *   connect-policy.ts:85-87). A device-less `cli` client is refused there with
  *   NOT_PAIRED "device identity required" (connect-policy.ts:91-97, connect-auth.ts:323-327).
  * - auth.mode=token: the shared token must match (auth.ts:598-608); then the same skip
- *   applies through sharedAuthOk, and a wrong token is refused (connect-auth.ts:445-452).
+ *   applies through sharedAuthOk, and a wrong token is refused before admission
+ *   (connect-policy.ts:94-96, connect-auth.ts:318-321).
  *
  * Shared by k6 scenarios and Node scripts, so it is .mjs (see lib/tool-call-identity.mjs).
  */

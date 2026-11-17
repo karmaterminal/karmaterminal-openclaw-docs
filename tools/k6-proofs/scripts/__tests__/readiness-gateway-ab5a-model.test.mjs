@@ -5,8 +5,10 @@
 // connect-auth.ts composes them, and compares the two answers for every case the model covers.
 //
 // Still modelled, as transcribed inputs: what authorizeGatewayConnectCore returns per auth mode
-// (auth.ts:554-570, 598-608), the shared-auth probe (auth-context.ts:96-122), the credential
-// flags (connect-auth.ts:130-132) and the order connect-auth.ts:265-337 applies the decision in.
+// (auth.ts:554-570, 598-608), the shared-auth probe and auth method (auth-context.ts:90-117),
+// the credential flags (connect-auth.ts:130-132), and the order connect-auth.ts applies the
+// decision in (265-337, then the !authOk refusal at 445-452; for a device-less connect
+// resolveConnectAuthDecision leaves the result unchanged, auth-context.ts:190 and 240).
 // Pairing locality is an input too, as it is to the model.
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
@@ -70,6 +72,10 @@ function ab5aConnect(ab5a, { authMode, token, locality }, params) {
   const clear = !skip && !preserve &&
     ab5a.shouldClearUnboundScopesForMissingDeviceIdentity({ decision, authMethod });
   if (decision.kind === 'allow') {
+    // An admitted connect whose credential failed is still refused (connect-auth.ts:445-452).
+    if (!authResult.ok) {
+      return { ok: false, error: { code: 'INVALID_REQUEST', detail: 'AUTH_TOKEN_MISMATCH' } };
+    }
     // hello-ok auth.method is authMethod (connect-hello.ts:304-305).
     return { ok: true, method: authMethod, scopes: clear ? [] : params.scopes };
   }

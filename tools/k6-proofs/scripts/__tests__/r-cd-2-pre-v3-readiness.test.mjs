@@ -1,7 +1,7 @@
 // The pre-v3 readiness exception (docs#624 review, finding F1): a committed R-CD-2 run frozen
-// in scripts/pre-v3-readiness-r-cd-2-runs.json keeps re-verifying its v2 receipt through
-// consumeRcd2Authority, the verifier its KEYED-AUTHORITY-REVIEW.json names. No other v2
-// receipt is accepted, and no gate in front of a live run accepts v2 at all.
+// in scripts/pre-v3-readiness-r-cd-2-runs.json keeps its v2 receipt re-verifiable through
+// consumeRcd2Authority, the verifier the R-CD-2 KEYED-AUTHORITY-REVIEW.json files name. No
+// other v2 receipt is accepted, and no gate in front of a live run accepts v2 at all.
 //
 // A listed run can only be exercised end to end with a list that names a fixture, because the
 // committed receipts are signed with proof-gateway tokens this suite never holds. Those tests
@@ -39,19 +39,22 @@ const fixtureRun = [BASE.candidateSha, BASE.row, BASE.seat, BASE.runId].join('/'
 
 /**
  * The authority modules as they are, copied beside a frozen list naming `runs`, so a fixture
- * run can be listed without touching the real list. Only the list file differs.
+ * run can be listed without touching the real list. Only the list file differs: `listBody`
+ * replaces its whole text, and `null` leaves it out.
  */
-async function authorityListing(runs) {
+async function authorityListing(runs, { listBody } = {}) {
   const dir = await mkdtemp(path.join(os.tmpdir(), 'rcd2-pre-v3-modules-'));
   const copy = path.join(dir, 'tools/k6-proofs');
   await cp(path.join(k6Proofs, 'lib'), path.join(copy, 'lib'), { recursive: true });
   await mkdir(path.join(copy, 'scripts'), { recursive: true });
   await copyFile(path.join(k6Proofs, 'scripts/target-readiness.mjs'), path.join(copy, 'scripts/target-readiness.mjs'));
   const frozen = JSON.parse(await readFile(frozenListFile, 'utf8'));
-  await writeFile(
-    path.join(copy, 'scripts/pre-v3-readiness-r-cd-2-runs.json'),
-    `${JSON.stringify({ ...frozen, runs }, null, 2)}\n`,
-  );
+  if (listBody !== null) {
+    await writeFile(
+      path.join(copy, 'scripts/pre-v3-readiness-r-cd-2-runs.json'),
+      listBody ?? `${JSON.stringify({ ...frozen, runs }, null, 2)}\n`,
+    );
+  }
   for (const file of ['lib/r-cd-2-authority-context.mjs', 'scripts/target-readiness.mjs']) {
     assert.equal(
       digest(await readFile(path.join(copy, file))),
@@ -75,8 +78,8 @@ async function withBundle(options, fn) {
   }
 }
 
-async function withListing(runs, fn) {
-  const listing = await authorityListing(runs);
+async function withListing(runs, fn, options) {
+  const listing = await authorityListing(runs, options);
   try {
     return await fn(listing);
   } finally {
@@ -125,6 +128,58 @@ test('a listed v2 receipt signed with another key is refused: the signature is s
         );
       },
     );
+  });
+});
+
+test('a missing or malformed frozen list re-verifies no v2 receipt', async () => {
+  await withBundle({ readinessEdit: preV3ReadinessShape }, async (fixture) => {
+    const entry = { run: fixtureRun, seatReadinessSha256: digest(fixture.seatReadinessBody) };
+    const frozen = JSON.parse(await readFile(frozenListFile, 'utf8'));
+    const list = (value) => `${JSON.stringify(value, null, 2)}\n`;
+    const receipt = JSON.parse(fixture.seatReadinessBody);
+    const expected = {
+      signingKey: SIGNING_KEY,
+      candidateSha: BASE.candidateSha,
+      runtimeSha: BASE.runtimeBuildSha,
+      docsSha: BASE.docsRef,
+      gatewayFingerprint: receipt.bindings.gatewayUrlFingerprint,
+      seat: BASE.seat,
+      unit: receipt.bindings.unit,
+      rows: receipt.bindings.selectedRows,
+      requiredDepth: receipt.bindings.requiredMaxSpawnDepth,
+      expectedDepth: receipt.bindings.expectedMaxSpawnDepth,
+    };
+    const run = { candidateSha: BASE.candidateSha, row: BASE.row, seat: BASE.seat, runId: BASE.runId };
+    // The well-formed list admits the fixture, so each refusal below is the list's.
+    await withListing([entry], async ({ readiness: listed }) => {
+      assert.deepEqual(
+        listed.validatePreV3ReadinessReceipt({ raw: Buffer.from(fixture.seatReadinessBody), run }, expected),
+        { valid: true, reason: null },
+      );
+    });
+    for (const [name, listBody] of [
+      ['missing', null],
+      ['not JSON', '{"schema":'],
+      ['another schema', list({ ...frozen, schema: 'openclaw.k6.pre-v3-readiness-r-cd-2-runs.v2', runs: [entry] })],
+      ['no runs', list({ ...frozen, runs: [] })],
+      ['runs not a list', list({ ...frozen, runs: { [entry.run]: entry.seatReadinessSha256 } })],
+      ['a duplicate run', list({ ...frozen, runs: [entry, entry] })],
+      ['an uppercase digest', list({ ...frozen, runs: [{ ...entry, seatReadinessSha256: entry.seatReadinessSha256.toUpperCase() }] })],
+      ['another row', list({ ...frozen, runs: [entry, { ...entry, run: entry.run.replace('/R-CD-2/', '/R-CW-2/') }] })],
+    ]) {
+      await withListing([entry], async ({ authority: listed, readiness: listedReadiness }) => {
+        assert.deepEqual(
+          listedReadiness.validatePreV3ReadinessReceipt({ raw: Buffer.from(fixture.seatReadinessBody), run }, expected),
+          { valid: false, reason: 'pre-v3-run-list-unreadable' },
+          name,
+        );
+        assert.throws(
+          () => consume(listed, fixture),
+          /copied seat readiness failed integrity validation: pre-v3-run-list-unreadable/u,
+          name,
+        );
+      }, { listBody });
+    }
   });
 });
 
@@ -271,6 +326,29 @@ test('the frozen list names the four committed v2 R-CD-2 runs, each with its exa
     }, entry.run);
     assert.equal(Object.hasOwn(entry.receipt.target.authentication.response, 'authMethod'), false, entry.run);
   }
+});
+
+test('the matrix-012658Z run is listed, but its committed folder is not its signed seat', async () => {
+  // The fourth run backs no keyed review: 293c977f's names 843e883b, and its EVIDENCE.md keeps
+  // this PARTIAL run as provenance. Its signed context names seat emeric-isolated-composite,
+  // its folder matrix-012658Z, so consumeRcd2Authority refuses it from PROOFS at the seat-path
+  // check after the readiness check, whatever its receipt.
+  const run = '293c977f629f872a643fb94892603310b887293b/R-CD-2/matrix-012658Z/20261029T012745Z-r-cd-2-5e4ce138';
+  const selection = JSON.parse(await readFile(
+    path.join(repoRoot, 'PROOFS', run, authority.R_CD_2_SELECTION_RECEIPT_FILE),
+    'utf8',
+  ));
+  assert.equal(run.split('/')[2], 'matrix-012658Z');
+  assert.equal(selection.identity.seat, 'emeric-isolated-composite');
+  assert.equal(selection.identity.runId, run.split('/')[3]);
+  const review = JSON.parse(await readFile(
+    path.join(repoRoot, 'PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/KEYED-AUTHORITY-REVIEW.json'),
+    'utf8',
+  ));
+  assert.equal(
+    review.reviewed_run,
+    'PROOFS/293c977f629f872a643fb94892603310b887293b/R-CD-2/emeric-isolated-composite/20261029T050321Z-r-cd-2-843e883b',
+  );
 });
 
 test('each committed v2 receipt passes the list, its bytes and the exact v2 shape, and stops only at the key', async () => {

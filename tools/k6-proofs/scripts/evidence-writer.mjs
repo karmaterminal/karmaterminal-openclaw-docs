@@ -142,8 +142,9 @@ const readinessResult = validateReadinessReceipt(readiness, {
 if (!readinessResult.valid) {
   throw new Error(`seat readiness receipt rejected: ${readinessResult.reason}`);
 }
-// The writer runs in the shell that ran k6 (run-proof.sh checks no readiness); with an
-// identity override set there, the scenario may not have connected as the receipt's identity.
+// run-proof.sh refuses the identity overrides before k6; the writer runs in the shell that
+// ran k6 and refuses them too, so evidence from a run started another way is not accepted
+// while the scenario may have connected as an identity the receipt does not cover.
 const overrides = harnessClientOverrides();
 if (overrides.length > 0) {
   throw new Error(`seat readiness receipt rejected: harness-client-override-set:${overrides.join(',')}`);

@@ -181,7 +181,9 @@ identity it checked:
   `PARTIAL-candidate`;
 - `verify-seat-readiness.mjs` exits 2 with the same reason, before the matrix and again before
   each row;
-- the evidence writer refuses the receipt (`run-proof.sh` checks no readiness of its own).
+- `run-proof.sh` exits 2 before k6 if either is set or named anywhere in its k6 arguments
+  (`-e`/`--env`);
+- the evidence writer refuses the receipt.
 
 Unset both for a proof run.
 
@@ -237,11 +239,11 @@ Every gate in front of a live run accepts only v3, as it accepted only v2 after 
 - the evidence writer;
 - `run-readiness-consumer.mjs`.
 
-One exception keeps four committed R-CD-2 runs re-verifiable. Their run-local `seat-readiness.json`
-is a v2 receipt, connected as `cli` to isolated token-mode emeric gateways. They back the R-CD-2
-`KEYED-AUTHORITY-REVIEW.json` of corpora `08c37a15…`, `293c977f…` and `f15237ec…`.
-`scripts/pre-v3-readiness-r-cd-2-runs.json` freezes the four runs, each with the sha256 of its
-receipt's exact bytes, as `scripts/pre-f2-ruling-corpora.json` freezes the pre-ruling corpora:
+One exception keeps the v2 receipts of four committed R-CD-2 runs re-verifiable through
+`consumeRcd2Authority`. Their run-local `seat-readiness.json` is a v2 receipt, connected as `cli` to
+isolated token-mode emeric gateways. `scripts/pre-v3-readiness-r-cd-2-runs.json` freezes the four
+runs, each with the sha256 of its receipt's exact bytes, as `scripts/pre-f2-ruling-corpora.json`
+freezes the pre-ruling corpora:
 
 | Run under `PROOFS/` | Receipt sha256 |
 | --- | --- |
@@ -261,12 +263,20 @@ For a listed run, and only with those bytes, the R-CD-2 archived-run check
 Any other v2 receipt is refused, and so are a v2 receipt from the backend identity and a v3 receipt
 from `cli`. No live gate reads the list, and no old receipt is relabelled or re-signed.
 
+Three of the runs back the R-CD-2 `KEYED-AUTHORITY-REVIEW.json` of corpora `08c37a15…`,
+`293c977f…` (`843e883b`) and `f15237ec…`. The fourth, `5e4ce138`, backs no review: `293c977f…`'s
+`EVIDENCE.md` keeps that PARTIAL run as provenance. Its folder names seat `matrix-012658Z` and its
+signed context `emeric-isolated-composite`, so `consumeRcd2Authority` refuses it from PROOFS at the
+seat-path check, whatever its receipt. Its entry changes nothing.
+
 Re-verifying one of these runs takes the proof gateway's token, as the keyed reviews did. Without
 it, `consumeRcd2Authority` stops at the selected context receipt (`invalid-integrity`), with or
 without v3. The committed `f15237ec…` run has no `PROOFS/harness-provenance/<matrix>.json`, so its
 keyed review ran on the raw run directory, which the list covers too: a run is named by its path
-under its authority root. All three corpora record R-CD-2 as `partial`, and none changes:
-`validate-corpus` checks R-CD-2 authority only for a row recorded `pass`.
+under its authority root. `validate-candidate-run-result.mjs` and `export-row-metrics.mjs` read a
+run's receipt through `run-readiness-consumer.mjs` and still refuse all four. All three corpora
+record R-CD-2 as `partial`, and none changes: `validate-corpus` checks R-CD-2 authority only for a
+row recorded `pass`.
 
 PROOFS holds 95 more v2 receipts, in other rows' run directories and `gates/`. No corpus check
 reads them.

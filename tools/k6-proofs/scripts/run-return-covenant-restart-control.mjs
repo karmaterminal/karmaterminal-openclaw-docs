@@ -298,9 +298,9 @@ function parseTrailingJson(text) {
 }
 
 /**
- * One authenticated gateway connection: wait for connect.challenge, connect as the local
- * CLI client with the given scopes, then run calls in order. Every response frame is kept
- * verbatim for the private record.
+ * One authenticated gateway connection: wait for connect.challenge, connect as the harness
+ * client identity (CLIENT) with the given scopes, then run calls in order. Every response
+ * frame is kept verbatim for the private record.
  */
 function gatewayRpc({ port, token, scopes, calls, timeoutMs }) {
   return new Promise((resolve) => {

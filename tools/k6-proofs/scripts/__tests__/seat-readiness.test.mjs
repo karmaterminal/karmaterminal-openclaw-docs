@@ -419,3 +419,42 @@ test('the evidence writer refuses a valid receipt while an identity override is 
     assert.deepEqual((await readdir(dir)).sort(), ['run.txt', 'seat-readiness.json']);
   });
 });
+
+test('run-proof.sh refuses an identity override from the environment or its k6 arguments before k6 runs', async () => {
+  await withTmp(async (dir) => {
+    const marker = join(dir, 'k6-invoked');
+    const fakeK6 = join(dir, 'k6');
+    await writeFile(fakeK6, `#!/bin/sh\nprintf '%s\\n' "$@" > '${marker}'\n`);
+    await chmod(fakeK6, 0o755);
+    const runProof = join(repoRoot, 'tools/k6-proofs/run-proof.sh');
+    const base = {
+      ...Object.fromEntries(Object.entries(process.env).filter(([name]) => !/^(OPENCLAW_|HARNESS_)/u.test(name))),
+      PATH: `${dir}:${process.env.PATH}`,
+      OPENCLAW_CANDIDATE_SHA: '2723dbee783c113cae70e4fb63a4cff9f55402e3',
+      OPENCLAW_SEAT_NAME: 'unit-seat',
+    };
+    const run = (args, env = {}) => spawnSync('bash', [runProof, 'preflight', ...args], {
+      cwd: dir,
+      encoding: 'utf8',
+      env: { ...base, ...env },
+    });
+
+    // Control: without an override the runner reaches k6.
+    const clean = run([]);
+    assert.equal(clean.status, 0, clean.stderr);
+    assert.match(await readFile(marker, 'utf8'), /^run\n.*scenarios\/preflight\.js\n/su);
+    await rm(marker);
+
+    for (const [args, env, name] of [
+      [[], { HARNESS_CLIENT_ID: '' }, 'HARNESS_CLIENT_ID'],
+      [[], { HARNESS_CLIENT_MODE: 'cli' }, 'HARNESS_CLIENT_MODE'],
+      [['-e', 'HARNESS_CLIENT_MODE=cli'], {}, 'HARNESS_CLIENT_MODE'],
+      [['--env=HARNESS_CLIENT_ID=cli'], {}, 'HARNESS_CLIENT_ID'],
+    ]) {
+      const refused = run(args, env);
+      assert.equal(refused.status, 2, JSON.stringify({ args, env, stdout: refused.stdout }));
+      assert.match(refused.stderr, new RegExp(`harness-client-override-set:${name}`, 'u'));
+      assert.deepEqual(await readdir(dir).then((names) => names.includes('k6-invoked')), false);
+    }
+  });
+});

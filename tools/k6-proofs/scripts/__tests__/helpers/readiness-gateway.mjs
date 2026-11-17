@@ -27,6 +27,7 @@ const TOKEN_MISMATCH = Object.freeze({
  *   shouldPreserveLocalCliSharedAuthScopes (handshake-auth-helpers.ts:189-203); a remote
  *   device-less operator is admitted with its scopes cleared (connect-policy.ts:57-67, 91-93).
  * ab5a pins both modes over a real server in src/gateway/server.auth.compat-baseline.test.ts:78-151.
+ * readiness-gateway-ab5a-model.test.mjs checks this model against ab5a's own decision functions.
  */
 export function ab5aDeviceLessOperatorAdmission({ authMode, token, locality = 'direct_local' }, params) {
   const client = params?.client || {};

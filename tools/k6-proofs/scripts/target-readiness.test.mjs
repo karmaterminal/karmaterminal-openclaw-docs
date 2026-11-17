@@ -465,7 +465,10 @@ function targetNotes(rpc) {
   }).notes;
 }
 
-test('the ab5a admission model refuses the v2 cli identity only on an auth.mode=none target', () => {
+// A consistency check of the fixture model with itself: these are the claims the targets below
+// rely on. Whether the model answers as ab5a does is readiness-gateway-ab5a-model.test.mjs,
+// which runs ab5a's own decision functions against it.
+test('the fixture admission model claims: auth.mode=none refuses the v2 cli identity, token mode admits both', () => {
   const connect = (client, token = values.signingKey) => ({
     client, role: 'operator', scopes: ['operator.read'], auth: { token },
   });

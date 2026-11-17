@@ -4,6 +4,8 @@
  * Row scenarios (lib/gateway-ws.js connectFrame) and target readiness
  * (scripts/target-readiness.mjs) both import it, so readiness checks admission
  * with the identity the rows will actually use. Neither sends a device identity.
+ * connectFrame still honours the HARNESS_CLIENT_ID / HARNESS_CLIENT_MODE overrides for a
+ * scenario run; readiness always presents this identity, so its receipt covers only it.
  *
  * A Gateway admits this device-less operator from loopback in both auth modes the
  * fleet runs (openclaw ab5a30ea79b776f149e24b1fccab9e79b0a5d299):

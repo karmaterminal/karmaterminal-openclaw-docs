@@ -471,7 +471,7 @@ test('the ab5a admission model refuses the v2 cli identity only on an auth.mode=
   const cli = { id: 'cli', mode: 'cli' };
   const backend = { id: 'gateway-client', mode: 'backend' };
   const target = (authMode) => ({ authMode, token: values.signingKey });
-  assert.deepEqual(ab5aDeviceLessOperatorAdmission(target('none'), connect(cli)).error?.code, 'NOT_PAIRED');
+  assert.equal(ab5aDeviceLessOperatorAdmission(target('none'), connect(cli)).error?.code, 'NOT_PAIRED');
   assert.equal(ab5aDeviceLessOperatorAdmission(target('none'), connect(backend)).method, 'none');
   assert.equal(ab5aDeviceLessOperatorAdmission(target('none'), connect(backend, 'any-token')).method, 'none');
   assert.equal(ab5aDeviceLessOperatorAdmission(target('token'), connect(cli)).method, 'token');

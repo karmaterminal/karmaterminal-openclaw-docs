@@ -11,7 +11,7 @@ import {
   R_CD_2_SELECTION_RECEIPT_FILE,
   signRcd2SelectedContextReceipt,
 } from '../../../lib/r-cd-2-authority-context.mjs';
-import { signedSeatReadinessFixture } from './seat-readiness-fixture.mjs';
+import { resealReadinessFixture, signedSeatReadinessFixture } from './seat-readiness-fixture.mjs';
 
 export const SIGNING_KEY = 'r-cd-2-authority-consumer-test-key';
 export const BASE = Object.freeze({
@@ -277,6 +277,10 @@ export async function writeRcd2Bundle(repoRoot, {
   manifestMarker = 'selected',
   scenarioMarker = 'selected',
   evidenceOverrides = {},
+  // Edits the unsigned seat readiness receipt before it is sealed (e.g. preV3ReadinessShape).
+  readinessEdit = null,
+  // The key the seat readiness receipt alone is sealed with.
+  readinessSigningKey = SIGNING_KEY,
 } = {}) {
   const workspace = await testWorkspace(repoRoot, 'rcd2-authority-consumer');
   const selected = { ...BASE, ...selectedIdentity };
@@ -379,14 +383,21 @@ export async function writeRcd2Bundle(repoRoot, {
     },
   };
   const envelope = envelopeFor(claimed, harness, receiptSha256, verdict);
-  const seatReadinessBody = `${JSON.stringify(signedSeatReadinessFixture({
-    signingKey: SIGNING_KEY,
+  const seatReadinessReceipt = signedSeatReadinessFixture({
+    signingKey: readinessSigningKey,
     candidateSha: selected.candidateSha,
     runtimeSha: selected.runtimeBuildSha,
     docsSha: selected.docsRef,
     seat: selected.seat,
     rows: [selected.row],
-  }), null, 2)}\n`;
+  });
+  const seatReadinessBody = `${JSON.stringify(
+    readinessEdit
+      ? resealReadinessFixture(seatReadinessReceipt, readinessSigningKey, readinessEdit)
+      : seatReadinessReceipt,
+    null,
+    2,
+  )}\n`;
   const seatReadiness = JSON.parse(seatReadinessBody);
   metadata.readiness = {
     receipt: 'seat-readiness.json',
@@ -497,6 +508,7 @@ export async function writeRcd2Bundle(repoRoot, {
     envelope,
     provenance,
     selectionReceipt,
+    seatReadinessBody,
     manifestPath: path.join(runDir, 'row-manifest.json'),
   };
 }

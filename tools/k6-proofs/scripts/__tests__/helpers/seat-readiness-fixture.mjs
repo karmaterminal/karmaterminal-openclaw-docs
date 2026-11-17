@@ -9,6 +9,28 @@ import {
   sha256,
 } from '../../target-readiness.mjs';
 
+// The v2 receipt as the v2 harness wrote it, literal here so a fixture does not borrow the
+// validator's own constants: schema v2, connected as `cli`, no recorded auth method.
+export function preV3ReadinessShape(unsigned) {
+  unsigned.schema = 'openclaw.k6.seat-readiness.v2';
+  unsigned.target.authentication.request.client = {
+    id: 'cli',
+    mode: 'cli',
+    version: 'k6-proof-readiness-v2',
+    platform: 'node',
+  };
+  delete unsigned.target.authentication.response.authMethod;
+  return unsigned;
+}
+
+/** `receipt` with `edit` applied to an unsigned copy, sealed again with `signingKey`. */
+export function resealReadinessFixture(receipt, signingKey, edit) {
+  const unsigned = structuredClone(receipt);
+  delete unsigned.integrity;
+  delete unsigned.bindingDigest;
+  return sealReadinessReceipt(edit(unsigned) ?? unsigned, signingKey);
+}
+
 export function signedSeatReadinessFixture({
   signingKey,
   candidateSha,

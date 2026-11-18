@@ -1037,9 +1037,10 @@ test('R-CD-2: a trace found by the Tempo re-poll seals both attempts into a rece
     const resolved = resolveRcd2AuthoritativeReceipt({ evidence, correlation, identity, signingKey: rCd2SigningKey });
     assert.equal(resolved.verdict, 'PASS-candidate', JSON.stringify(resolved.diagnostics));
 
-    // The attempts are signed: an edit without the key breaks the seal.
+    // The attempts are signed: an edit without the key breaks the seal, even
+    // one that leaves their shape valid (a shorter recorded wait).
     const edited = structuredClone(correlation);
-    edited.searchAttempts[1].repollWaitSeconds = 330;
+    edited.searchAttempts[1].repollWaitSeconds = 0;
     assert.deepEqual(validateRcd2AcquisitionReceipt(edited, rCd2SigningKey, identity, evidence), { valid: false, reason: 'invalid-integrity' });
 
     // A correctly sealed receipt whose attempts are not one empty search and

@@ -318,12 +318,29 @@ test('(b) both searches empty: uncorrelated, both attempts recorded, and review 
         attempts: record.searchAttempts.map(({ attempt, startedAt, endedAt, result }) => ({ attempt, startedAt, endedAt, result })),
       });
       assert.match(item.action, /no trace was correlated, on the collector's first search or on its re-poll 0\.3 s later/u);
-      assert.match(item.action, /not a Tempo blocklist-poll gap/u);
+      // 0.3 s is no blocklist-poll period: the route must not rule the gap out.
+      assert.match(item.action, /re-poll waited less than one blocklist-poll period/u);
+      assert.doesNotMatch(item.action, /not a Tempo blocklist-poll gap/u);
       // The fingerprint comparison stays the next step.
       assert.match(item.action, /If it reads "no Tempo trace matched"/u);
       assert.match(item.action, /relayed different task bytes/u);
     }
     assert.match(text, /tempo-trace-uncorrelated: [^\n]*re-poll 0\.3 s later/u);
+
+    // The same record as the default wait leaves it (330 s): a re-poll one
+    // blocklist-poll period later that also matched nothing rules the gap out.
+    const shifted = (iso) => new Date(Date.parse(iso) + 330000).toISOString();
+    const [first, repoll] = record.searchAttempts;
+    const fullWait = {
+      ...record,
+      searchAttempts: [first, { ...repoll, repollWaitSeconds: 330, startedAt: shifted(repoll.startedAt), endedAt: shifted(repoll.endedAt) }],
+    };
+    await writeFile(path.join(collected.dir, 'continuation-trace-collector.json'), `${JSON.stringify(fullWait)}\n`);
+    const full = await summarizeRun(collected.dir);
+    for (const item of full.items) {
+      assert.equal(item.repoll.waitSeconds, 330);
+      assert.match(item.action, /on its re-poll 330 s later, so it is not a Tempo blocklist-poll gap/u);
+    }
   } finally {
     await rm(collected.dir, { recursive: true, force: true });
   }

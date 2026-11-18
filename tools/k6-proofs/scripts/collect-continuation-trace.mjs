@@ -26,6 +26,7 @@ import {
   isoSeconds,
   traceCorrelationWindow,
 } from '../lib/trace-correlation-window.mjs';
+import { TEMPO_REPOLL_ENV, TRACE_SEARCH_RECORD_SCHEMA, tempoRepollMs } from '../lib/tempo-repoll.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
 const TOOL_ORIGIN_EARLY_TOLERANCE_MS = 15000;
@@ -36,7 +37,8 @@ function usage() {
   --run-dir <row-run-dir> --manifest <row-manifest.json> --seat <seat> \\
   [--evidence <private-evidence.jsonl>] \\
   [--tempo-url <base-url>] [--timeout-ms 180000] [--poll-ms 2000] \\
-  [--settle-ms <defaults-to-poll-ms>] [--service-name <otel service.name>]`);
+  [--settle-ms <defaults-to-poll-ms>] [--service-name <otel service.name>]
+An empty search is re-polled once after ${TEMPO_REPOLL_ENV} (default 330).`);
 }
 
 function parseArgs(argv, env = process.env) {
@@ -79,6 +81,7 @@ function parseArgs(argv, env = process.env) {
   out.timeoutMs = Number(out.timeoutMs);
   out.pollMs = Number(out.pollMs);
   out.settleMs = out.settleMs == null ? out.pollMs : Number(out.settleMs);
+  out.repollMs = tempoRepollMs(env);
   return out;
 }
 
@@ -629,7 +632,17 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function main() {
+// A timer can fire a little before the wall clock has moved the full delay,
+// and the re-poll's recorded wait is checked against the wall clock.
+async function sleepUntil(wallClockMs) {
+  while (Date.now() < wallClockMs) await sleep(wallClockMs - Date.now());
+}
+
+/**
+ * `run.searchRecord` is set once the collector re-polls Tempo, so a collection
+ * that then fails can still print both attempts (see the CLI entry below).
+ */
+async function main(run = {}) {
   const args = parseArgs(process.argv);
   if (!args.runDir || !args.manifest || !args.seat) {
     usage();
@@ -699,13 +712,37 @@ async function main() {
   let searchQueryCount = 0;
   let stabilizationQueryCount = 0;
   let finalQueryCount = 0;
+  // One entry per search attempt: the bounded poll below, then at most one
+  // re-poll (lib/tempo-repoll.mjs). Only the stabilization and finality
+  // searches fall outside an attempt.
+  const searchAttempts = [];
+  let attempt = null;
+  const beginAttempt = (fields = {}) => {
+    attempt = {
+      attempt: searchAttempts.length + 1,
+      ...fields,
+      startedAt: new Date().toISOString(),
+      endedAt: null,
+      window: { startUnixSeconds: start, endUnixSeconds: end },
+      queryCount: 0,
+      result: null,
+    };
+    searchAttempts.push(attempt);
+  };
+  const endAttempt = (at = Date.now()) => {
+    attempt.endedAt = new Date(at).toISOString();
+    attempt.result = topology ? 'matched' : validationError ? 'invalid-topology' : 'no-match';
+    attempt = null;
+  };
 
   const search = async () => {
     searchQueryCount += 1;
+    if (attempt) attempt.queryCount += 1;
     return tempoSearch(args.tempoUrl, query, start, end);
   };
 
-  do {
+  // One search: true once a single candidate's trace validates.
+  const searchOnce = async () => {
     candidates = await search();
     if (candidates.length > 1) {
       throw new Error(`trace correlation is ambiguous: ${candidates.length} Tempo traces matched`);
@@ -727,18 +764,51 @@ async function main() {
             })
           : validateToolTrace(trace, { tool: contract.tool });
         if (topology.traceId !== traceId) throw new Error('Tempo search and trace payload IDs disagree');
-        break;
+        return true;
       } catch (error) {
         validationError = error;
       }
     }
+    return false;
+  };
+
+  beginAttempt();
+  do {
+    if (await searchOnce()) break;
     if (Date.now() >= deadline) break;
     await sleep(args.pollMs);
   } while (true);
+  const firstEndedMs = Date.now();
+  endAttempt(firstEndedMs);
+
+  // Tempo can return nothing for a trace that exists until its next blocklist
+  // poll, so an empty search is repeated once before the row is given up as
+  // uncorrelated. A trace that was seen but never validated is not a miss.
+  const repollSeconds = args.repollMs / 1000;
+  if (searchAttempts[0].result === 'no-match') {
+    run.searchRecord = {
+      schema: TRACE_SEARCH_RECORD_SCHEMA,
+      row: evidence.row || manifest.rowId,
+      seat: args.seat,
+      query,
+      ...(contract.kind === 'continuation'
+        ? { reason: { hash: contract.hash, length: contract.length } }
+        : { tool: { name: contract.tool } }),
+      searchAttempts,
+    };
+    await sleepUntil(firstEndedMs + args.repollMs);
+    beginAttempt({ repollWaitSeconds: repollSeconds });
+    await searchOnce();
+    endAttempt();
+  }
+  const repolled = searchAttempts.length > 1;
 
   if (candidates.length === 0 || !topology || !trace) {
     if (validationError) {
-      throw new Error(`Tempo trace did not reach valid continuation topology before timeout: ${validationError.message}`);
+      throw new Error(
+        `Tempo trace did not reach valid continuation topology ` +
+        `${repolled ? `on a re-poll ${repollSeconds} s after the first search found none` : 'before timeout'}: ${validationError.message}`,
+      );
     }
     const fingerprint = contract.kind === 'continuation'
       ? `reason hash ${contract.hash}`
@@ -752,7 +822,7 @@ async function main() {
         `searched ${contract.acceptSpanName} spans of service ${serviceName} in ${isoSeconds(start) ?? start}..${isoSeconds(end) ?? end}; ` +
         'a span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted)'
       : '';
-    throw new Error(`no Tempo trace matched ${fingerprint} before timeout${searched}`);
+    throw new Error(`no Tempo trace matched ${fingerprint} before timeout, nor on a re-poll ${repollSeconds} s later${searched}`);
   }
 
   const provisionalTraceId = traceId;
@@ -866,6 +936,9 @@ async function main() {
       stabilizationQueryCount,
       finalQueryCount,
     },
+    // Only a trace found by the re-poll records its attempts: a receipt whose
+    // first search matched stays deterministic for the same inputs.
+    ...(repolled ? { searchAttempts } : {}),
     traceJson: path.basename(traceOut),
     ...topology,
     ...(contract.kind === 'continuation'
@@ -945,7 +1018,19 @@ async function main() {
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((error) => {
+  const run = {};
+  main(run).catch((error) => {
+    // After a re-poll, a failed collection still says what it searched and
+    // when: run-proofs.sh keeps stdout as continuation-trace-collector.json,
+    // and review-debt routing names the re-poll from it. An attempt the error
+    // cut short ends here.
+    if (run.searchRecord) {
+      const endedAt = new Date().toISOString();
+      for (const entry of run.searchRecord.searchAttempts) {
+        if (entry.result === null) Object.assign(entry, { endedAt, result: 'error' });
+      }
+      process.stdout.write(`${JSON.stringify(run.searchRecord)}\n`);
+    }
     console.error(error?.message || String(error));
     process.exitCode = 1;
   });

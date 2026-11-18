@@ -6,6 +6,7 @@ import {
 } from './signed-observer-receipt.mjs';
 import { canonicalJson } from './canonical-json.mjs';
 import { proofsServiceName } from './proofs-service-name.mjs';
+import { repolledSearchAttemptsValid } from './tempo-repoll.mjs';
 
 // R-CD-2 has one authority.  The scenario gathers private, nonce-bound
 // acquisition data; this module joins it with the private Tempo topology and
@@ -222,8 +223,11 @@ export function validateRcd2AcquisitionReceipt(
   const expectedNonceSha256 = typeof evidence?.nonce === 'string' && evidence.nonce.length > 0
     ? createHash('sha256').update(evidence.nonce).digest('hex')
     : null;
+  // A collector that found the trace only on its Tempo re-poll records both
+  // attempts (lib/tempo-repoll.mjs); no other key is optional.
+  const repolled = Boolean(receipt) && Object.hasOwn(receipt, 'searchAttempts');
   const identityValid =
-    exactKeys(receipt, ACQUISITION_KEYS) &&
+    exactKeys(receipt, repolled ? [...ACQUISITION_KEYS, 'searchAttempts'] : ACQUISITION_KEYS) &&
     receipt?.schema === R_CD_2_ACQUISITION_RECEIPT_SCHEMA &&
     receipt?.row === 'R-CD-2' &&
     receipt?.seat === receipt?.authorityIdentity?.seat &&
@@ -283,6 +287,19 @@ export function validateRcd2AcquisitionReceipt(
     exactKeys(uniqueness, ['acceptedTraceCount', 'resultClass']) &&
     uniqueness.acceptedTraceCount === 1 &&
     uniqueness.resultClass === 'unique';
+  // One empty search, then one re-poll over the same window that matched, the
+  // recorded wait apart, with every search of both attempts counted. Read
+  // only once the window and counts it is checked against are well formed.
+  const searchAttemptsValid = !repolled || (
+    queryWindowValid && finalityValid &&
+    repolledSearchAttemptsValid(receipt.searchAttempts, {
+      window: { startUnixSeconds: window.startUnixSeconds, endUnixSeconds: window.endUnixSeconds },
+      repollResult: 'matched',
+    }) &&
+    stabilization.searchQueryCount ===
+      receipt.searchAttempts[0].queryCount + receipt.searchAttempts[1].queryCount +
+      stabilization.stabilizationQueryCount + stabilization.finalQueryCount
+  );
   const topologyValid =
     hex(receipt?.traceId, 32) &&
     finality.traceId === receipt.traceId &&
@@ -331,6 +348,7 @@ export function validateRcd2AcquisitionReceipt(
     ['invocation', invocationValid],
     ['query-window', queryWindowValid],
     ['finality', finalityValid],
+    ['search-attempts', searchAttemptsValid],
     ['topology', topologyValid],
     ['integrity', integrityShapeValid],
   ].find(([, valid]) => !valid)?.[0];

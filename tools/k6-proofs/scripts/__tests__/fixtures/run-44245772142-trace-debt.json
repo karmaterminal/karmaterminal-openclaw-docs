@@ -1,0 +1,528 @@
+{
+  "schema": "openclaw.k6.test-fixture.run-44245772142-trace-debt.v1",
+  "repository": "karmaterminal/karmaterminal-openclaw-docs",
+  "workflowRun": 44245772142,
+  "docsRef": "fe8e3c2188f4a3cb82a7c04c47dab96d49e13955",
+  "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+  "seat": "emeric",
+  "matrixId": "20261118T053952Z-fe8e3c2188f4-46386235",
+  "description": "The seven rows of live run 44245772142 whose trace receipts review-debt.txt routed to tempo-trace-unfetchable. runResult is each row's run-result.json byte-for-byte except its embedded public evidence, cut to the fields trace-debt routing reads (task_identity_token and the rest are dropped). manifest is the subset of the fired row-manifest.json the summarizer reads; manifestSha256 is the fired manifest's digest from runner-metadata.json. collectorError is the run's continuation-trace-collector.error.log. trace-debt-routing.test.mjs materializes these as run directories and runs summarize-review-debt.mjs over them.",
+  "rows": [
+    {
+      "rowId": "R-CD-3",
+      "runId": "20261118T054257Z-r-cd-3-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-3.json",
+      "manifestSha256": "fc62e2b1923b2270a3a786381f288d7e341e4f6e7aaf96a3b5c876b3ec60d3d8",
+      "collectorError": "invalid evidence reason hash: (empty)",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-3",
+        "transport": "websocket",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "post-compaction"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "dispatch-accepted",
+            "measured-context-fill",
+            "delegate-staging-receipt",
+            "request-compaction-receipt",
+            "released-lifeboat-child",
+            "lifeboat-minted-token",
+            "lifeboat-return-bound",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 99,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 99,
+        "endedAt": "2026-11-18T05:43:07Z",
+        "verdict": "PARTIAL-candidate",
+        "verdictSource": "vu-log",
+        "summaryFileVerdict": "PARTIAL-candidate",
+        "vuLogVerdict": "PARTIAL-candidate",
+        "summaryFiles": [
+          "r-cd-3-summary.json"
+        ],
+        "evidence": {
+          "row": "R-CD-3",
+          "started": "2026-11-18T05:42:59.588Z",
+          "ended": "2026-11-18T05:43:07.334Z",
+          "proof_dispatched": false,
+          "dispatch_accepted": false,
+          "verdict_reason": "context fill stopped before the proof turn: reaching 75% of a 922000-token window needs about 663127 filler tokens, over the 300000-token fill budget",
+          "reason_hash": null,
+          "reason_length": null,
+          "delegate_mode": null
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "authoritativeReceipt": null,
+        "observability": {
+          "traceStatus": "missing",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLogStatus": "captured",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json"
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "rowReview": null
+        }
+      }
+    },
+    {
+      "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+      "runId": "20261118T054601Z-r-cd-collection-on-collapse-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-collection-on-collapse.json",
+      "manifestSha256": "1544969d38f9f7597b6404ff6cbae821a1744c63819c87fce8e24aa16921e53c",
+      "collectorError": "invalid evidence reason hash: (empty)",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-COLLECTION-ON-COLLAPSE",
+        "transport": "offline",
+        "toolSurface": "read-only",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "silent-wake"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "collection-collapse-artifacts",
+            "root-collection-after-intermediate-finalized",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 0,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 0,
+        "endedAt": "2026-11-18T05:46:04Z",
+        "verdict": "PASS-candidate",
+        "verdictSource": "summary-file",
+        "summaryFileVerdict": "PASS-candidate",
+        "vuLogVerdict": null,
+        "summaryFiles": [
+          "static-corpus-row-summary.json"
+        ],
+        "evidence": {
+          "row": "R-CD-COLLECTION-ON-COLLAPSE",
+          "started": "2026-11-18T05:46:04.482Z",
+          "ended": "2026-11-18T05:46:04.485Z"
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "authoritativeReceipt": null,
+        "observability": {
+          "traceStatus": "missing",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLogStatus": "captured",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json"
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "rowReview": null
+        }
+      }
+    },
+    {
+      "rowId": "R-CD-MODEL-CHAINED-ALT",
+      "runId": "20261118T054607Z-r-cd-model-chained-alt-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-chained-alt.json",
+      "manifestSha256": "648e26a9d6959e21efc72ddbc1af775eb3c3d921a8a4ee8ba2dcb3161369dea7",
+      "collectorError": "invalid evidence reason hash: (empty)",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-CHAINED-ALT",
+        "transport": "websocket",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "normal"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "depth-1-child-observed",
+            "depth-1-scheduled-inner",
+            "depth-2-child-observed",
+            "depth-2-model-byte",
+            "return-payload",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 99,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 99,
+        "endedAt": "2026-11-18T05:46:09Z",
+        "verdict": "PARTIAL-candidate",
+        "verdictSource": "vu-log",
+        "summaryFileVerdict": "PARTIAL-candidate",
+        "vuLogVerdict": "PARTIAL-candidate",
+        "summaryFiles": [
+          "r-cd-model-chained-alt-summary.json"
+        ],
+        "evidence": {
+          "row": "R-CD-MODEL-CHAINED-ALT",
+          "started": "2026-11-18T05:46:09.714Z",
+          "ended": "2026-11-18T05:46:09.714Z",
+          "dispatch_accepted": false,
+          "dispatch_refused": "no override model configured (set OPENCLAW_ALT_MODEL or manifest invocation.model to a provider/model)",
+          "verdict_reason": null,
+          "reason_hash": null,
+          "reason_length": null,
+          "delegate_mode": null
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "authoritativeReceipt": null,
+        "observability": {
+          "traceStatus": "missing",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLogStatus": "captured",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json"
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "rowReview": null
+        }
+      }
+    },
+    {
+      "rowId": "R-CD-MODEL-DEFAULT",
+      "runId": "20261118T054612Z-r-cd-model-default-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-default.json",
+      "manifestSha256": "c22f0b26b5b7332c21c5167b7de38108b3127f67ef8aed8cea172eede660849e",
+      "collectorError": "no Tempo trace matched reason hash 17d1c4cdcab47769 before timeout",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-DEFAULT",
+        "transport": "websocket",
+        "toolSurface": "mixed",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "normal"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "parent-model-byte",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 99,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 99,
+        "endedAt": "2026-11-18T05:49:15Z",
+        "verdict": "PARTIAL-candidate",
+        "verdictSource": "vu-log",
+        "summaryFileVerdict": "PARTIAL-candidate",
+        "vuLogVerdict": "PARTIAL-candidate",
+        "summaryFiles": [
+          "r-cd-model-default-summary.json"
+        ],
+        "evidence": {
+          "row": "R-CD-MODEL-DEFAULT",
+          "started": "2026-11-18T05:46:14.977Z",
+          "ended": "2026-11-18T05:49:15.291Z",
+          "dispatch_accepted": true,
+          "verdict_reason": null,
+          "reason_hash": "17d1c4cdcab47769",
+          "reason_length": 306,
+          "delegate_mode": "normal"
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "authoritativeReceipt": null,
+        "observability": {
+          "traceStatus": "missing",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLogStatus": "captured",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json"
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "rowReview": null
+        }
+      }
+    },
+    {
+      "rowId": "R-CD-MODEL-TOKEN",
+      "runId": "20261118T055218Z-r-cd-model-token-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-token.json",
+      "manifestSha256": "858496098db3b38a9a8c3289ed21d117061439677d723dbd188c8d4a20527f0c",
+      "collectorError": "invalid evidence reason hash: (empty)",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-TOKEN",
+        "transport": "websocket",
+        "toolSurface": "bracket-token",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "normal",
+          "originSurface": "raw-final-text"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "bracket-parse-origin",
+            "bracket-model-modifier",
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 99,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 99,
+        "endedAt": "2026-11-18T05:52:21Z",
+        "verdict": "PARTIAL-candidate",
+        "verdictSource": "vu-log",
+        "summaryFileVerdict": "PARTIAL-candidate",
+        "vuLogVerdict": "PARTIAL-candidate",
+        "summaryFiles": [
+          "r-cd-model-token-summary.json"
+        ],
+        "evidence": {
+          "row": "R-CD-MODEL-TOKEN",
+          "started": "2026-11-18T05:52:20.890Z",
+          "ended": "2026-11-18T05:52:20.891Z",
+          "dispatch_refused": "no override model configured (set OPENCLAW_ALT_MODEL or manifest invocation.model to a provider/model)",
+          "verdict_reason": null,
+          "reason_hash": null,
+          "reason_length": null,
+          "delegate_mode": null
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "authoritativeReceipt": null,
+        "observability": {
+          "traceStatus": "missing",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLogStatus": "captured",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json"
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "rowReview": null
+        }
+      }
+    },
+    {
+      "rowId": "R-CD-MODEL-TOOL",
+      "runId": "20261118T055223Z-r-cd-model-tool-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-model-tool.json",
+      "manifestSha256": "4e3e1b44dbb859d51b874c417adb9cee71771bc1b12935f55b48e7c92bc2e4e8",
+      "collectorError": "invalid evidence reason hash: (empty)",
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-MODEL-TOOL",
+        "transport": "websocket",
+        "toolSurface": "typed-tool",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "normal"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "seat-readiness",
+            "dispatch-accepted",
+            "requested-model-byte",
+            "child-session-observed",
+            "child-model-byte",
+            "return-payload",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 99,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 99,
+        "endedAt": "2026-11-18T05:52:26Z",
+        "verdict": "PARTIAL-candidate",
+        "verdictSource": "vu-log",
+        "summaryFileVerdict": "PARTIAL-candidate",
+        "vuLogVerdict": "PARTIAL-candidate",
+        "summaryFiles": [
+          "r-cd-model-tool-summary.json"
+        ],
+        "evidence": {
+          "row": "R-CD-MODEL-TOOL",
+          "started": "2026-11-18T05:52:26.137Z",
+          "ended": "2026-11-18T05:52:26.137Z",
+          "dispatch_accepted": false,
+          "dispatch_refused": "no override model configured (set OPENCLAW_ALT_MODEL or manifest invocation.model to a provider/model)",
+          "verdict_reason": "refused before dispatch: no override model configured (set OPENCLAW_ALT_MODEL or manifest invocation.model to a provider/model)",
+          "reason_hash": null,
+          "reason_length": null,
+          "delegate_mode": null
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "authoritativeReceipt": null,
+        "observability": {
+          "traceStatus": "missing",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "lifecycleReceipt": null,
+          "serviceLogStatus": "captured",
+          "serviceLog": "gateway-journal.log",
+          "serviceLogCapture": "gateway-journal-capture.json",
+          "serviceLogRedaction": "gateway-journal-redaction.json"
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "continuation-trace-correlation",
+            "tempo-trace-json"
+          ],
+          "rowReview": null
+        }
+      }
+    },
+    {
+      "rowId": "R-CD-TOKEN",
+      "runId": "20261118T055542Z-r-cd-token-46386235",
+      "manifestPath": "tools/k6-proofs/manifests/r-cd-token.json",
+      "manifestSha256": "ef53eff04a92a9078664881cda6b2baf0c1e16125f63511e9121fe85abdf7359",
+      "collectorError": null,
+      "manifest": {
+        "schema": "openclaw.k6.proof-row-manifest.v1",
+        "rowId": "R-CD-TOKEN",
+        "transport": "websocket",
+        "toolSurface": "bracket-token",
+        "invocation": {
+          "tool": "continue_delegate",
+          "mode": "normal",
+          "originSurface": "raw-final-text"
+        },
+        "liveRunSafety": {
+          "requiredReceipts": [
+            "exact-candidate-runtime-identity",
+            "attempt-state",
+            "raw-final-text-origin",
+            "prompt-injected",
+            "parser-detected",
+            "queue-identity",
+            "child-spawned",
+            "child-completed",
+            "parent-return-event",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      },
+      "runResult": {
+        "k6ExitCode": 0,
+        "postprocessExitCode": 0,
+        "effectiveExitCode": 0,
+        "endedAt": "2026-11-18T05:55:42Z",
+        "verdict": "PARTIAL-candidate",
+        "verdictSource": "pre-dispatch-surface-gate",
+        "summaryFileVerdict": null,
+        "vuLogVerdict": null,
+        "summaryFiles": [],
+        "evidence": {
+          "row": "R-CD-TOKEN",
+          "dispatched": false
+        },
+        "candidateOnly": true,
+        "foldRequiresReview": true,
+        "terminal": true,
+        "observability": {
+          "traceStatus": "not-applicable",
+          "traceId": null,
+          "tempoTraceJson": null,
+          "correlationReceipt": null,
+          "serviceLogStatus": "not-started",
+          "serviceLog": null,
+          "serviceLogCapture": null,
+          "serviceLogRedaction": null
+        },
+        "review": {
+          "status": "review-pending",
+          "pendingReceipts": [
+            "raw-final-text-origin",
+            "parser-detected",
+            "queue-identity",
+            "child-spawned",
+            "child-completed",
+            "parent-return-event",
+            "tempo-trace-json",
+            "continuation-trace-correlation"
+          ]
+        }
+      }
+    }
+  ]
+}

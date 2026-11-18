@@ -614,8 +614,24 @@ node tools/k6-proofs/scripts/summarize-review-debt.mjs \
 ```
 
 For `tempo-trace-json`, the summary distinguishes rows with a fetchable `traceId`
-from rows where `traceId` is null. Null trace ids cannot be fetched from Tempo;
-those rows need either a rerun with trace emission or an explicit fold decision
+from rows where `traceId` is null. A continuation row's missing trace receipts
+are routed by the row manifest and the public evidence embedded in its
+`run-result.json` (`lib/trace-debt-route.mjs`). It never adds, drops or clears a
+receipt:
+
+- `trace-no-reason-fingerprint`: no reason fingerprint was recorded, so the
+  collector queried nothing. The row's own `dispatch_refused` /
+  `verdict_reason` is quoted. A row that stopped before dispatch owes its
+  behavior first.
+- `trace-no-row-evidence`: the row wrote no evidence record.
+- `trace-static-row`: an offline validator fires nothing. Its trace can only be
+  confirmed from the committed live run at fold review.
+- `tempo-trace-uncorrelated`: a recorded fingerprint no trace carried. The
+  summary names the fingerprint, accept span and row window to search before
+  any refire.
+
+Other null trace ids (`tempo-trace-unfetchable`) cannot be fetched from Tempo.
+Those rows need either a rerun with trace emission or an explicit fold decision
 accepting trace-missing as an honest review limit.
 
 ## HTML run report

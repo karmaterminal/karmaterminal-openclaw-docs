@@ -3,13 +3,14 @@ import { readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 import { traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
+import { traceDebtRoute } from '../lib/trace-debt-route.mjs';
 import {
   consumeRcd2Authority,
   isRcd2AuthorityRequired,
 } from '../lib/r-cd-2-authority-context.mjs';
 
 function usage() {
-  return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\n`;
+  return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\nA continuation row's missing trace receipts are routed by the row's own record (lib/trace-debt-route.mjs):\nno evidence, no reason fingerprint, a static validator, or a fingerprint no trace matched.\n`;
 }
 
 function parseArgs(argv) {
@@ -50,8 +51,12 @@ async function readJson(file) {
 }
 
 function classifyPending(row, receipt) {
-  if (receipt !== 'tempo-trace-json') return { receipt, class: 'manual-review', fetchable: null, action: 'supply-or-accept-review-receipt' };
   const traceId = row.traceId || null;
+  if (!traceId) {
+    const route = traceDebtRoute({ manifest: row.manifest, runResult: row.runResult, receipt });
+    if (route) return { receipt, fetchable: false, traceId: null, ...route };
+  }
+  if (receipt !== 'tempo-trace-json') return { receipt, class: 'manual-review', fetchable: null, action: 'supply-or-accept-review-receipt' };
   if (traceId) {
     return { receipt, class: 'tempo-trace-fetchable', fetchable: true, traceId, action: 'run fetch-tempo-trace.mjs --trace-id and commit trace JSON' };
   }
@@ -93,7 +98,7 @@ async function loadRows(root) {
       reviewStatus: raw.review?.status || 'unknown',
       pendingReceipts,
       traceId: null,
-      pending: pendingReceipts.map((receipt) => classifyPending({ traceId: null }, receipt)),
+      pending: pendingReceipts.map((receipt) => classifyPending({ traceId: null, manifest, runResult }, receipt)),
     });
   }
   for (const file of files.sort()) {
@@ -165,7 +170,9 @@ async function loadRows(root) {
       pendingReceipts,
       traceId,
       pending: pendingReceipts.map((receipt) => ({
-        ...classifyPending({ traceId }, receipt),
+        // R-CD-2's public evidence is its authority receipt; its trace debt
+        // belongs to that authority, not to the evidence fields it withholds.
+        ...classifyPending({ traceId, manifest: rCd2Required ? null : manifest, runResult: raw }, receipt),
         ...(traceReasons.has(receipt) ? { reason: traceReasons.get(receipt) } : {}),
       })),
     });

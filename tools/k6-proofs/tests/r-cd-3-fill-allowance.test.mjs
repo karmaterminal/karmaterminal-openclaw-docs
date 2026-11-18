@@ -8,6 +8,7 @@ import {
   CONTEXT_WINDOW_UNKNOWN_REASON,
   DEFAULT_FILL_TARGET,
   FILL_BUDGET_CEILING_TOKENS,
+  FILL_MAX_TURNS_CEILING,
   FILL_MIN_TURNS,
   fillBudgetForWindow,
   fillOverrideFromEnv,
@@ -26,6 +27,22 @@ test('the turn allowance covers the budget in the largest chunks at the lowest r
   assert.equal(fillTurnsForBudget(709_940), 10);
   assert.equal(fillTurnsForBudget(154_000), FILL_MIN_TURNS);
   assert.equal(fillTurnsForBudget(1), FILL_MIN_TURNS);
+});
+
+test('the turn allowance follows a measured filler rate below 0.2 tokens per character, never one above it', () => {
+  assert.equal(fillTurnsForBudget(709_940, 0.14), 13);
+  assert.equal(fillTurnsForBudget(709_940, 0.3), 10);
+  assert.equal(fillTurnsForBudget(709_940, 0), 10);
+  assert.equal(fillTurnsForBudget(709_940, Number.NaN), 10);
+});
+
+test('a hard turn ceiling bounds a turn allowance derived from any rate', () => {
+  assert.equal(FILL_MAX_TURNS_CEILING, 20);
+  assert.equal(fillTurnsForBudget(709_940, 0.001), FILL_MAX_TURNS_CEILING);
+  assert.equal(fillTurnsForBudget(5_000_000), FILL_MAX_TURNS_CEILING);
+  assert.equal(resolveFillAllowance({ contextTokens: 922_000, tokensPerChar: 0.001 }).maxTurns, FILL_MAX_TURNS_CEILING);
+  // An explicit turn count is the operator's own bound.
+  assert.equal(resolveFillAllowance({ contextTokens: 922_000, maxTurns: 30 }).maxTurns, 30);
 });
 
 test('the hard ceiling also bounds the turns a window-derived budget can buy', () => {
@@ -91,11 +108,12 @@ test('overrides: unset or empty follows the window; a positive whole number wins
   assert.deepEqual(fillOverrideFromEnv({ X: '  ' }, 'X'), { value: null, error: null });
   assert.deepEqual(fillOverrideFromEnv({ X: '300000' }, 'X'), { value: 300_000, error: null });
   assert.deepEqual(fillOverrideFromEnv({ X: ' 12 ' }, 'X'), { value: 12, error: null });
+  assert.deepEqual(fillOverrideFromEnv({ X: '0012' }, 'X'), { value: 12, error: null });
   assert.deepEqual(fillOverrideFromEnv(undefined, 'X'), { value: null, error: null });
 });
 
 test('overrides: anything else is an error naming the variable, never a silent fallback', () => {
-  for (const raw of ['300k', '0', '-1', '1.5', 'NaN', 'Infinity', '1e400', '9007199254740993', 'true']) {
+  for (const raw of ['300k', '0', '000', '-1', '+5', '1.5', 'NaN', 'Infinity', '1e400', '1e6', '0x10', '0b11', '0o7', '1_000', '9007199254740993', 'true']) {
     const parsed = fillOverrideFromEnv({ OPENCLAW_RCD3_FILL_BUDGET_TOKENS: raw }, 'OPENCLAW_RCD3_FILL_BUDGET_TOKENS');
     assert.equal(parsed.value, null, raw);
     assert.match(parsed.error, /^OPENCLAW_RCD3_FILL_BUDGET_TOKENS=".*" is not a positive whole number/, raw);

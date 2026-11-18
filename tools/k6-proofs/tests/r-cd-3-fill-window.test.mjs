@@ -9,8 +9,9 @@
 //
 // The window is the one the fill already reads: the disposable session's
 // sessions.describe contextTokens (openclaw ab5a30ea79
-// src/gateway/session-utils-row.ts:180-262, which projects
-// src/config/sessions/context-token-provenance.ts:80-110 from the selected
+// src/gateway/server-methods/sessions-read-by-key.ts:29-73, materialized by
+// src/gateway/session-utils-row.ts:182-263, which projects
+// src/config/sessions/context-token-provenance.ts:79-108 from the selected
 // model's catalog or configured window).
 //
 // The scenario tests fire the real scenario (k6 runtime stubbed, see
@@ -46,7 +47,8 @@ function quotedAfter(text, key) {
  * world:
  *   window: the describe row's contextTokens once a turn has ended
  *   describeWindow: false keeps contextTokens off every describe row (an unknown window)
- *   windowAfterFill(n): the window after fill n, when it moves
+ *   windowAfterFill(n): the window after fill n, when it moves (undefined drops it from the row)
+ *   totalAfterFill(n, total): the session total after fill n, when it is not the grown one
  *   systemTokens: what the first turn adds besides its message (system prompt and tools)
  *   tokensPerChar: tokens each message character adds to the session total
  *   sends: receives every sessions.send key
@@ -87,6 +89,7 @@ function gatewayFor(world = {}) {
         if (/context fill \d+/.test(message)) {
           state.fills += 1;
           state.total += (state.fills === 1 ? systemTokens : 0) + Math.round(message.length * tokensPerChar);
+          if (world.totalAfterFill) state.total = world.totalAfterFill(state.fills, state.total);
           const runId = `run-fill-${state.fills}`;
           return [...ok({ runId }), event('agent', { runId, sessionKey: SESSION, stream: 'lifecycle', data: { phase: 'end' } })];
         }
@@ -101,7 +104,7 @@ function gatewayFor(world = {}) {
           key: SESSION,
           totalTokens: state.total,
           totalTokensFresh: state.fills > 0,
-          contextTokens: state.fills > 0 && world.describeWindow !== false ? (world.windowAfterFill ? world.windowAfterFill(state.fills) : window) : undefined,
+          contextTokens: state.fills > 0 && world.describeWindow !== false ? (world.windowAfterFill ? world.windowAfterFill(state.fills, window) : window) : undefined,
         } });
       case 'sessions.list':
         return ok({ sessions: state.proof && frame.params?.spawnedBy === SESSION ? [{ key: LIFEBOAT, spawnedBy: SESSION, status: 'done' }] : [], hasMore: false });
@@ -178,7 +181,29 @@ test('922k window: the fill reaches the compaction threshold and the proof turn 
   assert.equal(evidence.fill_budget_source, 'context-window');
   assert.equal(evidence.fill_budget_tokens, Math.ceil(0.77 * 922_000));
   assert.ok(evidence.fill_max_turns >= evidence.fill_turns.length);
-  assert.ok(evidence.fill_budget_tokens <= evidence.fill_budget_ceiling_tokens);
+  assert.ok(evidence.fill_budget_tokens <= evidence.fill_window_budget_ceiling_tokens);
+  // What the fill cost: the measured session totals it re-sent, turn by turn.
+  const resent = evidence.fill_turns.reduce((sum, turn) => sum + turn.total_tokens, 0);
+  assert.equal(evidence.fill_input_tokens_estimate, resent);
+  assert.ok(resent > 3_000_000 && resent < 3_500_000, `${resent} input tokens re-sent across the fill`);
+});
+
+test('922k window: a filler rate below 0.2 tokens per character gets the turns it needs', async () => {
+  // At 0.14 a 480,000-character turn adds about 67k tokens; six or ten turns cannot reach 75% of 922k.
+  const { evidence, verdict } = await fire({ window: 922_000, tokensPerChar: 0.14 });
+  assert.equal(evidence.fill_stop_reason, null, `the fill stopped: ${evidence.fill_stop_reason}`);
+  assert.equal(evidence.fill_reached, true);
+  assert.ok(evidence.fill_turns.length > 10, `${evidence.fill_turns.length} fill turns`);
+  assertBelowAutomaticLine(evidence, 922_000);
+  assert.equal(verdict, 'PASS-candidate', evidence.verdict_reason);
+});
+
+test('922k window: a filler rate too low for the turn ceiling stops with the rate named', async () => {
+  const { evidence, proofSent } = await fire({ window: 922_000, tokensPerChar: 0.05 });
+  assert.match(evidence.fill_stop_reason || '', /after \d+ fill turns/);
+  assert.match(evidence.fill_stop_reason, /tokens per filler character/);
+  assert.ok(evidence.fill_turns.length <= 20, `${evidence.fill_turns.length} fill turns: the turn ceiling holds`);
+  assert.equal(proofSent, false);
 });
 
 test('922k window: a window that moves after the first turn re-sizes the fill to the latest row', async () => {
@@ -227,6 +252,25 @@ test('unknown window: a describe row with a fresh total and no contextTokens ref
   assert.equal(proofSent, false);
   assert.equal(evidence.proof_dispatched, false);
   assert.equal(verdict, 'PARTIAL-candidate');
+});
+
+test('unknown window: a window that drops off the row mid-fill refuses at that turn', async () => {
+  const { evidence, fillSends, proofSent } = await fire({ window: 922_000, windowAfterFill: (n, window) => (n >= 2 ? undefined : window) });
+  assert.match(evidence.fill_stop_reason || '', /context window unknown/);
+  assert.equal(fillSends, 2);
+  assert.equal(proofSent, false);
+});
+
+test('unknown window: a total that falls on a row with no window stops as a mid-fill compaction', async () => {
+  const { evidence, fillSends, proofSent, describes } = await fire({
+    window: 922_000,
+    windowAfterFill: (n, window) => (n >= 2 ? undefined : window),
+    totalAfterFill: (n, total) => (n === 2 ? 30_000 : total),
+  });
+  assert.match(evidence.fill_stop_reason || '', /compacted during the fill \(total fell from \d+ to 30000\)/);
+  assert.equal(fillSends, 2);
+  assert.ok(describes <= 4, `${describes} describe reads: no turn timeout`);
+  assert.equal(proofSent, false);
 });
 
 test('unknown window: the planner refuses rather than guessing', () => {
@@ -304,4 +348,25 @@ test('override: a malformed turn allowance refuses before anything is sent', asy
   const { evidence } = await fire({ window: 200_000, sends }, { OPENCLAW_RCD3_FILL_MAX_TURNS: '0' });
   assert.match(evidence.fill_stop_reason || '', /OPENCLAW_RCD3_FILL_MAX_TURNS/);
   assert.deepEqual(sends, []);
+});
+
+test('override: a budget written as hex or an exponent is malformed, not read as a number', async () => {
+  for (const raw of ['0x10', '1e6']) {
+    const sends = [];
+    const { evidence } = await fire({ window: 200_000, sends }, { OPENCLAW_RCD3_FILL_BUDGET_TOKENS: raw });
+    assert.match(evidence.fill_stop_reason || '', /OPENCLAW_RCD3_FILL_BUDGET_TOKENS/, raw);
+    assert.deepEqual(sends, [], raw);
+  }
+});
+
+test('override: two malformed overrides are both named', async () => {
+  const { evidence } = await fire({ window: 200_000 }, { OPENCLAW_RCD3_FILL_BUDGET_TOKENS: 'lots', OPENCLAW_RCD3_FILL_MAX_TURNS: 'many' });
+  assert.match(evidence.fill_stop_reason || '', /OPENCLAW_RCD3_FILL_BUDGET_TOKENS/);
+  assert.match(evidence.fill_stop_reason, /OPENCLAW_RCD3_FILL_MAX_TURNS/);
+});
+
+test('override: the window-derived ceiling is not reported beside an explicit budget', async () => {
+  const { evidence } = await fire({ window: 922_000 }, { OPENCLAW_RCD3_FILL_BUDGET_TOKENS: '800000' });
+  assert.equal(evidence.fill_budget_source, 'override');
+  assert.equal(evidence.fill_window_budget_ceiling_tokens, null);
 });

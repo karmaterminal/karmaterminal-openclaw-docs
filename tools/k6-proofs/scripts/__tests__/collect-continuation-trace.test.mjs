@@ -492,13 +492,13 @@ test('fails closed when no Tempo trace appears before the bounded timeout', asyn
         '--tempo-url', server.url,
         '--timeout-ms', '30',
         '--poll-ms', '10',
-      ]),
+      ], { env: { ...process.env, OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS: '0' } }),
       (error) => {
-        assert.match(error.stderr, /no Tempo trace matched .* before timeout/);
+        assert.match(error.stderr, /no Tempo trace matched .* before timeout, nor on a re-poll 0 s later/);
         return true;
       },
     );
-    assert.ok(searchCount >= 1);
+    assert.ok(searchCount >= 2, 'the bounded poll, then one re-poll');
   } finally {
     await server.close();
     await rm(fixture.dir, { recursive: true, force: true });
@@ -2129,7 +2129,7 @@ test('searches an isolated gateway service.name when one is supplied, and fails 
         '--timeout-ms', '60',
         '--poll-ms', '10',
         ...extraArgs,
-      ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: '', ...extraEnv } })
+      ], { env: { ...process.env, OPENCLAW_PROOFS_SERVICE_NAME: '', OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS: '0', ...extraEnv } })
         .then(({ stdout }) => ({ ok: true, out: JSON.parse(stdout) }))
         .catch((error) => ({ ok: false, stderr: String(error.stderr || error.message) }));
       let receipt = null;

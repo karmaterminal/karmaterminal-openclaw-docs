@@ -264,6 +264,8 @@ async function collect({ manifest, evidence, trace }) {
   await writeFile(evidencePath, `${JSON.stringify(evidence)}\n`);
   const env = { ...process.env };
   delete env.OPENCLAW_PROOFS_SERVICE_NAME;
+  // An empty search is re-polled once; these tests need no Tempo-sized wait.
+  env.OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS = '0';
   try {
     const { stdout } = await run(process.execPath, [
       collector,

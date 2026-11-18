@@ -46,6 +46,7 @@ function quotedAfter(text, key) {
  * world:
  *   window: the describe row's contextTokens once a turn has ended
  *   describeWindow: false keeps contextTokens off every describe row (an unknown window)
+ *   windowAfterFill(n): the window after fill n, when it moves
  *   systemTokens: what the first turn adds besides its message (system prompt and tools)
  *   tokensPerChar: tokens each message character adds to the session total
  *   sends: receives every sessions.send key
@@ -100,7 +101,7 @@ function gatewayFor(world = {}) {
           key: SESSION,
           totalTokens: state.total,
           totalTokensFresh: state.fills > 0,
-          contextTokens: state.fills > 0 && world.describeWindow !== false ? window : undefined,
+          contextTokens: state.fills > 0 && world.describeWindow !== false ? (world.windowAfterFill ? world.windowAfterFill(state.fills) : window) : undefined,
         } });
       case 'sessions.list':
         return ok({ sessions: state.proof && frame.params?.spawnedBy === SESSION ? [{ key: LIFEBOAT, spawnedBy: SESSION, status: 'done' }] : [], hasMore: false });
@@ -180,6 +181,18 @@ test('922k window: the fill reaches the compaction threshold and the proof turn 
   assert.ok(evidence.fill_budget_tokens <= evidence.fill_budget_ceiling_tokens);
 });
 
+test('922k window: a window that moves after the first turn re-sizes the fill to the latest row', async () => {
+  // A catalog window on the first row, then the runtime's own 922k: the plan follows the latest one.
+  const { evidence, verdict } = await fire({ window: 922_000, windowAfterFill: (n) => (n === 1 ? 1_048_576 : 922_000) });
+  assert.equal(evidence.fill_stop_reason, null, `the fill stopped: ${evidence.fill_stop_reason}`);
+  assert.equal(evidence.fill_turns[0].context_tokens, 1_048_576);
+  assert.equal(evidence.fill_context_tokens, 922_000);
+  assert.ok(evidence.fill_measured_usage >= 0.75);
+  assertBelowAutomaticLine(evidence, 922_000);
+  assert.equal(evidence.fill_budget_tokens, Math.ceil(0.77 * 922_000));
+  assert.equal(verdict, 'PASS-candidate', evidence.verdict_reason);
+});
+
 // ---------------------------------------------------------------------------
 // A small window still works
 // ---------------------------------------------------------------------------
@@ -240,6 +253,8 @@ test('hard ceiling: a window whose fill would exceed the ceiling refuses after t
   assert.equal(fillSends, 1);
   assert.equal(proofSent, false);
   assert.equal(verdict, 'PARTIAL-candidate');
+  // A refused budget is named by the stop reason, never recorded as the budget in force.
+  assert.notEqual(evidence.fill_budget_source, 'context-window');
 });
 
 test('hard ceiling: the planner refuses a wrong 50M window instead of planning a fill', () => {

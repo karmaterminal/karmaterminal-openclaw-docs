@@ -176,7 +176,9 @@ test('measured fill: usage from fresh totals, steps sized to the gap, stops insi
   // Toward the 75% target plus margin, never past the 85% ceiling.
   assert.ok(step.stepTokens <= 0.85 * 200000 - 50000);
   assert.equal(planFillStep({ measurement: { ...m, usage: 0.76, totalTokens: 152000 }, turnsUsed: 3 }).action, 'done');
-  assert.match(planFillStep({ measurement: measuredSessionUsage({ totalTokens: 50000, totalTokensFresh: true, contextTokens: 1000000 }), turnsUsed: 1 }).reason, /fill budget/);
+  // The budget follows the window under a hard ceiling; an explicit budget still stops the fill.
+  assert.match(planFillStep({ measurement: measuredSessionUsage({ totalTokens: 50000, totalTokensFresh: true, contextTokens: 2000000 }), turnsUsed: 1 }).reason, /hard ceiling/);
+  assert.match(planFillStep({ measurement: measuredSessionUsage({ totalTokens: 50000, totalTokensFresh: true, contextTokens: 1000000 }), turnsUsed: 1, budgetTokens: 300000 }).reason, /over the 300000-token fill budget/);
   assert.match(planFillStep({ measurement: m, turnsUsed: 6 }).reason, /after 6 fill turns/);
   assert.match(planFillStep({ measurement: { measured: false, reason: 'no row' }, turnsUsed: 1 }).reason, /no measured usage/);
 });

@@ -175,6 +175,18 @@ export function traceContract(manifest, evidence) {
   // disposable session key, a hop's own task), so a row that records none fails
   // closed here instead of searching Tempo for a reason nobody sent. The
   // manifest template is a cross-check, never the source.
+  //
+  // An empty fingerprint is not a malformed one: the scenario records it as it
+  // sends the dispatch, so a row that refused or stopped first has none. Say so,
+  // or the refusal reads as a parsing fault (live run 44245772142: four rows
+  // refused before dispatch and their logs sent a lane looking for one).
+  if (evidence?.reason_hash == null || evidence.reason_hash === '') {
+    throw new Error(
+      'invalid evidence reason hash: (empty): the row recorded no reason fingerprint, so there is nothing to search Tempo by. ' +
+      'A row that refused or stopped before dispatch has no continuation to trace (see its dispatch_refused or verdict_reason); ' +
+      'one that dispatched without recording it has a scenario defect (#600)',
+    );
+  }
   const hash = safeHex(evidence?.reason_hash, 16, 'evidence reason hash');
   const length = Number(evidence?.reason_length);
   if (!Number.isInteger(length) || length < 1) {
@@ -612,6 +624,10 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function isoSeconds(epochSeconds) {
+  return new Date(epochSeconds * 1000).toISOString().replace(/\.000Z$/u, 'Z');
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   if (!args.runDir || !args.manifest || !args.seat) {
@@ -732,7 +748,16 @@ async function main() {
     const fingerprint = contract.kind === 'continuation'
       ? `reason hash ${contract.hash}`
       : `tool ${contract.tool} in the evidence window`;
-    throw new Error(`no Tempo trace matched ${fingerprint} before timeout`);
+    // Name what was searched, so a reviewer can repeat the search while Tempo
+    // still holds the window and tell an emission gap from an agent that
+    // relayed other task bytes than the scenario fingerprinted (live run
+    // 44245772142, R-CD-MODEL-DEFAULT).
+    const searched = contract.kind === 'continuation'
+      ? ` (reason length ${contract.length}${contract.mode === undefined ? '' : `, delegate mode ${contract.mode}`}; ` +
+        `searched ${contract.acceptSpanName} spans of service ${serviceName} in ${isoSeconds(start)}..${isoSeconds(end)}; ` +
+        'a span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted)'
+      : '';
+    throw new Error(`no Tempo trace matched ${fingerprint} before timeout${searched}`);
   }
 
   const provisionalTraceId = traceId;

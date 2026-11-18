@@ -857,7 +857,7 @@ async function main() {
       startUnixSeconds: start,
       endUnixSeconds: end,
       paddingSeconds: CORRELATION_WINDOW_PADDING_SECONDS,
-      source: Number.isFinite(evidenceEndMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
+      source: searchWindow.source,
     },
     stabilization: {
       ingestionSettleMs: args.settleMs,

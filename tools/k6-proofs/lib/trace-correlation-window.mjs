@@ -5,9 +5,10 @@
 export const CORRELATION_WINDOW_PADDING_SECONDS = 60;
 
 /**
- * `{ start, end }` in epoch seconds: the dispatch (or start) time to the later
- * of dispatch and the row's end, padded on both sides. Null when the evidence
- * carries no usable dispatch or start time.
+ * `{ start, end, source }`: epoch seconds from the dispatch (or start) time to
+ * the later of dispatch and the row's end, padded on both sides, and whether
+ * the row's end took part (the collector receipt's searchWindow.source). Null
+ * when the evidence carries no usable dispatch or start time.
  */
 export function traceCorrelationWindow(evidence) {
   const dispatchMs = Number(evidence?.dispatch_accepted_at_ms || Date.parse(evidence?.started));
@@ -18,6 +19,7 @@ export function traceCorrelationWindow(evidence) {
   return {
     start: dispatchSeconds - CORRELATION_WINDOW_PADDING_SECONDS,
     end: Math.max(dispatchSeconds, endSeconds) + CORRELATION_WINDOW_PADDING_SECONDS,
+    source: Number.isFinite(endMs) ? 'dispatch-and-evidence-ended' : 'dispatch-only',
   };
 }
 

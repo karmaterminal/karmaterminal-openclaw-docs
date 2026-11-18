@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import {
   rCd2AuthorityIdentity,
   resolveRcd2AuthoritativeReceipt,
+  sealRcd2AcquisitionReceipt,
   validateRcd2AcquisitionReceipt,
 } from '../../lib/r-cd-2-authoritative-receipt.mjs';
 import {
@@ -917,12 +918,12 @@ test('R-CD-2 derives the nonce fingerprint and rejects a supplied copied mismatc
   }
 });
 
-test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topology', async () => {
-  const rowNonce = 'R-CD-2-resolver-example';
-  const traceId = '2'.repeat(32);
+// An R-CD-2 run directory whose evidence passes every lifecycle check, so the
+// resolver's verdict turns on the collector's acquisition receipt alone.
+function rCd2PassingFixture(rowNonce, traceId) {
   const runFingerprint = 'a'.repeat(16);
   const nonceFingerprint = createHash('sha256').update(rowNonce).digest('hex').slice(0, 16);
-  const fixture = await fixtureDir({
+  return fixtureDir({
     rowId: 'R-CD-2',
     delegateMode: 'silent-wake',
     nonceOverride: rowNonce,
@@ -953,6 +954,12 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       post_wake_quiet_at_ms: 500,
     },
   });
+}
+
+test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topology', async () => {
+  const rowNonce = 'R-CD-2-resolver-example';
+  const traceId = '2'.repeat(32);
+  const fixture = await rCd2PassingFixture(rowNonce, traceId);
   const server = await listen((request, response) => {
     response.setHeader('content-type', 'application/json');
     response.end(JSON.stringify(
@@ -984,6 +991,100 @@ test('R-CD-2 resolver accepts the collector-shaped receipt, not a synthetic topo
       resolved.verdict,
       'PASS-candidate',
       JSON.stringify(resolved.diagnostics),
+    );
+  } finally {
+    await server.close();
+    await rm(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test('R-CD-2: a trace found by the Tempo re-poll seals both attempts into a receipt the authority accepts', async () => {
+  // Tempo can miss a trace that exists for up to one blocklist-poll period
+  // after a compaction (run 44245772142, 06:50-06:55Z). The collector searches
+  // once more after OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS; R-CD-2's acquisition
+  // receipt is sealed and exact-keyed, so the attempts it records must be
+  // signed and validated with it, never dropped or refused.
+  const rowNonce = 'R-CD-2-repoll-example';
+  const traceId = '4'.repeat(32);
+  const fixture = await rCd2PassingFixture(rowNonce, traceId);
+  const searchedAt = [];
+  const server = await listen((request, response) => {
+    response.setHeader('content-type', 'application/json');
+    if (new URL(request.url, 'http://localhost').pathname === '/api/search') {
+      searchedAt.push(Date.now());
+      response.end(JSON.stringify({ traces: searchedAt.length === 1 ? [] : [{ traceID: traceId }] }));
+      return;
+    }
+    response.end(JSON.stringify(
+      traceFixture({ traceId, reasonHash: fixture.reasonHash, reasonLength: fixture.reasonLength, mode: 'silent-wake' }),
+    ));
+  });
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      script, '--run-dir', fixture.dir, '--manifest', fixture.manifestPath,
+      '--seat', 'cael-prince', '--tempo-url', server.url, '--timeout-ms', '0', '--poll-ms', '10',
+    ], { env: { ...process.env, OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS: '0.25' } });
+    assert.ok(searchedAt[1] - searchedAt[0] >= 250, 'the re-poll waited the configured 0.25 s');
+    const result = JSON.parse(stdout);
+    const correlation = JSON.parse(await readFile(path.join(fixture.dir, result.receiptFile), 'utf8'));
+    const evidence = JSON.parse(await readFile(path.join(fixture.dir, 'evidence.jsonl'), 'utf8'));
+    const identity = correlation.authorityIdentity;
+    assert.deepEqual(
+      correlation.searchAttempts.map(({ attempt, result: outcome, repollWaitSeconds }) => [attempt, outcome, repollWaitSeconds]),
+      [[1, 'no-match', undefined], [2, 'matched', 0.25]],
+    );
+    assert.deepEqual(validateRcd2AcquisitionReceipt(correlation, rCd2SigningKey, identity, evidence), { valid: true });
+    const resolved = resolveRcd2AuthoritativeReceipt({ evidence, correlation, identity, signingKey: rCd2SigningKey });
+    assert.equal(resolved.verdict, 'PASS-candidate', JSON.stringify(resolved.diagnostics));
+
+    // The attempts are signed: an edit without the key breaks the seal.
+    const edited = structuredClone(correlation);
+    edited.searchAttempts[1].repollWaitSeconds = 330;
+    assert.deepEqual(validateRcd2AcquisitionReceipt(edited, rCd2SigningKey, identity, evidence), { valid: false, reason: 'invalid-integrity' });
+
+    // A correctly sealed receipt whose attempts are not one empty search and
+    // one re-poll that matched, the configured wait apart, with every search
+    // counted, is refused by shape.
+    const reseal = (mutate) => {
+      const { integrity: _integrity, ...body } = structuredClone(correlation);
+      mutate(body);
+      return sealRcd2AcquisitionReceipt({ receipt: body, signingKey: rCd2SigningKey });
+    };
+    const shifted = (iso, ms) => new Date(Date.parse(iso) + ms).toISOString();
+    const malformed = {
+      'one attempt': (body) => { body.searchAttempts = body.searchAttempts.slice(0, 1); },
+      'three attempts': (body) => { body.searchAttempts.push({ ...body.searchAttempts[1], attempt: 3 }); },
+      'first attempt matched': (body) => { body.searchAttempts[0].result = 'matched'; },
+      're-poll did not match': (body) => { body.searchAttempts[1].result = 'no-match'; },
+      'first attempt carries a wait': (body) => { body.searchAttempts[0].repollWaitSeconds = 0; },
+      're-poll without its wait': (body) => { delete body.searchAttempts[1].repollWaitSeconds; },
+      'negative wait': (body) => { body.searchAttempts[1].repollWaitSeconds = -1; },
+      're-poll inside the wait': (body) => {
+        body.searchAttempts[1].startedAt = shifted(body.searchAttempts[0].endedAt, 100);
+      },
+      'ended before it started': (body) => {
+        body.searchAttempts[1].endedAt = shifted(body.searchAttempts[1].startedAt, -1);
+      },
+      'not ISO-8601 milliseconds': (body) => { body.searchAttempts[0].startedAt = '2026-11-18 06:50:00'; },
+      'another window': (body) => { body.searchAttempts[1].window.endUnixSeconds += 1; },
+      'an extra key': (body) => { body.searchAttempts[0].traceId = traceId; },
+      'searches not counted': (body) => { body.stabilization.searchQueryCount += 1; },
+      'not an array': (body) => { body.searchAttempts = { 0: body.searchAttempts[0] }; },
+    };
+    for (const [label, mutate] of Object.entries(malformed)) {
+      assert.deepEqual(
+        validateRcd2AcquisitionReceipt(reseal(mutate), rCd2SigningKey, identity, evidence),
+        { valid: false, reason: 'invalid-shape:search-attempts' },
+        label,
+      );
+    }
+    // A receipt that never re-polled carries no attempts and stays valid.
+    assert.deepEqual(
+      validateRcd2AcquisitionReceipt(reseal((body) => {
+        delete body.searchAttempts;
+        body.stabilization.searchQueryCount -= 1;
+      }), rCd2SigningKey, identity, evidence),
+      { valid: true },
     );
   } finally {
     await server.close();

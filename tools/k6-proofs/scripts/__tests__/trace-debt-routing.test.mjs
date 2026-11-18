@@ -176,7 +176,12 @@ test('routing reads only what the run recorded: absent evidence, a malformed fin
   const model = fixtureRow('R-CD-MODEL-DEFAULT');
   const tool = fixtureRow('R-CD-MODEL-TOOL');
   const rcd3 = fixtureRow('R-CD-3');
-  const { summary } = await summarize([model, tool, rcd3], {
+  const alt = fixtureRow('R-CD-MODEL-CHAINED-ALT');
+  const { evidence: _dropped, ...withoutEvidenceKey } = alt.runResult;
+  const { summary } = await summarize([model, tool, rcd3, alt], {
+    // The runner always records `evidence`; a result without the key was not
+    // written with it (before 891831e4, or by hand) and says nothing.
+    'R-CD-MODEL-CHAINED-ALT': { runResult: withoutEvidenceKey },
     // A run that wrote no evidence record: nothing was dispatched to attribute.
     'R-CD-MODEL-DEFAULT': { runResult: { ...model.runResult, evidence: null } },
     // A fingerprint the collector would refuse is no fingerprint to search by.
@@ -191,8 +196,10 @@ test('routing reads only what the run recorded: absent evidence, a malformed fin
   for (const item of traceItems(pendingFor(summary, 'R-CD-MODEL-TOOL'))) {
     assert.equal(item.class, 'trace-no-reason-fingerprint', item.receipt);
   }
-  const legacy = pendingFor(summary, 'R-CD-3').pending.find((item) => item.receipt === 'tempo-trace-json');
-  assert.equal(legacy.class, 'tempo-trace-unfetchable');
+  for (const rowId of ['R-CD-3', 'R-CD-MODEL-CHAINED-ALT']) {
+    const legacy = pendingFor(summary, rowId).pending.find((item) => item.receipt === 'tempo-trace-json');
+    assert.equal(legacy.class, 'tempo-trace-unfetchable', rowId);
+  }
 });
 
 test('an authoritative-receipt row keeps the generic route: its public evidence withholds acquisition by design', async () => {

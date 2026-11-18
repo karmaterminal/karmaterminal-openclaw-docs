@@ -88,13 +88,18 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
     };
   }
 
-  const evidence = runResult?.evidence;
-  if (!plainObject(evidence)) {
+  // Every run-result writer in run-proofs.sh records `evidence`, null when the
+  // row wrote no evidence record (since 891831e4). A result without the key
+  // predates that or was not written by the runner: it says nothing.
+  if (!plainObject(runResult) || !Object.hasOwn(runResult, 'evidence')) return null;
+  const evidence = runResult.evidence;
+  if (evidence === null) {
     return {
       class: 'trace-no-row-evidence',
       action: 'the row wrote no evidence record, so the collector had no dispatch to attribute: resolve the row\'s own failure, then refire the row',
     };
   }
+  if (!plainObject(evidence)) return null;
   // A row whose public evidence is a signed authoritative receipt (R-CD-2)
   // withholds its acquisition fields by design; their absence says nothing.
   if (Object.hasOwn(evidence, 'authoritativeReceipt')) return null;

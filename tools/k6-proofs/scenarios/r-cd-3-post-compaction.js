@@ -6,11 +6,15 @@
  *   1. Fill: real prior turns of inert filler until the session's measured
  *      usage (fresh totalTokens / contextTokens from sessions.describe, the
  *      inputs request_compaction itself reads) passes the 70% threshold. No
- *      threshold is lowered and no config is touched; a fill that cannot get
- *      there within its turn and token budgets, or below the automatic
- *      compaction line, stops with the reason named. A falling total or a
- *      changed sessionId on the describe row stops it as a mid-fill
- *      compaction (review F7).
+ *      threshold is lowered and no config is touched. The token budget and
+ *      turn allowance follow the window on the describe row (contextTokens)
+ *      and the measured filler rate, under hard ceilings;
+ *      OPENCLAW_RCD3_FILL_BUDGET_TOKENS and OPENCLAW_RCD3_FILL_MAX_TURNS
+ *      override them. A row that names no window refuses. A fill that cannot
+ *      get there within its budgets, or below the
+ *      automatic compaction line, stops with the reason named. A falling
+ *      total or a changed sessionId on the describe row stops it as a
+ *      mid-fill compaction (review F7).
  *   2. Proof turn: stage continue_delegate(mode="post-compaction") with the
  *      lifeboat task, then call request_compaction.
  *   3. Receipts, all product records the agent cannot author
@@ -53,15 +57,18 @@ import { createToolReceiptTracker, eventSessionKey, requesterCallTexts } from '.
 import {
   COMPACTION_RESERVE_FLOOR_TOKENS,
   COMPACTION_THRESHOLD,
-  DEFAULT_FILL_BUDGET_TOKENS,
+  CONTEXT_WINDOW_UNKNOWN_REASON,
   DEFAULT_FILL_CEILING,
-  DEFAULT_FILL_MAX_TURNS,
   DEFAULT_FILL_TARGET,
+  FILL_BUDGET_CEILING_TOKENS,
+  FILL_BUDGET_ENV,
   FILL_CALIBRATION_CHARS,
   FILL_INITIAL_TOKENS_PER_CHAR,
+  FILL_MAX_TURNS_ENV,
   classifyRcd3Evidence,
   compactionOutcome,
   compactionReceiptsFromHistory,
+  fillOverrideFromEnv,
   fillerText,
   isReleasedLifeboatTask,
   lifeboatReport,
@@ -134,8 +141,10 @@ export default function () {
   const rowNonce = nonce('R-CD-3');
   const taskToken = rcd3TaskIdentityToken(rowNonce);
   const fillTarget = Math.max(COMPACTION_THRESHOLD + 0.01, Math.min(DEFAULT_FILL_CEILING - 0.02, numberEnv('OPENCLAW_RCD3_FILL_TARGET', DEFAULT_FILL_TARGET)));
-  const fillBudgetTokens = numberEnv('OPENCLAW_RCD3_FILL_BUDGET_TOKENS', DEFAULT_FILL_BUDGET_TOKENS);
-  const fillMaxTurns = numberEnv('OPENCLAW_RCD3_FILL_MAX_TURNS', DEFAULT_FILL_MAX_TURNS);
+  // Unset, both follow the measured window (lib resolveFillAllowance); set, each wins.
+  const fillBudgetOverride = fillOverrideFromEnv(__ENV, FILL_BUDGET_ENV);
+  const fillMaxTurnsOverride = fillOverrideFromEnv(__ENV, FILL_MAX_TURNS_ENV);
+  const fillOverrideError = [fillBudgetOverride.error, fillMaxTurnsOverride.error].filter(Boolean).join('; ') || null;
   const fillTurnTimeoutMs = numberEnv('OPENCLAW_RCD3_FILL_TURN_TIMEOUT_MS', 300000);
   // A seat that configures a compaction reserve above the 20,000 floor declares it here; it only lowers the fill's cap.
   const compactionReserveTokens = numberEnv('OPENCLAW_RCD3_COMPACTION_RESERVE_TOKENS', COMPACTION_RESERVE_FLOOR_TOKENS);
@@ -167,8 +176,15 @@ export default function () {
     started: new Date().toISOString(),
     // Fill: real prior turns until measured usage passes the threshold.
     fill_target: fillTarget,
-    fill_budget_tokens: fillBudgetTokens,
-    fill_max_turns: fillMaxTurns,
+    // The last allowance in force: an override from the start, else what the measured window gave. A refused
+    // allowance is not recorded here; the stop reason names it. The ceiling applies to a window-derived budget only.
+    fill_budget_tokens: fillBudgetOverride.value,
+    fill_budget_source: fillBudgetOverride.value !== null ? 'override' : null,
+    fill_window_budget_ceiling_tokens: fillBudgetOverride.value !== null ? null : FILL_BUDGET_CEILING_TOKENS,
+    fill_max_turns: fillMaxTurnsOverride.value,
+    fill_max_turns_source: fillMaxTurnsOverride.value !== null ? 'override' : null,
+    // The measured session totals after each fill turn, summed: about the input tokens the fill re-sent.
+    fill_input_tokens_estimate: 0,
     fill_turns: [],
     fill_reached: false,
     fill_measured_usage: null,
@@ -295,6 +311,20 @@ export default function () {
       socket.setTimeout(poll, k6TimeoutMs(10000));
     }
 
+    // Only an allowance in force is recorded; a refused one is named by the stop reason.
+    function recordAllowance(allowance) {
+      if (!allowance.ok) return;
+      if (allowance.budgetTokens === evidence.fill_budget_tokens && allowance.budgetSource === evidence.fill_budget_source &&
+          allowance.maxTurns === evidence.fill_max_turns && allowance.maxTurnsSource === evidence.fill_max_turns_source) return;
+      evidence.fill_budget_tokens = allowance.budgetTokens;
+      evidence.fill_budget_source = allowance.budgetSource;
+      evidence.fill_window_budget_ceiling_tokens = allowance.budgetSource === 'override' ? null : allowance.ceilingTokens;
+      evidence.fill_max_turns = allowance.maxTurns;
+      evidence.fill_max_turns_source = allowance.maxTurnsSource;
+      const ceiling = allowance.budgetSource === 'override' ? 'explicit budget, no window ceiling' : `window-derived ceiling ${allowance.ceilingTokens}`;
+      console.log(`ℹ R-CD-3 fill budget: ${allowance.budgetTokens} tokens (${allowance.budgetSource}), ${allowance.maxTurns} turns (${allowance.maxTurnsSource}), ${ceiling}`);
+    }
+
     function measureFill() {
       if (fillMeasureInFlight || fillEnded) return;
       fillMeasureInFlight = true;
@@ -311,14 +341,24 @@ export default function () {
         return;
       }
       if (m.sessionId) fillSessionId = m.sessionId;
-      if (m.measured && previousTotal !== null && m.totalTokens < previousTotal) {
+      // A fresh total, with or without a window, that fell is a compaction.
+      const fresh = m.measured || m.windowUnknown;
+      if (fresh && previousTotal !== null && m.totalTokens < previousTotal) {
         stopFill(`the session was compacted during the fill (total fell from ${previousTotal} to ${m.totalTokens})`);
+        return;
+      }
+      // The turn's accounting landed, but the row names no window to size the fill against.
+      if (m.windowUnknown && m.totalTokens > (previousTotal ?? 0)) {
+        fillEnded = true;
+        evidence.fill_turns[evidence.fill_turns.length - 1].total_tokens = m.totalTokens;
+        evidence.fill_input_tokens_estimate += m.totalTokens;
+        stopFill(CONTEXT_WINDOW_UNKNOWN_REASON);
         return;
       }
       const updated = m.measured && m.totalTokens > (previousTotal ?? 0);
       if (!updated) {
         if (Date.now() - fillStartedAt >= fillTurnTimeoutMs) {
-          stopFill(m.measured
+          stopFill(fresh
             ? `fill turn ${fillTurn} did not raise the measured total (${m.totalTokens}) within ${fillTurnTimeoutMs} ms`
             : `fill turn ${fillTurn}: ${m.reason}`);
         } else if (fillLifecycleEnded) {
@@ -333,6 +373,7 @@ export default function () {
       record.total_tokens = m.totalTokens;
       record.context_tokens = m.contextTokens;
       record.usage = m.usage;
+      evidence.fill_input_tokens_estimate += m.totalTokens;
       evidence.fill_measured_usage = m.usage;
       evidence.fill_context_tokens = m.contextTokens;
       if (previousTotal !== null) {
@@ -350,10 +391,11 @@ export default function () {
         filledTokens,
         tokensPerChar,
         target: fillTarget,
-        budgetTokens: fillBudgetTokens,
-        maxTurns: fillMaxTurns,
+        budgetTokens: fillBudgetOverride.value,
+        maxTurns: fillMaxTurnsOverride.value,
         reserveTokens: compactionReserveTokens,
       });
+      if (step.allowance) recordAllowance(step.allowance);
       console.log(`ℹ R-CD-3 fill ${fillTurn}: measured usage ${(m.usage * 100).toFixed(1)}% of ${m.contextTokens} → ${step.action}`);
       if (step.action === 'done') {
         evidence.fill_reached = true;
@@ -519,6 +561,10 @@ export default function () {
 
     // ---- connection -----------------------------------------------------
     function afterHello() {
+      if (fillOverrideError) {
+        stopFill(fillOverrideError);
+        return;
+      }
       if (createDisposableSession) {
         socket.setTimeout(() => {
           const disposableKey = `r-cd-3-${rowNonce}`.toLowerCase().replace(/[^a-z0-9-]/g, '-');

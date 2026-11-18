@@ -285,10 +285,11 @@ test('a bound child without the product post-compaction prefix is not a released
 });
 
 test('a context window too large for the fill budget stops before the proof turn', async () => {
-  const { evidence, verdict, frames } = await fire({ window: 1_000_000, perTurnTokens: 20_000, compaction: ACCEPTED, lifeboat: true });
+  // The budget follows the window; 77% of 2,000,000 is past the 1,000,000-token ceiling on a derived budget.
+  const { evidence, verdict, frames } = await fire({ window: 2_000_000, perTurnTokens: 20_000, compaction: ACCEPTED, lifeboat: true });
   assert.equal(verdict, 'PARTIAL-candidate');
   assert.equal(evidence.proof_dispatched, false);
-  assert.match(evidence.fill_stop_reason, /over the 300000-token fill budget/);
+  assert.match(evidence.fill_stop_reason, /over the 1000000-token hard ceiling/);
   assert.ok(!frames.some((frame) => frame.method === 'sessions.send' && /continue_delegate/.test(frame.params?.message || '')));
 });
 

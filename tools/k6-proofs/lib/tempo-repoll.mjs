@@ -15,8 +15,7 @@
 // wait and the shape of the record for both of them.
 
 export const TEMPO_REPOLL_ENV = 'OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS';
-// Tempo's blocklist_poll on the fleet: a re-poll at least this long after an
-// empty search outlasts one blocklist-poll gap.
+// Tempo's blocklist_poll on the fleet: a blocklist-poll gap heals within it.
 export const TEMPO_BLOCKLIST_POLL_SECONDS = 300;
 // One blocklist poll plus 30 s margin.
 export const DEFAULT_TEMPO_REPOLL_SECONDS = TEMPO_BLOCKLIST_POLL_SECONDS + 30;

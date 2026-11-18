@@ -318,31 +318,104 @@ test('(b) both searches empty: uncorrelated, both attempts recorded, and review 
         attempts: record.searchAttempts.map(({ attempt, startedAt, endedAt, result }) => ({ attempt, startedAt, endedAt, result })),
       });
       assert.match(item.action, /no trace was correlated, on the collector's first search or on its re-poll 0\.3 s later/u);
-      // 0.3 s is no blocklist-poll period: the route must not rule the gap out.
-      assert.match(item.action, /re-poll waited less than one blocklist-poll period/u);
-      assert.doesNotMatch(item.action, /not a Tempo blocklist-poll gap/u);
+      // 0.3 s is no blocklist-poll period: the route must not discount the gap.
+      assert.match(item.action, /that re-poll came sooner than one blocklist-poll period plus margin \(330 s\)/u);
+      assert.match(item.action, /search again at least that long after the collector did/u);
+      assert.doesNotMatch(item.action, /is unlikely to explain it/u);
       // The fingerprint comparison stays the next step.
       assert.match(item.action, /If it reads "no Tempo trace matched"/u);
       assert.match(item.action, /relayed different task bytes/u);
     }
     assert.match(text, /tempo-trace-uncorrelated: [^\n]*re-poll 0\.3 s later/u);
 
-    // The same record as the default wait leaves it (330 s): a re-poll one
-    // blocklist-poll period later that also matched nothing rules the gap out.
-    const shifted = (iso) => new Date(Date.parse(iso) + 330000).toISOString();
+    // The same record with the re-poll moved later. Only one blocklist-poll
+    // period plus margin (the 330 s default) makes a single gap unlikely; a
+    // bare poll period (300 s) leaves no margin for the poll itself.
     const [first, repoll] = record.searchAttempts;
-    const fullWait = {
-      ...record,
-      searchAttempts: [first, { ...repoll, repollWaitSeconds: 330, startedAt: shifted(repoll.startedAt), endedAt: shifted(repoll.endedAt) }],
-    };
-    await writeFile(path.join(collected.dir, 'continuation-trace-collector.json'), `${JSON.stringify(fullWait)}\n`);
-    const full = await summarizeRun(collected.dir);
-    for (const item of full.items) {
-      assert.equal(item.repoll.waitSeconds, 330);
-      assert.match(item.action, /on its re-poll 330 s later, so it is not a Tempo blocklist-poll gap/u);
+    for (const [waitSeconds, discounted] of [[300, false], [330, true]]) {
+      const shifted = (iso) => new Date(Date.parse(iso) + waitSeconds * 1000).toISOString();
+      const later = {
+        ...record,
+        searchAttempts: [first, { ...repoll, repollWaitSeconds: waitSeconds, startedAt: shifted(repoll.startedAt), endedAt: shifted(repoll.endedAt) }],
+      };
+      await writeFile(path.join(collected.dir, 'continuation-trace-collector.json'), `${JSON.stringify(later)}\n`);
+      for (const item of (await summarizeRun(collected.dir)).items) {
+        assert.equal(item.repoll.waitSeconds, waitSeconds);
+        if (discounted) {
+          assert.match(item.action, /on its re-poll 330 s later, so a single Tempo blocklist-poll gap, which heals within one poll period, is unlikely to explain it/u);
+        } else {
+          assert.match(item.action, /on its re-poll 300 s later; that re-poll came sooner than one blocklist-poll period plus margin/u);
+        }
+      }
     }
   } finally {
     await rm(collected.dir, { recursive: true, force: true });
+  }
+});
+
+test('a collection that fails after its re-poll still records both attempts, and review debt says how the re-poll ended', BOUNDED, async () => {
+  // The re-poll finds the trace, then the stabilization or finality search
+  // comes back empty: the record keeps the re-poll's match.
+  const lost = await collect({ found: (n) => n === 2, repollSeconds: '0.2' });
+  try {
+    assert.equal(lost.ok, false);
+    assert.match(lost.stderr, /candidate set changed during stabilization: no traces matched|final trace correlation query found no matching Tempo trace/u);
+    assert.ok(!lost.files.includes('continuation-trace-correlation.json'));
+    const record = JSON.parse(lost.stdout);
+    assert.deepEqual(record.searchAttempts.map((entry) => entry.result), ['no-match', 'matched']);
+    assertAttempt(record.searchAttempts[1], { attempt: 2, result: 'matched', repollWaitSeconds: 0.2 });
+    for (const item of (await summarizeRun(lost.dir)).items) {
+      assert.equal(item.class, 'tempo-trace-uncorrelated');
+      assert.deepEqual(item.repoll.attempts.map((entry) => entry.result), ['no-match', 'matched']);
+      assert.match(item.action, /re-poll 0\.2 s after its first search found none did find a trace, but the collection failed after it/u);
+    }
+  } finally {
+    await rm(lost.dir, { recursive: true, force: true });
+  }
+
+  // The re-poll itself fails: the attempt it cut short is recorded as an error.
+  const dir = await mkdtemp(path.join(tmpdir(), 'tempo-repoll-error-'));
+  let searches = 0;
+  const server = createServer((request, response) => {
+    searches += 1;
+    if (searches === 1) {
+      response.setHeader('content-type', 'application/json');
+      response.end(JSON.stringify({ traces: [] }));
+      return;
+    }
+    response.writeHead(503, { 'content-type': 'application/json' }).end('{"error":"tempo unavailable"}');
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const evidencePath = path.join(dir, 'private-evidence.jsonl');
+    const manifestPath = path.join(dir, 'row-manifest.json');
+    await writeFile(evidencePath, `${JSON.stringify(model.runResult.evidence)}\n`);
+    await writeFile(manifestPath, `${JSON.stringify(model.manifest)}\n`);
+    const env = { ...process.env, [REPOLL_ENV]: '0.1' };
+    delete env.OPENCLAW_PROOFS_SERVICE_NAME;
+    const failed = await run(process.execPath, [
+      collector, '--run-dir', dir, '--manifest', manifestPath, '--seat', fixture.seat, '--evidence', evidencePath,
+      '--tempo-url', `http://127.0.0.1:${server.address().port}`, '--timeout-ms', '0', '--poll-ms', '10',
+    ], { encoding: 'utf8', env }).then(() => null, (error) => error);
+    assert.equal(failed?.code, 1);
+    assert.match(failed.stderr, /^Tempo search failed: HTTP 503/u);
+    assert.equal(searches, 2);
+    const record = JSON.parse(failed.stdout);
+    assertAttempt(record.searchAttempts[0], { attempt: 1, result: 'no-match' });
+    assertAttempt(record.searchAttempts[1], { attempt: 2, result: 'error', repollWaitSeconds: 0.1 });
+    await writeFile(path.join(dir, 'continuation-trace-collector.json'), failed.stdout);
+    for (const item of (await summarizeRun(dir)).items) {
+      assert.match(item.action, /re-poll 0\.1 s after its first search found none failed with an error \(its log names why\), and Tempo can miss/u);
+    }
+    // A re-poll whose trace never validated says so.
+    const invalid = { ...record, searchAttempts: [record.searchAttempts[0], { ...record.searchAttempts[1], result: 'invalid-topology' }] };
+    await writeFile(path.join(dir, 'continuation-trace-collector.json'), `${JSON.stringify(invalid)}\n`);
+    for (const item of (await summarizeRun(dir)).items) {
+      assert.match(item.action, /re-poll 0\.1 s after its first search found none found a trace that never validated/u);
+    }
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    await rm(dir, { recursive: true, force: true });
   }
 });
 

@@ -22,7 +22,11 @@
 // routes debt: it never holds, clears or adds a receipt, and it reads no trace.
 
 import { traceRequirement } from './continuation-trace-requirement.mjs';
-import { repollFromSearchRecord, TEMPO_BLOCKLIST_POLL_SECONDS } from './tempo-repoll.mjs';
+import {
+  DEFAULT_TEMPO_REPOLL_SECONDS,
+  repollFromSearchRecord,
+  TEMPO_BLOCKLIST_POLL_SECONDS,
+} from './tempo-repoll.mjs';
 import { isoSeconds, traceCorrelationWindow } from './trace-correlation-window.mjs';
 
 // The tools whose trace collect-continuation-trace.mjs attributes by the reason
@@ -88,19 +92,27 @@ function withReason(text, reason) {
 
 // What the collector's re-poll says about a fingerprint no trace matched. Tempo
 // can miss a trace that exists until its next blocklist poll after a
-// compaction; only a re-poll at least one poll period later rules that out.
+// compaction. A re-poll one poll period plus margin later that also matched
+// nothing makes a single such gap unlikely; it cannot rule out a second one.
+const REPOLL_ENDINGS = Object.freeze({
+  matched: 'did find a trace, but the collection failed after it (its log names why), so collect again',
+  'invalid-topology': 'found a trace that never validated (its log names why)',
+});
+
 function repollClause(repoll) {
   const gap = `Tempo can miss a trace that exists for up to one blocklist-poll period (about ${TEMPO_BLOCKLIST_POLL_SECONDS / 60} minutes) ` +
     'after a compaction, so search again at least that long after the collector did';
   if (!repoll) return `, and no re-poll is recorded for it; ${gap}`;
+  const { waitSeconds } = repoll;
   const last = repoll.attempts[repoll.attempts.length - 1].result;
-  if (last !== 'no-match') {
-    return `; the collector's re-poll ${repoll.waitSeconds} s after its first search found none ended ${last}`;
+  if (last === 'no-match') {
+    return `, on the collector's first search or on its re-poll ${waitSeconds} s later` +
+      (waitSeconds >= DEFAULT_TEMPO_REPOLL_SECONDS
+        ? ', so a single Tempo blocklist-poll gap, which heals within one poll period, is unlikely to explain it'
+        : `; that re-poll came sooner than one blocklist-poll period plus margin (${DEFAULT_TEMPO_REPOLL_SECONDS} s), and ${gap}`);
   }
-  return `, on the collector's first search or on its re-poll ${repoll.waitSeconds} s later` +
-    (repoll.waitSeconds >= TEMPO_BLOCKLIST_POLL_SECONDS
-      ? ', so it is not a Tempo blocklist-poll gap, which heals within one poll period'
-      : `; that re-poll waited less than one blocklist-poll period, and ${gap}`);
+  const ending = REPOLL_ENDINGS[last] ?? `failed with an error (its log names why), and ${gap}`;
+  return `; the collector's re-poll ${waitSeconds} s after its first search found none ${ending}`;
 }
 
 /**

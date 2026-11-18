@@ -463,8 +463,11 @@ bounded poll ends with no candidate, the collector searches once more after
 `OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS` (default `330`, one blocklist poll plus
 margin; `0` to `3600` with at most millisecond precision, and anything else
 fails the collector before it queries). A candidate that was seen but never
-validated is not re-polled, and a row with no reason fingerprint queries
-nothing, so it is never re-polled either (`lib/tempo-repoll.mjs`).
+validated is not re-polled. A `continue_work` or `continue_delegate` row with no
+reason fingerprint queries nothing, so it is never re-polled. A row the
+collector attributes by tool and evidence window instead (R-RC-1's
+`request_compaction`, R-CW-TOKEN's `sessions_spawn`) is searched the same way and
+re-polled the same way (`lib/tempo-repoll.mjs`).
 
 - A trace the re-poll finds is correlated as usual, and its correlation receipt
   records both attempts under `searchAttempts`: start and end time, query
@@ -473,14 +476,18 @@ nothing, so it is never re-polled either (`lib/tempo-repoll.mjs`).
   acquisition receipt accepts `searchAttempts` only in that shape: one empty
   search, then one matching re-poll over the same window at least its recorded
   wait later, with every search counted.
-- When the re-poll fails too, the error reads `no Tempo trace matched … before
-  timeout, nor on a re-poll <N> s later`, and the collector's stdout, which the
-  runner keeps as `continuation-trace-collector.json`, is an
-  `openclaw.k6.trace-search-record.v1` record of both attempts.
+- When a collection that re-polled still fails, the collector's stdout, which
+  the runner keeps as `continuation-trace-collector.json`, is an
+  `openclaw.k6.trace-search-record.v1` record of both attempts. That covers a
+  re-poll that matched nothing (the error reads `no Tempo trace matched …
+  before timeout, nor on a re-poll <N> s later`), a re-poll that failed (its
+  attempt is recorded as `error`), and a re-poll that matched before a later
+  check failed.
 
-A row whose search finds nothing now costs up to one more wait (the collector's
-`--timeout-ms`, 180 s from the runner, plus the re-poll wait). Leave room for it
-in a row list's job timeout, or lower the wait for a run that cannot afford it.
+A row whose search finds nothing now spends the re-poll wait on top of the
+collector's poll budget (`--timeout-ms`, 180 s by default, which the runner does
+not override), about 8.5 minutes in all. Leave room for it in a row list's job
+timeout, or lower the wait for a run that cannot afford it.
 
 Which rows owe a trace is structural, not a receipt spelling (#600). A row that
 fires `continue_work`, `continue_delegate` or `request_compaction`, or whose
@@ -659,11 +666,13 @@ receipt:
   summary names the fingerprint, accept span and row window to search before
   any refire. It also names whether the collector re-polled Tempo (`repoll`,
   read from the run's `continuation-trace-collector.json` and credited only
-  when that record is for this fingerprint and window). A re-poll at least one
-  blocklist-poll period after the first search that also matched nothing rules
-  out a Tempo blocklist-poll gap. With a shorter wait, or no re-poll recorded
-  (a run from before the rule), the action says to search again at least five
-  minutes after the collector did.
+  when that record is for this fingerprint and window). A re-poll one
+  blocklist-poll period plus margin (330 s) after the first search that also
+  matched nothing makes a single Tempo blocklist-poll gap unlikely; it cannot
+  rule out a second one. With a shorter wait, a re-poll that failed, or no
+  re-poll recorded (a run from before the rule), the action says to search
+  again at least five minutes after the collector did. A re-poll that matched
+  before the collection failed says to collect again.
 
 Other null trace ids (`tempo-trace-unfetchable`) cannot be fetched from Tempo.
 Those rows need either a rerun with trace emission or an explicit fold decision

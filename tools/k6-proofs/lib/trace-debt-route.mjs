@@ -20,6 +20,7 @@
 // never holds, clears or adds a receipt, and it reads no trace.
 
 import { traceRequirement } from './continuation-trace-requirement.mjs';
+import { isoSeconds, traceCorrelationWindow } from './trace-correlation-window.mjs';
 
 // The tools whose trace collect-continuation-trace.mjs attributes by the reason
 // fingerprint the scenario records (traceContract), with the accepted-entry
@@ -31,24 +32,22 @@ const FINGERPRINT_ACCEPT_SPANS = Object.freeze({
 });
 
 // Evidence fields in which a scenario names why it stopped before dispatch,
-// and the booleans in which it says whether it dispatched, in the order read.
+// and the booleans in which it says whether it dispatched (sent, or had the
+// send accepted), in the order read.
 const ROW_REASON_FIELDS = ['dispatch_refused', 'verdict_reason'];
 const ROW_DISPATCH_FIELDS = ['dispatched', 'proof_dispatched', 'dispatch_accepted'];
 const ROW_REASON_MAX_CHARS = 240;
+const TOKEN = /^[a-z][a-z0-9-]{0,63}$/u;
 
 function plainObject(value) {
   return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
-function rowReason(evidence) {
-  for (const field of ROW_REASON_FIELDS) {
-    const value = evidence[field];
-    if (typeof value !== 'string') continue;
-    const text = value.replace(/[\u0000-\u001f\u007f]+/gu, ' ').trim();
-    if (!text) continue;
-    return text.length > ROW_REASON_MAX_CHARS ? `${text.slice(0, ROW_REASON_MAX_CHARS - 1)}…` : text;
-  }
-  return null;
+function oneLine(value) {
+  if (typeof value !== 'string') return null;
+  const text = value.replace(/[\u0000-\u001f\u007f]+/gu, ' ').trim();
+  if (!text) return null;
+  return text.length > ROW_REASON_MAX_CHARS ? `${text.slice(0, ROW_REASON_MAX_CHARS - 1)}…` : text;
 }
 
 function rowDispatched(evidence) {
@@ -56,6 +55,17 @@ function rowDispatched(evidence) {
     if (typeof evidence[field] === 'boolean') return evidence[field];
   }
   return null;
+}
+
+// The scenario's own reason, or, for a row its runner stopped before the
+// scenario ran (R-CD-TOKEN's pre-dispatch gate), the runner's verdict source.
+function rowReason(evidence, runResult, dispatched) {
+  for (const field of ROW_REASON_FIELDS) {
+    const text = oneLine(evidence[field]);
+    if (text) return text;
+  }
+  const source = runResult.verdictSource;
+  return dispatched === false && typeof source === 'string' && TOKEN.test(source) ? `verdict source ${source}` : null;
 }
 
 // The collector's own fingerprint rule (traceContract, safeHex).
@@ -67,19 +77,22 @@ function reasonFingerprint(evidence) {
   return { hash, length };
 }
 
-function isoTime(value) {
-  return typeof value === 'string' && Number.isFinite(Date.parse(value)) ? value : null;
+function withReason(text, reason) {
+  return reason ? `${text} (row reason: ${reason})` : text;
 }
 
 /**
  * The route for one pending receipt of a run, or null to keep the generic
- * route. Only the trace receipts a continuation row owes (traceRequirement)
- * are routed, and only when the run carries its row manifest.
+ * route. Only the trace receipts a fingerprint-attributed continuation row owes
+ * (traceRequirement) are routed, and only when the run carries its row
+ * manifest and its runner-recorded evidence.
  */
 export function traceDebtRoute({ manifest, runResult, receipt }) {
   if (!plainObject(manifest)) return null;
   const requirement = traceRequirement(manifest);
   if (!requirement.continuation || !requirement.receipts.includes(receipt)) return null;
+  const acceptSpan = FINGERPRINT_ACCEPT_SPANS[requirement.tool];
+  if (!acceptSpan) return null;
 
   if (manifest.transport === 'offline') {
     return {
@@ -89,9 +102,13 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
   }
 
   // Every run-result writer in run-proofs.sh records `evidence`, null when the
-  // row wrote no evidence record (since 891831e4). A result without the key
-  // predates that or was not written by the runner: it says nothing.
+  // row has no public evidence record (since 891831e4). A result without the
+  // key predates that or was not written by the runner: it says nothing.
   if (!plainObject(runResult) || !Object.hasOwn(runResult, 'evidence')) return null;
+  // A failed public redaction also leaves `evidence` null, but the collector
+  // had already run on the private record, so its absence says nothing here.
+  const pending = Array.isArray(runResult.review?.pendingReceipts) ? runResult.review.pendingReceipts : [];
+  if (pending.includes('public-safe-evidence')) return null;
   const evidence = runResult.evidence;
   if (evidence === null) {
     return {
@@ -104,27 +121,44 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
   // withholds its acquisition fields by design; their absence says nothing.
   if (Object.hasOwn(evidence, 'authoritativeReceipt')) return null;
 
-  const acceptSpan = FINGERPRINT_ACCEPT_SPANS[requirement.tool];
-  if (!acceptSpan) return null;
-
+  const dispatched = rowDispatched(evidence);
+  const reason = rowReason(evidence, runResult, dispatched);
   const fingerprint = reasonFingerprint(evidence);
   if (!fingerprint) {
-    const reason = rowReason(evidence);
     return {
       class: 'trace-no-reason-fingerprint',
       rowReason: reason,
-      rowDispatched: rowDispatched(evidence),
-      action: 'the row recorded no reason fingerprint, so the collector had nothing to search Tempo by and queried nothing: ' +
-        'a row that refused or stopped before dispatch owes its behavior first, so clear its own reason and refire it; ' +
-        'a row that dispatched without recording one has a scenario defect (#600)' +
-        (reason ? ` (row reason: ${reason})` : ''),
+      rowDispatched: dispatched,
+      action: withReason(dispatched === true
+        ? 'the row records a dispatch but no reason fingerprint, so the collector had nothing to search Tempo by: ' +
+          'a scenario defect (#600); fix the scenario, then refire the row'
+        : 'the row recorded no reason fingerprint, so the collector had nothing to search Tempo by and queried nothing: ' +
+          'a row that refused or stopped before dispatch owes its behavior first, so clear its own reason and refire it; ' +
+          'a row that dispatched without recording one has a scenario defect (#600)', reason),
+    };
+  }
+  // Scenarios record the fingerprint as they send the instruction, so a row
+  // whose own record says the dispatch was not made or not accepted has one
+  // and still ran no continuation.
+  if (dispatched === false) {
+    return {
+      class: 'trace-not-dispatched',
+      reasonHash: fingerprint.hash,
+      reasonLength: fingerprint.length,
+      rowReason: reason,
+      rowDispatched: dispatched,
+      action: withReason(`the row recorded the fingerprint of the task it meant to dispatch (${fingerprint.hash}/${fingerprint.length}), ` +
+        'but its own record says the dispatch was not made or not accepted, so no continuation ran to trace: ' +
+        'clear its own reason and refire the row', reason),
     };
   }
 
-  const delegateMode = requirement.tool === 'continue_delegate'
-    ? (typeof evidence.delegate_mode === 'string' && evidence.delegate_mode) || manifest.invocation?.mode || null
-    : null;
-  const window = { start: isoTime(evidence.started), end: isoTime(evidence.ended) };
+  const mode = requirement.tool === 'continue_delegate'
+    ? (typeof evidence.delegate_mode === 'string' && evidence.delegate_mode) || manifest.invocation?.mode
+    : undefined;
+  const delegateMode = typeof mode === 'string' && TOKEN.test(mode) ? mode : null;
+  const searched = traceCorrelationWindow(evidence);
+  const window = searched ? { start: isoSeconds(searched.start), end: isoSeconds(searched.end) } : null;
   return {
     class: 'tempo-trace-uncorrelated',
     reasonHash: fingerprint.hash,
@@ -134,8 +168,9 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
     window,
     action: `the row recorded reason fingerprint ${fingerprint.hash}/${fingerprint.length}` +
       (delegateMode ? ` (mode ${delegateMode})` : '') +
-      ' but no trace was correlated: read continuation-trace-collector.error.log, then search Tempo for ' +
-      `${acceptSpan} spans in the row window ${window.start ?? '?'}..${window.end ?? '?'} and compare reason.hash/reason.length before any refire; ` +
-      'a span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted',
+      ' but no trace was correlated: read continuation-trace-collector.error.log first. If it reads "no Tempo trace matched", search Tempo for ' +
+      `${acceptSpan} spans in the collector's window ${window ? `${window.start}..${window.end}` : '(none recorded)'} and compare reason.hash/reason.length before any refire: ` +
+      'a span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted. ' +
+      'Any other collector error names its own cause',
   };
 }

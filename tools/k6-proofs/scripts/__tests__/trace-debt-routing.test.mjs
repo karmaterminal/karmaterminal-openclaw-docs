@@ -129,7 +129,8 @@ test('run 44245772142: rows that recorded no reason fingerprint are routed to th
       rowReason: 'no override model configured (set OPENCLAW_ALT_MODEL or manifest invocation.model to a provider/model)',
       rowDispatched: false,
     },
-    'R-CD-TOKEN': { rowReason: null, rowDispatched: false },
+    // Its runner stopped it before the scenario ran: the verdict source is the reason.
+    'R-CD-TOKEN': { rowReason: 'verdict source pre-dispatch-surface-gate', rowDispatched: false },
   };
   for (const [rowId, { rowReason, rowDispatched }] of Object.entries(expected)) {
     for (const item of traceItems(pendingFor(summary, rowId))) {
@@ -166,7 +167,9 @@ test('run 44245772142: a recorded fingerprint no trace matched is routed to a fi
     assert.equal(item.reasonLength, 306);
     assert.equal(item.delegateMode, 'normal');
     assert.equal(item.acceptSpan, 'continuation.delegate.dispatch');
-    assert.deepEqual(item.window, { start: '2026-11-18T05:46:14.977Z', end: '2026-11-18T05:49:15.291Z' });
+    // The window the collector searched (started - 60 s .. ended + 60 s), as its log names it.
+    assert.deepEqual(item.window, { start: '2026-11-18T05:45:14Z', end: '2026-11-18T05:50:15Z' });
+    assert.match(item.action, /If it reads "no Tempo trace matched"/);
     assert.match(item.action, /relayed different task bytes/);
   }
   assert.match(text, /tempo-trace-uncorrelated: [^\n]*17d1c4cdcab47769\/306/);
@@ -200,6 +203,75 @@ test('routing reads only what the run recorded: absent evidence, a malformed fin
     const legacy = pendingFor(summary, rowId).pending.find((item) => item.receipt === 'tempo-trace-json');
     assert.equal(legacy.class, 'tempo-trace-unfetchable', rowId);
   }
+});
+
+test('a fingerprint on a row whose own record says it never dispatched is not sent to Tempo', async () => {
+  const model = fixtureRow('R-CD-MODEL-DEFAULT');
+  const tool = fixtureRow('R-CD-MODEL-TOOL');
+  const { summary } = await summarize([model, tool], {
+    // The scenario fingerprints the task as it sends the instruction; the send
+    // was then refused, so no continuation ran.
+    'R-CD-MODEL-DEFAULT': {
+      runResult: {
+        ...model.runResult,
+        evidence: { ...model.runResult.evidence, dispatch_accepted: false, verdict_reason: 'sessions.send refused: busy' },
+      },
+    },
+    // A row that records a dispatch but no fingerprint is a scenario defect first.
+    'R-CD-MODEL-TOOL': {
+      runResult: { ...tool.runResult, evidence: { ...tool.runResult.evidence, dispatch_accepted: true, dispatch_refused: null, verdict_reason: null } },
+    },
+  });
+  for (const item of traceItems(pendingFor(summary, 'R-CD-MODEL-DEFAULT'))) {
+    assert.equal(item.class, 'trace-not-dispatched', item.receipt);
+    assert.equal(item.reasonHash, '17d1c4cdcab47769');
+    assert.equal(item.rowDispatched, false);
+    assert.equal(item.rowReason, 'sessions.send refused: busy');
+    assert.doesNotMatch(item.action, /search Tempo/);
+  }
+  for (const item of traceItems(pendingFor(summary, 'R-CD-MODEL-TOOL'))) {
+    assert.equal(item.class, 'trace-no-reason-fingerprint', item.receipt);
+    assert.equal(item.rowDispatched, true);
+    assert.match(item.action, /^the row records a dispatch but no reason fingerprint/);
+    assert.match(item.action, /scenario defect \(#600\)/);
+  }
+});
+
+test('rows the collector attributes by tool window, and a failed public redaction, keep the generic route', async () => {
+  const tool = fixtureRow('R-CD-MODEL-TOOL');
+  const rcRow = {
+    ...tool,
+    rowId: 'R-RC-1',
+    runId: '20261118T062521Z-r-rc-1-46386235',
+    manifest: {
+      schema: 'openclaw.k6.proof-row-manifest.v1',
+      rowId: 'R-RC-1',
+      transport: 'websocket',
+      toolSurface: 'typed-tool',
+      invocation: { tool: 'request_compaction' },
+      liveRunSafety: { requiredReceipts: ['tempo-trace-json', 'tool-trace-correlation'] },
+    },
+    runResult: {
+      ...tool.runResult,
+      evidence: null,
+      review: { status: 'review-pending', pendingReceipts: ['tempo-trace-json', 'tool-trace-correlation'], rowReview: null },
+    },
+  };
+  const { summary } = await summarize([rcRow, tool], {
+    'R-CD-MODEL-TOOL': {
+      runResult: {
+        ...tool.runResult,
+        evidence: null,
+        review: { ...tool.runResult.review, pendingReceipts: [...tool.runResult.review.pendingReceipts, 'public-safe-evidence'] },
+      },
+    },
+  });
+  const rc = pendingFor(summary, 'R-RC-1').pending;
+  assert.equal(rc.find((item) => item.receipt === 'tempo-trace-json').class, 'tempo-trace-unfetchable');
+  assert.equal(rc.find((item) => item.receipt === 'tool-trace-correlation').class, 'manual-review');
+  const redacted = pendingFor(summary, 'R-CD-MODEL-TOOL').pending;
+  assert.equal(redacted.find((item) => item.receipt === 'tempo-trace-json').class, 'tempo-trace-unfetchable');
+  assert.equal(redacted.find((item) => item.receipt === 'continuation-trace-correlation').class, 'manual-review');
 });
 
 test('an authoritative-receipt row keeps the generic route: its public evidence withholds acquisition by design', async () => {
@@ -254,7 +326,7 @@ async function collect(row, { traces = [] } = {}) {
 }
 
 test('collector: an evidence record with no reason fingerprint is refused with its cause, before any Tempo query', async () => {
-  for (const rowId of ['R-CD-3', 'R-CD-MODEL-CHAINED-ALT', 'R-CD-MODEL-TOKEN', 'R-CD-MODEL-TOOL', 'R-CD-COLLECTION-ON-COLLAPSE']) {
+  for (const rowId of ['R-CD-3', 'R-CD-MODEL-CHAINED-ALT', 'R-CD-MODEL-TOKEN', 'R-CD-MODEL-TOOL']) {
     const collected = await collect(fixtureRow(rowId));
     assert.equal(collected.ok, false, rowId);
     assert.equal(collected.code, 1, rowId);
@@ -264,6 +336,11 @@ test('collector: an evidence record with no reason fingerprint is refused with i
     assert.match(collected.stderr, /refused or stopped before dispatch/, rowId);
     assert.deepEqual(collected.queries, [], `${rowId} queried Tempo`);
   }
+  const statik = await collect(fixtureRow('R-CD-COLLECTION-ON-COLLAPSE'));
+  assert.equal(statik.code, 1);
+  assert.match(statik.stderr, /^invalid evidence reason hash: \(empty\): the row is an offline validator and fires nothing/);
+  assert.match(statik.stderr, /fold review/);
+  assert.deepEqual(statik.queries, []);
 });
 
 test('collector: a recorded fingerprint no trace matched names the fingerprint, span and window it searched', async () => {

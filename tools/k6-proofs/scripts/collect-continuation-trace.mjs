@@ -21,9 +21,13 @@ import {
 import { sanitizeEvidenceRecords } from './sanitize-k6-artifacts.mjs';
 import { renderRowTaskTemplate } from '../lib/row-child-correlation.mjs';
 import { escapeTraceqlString, proofsServiceName } from '../lib/proofs-service-name.mjs';
+import {
+  CORRELATION_WINDOW_PADDING_SECONDS,
+  isoSeconds,
+  traceCorrelationWindow,
+} from '../lib/trace-correlation-window.mjs';
 
 const DEFAULT_TEMPO_BASE_URL = 'http://tempo.dandelion.cult';
-const CORRELATION_WINDOW_PADDING_SECONDS = 60;
 const TOOL_ORIGIN_EARLY_TOLERANCE_MS = 15000;
 const TOOL_ORIGIN_LATE_TOLERANCE_MS = 1000;
 
@@ -181,11 +185,12 @@ export function traceContract(manifest, evidence) {
   // or the refusal reads as a parsing fault (live run 44245772142: four rows
   // refused before dispatch and their logs sent a lane looking for one).
   if (evidence?.reason_hash == null || evidence.reason_hash === '') {
-    throw new Error(
-      'invalid evidence reason hash: (empty): the row recorded no reason fingerprint, so there is nothing to search Tempo by. ' +
-      'A row that refused or stopped before dispatch has no continuation to trace (see its dispatch_refused or verdict_reason); ' +
-      'one that dispatched without recording it has a scenario defect (#600)',
-    );
+    throw new Error(manifest?.transport === 'offline'
+      ? 'invalid evidence reason hash: (empty): the row is an offline validator and fires nothing, so it records no reason fingerprint; ' +
+        'its trace can only be confirmed from the committed live run at fold review'
+      : 'invalid evidence reason hash: (empty): the row recorded no reason fingerprint, so there is nothing to search Tempo by. ' +
+        'A row that refused or stopped before dispatch has no continuation to trace (see its dispatch_refused or verdict_reason); ' +
+        'one that dispatched without recording it has a scenario defect (#600)');
   }
   const hash = safeHex(evidence?.reason_hash, 16, 'evidence reason hash');
   const length = Number(evidence?.reason_length);
@@ -624,10 +629,6 @@ async function sleep(ms) {
   await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function isoSeconds(epochSeconds) {
-  return new Date(epochSeconds * 1000).toISOString().replace(/\.000Z$/u, 'Z');
-}
-
 async function main() {
   const args = parseArgs(process.argv);
   if (!args.runDir || !args.manifest || !args.seat) {
@@ -686,15 +687,9 @@ async function main() {
         return `{ resource.service.name="${serviceName}" && name="${contract.acceptSpanName}" && .reason.hash="${contract.hash}" && .reason.length=${contract.length}${modeClause} }`;
       })()
     : `{ resource.service.name="${serviceName}" && name="openclaw.tool.execution" && .gen_ai.tool.name="${contract.tool}" }`;
-  const dispatchMs = Number(evidence.dispatch_accepted_at_ms || Date.parse(evidence.started));
-  if (!Number.isFinite(dispatchMs)) throw new Error('evidence lacks a valid dispatch/start time');
-  const dispatchSeconds = Math.floor(dispatchMs / 1000);
-  const start = dispatchSeconds - CORRELATION_WINDOW_PADDING_SECONDS;
-  const evidenceEndMs = Date.parse(evidence.ended);
-  const evidenceEndSeconds = Number.isFinite(evidenceEndMs)
-    ? Math.floor(evidenceEndMs / 1000)
-    : dispatchSeconds;
-  const end = Math.max(dispatchSeconds, evidenceEndSeconds) + CORRELATION_WINDOW_PADDING_SECONDS;
+  const searchWindow = traceCorrelationWindow(evidence);
+  if (!searchWindow) throw new Error('evidence lacks a valid dispatch/start time');
+  const { start, end } = searchWindow;
   const deadline = Date.now() + args.timeoutMs;
   let candidates = [];
   let traceId = '';

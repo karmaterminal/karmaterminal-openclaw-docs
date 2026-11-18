@@ -15,11 +15,18 @@
 //     so Tempo held the dispatch span under another reason fingerprint.
 //
 // What decides the route is already in the run directory: the row manifest
-// the runner copies there and the public evidence record run-proofs.sh embeds
-// in run-result.json. This module reads nothing else. It only routes debt: it
-// never holds, clears or adds a receipt, and it reads no trace.
+// the runner copies there, the public evidence record run-proofs.sh embeds in
+// run-result.json, and, for a fingerprint no trace matched, the search record
+// the collector prints after its Tempo re-poll (lib/tempo-repoll.mjs), kept as
+// continuation-trace-collector.json. This module reads nothing else. It only
+// routes debt: it never holds, clears or adds a receipt, and it reads no trace.
 
 import { traceRequirement } from './continuation-trace-requirement.mjs';
+import {
+  DEFAULT_TEMPO_REPOLL_SECONDS,
+  repollFromSearchRecord,
+  TEMPO_BLOCKLIST_POLL_SECONDS,
+} from './tempo-repoll.mjs';
 import { isoSeconds, traceCorrelationWindow } from './trace-correlation-window.mjs';
 
 // The tools whose trace collect-continuation-trace.mjs attributes by the reason
@@ -83,13 +90,40 @@ function withReason(text, reason) {
   return reason ? `${text} (row reason: ${reason})` : text;
 }
 
+// What the collector's re-poll says about a fingerprint no trace matched. Tempo
+// can miss a trace that exists until its next blocklist poll after a
+// compaction. A re-poll one poll period plus margin later that also matched
+// nothing makes a single such gap unlikely; it cannot rule out a second one.
+const REPOLL_ENDINGS = Object.freeze({
+  matched: 'did find a trace, but the collection failed after it (its log names why), so collect again',
+  'invalid-topology': 'found a trace that never validated (its log names why)',
+});
+
+function repollClause(repoll) {
+  const gap = `Tempo can miss a trace that exists for up to one blocklist-poll period (about ${TEMPO_BLOCKLIST_POLL_SECONDS / 60} minutes) ` +
+    'after a compaction, so search again at least that long after the collector did';
+  if (!repoll) return `, and no re-poll is recorded for it; ${gap}`;
+  const { waitSeconds } = repoll;
+  const last = repoll.attempts[repoll.attempts.length - 1].result;
+  if (last === 'no-match') {
+    return `, on the collector's first search or on its re-poll ${waitSeconds} s later` +
+      (waitSeconds >= DEFAULT_TEMPO_REPOLL_SECONDS
+        ? ', so a single Tempo blocklist-poll gap, which heals within one poll period, is unlikely to explain it'
+        : `; that re-poll came sooner than one blocklist-poll period plus margin (${DEFAULT_TEMPO_REPOLL_SECONDS} s), and ${gap}`);
+  }
+  const ending = REPOLL_ENDINGS[last] ?? `failed with an error (its log names why), and ${gap}`;
+  return `; the collector's re-poll ${waitSeconds} s after its first search found none ${ending}`;
+}
+
 /**
  * The route for one pending receipt of a run, or null to keep the generic
  * route. Only the trace receipts a fingerprint-attributed continuation row owes
  * (traceRequirement) are routed, and only when the run carries its row
- * manifest and its runner-recorded evidence.
+ * manifest and its runner-recorded evidence. `searchRecord` is the parsed
+ * continuation-trace-collector.json of the run, if any; it is credited only
+ * when it records a re-poll for this run's fingerprint and window.
  */
-export function traceDebtRoute({ manifest, runResult, receipt }) {
+export function traceDebtRoute({ manifest, runResult, receipt, searchRecord = null }) {
   if (!plainObject(manifest)) return null;
   const requirement = traceRequirement(manifest);
   if (!requirement.continuation || !requirement.receipts.includes(receipt)) return null;
@@ -163,6 +197,13 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
   const window = searched && isoSeconds(searched.start) && isoSeconds(searched.end)
     ? { start: isoSeconds(searched.start), end: isoSeconds(searched.end) }
     : null;
+  const repoll = searched
+    ? repollFromSearchRecord(searchRecord, {
+        reasonHash: fingerprint.hash,
+        reasonLength: fingerprint.length,
+        window: { startUnixSeconds: searched.start, endUnixSeconds: searched.end },
+      })
+    : null;
   return {
     class: 'tempo-trace-uncorrelated',
     reasonHash: fingerprint.hash,
@@ -170,9 +211,11 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
     delegateMode,
     acceptSpan,
     window,
+    repoll,
     action: `the row recorded reason fingerprint ${fingerprint.hash}/${fingerprint.length}` +
       (delegateMode ? ` (mode ${delegateMode})` : '') +
-      ' but no trace was correlated: read continuation-trace-collector.error.log first. If it reads "no Tempo trace matched", search Tempo for ' +
+      ` but no trace was correlated${repollClause(repoll)}: ` +
+      'read continuation-trace-collector.error.log first. If it reads "no Tempo trace matched", search Tempo for ' +
       `${acceptSpan} spans in the collector's window ${window ? `${window.start}..${window.end}` : '(none recorded)'} and compare reason.hash/reason.length before any refire: ` +
       'a span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted. ' +
       'Any other collector error names its own cause',

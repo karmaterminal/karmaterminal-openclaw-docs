@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { lstat, readdir, readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { candidateEnvelopeMatchesSiblings } from './candidate-run-result-contract.mjs';
 import { traceReceiptFindings } from '../lib/continuation-trace-requirement.mjs';
@@ -10,7 +10,7 @@ import {
 } from '../lib/r-cd-2-authority-context.mjs';
 
 function usage() {
-  return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\nA continuation row's missing trace receipts are routed by the row's own record (lib/trace-debt-route.mjs):\nno evidence, no reason fingerprint, a static validator, or a fingerprint no trace matched.\n`;
+  return `Usage: node tools/k6-proofs/scripts/summarize-review-debt.mjs --run-root <candidate-run-dir> [--json]\n\nScans row run-result.json files and summarizes review-pending receipts.\nFor tempo-trace-json debt, distinguishes fetchable trace ids from trace-missing rows where no Tempo fetch can be attempted.\nA continuation row's missing trace receipts are routed by the row's own record (lib/trace-debt-route.mjs):\nno evidence, no reason fingerprint, a static validator, or a fingerprint no trace matched, naming whether\nthe collector re-polled Tempo (its continuation-trace-collector.json).\n`;
 }
 
 function parseArgs(argv) {
@@ -50,10 +50,19 @@ async function readJson(file) {
   return JSON.parse(await readFile(file, 'utf8'));
 }
 
+// The collector's stdout, which run-proofs.sh keeps in the run directory: its
+// search record after a failed Tempo re-poll, else its result or nothing. Only
+// a regular file there counts, and anything unparseable is no record.
+async function readSearchRecord(dir) {
+  const file = path.join(dir, 'continuation-trace-collector.json');
+  if (!(await lstat(file).catch(() => null))?.isFile()) return null;
+  return readJson(file).catch(() => null);
+}
+
 function classifyPending(row, receipt) {
   const traceId = row.traceId || null;
   if (!traceId) {
-    const route = traceDebtRoute({ manifest: row.manifest, runResult: row.runResult, receipt });
+    const route = traceDebtRoute({ manifest: row.manifest, runResult: row.runResult, receipt, searchRecord: row.searchRecord });
     if (route) return { receipt, fetchable: false, traceId: null, ...route };
   }
   if (receipt !== 'tempo-trace-json') return { receipt, class: 'manual-review', fetchable: null, action: 'supply-or-accept-review-receipt' };
@@ -92,13 +101,14 @@ async function loadRows(root) {
     }
     if (!candidateEnvelopeMatchesSiblings({ envelope: raw, manifest, metadata, runResult, runDir: dir })) continue;
     const pendingReceipts = asArray(raw.review?.pendingReceipts);
+    const searchRecord = await readSearchRecord(dir);
     rows.push({
       rowId: raw.run?.rowId || rowFromPath(file) || 'unknown-row',
       file: path.relative(root, file),
       reviewStatus: raw.review?.status || 'unknown',
       pendingReceipts,
       traceId: null,
-      pending: pendingReceipts.map((receipt) => classifyPending({ traceId: null, manifest, runResult }, receipt)),
+      pending: pendingReceipts.map((receipt) => classifyPending({ traceId: null, manifest, runResult, searchRecord }, receipt)),
     });
   }
   for (const file of files.sort()) {
@@ -162,6 +172,7 @@ async function loadRows(root) {
     pendingReceipts.push(...traceDebt);
     const rowId = rCd2Required ? 'R-CD-2' : raw.rowId || raw.row || rowFromPath(file) || 'unknown-row';
     const traceId = raw.observability?.traceId || raw.traceId || null;
+    const searchRecord = await readSearchRecord(dir);
     rows.push({
       rowId,
       file: path.relative(root, file),
@@ -172,7 +183,7 @@ async function loadRows(root) {
       pending: pendingReceipts.map((receipt) => ({
         // R-CD-2's public evidence is its authority receipt; its trace debt
         // belongs to that authority, not to the evidence fields it withholds.
-        ...classifyPending({ traceId, manifest: rCd2Required ? null : manifest, runResult: raw }, receipt),
+        ...classifyPending({ traceId, manifest: rCd2Required ? null : manifest, runResult: raw, searchRecord }, receipt),
         ...(traceReasons.has(receipt) ? { reason: traceReasons.get(receipt) } : {}),
       })),
     });

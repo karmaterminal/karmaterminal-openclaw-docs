@@ -330,6 +330,8 @@ async function collect(row, { traces = [] } = {}) {
   await writeFile(manifestPath, `${JSON.stringify(row.manifest)}\n`);
   const env = { ...process.env };
   delete env.OPENCLAW_PROOFS_SERVICE_NAME;
+  // An empty search is re-polled once (tempo-repoll.test.mjs); no Tempo-sized wait here.
+  env.OPENCLAW_PROOFS_TEMPO_REPOLL_SECONDS = '0';
   try {
     await run(process.execPath, [
       collector,

@@ -149,7 +149,14 @@ node tools/k6-proofs/scripts/summarize-review-debt.mjs \
   --run-root RUNBOOKS/project-81/candidate-runs/<sha>/<run-id>
 ```
 
-If `tempo-trace-json` debt is reported as `tempo-trace-unfetchable`, the bundle emitted `traceId: null`; rerun with trace emission or explicitly accept trace-missing as an honest review limit before a canonical fold.
+A continuation row's missing trace receipts are routed by the row's own record (`tools/k6-proofs/lib/trace-debt-route.mjs`), so read the class before treating the debt as a Tempo problem:
+
+- `trace-no-reason-fingerprint`: the row recorded no reason fingerprint, so the collector queried nothing (its log reads `invalid evidence reason hash: (empty)`). A row that refused or stopped before dispatch owes its behavior first. The summary quotes the row's own `dispatch_refused` / `verdict_reason`. Clear that cause, then refire the row. A row that dispatched without recording a fingerprint has a scenario defect (#600).
+- `trace-no-row-evidence`: the row wrote no evidence record. Resolve the row's own failure, then refire it.
+- `trace-static-row`: an offline validator fires nothing. No rerun of it can produce a trace, so confirm the committed live run's trace at fold review.
+- `tempo-trace-uncorrelated`: the row recorded a fingerprint, but no trace was correlated. Before any refire, search Tempo for the named accept span in the row window and compare `reason.hash` / `reason.length`. A span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted. Search while Tempo still holds the window.
+
+Any other `tempo-trace-json` debt reported as `tempo-trace-unfetchable` means the bundle emitted `traceId: null`. Rerun with trace emission or explicitly accept trace-missing as an honest review limit before a canonical fold.
 
 ## What not to do
 

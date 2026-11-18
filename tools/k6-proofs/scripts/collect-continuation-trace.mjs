@@ -749,7 +749,7 @@ async function main() {
     // 44245772142, R-CD-MODEL-DEFAULT).
     const searched = contract.kind === 'continuation'
       ? ` (reason length ${contract.length}${contract.mode === undefined ? '' : `, delegate mode ${contract.mode}`}; ` +
-        `searched ${contract.acceptSpanName} spans of service ${serviceName} in ${isoSeconds(start)}..${isoSeconds(end)}; ` +
+        `searched ${contract.acceptSpanName} spans of service ${serviceName} in ${isoSeconds(start) ?? start}..${isoSeconds(end) ?? end}; ` +
         'a span there under another fingerprint means the agent relayed different task bytes than the scenario fingerprinted)'
       : '';
     throw new Error(`no Tempo trace matched ${fingerprint} before timeout${searched}`);

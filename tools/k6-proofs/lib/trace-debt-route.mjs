@@ -50,11 +50,13 @@ function oneLine(value) {
   return text.length > ROW_REASON_MAX_CHARS ? `${text.slice(0, ROW_REASON_MAX_CHARS - 1)}…` : text;
 }
 
+// True when any field says the row dispatched, false only when none does and
+// one says it did not: conflicting fields (a proof sent but an earlier send
+// refused) never read as "no continuation ran".
 function rowDispatched(evidence) {
-  for (const field of ROW_DISPATCH_FIELDS) {
-    if (typeof evidence[field] === 'boolean') return evidence[field];
-  }
-  return null;
+  const values = ROW_DISPATCH_FIELDS.map((field) => evidence[field]).filter((value) => typeof value === 'boolean');
+  if (values.includes(true)) return true;
+  return values.includes(false) ? false : null;
 }
 
 // The scenario's own reason, or, for a row its runner stopped before the
@@ -158,7 +160,9 @@ export function traceDebtRoute({ manifest, runResult, receipt }) {
     : undefined;
   const delegateMode = typeof mode === 'string' && TOKEN.test(mode) ? mode : null;
   const searched = traceCorrelationWindow(evidence);
-  const window = searched ? { start: isoSeconds(searched.start), end: isoSeconds(searched.end) } : null;
+  const window = searched && isoSeconds(searched.start) && isoSeconds(searched.end)
+    ? { start: isoSeconds(searched.start), end: isoSeconds(searched.end) }
+    : null;
   return {
     class: 'tempo-trace-uncorrelated',
     reasonHash: fingerprint.hash,

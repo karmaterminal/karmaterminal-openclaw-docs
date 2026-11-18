@@ -23,6 +23,8 @@ export function traceCorrelationWindow(evidence) {
   };
 }
 
+/** ISO-8601 to the second, or null for a time a Date cannot hold (a nanosecond value read as ms). */
 export function isoSeconds(epochSeconds) {
-  return new Date(epochSeconds * 1000).toISOString().replace(/\.000Z$/u, 'Z');
+  const date = new Date(epochSeconds * 1000);
+  return Number.isFinite(date.getTime()) ? date.toISOString().replace(/\.000Z$/u, 'Z') : null;
 }

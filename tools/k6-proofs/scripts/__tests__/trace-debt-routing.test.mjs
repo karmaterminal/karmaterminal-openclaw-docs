@@ -237,6 +237,32 @@ test('a fingerprint on a row whose own record says it never dispatched is not se
   }
 });
 
+test('conflicting dispatch flags never read as not dispatched, and an unrepresentable time names no window', async () => {
+  const model = fixtureRow('R-CD-MODEL-DEFAULT');
+  const rcd3 = fixtureRow('R-CD-3');
+  const { summary } = await summarize([model, rcd3], {
+    // A dispatch_accepted_at_ms written in nanoseconds: no Date can hold it.
+    'R-CD-MODEL-DEFAULT': {
+      runResult: { ...model.runResult, evidence: { ...model.runResult.evidence, dispatch_accepted_at_ms: 1.7e18 } },
+    },
+    // The proof was dispatched though another field says a send was not.
+    'R-CD-3': {
+      runResult: {
+        ...rcd3.runResult,
+        evidence: { ...rcd3.runResult.evidence, dispatched: false, proof_dispatched: true, dispatch_accepted: false, reason_hash: '17d1c4cdcab47769', reason_length: 306 },
+      },
+    },
+  });
+  for (const item of traceItems(pendingFor(summary, 'R-CD-MODEL-DEFAULT'))) {
+    assert.equal(item.class, 'tempo-trace-uncorrelated', item.receipt);
+    assert.equal(item.window, null);
+    assert.match(item.action, /window \(none recorded\)/);
+  }
+  for (const item of traceItems(pendingFor(summary, 'R-CD-3'))) {
+    assert.equal(item.class, 'tempo-trace-uncorrelated', item.receipt);
+  }
+});
+
 test('rows the collector attributes by tool window, and a failed public redaction, keep the generic route', async () => {
   const tool = fixtureRow('R-CD-MODEL-TOOL');
   const rcRow = {
@@ -341,6 +367,18 @@ test('collector: an evidence record with no reason fingerprint is refused with i
   assert.match(statik.stderr, /^invalid evidence reason hash: \(empty\): the row is an offline validator and fires nothing/);
   assert.match(statik.stderr, /fold review/);
   assert.deepEqual(statik.queries, []);
+});
+
+test('collector: an unrepresentable search time still yields the no-match message, with raw epoch seconds', async () => {
+  const model = fixtureRow('R-CD-MODEL-DEFAULT');
+  const collected = await collect({
+    ...model,
+    runResult: { ...model.runResult, evidence: { ...model.runResult.evidence, dispatch_accepted_at_ms: 1.7e18 } },
+  });
+  assert.equal(collected.ok, false);
+  assert.match(collected.stderr, /no Tempo trace matched reason hash 17d1c4cdcab47769 before timeout/);
+  assert.match(collected.stderr, / in -?\d+\.\.-?\d+; /);
+  assert.doesNotMatch(collected.stderr, /RangeError|Invalid time value/);
 });
 
 test('collector: a recorded fingerprint no trace matched names the fingerprint, span and window it searched', async () => {

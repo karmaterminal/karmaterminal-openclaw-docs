@@ -114,6 +114,9 @@ export function attachReadinessGateway(server, {
     });
     let buffered = Buffer.alloc(0);
     let admittedScopes = null;
+    // A client killed mid-request (a SIGKILLed meter) resets its socket; that is
+    // the client's failure to observe, never an uncaught error in the test.
+    socket.on('error', () => socket.destroy());
     socket.on('data', (chunk) => {
       buffered = Buffer.concat([buffered, chunk]);
       while (buffered.length >= 2) {

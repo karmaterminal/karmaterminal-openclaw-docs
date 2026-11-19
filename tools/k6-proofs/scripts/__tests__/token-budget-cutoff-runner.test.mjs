@@ -460,6 +460,7 @@ test('cutoff (6): usage of a request that finished before the trip lands after i
     assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
     const tripAt = Date.parse(receipt.trip.at);
     // What the meter records: the late 500 in a reading after the trip.
+    assert.ok(receipt.overshoot, 'the receipt carries the overshoot');
     const late = receipt.readings.filter((reading) => Date.parse(reading.at) > tripAt && reading.increment >= 500);
     assert.equal(late.length, 1, JSON.stringify(receipt.readings.map(({ at, increment }) => ({ at, increment }))));
     // What the receipt reports: post-trip overshoot, attributed to when it became visible.

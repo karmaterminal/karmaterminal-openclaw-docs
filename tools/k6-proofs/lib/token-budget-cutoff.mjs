@@ -348,9 +348,16 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
   const final = Number.isSafeInteger(state?.cumulative) ? state.cumulative : null;
   const trip = state?.trip ?? null;
   const tripAt = timeOf(trip?.at);
-  const abortAt = timeOf(abort?.completedAt);
+  // After the abort means after the last reading that started before the
+  // abort pass finished: the meter keeps that reading's totals when the
+  // runner marks the end of the pass (state.abortSessions). Without them (the
+  // meter was gone), the readings are split by the abort's finish time.
+  const marked = abort ? state?.abortSessions ?? null : null;
+  const abortAt = timeOf(marked?.markedAt) || timeOf(abort?.completedAt);
   const atOrBefore = (time) => readings.filter((reading) => reading.readable && timeOf(reading.at) <= time).at(-1) ?? null;
-  const beforeAbort = Number.isFinite(abortAt) ? atOrBefore(abortAt) : null;
+  const beforeAbortCumulative = Number.isSafeInteger(marked?.cumulative)
+    ? marked.cumulative
+    : (Number.isFinite(abortAt) ? atOrBefore(abortAt)?.cumulative ?? null : null);
   let quietReadingsAtEnd = 0;
   for (let index = readings.length - 1; index >= 0; index -= 1) {
     if (readings[index].readable !== true || readings[index].increment !== 0) break;
@@ -359,15 +366,16 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
   const lastGrowth = readings.filter((reading) => reading.readable && reading.increment > 0).at(-1) ?? null;
 
   // Per session: growth after the trip, against the totals the tripping
-  // reading left, and after the abort, against the meter's state when the
-  // abort read it. A session first seen later counts from its baseline.
+  // reading left, and after the abort, against the totals the meter kept when
+  // the abort pass finished. A session first seen later counts from its
+  // baseline.
   const atTrip = state?.tripSessions ? Object.fromEntries(state.tripSessions.map(({ id, lastTokens }) => [id, lastTokens])) : null;
   const sessionsGrowingAfterTrip = atTrip
     ? (state?.sessions ?? [])
       .map((session) => ({ id: session.id, tokens: session.lastTokens - (Object.hasOwn(atTrip, session.id) ? atTrip[session.id] : session.baselineTokens) }))
       .filter((session) => session.tokens > 0)
     : [];
-  const snapshot = abort?.meterSnapshot?.sessions ?? null;
+  const snapshot = marked ? Object.fromEntries((marked.sessions ?? []).map(({ id, lastTokens }) => [id, lastTokens])) : null;
   const owned = new Map((abort?.sessions ?? []).map((session) => [session.id, session.outcome]));
   const sessionsGrowingAfterAbort = snapshot
     ? (state?.sessions ?? [])
@@ -415,7 +423,7 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
       finalCumulative: final,
       pastBudgetTokens: final !== null && budget !== null ? Math.max(0, final - budget) : null,
       postTripTokens: trip && final !== null ? final - trip.cumulative : null,
-      postAbortTokens: beforeAbort && final !== null ? final - beforeAbort.cumulative : null,
+      postAbortTokens: beforeAbortCumulative !== null && final !== null ? final - beforeAbortCumulative : null,
       readingsAfterTrip: afterTrip.length,
       readingsAfterAbort: afterAbort.length,
       lastGrowthAt: lastGrowth?.at ?? null,

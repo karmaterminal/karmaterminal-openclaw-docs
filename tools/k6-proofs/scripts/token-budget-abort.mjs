@@ -2,7 +2,7 @@
 // token-budget-abort.mjs — the token budget's cutoff behind run-proofs.sh.
 //
 //   harvest   --log <private k6 log> --row <ROW> --ledger <file>
-//   abort     --ledger <file> --baseline <file> --meter-state <file> --out <file>
+//   abort     --ledger <file> --baseline <file> --out <file>
 //   overshoot --state <file> [--abort <file>] [--drain <file>]
 //
 // harvest runs after every budgeted row's k6 exits. It appends to the run's
@@ -43,7 +43,7 @@ const ABORT_SCOPES = Object.freeze(['operator.read', 'operator.write']);
 const LIST_PAGE = 500;
 const MAX_LIST_PAGES = 200;
 const USAGE = 'usage: token-budget-abort.mjs harvest --log <file> --row <ROW> --ledger <file> | '
-  + 'abort --ledger <file> --baseline <file> --meter-state <file> --out <file> | '
+  + 'abort --ledger <file> --baseline <file> --out <file> | '
   + 'overshoot --state <file> [--abort <file>] [--drain <file>]';
 
 function parseArgs(argv) {
@@ -121,25 +121,12 @@ function abortTimeoutMs(env) {
   return Math.round(seconds * 1000);
 }
 
-function meterSnapshot(stateFile) {
-  try {
-    const state = readJson(stateFile);
-    return {
-      at: state.updatedAt ?? null,
-      cumulative: Number.isSafeInteger(state.cumulative) ? state.cumulative : null,
-      sessions: Object.fromEntries((state.sessions ?? []).map((session) => [session.id, session.lastTokens])),
-    };
-  } catch {
-    return null;
-  }
-}
-
 /**
  * The cutoff: list, decide, abort. Resolves to the public abort document.
  * `connect(scopes, deadline)` opens the gateway connection (injected so the
  * decision path can be tested without one).
  */
-export async function cutoff({ ledgerFile, baselineFile, meterStateFile, env = process.env, connect, clock = () => Date.now() }) {
+export async function cutoff({ ledgerFile, baselineFile, env = process.env, connect, clock = () => Date.now() }) {
   const startedAt = new Date(clock()).toISOString();
   const doc = {
     schema: TOKEN_BUDGET_ABORT_SCHEMA,
@@ -157,7 +144,6 @@ export async function cutoff({ ledgerFile, baselineFile, meterStateFile, env = p
     abortCalls: 0,
     retries: 0,
     error: null,
-    meterSnapshot: meterSnapshot(meterStateFile),
     note: ABORT_ACK_NOTE,
   };
   const finish = () => {
@@ -233,7 +219,6 @@ export async function cutoff({ ledgerFile, baselineFile, meterStateFile, env = p
         ...(result.error ? { error: result.error } : {}),
         ...(result.refusal ? { refusal: result.refusal } : {}),
         ...(result.reason ? { reason: result.reason } : {}),
-        meterTokensAtAbort: doc.meterSnapshot && Object.hasOwn(doc.meterSnapshot.sessions, id) ? doc.meterSnapshot.sessions[id] : null,
       };
     });
     const tally = (outcome) => doc.sessions.filter((session) => session.outcome === outcome).length;
@@ -263,13 +248,12 @@ async function main() {
     return;
   }
   if (args.command === 'abort') {
-    if (!args.ledger || !args.baseline || !args['meter-state'] || !args.out) throw new Error(USAGE);
+    if (!args.ledger || !args.baseline || !args.out) throw new Error(USAGE);
     const wsUrl = process.env.OPENCLAW_GATEWAY_WS;
     const token = process.env.OPENCLAW_GATEWAY_TOKEN;
     const doc = await cutoff({
       ledgerFile: args.ledger,
       baselineFile: args.baseline,
-      meterStateFile: args['meter-state'],
       connect: (scopes, deadline) => {
         if (!wsUrl) return Promise.reject(new Error('gateway-url-missing'));
         if (!token) return Promise.reject(new Error('gateway-token-missing'));

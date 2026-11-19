@@ -2,7 +2,8 @@
 // token-budget-meter.mjs — the counter behind run-proofs.sh --token-budget.
 //
 //   node scripts/token-budget-meter.mjs watch --budget <tokens> \
-//     --state <file> --trip-flag <file> [--baseline-out <file>] [--parent-pid <pid>]
+//     --state <file> --trip-flag <file> [--baseline-out <file>] \
+//     [--abort-mark <file>] [--parent-pid <pid>]
 //
 // Reads the gateway from OPENCLAW_GATEWAY_WS with OPENCLAW_GATEWAY_TOKEN (taken
 // from the environment only, never an argument), as the row scenarios' backend
@@ -25,7 +26,11 @@
 // session the baseline listed, written before phase "armed", for the cutoff
 // (scripts/token-budget-abort.mjs), which never aborts a session that existed
 // before the run. The runner keeps it in its mode-700 budget directory.
-import { renameSync, writeFileSync } from 'node:fs';
+// --abort-mark names the file the runner writes once the cutoff's abort pass
+// has finished. At the start of the first reading after it appears, the meter
+// keeps the per-session totals (as hashes) the last reading left, so the
+// receipt can show which sessions grew after the abort.
+import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { HARNESS_CLIENT_IDENTITY } from '../lib/gateway-client-identity.mjs';
 import {
@@ -191,7 +196,7 @@ function parseArgs(argv) {
   for (let index = 0; index < rest.length; index += 2) {
     const name = rest[index];
     const value = rest[index + 1];
-    if (!name?.startsWith('--') || value === undefined) throw new Error(`usage: token-budget-meter.mjs watch --budget <tokens> --state <file> --trip-flag <file> [--baseline-out <file>] [--parent-pid <pid>]`);
+    if (!name?.startsWith('--') || value === undefined) throw new Error(`usage: token-budget-meter.mjs watch --budget <tokens> --state <file> --trip-flag <file> [--baseline-out <file>] [--abort-mark <file>] [--parent-pid <pid>]`);
     args[name.slice(2)] = value;
   }
   return args;
@@ -235,6 +240,9 @@ async function watch(args, env = process.env) {
     // Per-session totals (12-hex hashes) as the tripping reading left them, so
     // the receipt can show which sessions' usage landed after the trip.
     tripSessions: null,
+    // The same, as the last reading before the cutoff's abort pass finished
+    // left them (see --abort-mark), with that reading's cumulative total.
+    abortSessions: null,
     readings: [],
     cadence: readingCadence([], null),
     sessions: [],
@@ -399,6 +407,17 @@ async function watch(args, env = process.env) {
     }
     if (!parentAlive(parentPid)) stopping = true;
     const final = stopping;
+    if (args['abort-mark'] && !state.abortSessions && existsSync(args['abort-mark'])) {
+      let markedAt = null;
+      try {
+        markedAt = readFileSync(args['abort-mark'], 'utf8').trim() || null;
+      } catch { /* the time is a label; the snapshot is what counts */ }
+      state.abortSessions = {
+        markedAt,
+        cumulative: state.cumulative,
+        sessions: state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })),
+      };
+    }
     nextAt = Math.max(nextAt + pollMs, Date.now());
     nextDiscoveryAt = Date.now() + discoveryMs;
     const { reading, readMs } = await timed(() => meter.read());

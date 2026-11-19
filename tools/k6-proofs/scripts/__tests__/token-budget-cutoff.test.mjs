@@ -300,6 +300,8 @@ function stateFor() {
     trip: { reason: 'projected-exceed', at: '2026-11-19T00:00:03.000Z', cumulative: 900 },
     baseline: { scope: { byReason: { configured: 1 } } },
     tripSessions: [{ id: 'aaaaaaaaaaaa', lastTokens: 600 }, { id: 'bbbbbbbbbbbb', lastTokens: 300 }],
+    // What the last reading before the abort pass finished left (reading 4).
+    abortSessions: { markedAt: '2026-11-19T00:00:04.500Z', cumulative: 1200, sessions: [{ id: 'aaaaaaaaaaaa', lastTokens: 900 }, { id: 'bbbbbbbbbbbb', lastTokens: 300 }] },
     sessions: [
       { id: 'aaaaaaaaaaaa', baselineTokens: 0, lastTokens: 1600, state: 'live' },
       { id: 'bbbbbbbbbbbb', baselineTokens: 0, lastTokens: 300, state: 'live' },
@@ -325,7 +327,6 @@ const abortDoc = (extra = {}) => ({
   error: null,
   sessions: [{ id: 'aaaaaaaaaaaa', outcome: 'aborted' }, { id: 'bbbbbbbbbbbb', outcome: 'refused' }],
   ambiguous: [{ id: 'dddddddddddd', reason: 'unknown-parent' }],
-  meterSnapshot: { sessions: { aaaaaaaaaaaa: 900, bbbbbbbbbbbb: 300 } },
   ...extra,
 });
 
@@ -363,8 +364,16 @@ test('the observed overshoot is measured from the readings; the maximum possible
 });
 
 test('even a clean cutoff with a quiet drain leaves the maximum unbounded and the drain unproven', () => {
-  const state = { ...stateFor(), baseline: { scope: { byReason: {} } }, readings: [reading(1, 900, 900), reading(4, 900, 0), reading(5, 900, 0, { final: true })], cumulative: 900, tripSessions: [], sessions: [] };
-  const overshoot = computeOvershoot({ state, abort: abortDoc({ sessions: [{ id: 'aaaaaaaaaaaa', outcome: 'aborted' }], ambiguous: [], meterSnapshot: { sessions: {} } }), drain: { metered: true } });
+  const state = {
+    ...stateFor(),
+    baseline: { scope: { byReason: {} } },
+    readings: [reading(1, 900, 900), reading(4, 900, 0), reading(5, 900, 0, { final: true })],
+    cumulative: 900,
+    tripSessions: [],
+    abortSessions: { markedAt: '2026-11-19T00:00:04.500Z', cumulative: 900, sessions: [] },
+    sessions: [],
+  };
+  const overshoot = computeOvershoot({ state, abort: abortDoc({ sessions: [{ id: 'aaaaaaaaaaaa', outcome: 'aborted' }], ambiguous: [] }), drain: { metered: true } });
   assert.equal(overshoot.observed.postAbortTokens, 0);
   assert.equal(overshoot.observed.quietReadingsAtEnd, 2);
   assert.equal(overshoot.maxPossible, MAX_POSSIBLE_UNBOUNDED);
@@ -427,12 +436,11 @@ function fakeGateway({ list = () => ({ ok: true, payload: { sessions: [...prince
   };
 }
 
-async function cutoffFiles({ ledger = `${JSON.stringify({ type: 'record', row: 'R-CW-1', key: ROOT, sessionId: 'root' })}\n`, baselineDoc = { at: 'x', sessions: baseline }, meterState = null } = {}) {
+async function cutoffFiles({ ledger = `${JSON.stringify({ type: 'record', row: 'R-CW-1', key: ROOT, sessionId: 'root' })}\n`, baselineDoc = { at: 'x', sessions: baseline } } = {}) {
   const s = await scratch();
   if (ledger !== null) await writeFile(s.file('ledger'), ledger);
   if (baselineDoc !== null) await writeFile(s.file('baseline'), typeof baselineDoc === 'string' ? baselineDoc : JSON.stringify(baselineDoc));
-  if (meterState) await writeFile(s.file('state'), JSON.stringify(meterState));
-  return { ...s, args: { ledgerFile: s.file('ledger'), baselineFile: s.file('baseline'), meterStateFile: s.file('state'), env: {} } };
+  return { ...s, args: { ledgerFile: s.file('ledger'), baselineFile: s.file('baseline'), env: {} } };
 }
 
 test('the abort step aborts nothing when its ledger, its baseline or its listing cannot be read', async () => {
@@ -464,20 +472,16 @@ test('the abort step aborts nothing when its ledger, its baseline or its listing
   }
 });
 
-test('the abort document is public-safe and carries the meter\'s per-session totals at the abort', async () => {
+test('the abort document is public-safe: sessions by hash, outcomes, counts, and no key or session id', async () => {
   const rootId = sessionPublicId(ROOT, 'sid-root-7f3a');
-  const s = await cutoffFiles({
-    ledger: `${JSON.stringify({ type: 'record', row: 'R-CW-1', key: ROOT, sessionId: 'sid-root-7f3a' })}\n`,
-    meterState: { updatedAt: '2026-11-19T00:00:00.000Z', cumulative: 1200, sessions: [{ id: rootId, lastTokens: 1200 }] },
-  });
+  const s = await cutoffFiles({ ledger: `${JSON.stringify({ type: 'record', row: 'R-CW-1', key: ROOT, sessionId: 'sid-root-7f3a' })}\n` });
   try {
     const gateway = fakeGateway({ list: () => ({ ok: true, payload: { sessions: [...princeRows, { key: ROOT, sessionId: 'sid-root-7f3a' }], hasMore: false } }) });
     const doc = await cutoff({ ...s.args, env: { OPENCLAW_SESSION_KEY: PRINCE }, connect: gateway.connect });
     assert.deepEqual(gateway.calls.find((call) => call.method === 'connect').scopes, ['operator.read', 'operator.write']);
     assert.deepEqual(gateway.calls.filter((call) => call.method === 'sessions.abort').map((call) => call.params), [{ key: ROOT, clearQueued: true }]);
     assert.equal(gateway.calls.at(-1).method, 'close');
-    assert.deepEqual(doc.sessions, [{ id: rootId, role: 'root', depth: 0, outcome: 'aborted', status: 'aborted', meterTokensAtAbort: 1200 }]);
-    assert.deepEqual(doc.meterSnapshot, { at: '2026-11-19T00:00:00.000Z', cumulative: 1200, sessions: { [rootId]: 1200 } });
+    assert.deepEqual(doc.sessions, [{ id: rootId, role: 'root', depth: 0, outcome: 'aborted', status: 'aborted' }]);
     assert.equal(doc.guard, CUTOFF_GUARD);
     assert.equal(doc.note, ABORT_ACK_NOTE);
     assert.deepEqual(doc.untouched, { preExisting: 2, configured: 0, notOwned: 0 });

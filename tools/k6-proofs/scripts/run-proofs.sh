@@ -191,6 +191,7 @@ BUDGET_LEDGER=""
 BUDGET_BASELINE_SESSIONS=""
 BUDGET_ABORT_DOC=""
 BUDGET_DRAIN_DOC=""
+BUDGET_ABORT_MARK=""
 BUDGET_CUTOFF_DONE=false
 BUDGET_CUTOFF_ENDED_AT=""
 BUDGET_CUTOFF_ENDED_MS=0
@@ -562,12 +563,14 @@ arm_token_budget() {
   BUDGET_BASELINE_SESSIONS="$BUDGET_DIR/baseline-sessions.json"
   BUDGET_ABORT_DOC="$BUDGET_DIR/abort.json"
   BUDGET_DRAIN_DOC="$BUDGET_DIR/drain.json"
+  BUDGET_ABORT_MARK="$BUDGET_DIR/abort-mark"
   : > "$BUDGET_LEDGER"
   node "$SCRIPT_DIR/token-budget-meter.mjs" watch \
     --budget "$TOKEN_BUDGET" \
     --state "$BUDGET_STATE" \
     --trip-flag "$BUDGET_TRIP_FLAG" \
     --baseline-out "$BUDGET_BASELINE_SESSIONS" \
+    --abort-mark "$BUDGET_ABORT_MARK" \
     --parent-pid "$$" \
     > "$BUDGET_DIR/meter.log" 2>&1 &
   METER_PID=$!
@@ -666,12 +669,14 @@ token_budget_cutoff() {
   if ! timeout 660 node "$SCRIPT_DIR/token-budget-abort.mjs" abort \
     --ledger "$BUDGET_LEDGER" \
     --baseline "$BUDGET_BASELINE_SESSIONS" \
-    --meter-state "$BUDGET_STATE" \
     --out "$BUDGET_ABORT_DOC" > /dev/null 2>> "$BUDGET_DIR/abort.log"; then
     echo "TOKEN BUDGET CUTOFF: WARNING: the abort step did not finish cleanly." >&2
   fi
   BUDGET_CUTOFF_ENDED_MS="$(date +%s%3N)"
   BUDGET_CUTOFF_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
+  # The meter keeps its per-session totals at its next reading, so the receipt
+  # can tell what grew after the abort from what grew before it.
+  printf '%s\n' "$BUDGET_CUTOFF_ENDED_AT" > "$BUDGET_ABORT_MARK"
   if ! jq -e 'type == "object"' "$BUDGET_ABORT_DOC" >/dev/null 2>&1; then
     rm -f "$BUDGET_ABORT_DOC"
     echo "TOKEN BUDGET CUTOFF: no abort document was written; no session is known to have been aborted." >&2

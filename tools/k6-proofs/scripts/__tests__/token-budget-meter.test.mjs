@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -47,12 +47,13 @@ async function startGateway(methods) {
 const listing = (rows) => () => ({ ok: true, payload: { sessions: rows(), count: rows().length, hasMore: false, nextOffset: null } });
 const usageOf = (sessionId, tokens) => ({ ok: true, payload: { sessionId, points: [{ timestamp: 1, input: tokens, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: tokens, cost: 0 }] } });
 
-async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = null, env = {}, baselineOut = false, baselineOutBlocked = false }) {
+async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = null, env = {}, baselineOut = false, baselineOutBlocked = false, abortMark = false }) {
   const dir = await mkdtemp(path.join(tmpdir(), 'token-budget-meter-'));
   const state = path.join(dir, 'state.json');
   const flag = path.join(dir, 'tripped');
   const args = [meterScript, 'watch', '--budget', budget, '--state', state, '--trip-flag', flag];
   if (baselineOut) args.push('--baseline-out', path.join(dir, 'baseline-sessions.json'));
+  if (abortMark) args.push('--abort-mark', path.join(dir, 'abort-mark'));
   // A directory where the file should go makes its write fail.
   if (baselineOutBlocked) await mkdir(path.join(dir, 'baseline-sessions.json'));
   if (parentPid) args.push('--parent-pid', String(parentPid));
@@ -89,6 +90,7 @@ async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = nul
     flag,
     baselineSessions: async () => JSON.parse(await readFile(path.join(dir, 'baseline-sessions.json'), 'utf8')),
     baselineSessionsPath: path.join(dir, 'baseline-sessions.json'),
+    markAbort: (at) => writeFile(path.join(dir, 'abort-mark'), `${at}\n`),
     output: () => output,
     cleanup: async () => {
       child.kill('SIGKILL');
@@ -393,6 +395,34 @@ test('a baseline file that cannot be written refuses the run rather than arming 
     const state = await meter.readState();
     assert.equal(state.phase, 'unenforceable');
     assert.equal(state.error, 'baseline-sessions-unwritten');
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('once the abort mark appears, the next reading keeps the totals the last reading left, and later growth is measured against them', async () => {
+  let tokens = 0;
+  let aborted = false;
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, { key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }]),
+    'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += aborted ? 0 : 100)) : usageOf('cfg', 1)),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true });
+  try {
+    await meter.waitFor((state) => state.readings.length >= 3, 'three readings');
+    aborted = true;
+    const before = await meter.readState();
+    assert.equal(before.abortSessions, null, 'nothing is kept before the mark');
+    await meter.markAbort('2026-11-19T00:00:00.000Z');
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
+    const later = await meter.waitFor((state) => state.readings.length >= marked.readings.length + 2, 'readings after the mark');
+    assert.equal(later.abortSessions.markedAt, '2026-11-19T00:00:00.000Z');
+    assert.deepEqual(later.abortSessions, marked.abortSessions, 'kept once, as the mark found it');
+    // At most one reading was in flight when the mark appeared; its growth sits in the snapshot.
+    assert.ok(later.abortSessions.cumulative >= before.cumulative && later.abortSessions.cumulative <= before.cumulative + 100);
+    assert.equal(later.cumulative, later.abortSessions.cumulative, 'nothing grew after the abort, and the snapshot says so');
+    assert.ok(!JSON.stringify(later.abortSessions).includes('uuid-secret'));
   } finally {
     await meter.cleanup();
     await gateway.close();

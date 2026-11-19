@@ -27,12 +27,18 @@ import {
   createBudgetLedger,
   createUsageMeter,
   parseTokenBudget,
+  publicId,
   tokenBudgetPollMs,
 } from '../lib/token-budget.mjs';
 
 export const TOKEN_BUDGET_STATE_SCHEMA = 'openclaw.k6.token-budget-state.v1';
 export const TOKEN_BUDGET_READ_TIMEOUT_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET_READ_TIMEOUT_SECONDS';
+export const TOKEN_BUDGET_DISCOVERY_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET_DISCOVERY_SECONDS';
 const DEFAULT_READ_TIMEOUT_SECONDS = 20;
+// Between readings the meter lists sessions about once a second, so a session
+// created and deleted between two readings is still found (and read from its
+// archive by the next reading).
+const DEFAULT_DISCOVERY_SECONDS = 1;
 const METER_CLIENT = Object.freeze({
   id: HARNESS_CLIENT_IDENTITY.id,
   mode: HARNESS_CLIENT_IDENTITY.mode,
@@ -42,11 +48,11 @@ const METER_CLIENT = Object.freeze({
 export const COUNTED_TOKENS =
   'input + output + cacheRead + cacheWrite (or usage.total when larger) of every model response recorded in the transcripts of the run\'s sessions';
 
-function readTimeoutMs(env = process.env) {
-  const raw = env[TOKEN_BUDGET_READ_TIMEOUT_ENV];
-  if (raw === undefined || raw === '') return DEFAULT_READ_TIMEOUT_SECONDS * 1000;
+function secondsSetting(env, name, fallback, min, max) {
+  const raw = env[name];
+  if (raw === undefined || raw === '') return fallback * 1000;
   const seconds = /^\d+(?:\.\d{1,3})?$/u.test(raw) ? Number(raw) : NaN;
-  if (!(seconds >= 0.1 && seconds <= 120)) throw new Error(`invalid ${TOKEN_BUDGET_READ_TIMEOUT_ENV}: set seconds from 0.1 to 120`);
+  if (!(seconds >= min && seconds <= max)) throw new Error(`${name} is not seconds from ${min} to ${max}`);
   return Math.round(seconds * 1000);
 }
 
@@ -206,6 +212,8 @@ async function watch(args, env = process.env) {
     source: 'sessions.list + sessions.usage.timeseries (openclaw gateway WebSocket, operator.read)',
     pollIntervalMs: null,
     readTimeoutMs: null,
+    discoveryIntervalMs: null,
+    discoveries: 0,
     baseline: null,
     cumulative: 0,
     maxIncrement: 0,
@@ -227,18 +235,29 @@ async function watch(args, env = process.env) {
     return 3;
   };
 
+  // A refusal names the setting, never the value it refused.
   let budget;
   let pollMs;
   let timeoutMs;
+  let discoveryMs;
   try {
     budget = parseTokenBudget(args.budget);
+  } catch {
+    return refuse('budget-config-invalid: the token budget is not a positive whole number of at most 15 digits');
+  }
+  if (!budget.enabled) return refuse('budget-config-invalid: no budget was given');
+  try {
     pollMs = tokenBudgetPollMs(env);
-    timeoutMs = readTimeoutMs(env);
+  } catch {
+    return refuse('budget-config-invalid: OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS is out of range');
+  }
+  try {
+    timeoutMs = secondsSetting(env, TOKEN_BUDGET_READ_TIMEOUT_ENV, DEFAULT_READ_TIMEOUT_SECONDS, 0.1, 120);
+    discoveryMs = Math.min(pollMs, secondsSetting(env, TOKEN_BUDGET_DISCOVERY_ENV, DEFAULT_DISCOVERY_SECONDS, 0.05, 60));
   } catch (error) {
     return refuse(`budget-config-invalid: ${error.message}`);
   }
-  if (!budget.enabled) return refuse('budget-config-invalid: no budget was given');
-  Object.assign(state, { budget: budget.budget, pollIntervalMs: pollMs, readTimeoutMs: timeoutMs });
+  Object.assign(state, { budget: budget.budget, pollIntervalMs: pollMs, readTimeoutMs: timeoutMs, discoveryIntervalMs: discoveryMs });
   const wsUrl = env.OPENCLAW_GATEWAY_WS;
   const token = env.OPENCLAW_GATEWAY_TOKEN;
   if (!wsUrl) return refuse('gateway-url-missing');
@@ -289,37 +308,61 @@ async function watch(args, env = process.env) {
   process.on('SIGTERM', stop);
   process.on('SIGINT', stop);
 
+  // Record one ledger entry (a usage reading, or a failed discovery), write the
+  // state, then the trip flag if this entry tripped the ledger.
+  const observe = (reading, extra) => {
+    const wasTripped = Boolean(state.trip);
+    const entry = ledger.observe(reading);
+    const recorded = ledger.state().readings.at(-1);
+    state.readings.push({
+      ...recorded,
+      ...(recorded.decreased ? { decreased: recorded.decreased.map(publicId) } : {}),
+      ...extra,
+    });
+    state.cumulative = entry.cumulative;
+    state.maxIncrement = entry.maxIncrement;
+    state.trip = entry.trip;
+    state.sessions = meter.publicSessions();
+    state.cadence = readingCadence(state.readings.filter((item) => !item.discovery), state.trip);
+    if (entry.trip) state.phase = 'tripped';
+    save();
+    if (entry.trip && !wasTripped) writeAtomic(flagPath, `${JSON.stringify(entry.trip)}\n`);
+  };
+
   let nextAt = Date.now() + pollMs;
+  let nextDiscoveryAt = Date.now() + discoveryMs;
   for (;;) {
     while (!stopping && Date.now() < nextAt) {
+      if (Date.now() >= nextDiscoveryAt) {
+        nextDiscoveryAt = Date.now() + discoveryMs;
+        const { reading: found, readMs } = await timed(() => meter.discover());
+        state.discoveries += 1;
+        if (!found.readable) {
+          observe({ at: found.at, readable: false, error: `discovery: ${found.error}` }, { readMs, discovery: true });
+        }
+        continue;
+      }
       await new Promise((resolve) => {
         wake = resolve;
-        setTimeout(resolve, Math.min(250, Math.max(0, nextAt - Date.now())));
+        setTimeout(resolve, Math.min(250, Math.max(0, Math.min(nextAt, nextDiscoveryAt) - Date.now())));
       });
       wake = null;
       if (!parentAlive(parentPid)) stopping = true;
     }
     const final = stopping;
     nextAt = Math.max(nextAt + pollMs, Date.now());
+    nextDiscoveryAt = Date.now() + discoveryMs;
     const { reading, readMs } = await timed(() => meter.read());
-    const wasTripped = Boolean(state.trip);
-    const entry = ledger.observe(reading);
-    state.readings.push({
-      ...ledger.state().readings.at(-1),
+    observe(reading, {
       readMs,
       ...(reading.scope ? { scope: reading.scope } : {}),
       ...(final ? { final: true } : {}),
     });
-    state.cumulative = entry.cumulative;
-    state.maxIncrement = entry.maxIncrement;
-    state.trip = entry.trip;
-    state.sessions = meter.publicSessions();
-    state.cadence = readingCadence(state.readings, state.trip);
-    if (entry.trip) state.phase = 'tripped';
-    if (final) state.phase = 'stopped';
-    save();
-    if (entry.trip && !wasTripped) writeAtomic(flagPath, `${JSON.stringify(entry.trip)}\n`);
-    if (final) return 0;
+    if (final) {
+      state.phase = 'stopped';
+      save();
+      return 0;
+    }
   }
 }
 

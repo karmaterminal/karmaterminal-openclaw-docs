@@ -128,7 +128,7 @@ test('a rejected token or an unreachable gateway is refused before any reading',
   const noBudget = await startMeter({ url: 'ws://127.0.0.1:9', budget: '1e6' });
   try {
     assert.equal(await noBudget.exited, 3);
-    assert.match((await noBudget.readState()).error, /^budget-config-invalid: invalid token budget/u);
+    assert.match((await noBudget.readState()).error, /^budget-config-invalid: the token budget is not a positive whole number/u);
   } finally {
     await noBudget.cleanup();
   }
@@ -136,15 +136,23 @@ test('a rejected token or an unreachable gateway is refused before any reading',
 
 test('climbing usage trips the flag, readings continue after the trip, and SIGTERM stops with a final reading', async () => {
   let tokens = 0;
+  let lists = 0;
   const gateway = await startGateway({
-    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, { key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }]),
+    // The disposable session appears after the baseline listing, as a row's would.
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [
+        { key: CONFIGURED, sessionId: 'cfg' },
+        ...(lists > 1 ? [{ key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }] : []),
+      ])();
+    },
     'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += 150)) : usageOf('cfg', 9000)),
   });
   const meter = await startMeter({ url: gateway.url, budget: '1000' });
   try {
     const armed = await meter.waitFor((state) => state.phase !== 'baseline', 'armed');
     assert.equal(armed.baseline.readable, true);
-    assert.equal(armed.baseline.tokensInScope, 9150, 'the baseline holds pre-run usage, which is never charged');
+    assert.equal(armed.baseline.tokensInScope, 9000, 'the baseline holds pre-run usage, which is never charged');
     const tripped = await meter.waitFor((state) => state.trip, 'a trip');
     assert.equal(tripped.trip.reason, 'projected-exceed');
     assert.ok(tripped.trip.cumulative < 1000, 'the run stops before the next poll could cross the budget');
@@ -218,5 +226,68 @@ test('the meter exits on its own once its parent is gone', async () => {
     parent.kill('SIGKILL');
     await meter.cleanup();
     await gateway.close();
+  }
+});
+
+// Review fixes (independent review of 02c0b98a).
+
+test('a counter that goes down is published by session hash, never by session id', async () => {
+  let reads = 0;
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg-secret-id' }]),
+    'sessions.usage.timeseries': () => usageOf('cfg-secret-id', (reads += 1) <= 2 ? 500 : 100),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '1000000' });
+  try {
+    const state = await meter.waitFor((current) => current.readings.some((reading) => reading.decreased?.length), 'a decreased reading');
+    const decreased = state.readings.find((reading) => reading.decreased.length).decreased;
+    assert.ok(decreased.every((id) => /^[0-9a-f]{12}$/u.test(id)), JSON.stringify(decreased));
+    meter.child.kill('SIGTERM');
+    await meter.exited;
+    const text = await readFile(path.join(path.dirname(meter.flag), 'state.json'), 'utf8');
+    assert.ok(!text.includes('cfg-secret-id'), 'no raw session id in the state');
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('the meter lists sessions between readings, and a failed listing there trips counter-unreadable', async () => {
+  let lists = 0;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return lists >= 12 ? { ok: false, error: { code: 'UNAVAILABLE', message: 'x' } } : { ok: true, payload: { sessions: [{ key: CONFIGURED, sessionId: 'cfg' }], hasMore: false } };
+    },
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const meter = await startMeter({
+    url: gateway.url,
+    budget: '1000000',
+    env: { OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS: '1', OPENCLAW_PROOFS_TOKEN_BUDGET_DISCOVERY_SECONDS: '0.1' },
+  });
+  try {
+    const tripped = await meter.waitFor((state) => state.trip, 'a trip', 15_000);
+    assert.equal(tripped.discoveryIntervalMs, 100);
+    assert.ok(tripped.discoveries > tripped.readings.filter((reading) => reading.readable).length, `discoveries ${tripped.discoveries} run between readings`);
+    assert.equal(tripped.trip.reason, 'counter-unreadable');
+    assert.equal(tripped.trip.error, 'discovery: sessions-list:UNAVAILABLE');
+    assert.ok(existsSync(meter.flag));
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('a refused configuration never echoes the value it refused', async () => {
+  const meter = await startMeter({ url: 'ws://127.0.0.1:9', env: { OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS: 'secret-looking-value' } });
+  try {
+    assert.equal(await meter.exited, 3);
+    const state = await meter.readState();
+    assert.equal(state.phase, 'unenforceable');
+    assert.match(state.error, /^budget-config-invalid: /u);
+    assert.ok(!state.error.includes('secret-looking-value'), state.error);
+  } finally {
+    await meter.cleanup();
   }
 });

@@ -182,16 +182,24 @@ export function createBudgetLedger({ budget, baseline }) {
 //
 // Scope, so only this run's sessions are charged (each reason sticks once
 // given):
-// - configured: the configured session key(s) the rows use;
-// - labelled: a label starting "k6 ", which every scenario's sessions.create
-//   sets ("k6 <ROW> <nonce>");
+// - configured: the configured session key(s) the rows use, matched exactly or,
+//   for a bare key such as "main", as agent:<id>:<key>;
+// - labelled: absent from the baseline listing, with a label starting "k6 ",
+//   which every scenario's sessions.create sets ("k6 <ROW> <nonce>");
 // - spawned: spawnedBy or parentSessionKey names an in-scope session (delegate
 //   children, transitively; src/agents/subagents/spawn/
 //   subagent-spawn-session-patch.ts:146-158);
 // - new-since-baseline: any other session absent from the baseline listing.
 //   The harness cannot prove such a session is not the run's, so it is
 //   counted; on a dedicated proof gateway there are none.
-// A pre-existing session matching none of these is never read.
+// A session already listed at the baseline is never read unless it is
+// configured or descends from an in-scope session. That includes earlier
+// runs' "k6 " sessions: every disposable key carries a fresh nonce, so they
+// are never this run's, and re-reading them every poll would only load the
+// gateway. sessions.list itself never lists cron runs, global/unknown,
+// archived or phantom sessions (src/gateway/session-list-filters.ts:467-486),
+// nor internal-effects sessions (session-accessor.sqlite-entry-list.read.ts:
+// 231); those are not counted.
 //
 // A session that leaves the listing (sessions.delete, subagent
 // cleanup="delete", or a reset that gives the key a new session id) is read
@@ -200,8 +208,15 @@ export function createBudgetLedger({ budget, baseline }) {
 // (src/gateway/server-methods/usage-session-selection.ts:72-95 ->
 // src/infra/session-cost-usage-reporting.ts:545-588); sessions.delete archives
 // by default (src/gateway/server-methods/sessions-delete.ts:189,482). The turns
-// it ran after the last poll are counted that way. If that read fails, the
-// reading is unreadable.
+// it ran after the last poll are counted that way, and the meter lists the
+// sessions about once a second between readings (discover()), so a session
+// created and deleted between two readings is read the same way. If that read
+// fails, the reading is unreadable. This archive path is traced in code at
+// ab5a (including the SQLite store's zstd .deleted export,
+// src/config/sessions/session-accessor.sqlite-archive-artifact.ts:117-139), not
+// exercised against a live gateway. An incognito session is deleted with no
+// archive (sessions-delete.ts:482,493), so one seen with usage that is then
+// deleted stops the run as unreadable.
 
 export const DISPOSABLE_SESSION_LABEL_PREFIX = 'k6 ';
 export const SCOPE_REASONS = Object.freeze(['configured', 'labelled', 'spawned', 'new-since-baseline']);
@@ -246,20 +261,39 @@ function agentIdOf(key) {
   return AGENT_KEY.exec(key)?.[1] ?? null;
 }
 
-function publicId(accountingId) {
+/** The public form of an accounting id: a 12-hex hash, never the key or session id. */
+export function publicId(accountingId) {
   return createHash('sha256').update(accountingId).digest('hex').slice(0, 12);
 }
 
 /**
  * The meter's reading cycle. `rpc(method, params)` resolves to
  * { ok: true, payload } or { ok: false, error } and may throw (closed socket,
- * timeout). baseline() must be readable before read() is used.
+ * timeout). baseline() must be readable before read() or discover() is used.
+ *
+ * - read() is one usage reading: list, scope, a timeseries read for every
+ *   in-scope session, and an archive read for each in-scope session that has
+ *   left the listing.
+ * - discover() only lists and scopes. The meter runs it between readings, so a
+ *   session that is created and deleted between two readings is still seen;
+ *   the next read() reads its archive.
  */
-export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Date().toISOString(), pageSize = DEFAULT_LIST_PAGE }) {
-  const configured = new Set(configuredKeys.filter((key) => typeof key === 'string' && key));
+export function createUsageMeter({
+  rpc,
+  configuredKeys = [],
+  now = () => new Date().toISOString(),
+  pageSize = DEFAULT_LIST_PAGE,
+}) {
+  const configured = configuredKeys.filter((key) => typeof key === 'string' && key);
   const scopeReason = new Map(); // session key -> reason
-  const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed }
+  const seen = new Map(); // in-scope session key -> { agentId, sessionId, reason } from the latest listing that had it
+  const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }
   let baselineKeys = null;
+
+  // A configured key matches its row exactly, or, when it is bare ("main"),
+  // any agent-scoped row agent:<id>:<key>: sessions.list answers canonical keys.
+  const isConfigured = (key) => configured.some((wanted) => key === wanted
+    || (!wanted.startsWith('agent:') && agentIdOf(key) !== null && key === `agent:${agentIdOf(key)}:${wanted}`));
 
   async function call(method, params) {
     const answer = await rpc(method, params);
@@ -286,11 +320,16 @@ export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Dat
   }
 
   function classify(rows) {
-    const byKey = new Map(rows.map((row) => [row.key, row]));
+    let priorRunLabelled = 0;
     for (const row of rows) {
       if (scopeReason.has(row.key)) continue;
-      if (configured.has(row.key)) scopeReason.set(row.key, 'configured');
-      else if (typeof row.label === 'string' && row.label.startsWith(DISPOSABLE_SESSION_LABEL_PREFIX)) scopeReason.set(row.key, 'labelled');
+      const labelled = typeof row.label === 'string' && row.label.startsWith(DISPOSABLE_SESSION_LABEL_PREFIX);
+      // A labelled session that was already listed at the baseline is an earlier
+      // run's: every scenario's disposable key carries a fresh nonce.
+      const preExisting = baselineKeys === null || baselineKeys.has(row.key);
+      if (isConfigured(row.key)) scopeReason.set(row.key, 'configured');
+      else if (labelled && !preExisting) scopeReason.set(row.key, 'labelled');
+      else if (labelled) priorRunLabelled += 1;
     }
     let changed = true;
     while (changed) {
@@ -313,8 +352,13 @@ export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Dat
     for (const row of inScope) {
       const reason = scopeReason.get(row.key);
       byReason[reason] = (byReason[reason] ?? 0) + 1;
+      seen.set(row.key, {
+        agentId: agentIdOf(row.key),
+        sessionId: typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null,
+        reason,
+      });
     }
-    return { inScope, byKey, scope: { sessionsListed: rows.length, sessionsInScope: inScope.length, byReason } };
+    return { inScope, scope: { sessionsListed: rows.length, sessionsInScope: inScope.length, byReason, priorRunLabelled } };
   }
 
   // Reads one timeseries. Resolves to { sessionId, tokens } or { missing: true }; throws otherwise.
@@ -341,6 +385,23 @@ export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Dat
     return id;
   }
 
+  async function closeVanished(id, entry, reading) {
+    // Listed with no session id and no transcript: nothing was recorded under
+    // this placeholder, and there is no archive to read.
+    if (entry.placeholder && !entry.everPositive) {
+      entry.closed = true;
+      return;
+    }
+    if (!entry.agentId) throw new Error('vanished-session-archive:no-agent-id');
+    const usage = await readUsage(`agent:${entry.agentId}:${entry.sessionId}`).catch((error) => {
+      throw new Error(`vanished-session-archive:${error.message}`);
+    });
+    if (usage.missing && entry.everPositive) throw new Error('vanished-session-archive:missing');
+    entry.closed = true;
+    if (!usage.missing) entry.lastTokens = usage.tokens;
+    reading[id] = entry.lastTokens;
+  }
+
   async function cycle({ asBaseline }) {
     const at = now();
     try {
@@ -364,21 +425,19 @@ export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Dat
       if (!asBaseline) {
         for (const [id, entry] of sessions) {
           if (entry.closed || live.has(id)) continue;
-          // Listed with no session id and no transcript: nothing was recorded
-          // under this placeholder, and there is no archive to read.
-          if (entry.placeholder && !entry.everPositive) {
-            entry.closed = true;
-            continue;
-          }
-          // Left the listing: one read of its archive, then it is final.
-          if (!entry.agentId) throw new Error('vanished-session-archive:no-agent-id');
-          const usage = await readUsage(`agent:${entry.agentId}:${entry.sessionId}`).catch((error) => {
-            throw new Error(`vanished-session-archive:${error.message}`);
-          });
-          if (usage.missing && entry.everPositive) throw new Error('vanished-session-archive:missing');
-          entry.closed = true;
-          if (!usage.missing) entry.lastTokens = usage.tokens;
-          reading[id] = entry.lastTokens;
+          await closeVanished(id, entry, reading);
+        }
+        // Seen by a discovery but gone before any reading listed it.
+        const listed = new Set(rows.map((row) => row.key));
+        for (const [key, found] of seen) {
+          if (listed.has(key)) continue;
+          seen.delete(key);
+          if (!found.sessionId) throw new Error('vanished-session-archive:no-session-id');
+          const id = `${found.agentId ?? '?'}:${found.sessionId}`;
+          if (sessions.has(id)) continue;
+          const entry = { agentId: found.agentId, sessionId: found.sessionId, reason: found.reason, baselineTokens: 0, lastTokens: 0, everPositive: false, closed: false, placeholder: false };
+          sessions.set(id, entry);
+          await closeVanished(id, entry, reading);
         }
       }
       return { at, readable: true, sessions: reading, scope };
@@ -397,6 +456,16 @@ export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Dat
     async read() {
       if (!baselineTaken) throw new Error('read() needs a readable baseline first');
       return cycle({ asBaseline: false });
+    },
+    async discover() {
+      if (!baselineTaken) throw new Error('discover() needs a readable baseline first');
+      const at = now();
+      try {
+        const { scope } = classify(await listAll());
+        return { at, readable: true, scope };
+      } catch (error) {
+        return { at, readable: false, error: String(error?.message || error).slice(0, 200) };
+      }
     },
     /** Per-session facts safe to publish: a 12-hex id hash, never a key or session id. */
     publicSessions() {

@@ -87,7 +87,7 @@ test('only the product\'s missing-transcript answer reads as no usage yet', () =
   assert.equal(isMissingTranscriptError(null), false);
 });
 
-test('the baseline reads the configured and k6-labelled sessions and nothing else', async () => {
+test('the baseline reads the configured session and nothing else, not an earlier run\'s k6 session', async () => {
   const gateway = scriptedGateway({
     rows: [
       { key: CONFIGURED, sessionId: 'cfg' },
@@ -98,9 +98,9 @@ test('the baseline reads the configured and k6-labelled sessions and nothing els
   });
   const baseline = await meterFor(gateway).baseline();
   assert.equal(baseline.readable, true);
-  assert.deepEqual(baseline.sessions, { 'main:cfg': 5000, 'main:old': 700 });
-  assert.deepEqual(gateway.timeseriesKeys().sort(), [CONFIGURED, 'agent:main:r-cw-2-old'].sort(), 'an unrelated session is never read');
-  assert.deepEqual(baseline.scope, { sessionsListed: 3, sessionsInScope: 2, byReason: { configured: 1, labelled: 1 } });
+  assert.deepEqual(baseline.sessions, { 'main:cfg': 5000 });
+  assert.deepEqual(gateway.timeseriesKeys(), [CONFIGURED], 'an unrelated or earlier-run session is never read');
+  assert.deepEqual(baseline.scope, { sessionsListed: 3, sessionsInScope: 1, byReason: { configured: 1 }, priorRunLabelled: 1 });
 });
 
 test('a reading counts new, labelled and spawned sessions, but not unrelated sessions that existed at the baseline', async () => {
@@ -146,8 +146,9 @@ test('sessions.list pages are followed to the end, and a list that claims more w
   const rows = Array.from({ length: 5 }, (_, index) => ({ key: `agent:main:r-x-${index}`, sessionId: `s${index}`, label: `k6 R-X ${index}` }));
   const usage = Object.fromEntries(rows.map((row) => [row.key, series(row.sessionId, 10)]));
   const gateway = scriptedGateway({ rows, usage, pageSize: 2 });
-  const baseline = await meterFor(gateway, { pageSize: 2 }).baseline();
+  const baseline = await meterFor(gateway, { pageSize: 2, configuredKeys: rows.map((row) => row.key) }).baseline();
   assert.equal(baseline.readable, true);
+  assert.equal(baseline.scope.sessionsListed, 5);
   assert.equal(Object.keys(baseline.sessions).length, 5);
   assert.deepEqual(gateway.calls.filter((call) => call.method === 'sessions.list').map((call) => call.params.offset ?? 0), [0, 2, 4]);
 
@@ -244,11 +245,12 @@ test('an rpc that throws (closed socket, timeout) is an unreadable reading, neve
 
 test('readings carry no raw session key or session id', async () => {
   const gateway = scriptedGateway({
-    rows: [{ key: CONFIGURED, sessionId: 'cfg' }, { key: 'agent:main:r-cw-2-secretnonce', sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }],
+    rows: [{ key: CONFIGURED, sessionId: 'cfg' }],
     usage: { [CONFIGURED]: series('cfg', 1), 'agent:main:r-cw-2-secretnonce': series('uuid-secret', 2) },
   });
   const meter = meterFor(gateway);
   await meter.baseline();
+  gateway.rows.push({ key: 'agent:main:r-cw-2-secretnonce', sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' });
   const reading = await meter.read();
   const publicView = JSON.stringify(meter.publicSessions());
   assert.ok(!publicView.includes('secretnonce') && !publicView.includes('uuid-secret'), publicView);
@@ -271,4 +273,71 @@ test('a session listed with no session id and no transcript closes at zero when 
   assert.equal(reading.readable, true, reading.error);
   assert.equal(reading.sessions['main:real'], 40);
   assert.deepEqual(gateway.timeseriesKeys().sort(), [CONFIGURED, 'agent:main:r-cw-2-n'].sort(), 'the placeholder has no archive to read');
+});
+
+// Review fixes (independent review of 02c0b98a).
+
+test('a session discovered between readings and deleted before the next one is read from its archive', async () => {
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  assert.equal((await meter.read()).readable, true);
+  // A cleanup="delete" child lives for less than one usage reading: only the
+  // fast sessions.list discovery sees it.
+  gateway.rows.push({ key: 'agent:main:subagent:quick', sessionId: 'quick-uuid', spawnedBy: CONFIGURED });
+  const discovered = await meter.discover();
+  assert.equal(discovered.readable, true);
+  assert.ok(!gateway.timeseriesKeys().includes('agent:main:subagent:quick'), 'discovery lists; it does not read usage');
+  gateway.rows = gateway.rows.filter((row) => row.sessionId !== 'quick-uuid');
+  gateway.usage['agent:main:quick-uuid'] = series('quick-uuid', 250);
+  const reading = await meter.read();
+  assert.equal(reading.readable, true, reading.error);
+  assert.equal(reading.sessions['main:quick-uuid'], 250, 'its whole life is counted although no reading ever saw it listed');
+});
+
+test('a failed discovery is an unreadable counter, and a discovered row with no session id that vanishes is too', async () => {
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.listError = { code: 'UNAVAILABLE', message: 'x' };
+  const failed = await meter.discover();
+  assert.equal(failed.readable, false);
+  assert.match(failed.error, /sessions-list:UNAVAILABLE/u);
+  gateway.listError = null;
+  gateway.rows.push({ key: 'agent:main:subagent:nosid', spawnedBy: CONFIGURED });
+  assert.equal((await meter.discover()).readable, true);
+  gateway.rows = gateway.rows.filter((row) => row.key !== 'agent:main:subagent:nosid');
+  const reading = await meter.read();
+  assert.equal(reading.readable, false);
+  assert.match(reading.error, /no-session-id/u);
+});
+
+test('an earlier run\'s k6 sessions are never read, even when they change; this run\'s are read every reading', async () => {
+  const gateway = scriptedGateway({
+    rows: [{ key: CONFIGURED, sessionId: 'cfg' }, { key: 'agent:main:r-old', sessionId: 'old', label: 'k6 R-OLD earlier' }],
+    usage: { [CONFIGURED]: series('cfg', 10), 'agent:main:r-old': series('old', 20) },
+  });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.rows.push({ key: 'agent:main:r-new', sessionId: 'new', label: 'k6 R-NEW this-run' });
+  gateway.usage['agent:main:r-old'] = series('old', 20, 999);
+  gateway.usage['agent:main:r-new'] = series('new', 3);
+  for (let poll = 0; poll < 3; poll += 1) {
+    gateway.resetCalls();
+    const reading = await meter.read();
+    assert.deepEqual(gateway.timeseriesKeys().sort(), [CONFIGURED, 'agent:main:r-new'].sort(), `poll ${poll}`);
+    assert.equal(reading.sessions['main:old'], undefined);
+    assert.equal(reading.scope.priorRunLabelled, 1);
+    assert.deepEqual(reading.scope.byReason, { configured: 1, labelled: 1 });
+  }
+});
+
+test('a bare configured key matches its canonical agent-scoped row', async () => {
+  const gateway = scriptedGateway({
+    rows: [{ key: 'agent:main:main', sessionId: 'm' }, { key: 'agent:main:notmain', sessionId: 'n' }],
+    usage: { 'agent:main:main': series('m', 7) },
+  });
+  const baseline = await createUsageMeter({ rpc: gateway.rpc, configuredKeys: ['main'], now: () => 'x' }).baseline();
+  assert.deepEqual(baseline.sessions, { 'main:m': 7 });
+  assert.deepEqual(baseline.scope.byReason, { configured: 1 });
 });

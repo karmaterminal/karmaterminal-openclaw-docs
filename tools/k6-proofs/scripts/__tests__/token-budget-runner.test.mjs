@@ -98,6 +98,9 @@ test('(a) usage that climbs past the budget mid-row stops that row, leaves the r
     const stop = await fixture.readJson(path.join(stopped, 'budget-stop.json'));
     assert.equal(stop.row, 'R-CONFIG-DEFAULTS');
     assert.equal(stop.trip.reason, receipt.trip.reason);
+    assert.match(stop.stoppedAt, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/u, 'the stop is timed as precisely as the readings');
+    assert.ok(Date.parse(stop.stoppedAt) >= Date.parse(receipt.trip.at), 'the row is stopped after the trip, never before');
+    assert.deepEqual(receipt.stoppedRow, { row: 'R-CONFIG-DEFAULTS', stoppedAt: stop.stoppedAt });
     const runResult = await fixture.readJson(path.join(stopped, 'run-result.json'));
     assert.ok(runResult.review.pendingReceipts.includes('budget-stop'), 'a stopped row can never read as review-complete');
     assert.notEqual(runResult.k6ExitCode, 0);
@@ -194,6 +197,116 @@ test('(d) a counter that becomes unreadable mid-run stops the running row and th
       'R-CONFIG-DEFAULTS': 'budget-stopped',
       'R-CONFIG-INTERSESSION': 'not-run (budget)',
     });
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+// Sibling paths: the counter itself failing, a trip between rows, and the
+// runner being interrupted. Each must still stop the run and leave a receipt.
+
+const steadyUsage = ({ started }) => ({
+  'sessions.list': disposableSessionListing(() => started('r-config-defaults.js')),
+  'sessions.usage.timeseries': ({ key }) => (key === BUDGET_CONFIGURED_SESSION ? usagePoint('configured', 5000) : usagePoint('disposable', 10)),
+});
+
+test('a meter that dies mid-row is a lost counter: the row is stopped and the rest not run', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '3200000',
+    sleepSeconds: LONG_ROW,
+    actions: { 'r-config-defaults.js': 'kill-meter' },
+    usage: steadyUsage,
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    assert.ok(result.elapsedMs < 45_000, `took ${result.elapsedMs} ms`);
+    assert.deepEqual(k6['R-CONFIG-DEFAULTS'], { started: true, finished: false, terminated: true });
+    assert.equal(k6['R-CONFIG-INTERSESSION'].started, false);
+    assert.equal(receipt.verdict, 'BUDGET-ABORT');
+    assert.equal(receipt.runnerTrip.reason, 'meter-exited');
+    assert.equal(receipt.reason, 'meter-exited');
+    assert.equal(receipt.trip, null, 'the meter never tripped; the runner did');
+    assert.equal(rowStatuses(receipt)['R-CONFIG-INTERSESSION'], 'not-run (budget)');
+    const stop = await fixture.readJson(path.join(fixture.runDirs['R-CONFIG-DEFAULTS'], 'budget-stop.json'));
+    assert.equal(stop.trip.reason, 'meter-exited');
+    assert.equal(stop.trip.source, 'runner');
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('a meter that stops writing goes stale: the row is stopped and the rest not run', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '3200000',
+    sleepSeconds: LONG_ROW,
+    actions: { 'r-config-defaults.js': 'stop-meter' },
+    usage: steadyUsage,
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    // Stale after poll + read timeout + 10 s (12.2 s here), then a bounded wait for the frozen meter.
+    assert.ok(result.elapsedMs < 55_000, `took ${result.elapsedMs} ms`);
+    assert.deepEqual(k6['R-CONFIG-DEFAULTS'], { started: true, finished: false, terminated: true });
+    assert.equal(k6['R-CONFIG-INTERSESSION'].started, false);
+    assert.equal(receipt.runnerTrip.reason, 'meter-stale');
+    assert.equal(fixture.metersLeft, 0, 'a frozen meter is killed, not left behind');
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('a trip between rows stops the matrix before the next row runs to completion', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '1000',
+    sleepSeconds: { 'r-config-defaults.js': 60 },
+    usage: ({ markers }) => ({
+      'sessions.list': disposableSessionListing(() => existsSync(path.join(markers, 'preflight.js.finished'))),
+      'sessions.usage.timeseries': ({ key }) => (key === BUDGET_CONFIGURED_SESSION ? usagePoint('configured', 0) : usagePoint('disposable', 5000)),
+    }),
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    assert.deepEqual(k6.PREFLIGHT, { started: true, finished: true, terminated: false });
+    assert.equal(k6['R-CONFIG-DEFAULTS'].finished, false, 'the next row never runs to completion');
+    assert.equal(k6['R-CONFIG-INTERSESSION'].started, false);
+    assert.equal(receipt.trip.reason, 'budget-reached');
+    const statuses = rowStatuses(receipt);
+    assert.equal(statuses.PREFLIGHT, 'completed');
+    // Normally caught before dispatch; a trip landing just after dispatch stops the row instead.
+    assert.ok(['not-run (budget)', 'budget-stopped'].includes(statuses['R-CONFIG-DEFAULTS']), statuses['R-CONFIG-DEFAULTS']);
+    if (statuses['R-CONFIG-DEFAULTS'] === 'not-run (budget)') {
+      assert.equal(k6['R-CONFIG-DEFAULTS'].started, false);
+      assert.equal(fixture.runDirs['R-CONFIG-DEFAULTS'], null, 'a provisional run directory is removed');
+    }
+    assert.equal(statuses['R-CONFIG-INTERSESSION'], 'not-run (budget)');
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('an interrupted runner stops its k6 row and its meter and still writes a receipt', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '3200000',
+    sleepSeconds: LONG_ROW,
+    actions: { 'r-config-defaults.js': 'term-runner' },
+    usage: steadyUsage,
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, 143, `${result.stdout}\n${result.stderr}`);
+    assert.ok(result.elapsedMs < 45_000, `took ${result.elapsedMs} ms`);
+    assert.deepEqual(k6['R-CONFIG-DEFAULTS'], { started: true, finished: false, terminated: true }, 'the background k6 does not outlive the runner');
+    assert.equal(k6['R-CONFIG-INTERSESSION'].started, false);
+    assert.equal(fixture.metersLeft, 0, 'nor does the meter');
+    assert.equal(receipt.verdict, 'RUN-INTERRUPTED');
+    assert.equal(receipt.exitCode, 143);
+    assert.equal(receipt.meterPhase, 'stopped');
+    assert.equal(rowStatuses(receipt).PREFLIGHT, 'completed');
+    assert.equal(rowStatuses(receipt)['R-CONFIG-DEFAULTS'], 'dispatched');
+    assert.equal(rowStatuses(receipt)['R-CONFIG-INTERSESSION'], 'not-run (runner-exited)');
   } finally {
     await fixture.cleanup();
   }

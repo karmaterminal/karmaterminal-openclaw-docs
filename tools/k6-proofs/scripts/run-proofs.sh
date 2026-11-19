@@ -519,7 +519,7 @@ token_budget_tripped() {
   if [[ -n "$BUDGET_RUNNER_TRIP" || -e "$BUDGET_TRIP_FLAG" ]]; then return 0; fi
   if ! kill -0 "$METER_PID" 2>/dev/null; then
     BUDGET_RUNNER_TRIP="meter-exited"
-    BUDGET_RUNNER_TRIP_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    BUDGET_RUNNER_TRIP_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
     return 0
   fi
   if (( EPOCHSECONDS - BUDGET_LAST_STALE_CHECK >= 1 )); then
@@ -528,7 +528,7 @@ token_budget_tripped() {
     written="$(stat -c %Y "$BUDGET_STATE" 2>/dev/null || echo 0)"
     if (( EPOCHSECONDS - written > BUDGET_STALE_SECONDS )); then
       BUDGET_RUNNER_TRIP="meter-stale"
-      BUDGET_RUNNER_TRIP_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      BUDGET_RUNNER_TRIP_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
       return 0
     fi
   fi
@@ -1444,7 +1444,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       while kill -0 "$K6_PID" 2>/dev/null; do
         if token_budget_tripped; then
           BUDGET_STOPPED_ROW="$ROW_ID"
-          BUDGET_STOPPED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          BUDGET_STOPPED_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
           echo "[$ROW_ID] TOKEN BUDGET TRIPPED: stopping the running k6 row." >&2
           stop_k6_row
           break

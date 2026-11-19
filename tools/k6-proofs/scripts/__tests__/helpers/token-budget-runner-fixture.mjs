@@ -8,7 +8,12 @@
  * (sessions.list + sessions.usage.timeseries answered from a test-supplied
  * plan), and a k6 stub. The k6 stub leaves markers per scenario —
  * <scenario>.started, .finished, and .terminated when it is stopped — so a test
- * can tell a row that ran from one that was stopped or never dispatched.
+ * can tell a row that ran from one that was stopped or never dispatched. A
+ * per-scenario action lets a row break the run's own machinery as it starts:
+ * kill-meter (SIGKILL the meter), stop-meter (SIGSTOP it, so it goes stale) or
+ * term-runner (SIGTERM run-proofs.sh). The k6 stub's parent is the runner, and
+ * the meter is the only process started with `--parent-pid <runner pid>`, so
+ * the action never reaches another test's processes.
  * Everything else (the meter, the ledger, extraction, redaction, run-result) is
  * the real harness code.
  */
@@ -52,12 +57,14 @@ function shellQuote(value) {
  * @param {Record<string, number>} [options.sleepSeconds] per-scenario k6 stub run time
  * @param {(ctx: {markers: string, started: (scenario: string) => boolean}) => object} options.usage
  *   gateway methods for the usage source, given access to the k6 markers
+ * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'>} [options.actions] per-scenario k6 stub action
  * @param {boolean} [options.dryRun]
  * @param {string[]} [options.extraArgs] extra run-proofs.sh arguments
  */
 export async function runBudgetMatrix(repoRoot, {
   budget = null,
   sleepSeconds = {},
+  actions = {},
   usage = () => ({}),
   dryRun = false,
   extraArgs = [],
@@ -71,6 +78,9 @@ export async function runBudgetMatrix(repoRoot, {
   const harness = await buildHarnessCheckout(repoRoot, path.join(root, 'harness'));
   for (const [scenario, seconds] of Object.entries(sleepSeconds)) {
     await writeFile(path.join(markers, `${scenario}.sleep`), `${seconds}\n`);
+  }
+  for (const [scenario, action] of Object.entries(actions)) {
+    await writeFile(path.join(markers, `${scenario}.action`), `${action}\n`);
   }
 
   const started = (scenario) => existsSync(path.join(markers, `${scenario}.started`));
@@ -96,6 +106,12 @@ export async function runBudgetMatrix(repoRoot, {
       'scenario="$(basename "${2:-unknown}")"',
       `markers=${shellQuote(markers)}`,
       ': > "$markers/$scenario.started"',
+      'printf \'%s\\n\' "$PPID" > "$markers/runner.pid"',
+      'case "$(cat "$markers/$scenario.action" 2>/dev/null)" in',
+      '  kill-meter) pkill -KILL -f -- "--parent-pid $PPID\\$" ;;',
+      '  stop-meter) pkill -STOP -f -- "--parent-pid $PPID\\$" ;;',
+      '  term-runner) kill -TERM "$PPID" ;;',
+      'esac',
       'seconds="$(cat "$markers/$scenario.sleep" 2>/dev/null || echo 0)"',
       'sleep "$seconds" &',
       'sleeper=$!',
@@ -169,6 +185,17 @@ export async function runBudgetMatrix(repoRoot, {
     const receiptPath = path.join(out, 'token-budget-receipt.json');
     const receipt = existsSync(receiptPath) ? JSON.parse(await readFile(receiptPath, 'utf8')) : null;
     const usageCalls = gateway.calls.filter((call) => call.method.startsWith('sessions.'));
+    const runnerPidFile = path.join(markers, 'runner.pid');
+    const runnerPid = existsSync(runnerPidFile) ? Number((await readFile(runnerPidFile, 'utf8')).trim()) : null;
+    let metersLeft = null;
+    if (runnerPid) {
+      metersLeft = await run('pgrep', ['-f', '--', `--parent-pid ${runnerPid}$`]).then(
+        ({ stdout }) => stdout.trim().split('\n').filter(Boolean).length,
+        (error) => (error.code === 1 ? 0 : null),
+      );
+      // A stopped meter (stop-meter) must not outlive the test either way.
+      await run('pkill', ['-KILL', '-f', '--', `--parent-pid ${runnerPid}$`]).catch(() => {});
+    }
     return {
       root,
       out,
@@ -178,6 +205,8 @@ export async function runBudgetMatrix(repoRoot, {
       runDirs,
       k6,
       usageCalls,
+      runnerPid,
+      metersLeft,
       connects: gateway.connects,
       readJson: async (file) => JSON.parse(await readFile(file, 'utf8')),
       cleanup: () => rm(root, { recursive: true, force: true }),

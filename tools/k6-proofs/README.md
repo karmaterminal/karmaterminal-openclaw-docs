@@ -433,6 +433,185 @@ An empty or unsanitizable evidence stream is a postprocess failure, not a
 successful proof with missing artifacts. Trace and correlation paths in
 `run-result.json` are artifact basenames rather than local run-directory paths.
 
+## Token budget for a live matrix
+
+A live matrix can be given a hard bound on the model tokens its sessions consume
+on the target gateway. 🌊 held the single rerun at `ab5a30ea` until a
+harness-side counter could abort at 🕯's 3.2M-token bound, because neither the
+seat nor the model route can enforce one (🕯, Discord 1573081925374181397; 🌊's
+ruling, 1573082087307616310). This is that counter.
+
+Set it with the `token_budget` input of `.github/workflows/project81-k6-proof.yml`,
+or `--token-budget <tokens>` / `OPENCLAW_PROOFS_TOKEN_BUDGET` for
+`scripts/run-proofs.sh` (the flag wins). The value is a positive whole number of
+at most 15 digits. Empty means no budget, and the matrix runs exactly as it did
+before: k6 in the foreground, and no usage request to the gateway. Anything else,
+including a `--token-budget` flag with no value, is refused before any row as
+`BUDGET-UNENFORCEABLE` (`budget-malformed`, exit `80`). The rejected input is never
+echoed. A dry run records the budget (`NOT-ENFORCED-DRY-RUN`) and contacts no
+gateway.
+
+```bash
+gh workflow run project81-k6-proof.yml \
+  --repo karmaterminal/karmaterminal-openclaw-docs --ref main \
+  -f rows=live-suite -f dry_run=false -f token_budget=3200000 \
+  -f candidate_sha=<40-hex> -f runtime_sha=<40-hex> \
+  -f gateway_ws=<ws-url> -f gateway_unit=<unit> \
+  -f runner_labels_json='["self-hosted","<seat>"]'
+```
+
+The `openclaw-bootstrap` wrapper of the same name has no `token_budget` input. A
+budgeted run either dispatches this repository's workflow, as above, or needs
+that wrapper to pass `OPENCLAW_PROOFS_TOKEN_BUDGET` through to `run-proofs.sh`.
+
+### What is counted, and where it is read
+
+`scripts/token-budget-meter.mjs` reads the gateway over its WebSocket, as the row
+scenarios' backend identity with `operator.read` only. `lib/token-budget.mjs`
+holds the source, the scope and the stop rules, with citations at openclaw
+`ab5a30ea79b776f149e24b1fccab9e79b0a5d299`:
+
+- **`sessions.usage.timeseries { key }`**, one call per in-scope session. It reads
+  that session's transcript on every call, with no cache
+  (`src/gateway/server-methods/usage.ts:681-706` →
+  `src/infra/session-cost-usage-reporting.ts:169-239`). A point is one recorded
+  model response. The meter counts the larger of its `totalTokens` and
+  `input + output + cacheRead + cacheWrite`
+  (`src/infra/session-cost-usage-pricing.ts:130-142`), summed over the session's
+  life. Cache reads and writes are counted as tokens. If the bound is meant in
+  some narrower unit, this count is larger, so the run stops earlier.
+- **`sessions.list`**, paged to the end by `hasMore` / `nextOffset`, names the
+  sessions and their `spawnedBy` / `parentSessionKey` links.
+- **Freshness.** An assistant message, usage included, is appended to the
+  transcript when its model response finishes
+  (`src/agents/sessions/agent-session-base.ts:368-412`). A reading is therefore
+  current up to the last completed model call. A call still streaming is
+  invisible until it completes, and then lands whole.
+- **Deleted and reset sessions.** A session that leaves the listing
+  (`sessions.delete`, subagent `cleanup="delete"`, or a reset that gives the key a
+  new session id) is read once more as `agent:<agentId>:<sessionId>`. With no
+  store entry, that key resolves to the session's newest `.deleted` or `.reset`
+  transcript archive (`usage-session-selection.ts:72-95` →
+  `session-cost-usage-reporting.ts:545-588`). The turns it ran after the last poll
+  still count. If that archive cannot be read, the counter is unreadable.
+
+These surfaces were rejected, and why:
+
+- `sessions.list` `inputTokens`/`outputTokens` are the last run's snapshot,
+  overwritten by each run (`src/config/sessions/session-entry-usage.ts:30,56-59`).
+- Its `totalTokens` is context occupancy (`src/agents/usage.ts:450`).
+- `sessions.usage` serves a 30 s result cache and, after a ~100 ms wait, stale
+  per-session summaries (`usage-cache.ts:4`, `usage-session-loading.ts:40,153,167`).
+
+**Not counted by any surface at `ab5a`:**
+
+- A compaction's own model call. A compaction transcript entry carries no usage
+  (`packages/agent-core/src/harness/types.ts:77-84`). This matters for R-CD-3 and
+  R-RC-2.
+- Detached internal runs such as a memory flush
+  (`src/agents/internal-run-usage.ts:11-12`).
+
+**Scope.** Only the run's own sessions are charged, and only for growth since the
+baseline. A session counts if any of these holds:
+
+- it is a configured key (`OPENCLAW_SESSION_KEY`, `OPENCLAW_TARGET_SESSION_KEY`);
+- its label starts `k6 `, which every scenario's `sessions.create` sets;
+- `spawnedBy` or `parentSessionKey` names a session already counted
+  (transitively);
+- it is any other session absent from the baseline listing. Such a session is
+  counted because the harness cannot prove it is not the run's. On a dedicated
+  proof gateway there are none.
+
+Unrelated sessions that existed at the baseline are never read.
+
+### When the run stops
+
+1. **Before any row:** the runner starts the meter, which reads usage once. If
+   that reading fails (gateway unreachable, auth refused, `sessions.list` or a
+   timeseries call refused or malformed), the matrix is refused:
+   `BUDGET-UNENFORCEABLE`, exit `80`, and every row is
+   `not-run (budget-unenforceable)`.
+2. **During and between rows:** the meter reads again every 5 s, start to start.
+   Each reading must finish within 20 s, or it is unreadable. A row's k6 runs in
+   the background, and the runner checks the meter every 0.2 s. It checks again
+   at every row boundary and once more just before dispatch.
+3. **The meter trips** on the first of:
+   - the cumulative total reaches the budget (`budget-reached`);
+   - the cumulative total plus the largest growth seen between two readings would
+     pass the budget (`projected-exceed`);
+   - a reading is unreadable (`counter-unreadable`).
+
+   The runner itself stops the run if the meter exits (`meter-exited`), or if its
+   state is older than one interval plus one read timeout plus 10 s
+   (`meter-stale`).
+4. **On a trip:**
+   - the running row's k6 gets `SIGTERM`, then `SIGKILL` after 10 s. That row is
+     `budget-stopped`: its run directory gets `budget-stop.json`, and
+     `run-result.json` lists `budget-stop` as a pending receipt, so it can never
+     read as review-complete;
+   - every row not yet reached is `not-run (budget)`, with no run directory;
+   - the meter takes one last reading, and the runner writes
+     `token-budget-receipt.json` and exits `79` (`BUDGET-ABORT`).
+
+   A trip at any point, the last reading included, makes the run a budget abort,
+   even after the last row.
+5. **Nothing is retried.** A runner interrupted while armed (for example, a
+   cancelled workflow) stops its k6 row and the meter, and writes the receipt as
+   `RUN-INTERRUPTED`.
+
+### How far past the bound a run can go
+
+The overshoot is bounded by one poll interval of usage, not zero:
+
+- **Interval.** The live interval is 5 s plus the time each reading takes. Each
+  reading's `readMs` and the measured `cadence` are in the receipt.
+- **Atomic increments.** The smallest step the counter can see is one completed
+  model call. A single large call (an R-CD-3 fill turn can carry most of a
+  context window) lands whole.
+- **First large increment.** The `projected-exceed` margin uses the largest growth
+  seen so far. A run whose first very large increment comes near the bound can
+  pass the bound by that increment.
+- **Gateway-side work.** Stopping k6 stops the harness dispatching, but not work
+  the gateway has already accepted. A send is acknowledged as `started`, and from
+  then on dispatch owns the turn
+  (`src/gateway/server-methods/chat-send-input-dispatch.ts:589-616`). An
+  in-flight model call, scheduled `continue_work` wakes and delegate children run
+  on. The meter keeps reading after the trip, and the receipt's
+  `cadence.postTripTokens` records what was consumed after the stop decision.
+  Cutting that work off would mean calling `sessions.abort` (`operator.write`) on
+  the run's sessions. The counter does not do that.
+- **Uncounted calls.** Compaction calls and detached internal runs (above) are
+  not counted at all.
+
+### The receipt
+
+`token-budget-receipt.json` sits at the artifact root, which the workflow
+uploads. It is public-safe: no session key, session id, token or gateway message,
+and sessions appear only as 12-hex id hashes. It carries:
+
+- the verdict, reason and exit code;
+- the budget;
+- the counted-token definition and the source;
+- the poll interval and read timeout;
+- the baseline, with its time and pre-run tokens in scope;
+- the cumulative total and the largest increment;
+- the trip, or the runner's own trip;
+- the stopped row and its stop time;
+- every reading, with its time, cumulative total, increment, read time and scope
+  counts;
+- the measured cadence;
+- per-session totals;
+- every selected row with its status.
+
+The meter process is tested in `scripts/__tests__/token-budget-meter.test.mjs`
+and its reading cycle in `token-budget-meter-core.test.mjs`. The ledger is tested
+in `token-budget-ledger.test.mjs`. The runner-level fixtures are in
+`token-budget-runner.test.mjs`: usage climbing past the budget mid-row, staying
+under, unreadable at the start, unreadable mid-run, a dead or frozen meter, a
+trip between rows, an interrupted runner, no budget, a malformed budget, and a
+dry run. They use a fake usage source and a k6 stub, with no gateway and no
+model.
+
 ## Tempo trace receipts
 
 When a live row emits a `trace_id`, `run-proofs.sh` attempts to fetch the

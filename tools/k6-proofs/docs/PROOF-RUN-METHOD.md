@@ -175,6 +175,8 @@ Important inputs:
 
 Use it to remove manual row-selection and artifact-shape improv. It does not replace GATES judgment or human review of candidate evidence.
 
+That wrapper has no token budget. A run that must stay under a hard token bound dispatches this repository's `.github/workflows/project81-k6-proof.yml` with `token_budget` (and `runner_labels_json` naming the seat). See `tools/k6-proofs/README.md`, "Token budget for a live matrix", for what is counted, when the run stops, and how far past the bound it can go.
+
 ## Adding a new row
 
 Minimum patch shape:

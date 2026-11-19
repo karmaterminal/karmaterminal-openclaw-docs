@@ -2,6 +2,7 @@
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { OWNERSHIP_MARKER, OWNERSHIP_TAG_ENV, isOwnershipTag } from '../lib/session-ownership.mjs';
 
 const RAW_PAYLOAD_KEYS = new Set([
   'agentinstruction',
@@ -181,6 +182,12 @@ function sanitizeLog(logText, sanitizedRecords, orderedTokens) {
       out.push('[k6-proof-harness] <redacted-dispatch>');
       continue;
     }
+    // A budgeted run's ownership record (lib/session-ownership.mjs) carries a
+    // session key, a session id and the run's private tag.
+    if (text.startsWith(OWNERSHIP_MARKER)) {
+      out.push(`${OWNERSHIP_MARKER} <redacted-ownership-record>`);
+      continue;
+    }
     out.push(scrubString(line, orderedTokens));
   }
 
@@ -243,6 +250,8 @@ async function main() {
   const extraTokens = process.env.OPENCLAW_SESSION_KEY
     ? [[process.env.OPENCLAW_SESSION_KEY, '<redacted-session-key>']]
     : [];
+  // The ownership tag must never reach a public artifact, wherever it appears.
+  if (isOwnershipTag(process.env[OWNERSHIP_TAG_ENV])) extraTokens.push([process.env[OWNERSHIP_TAG_ENV], '<redacted-ownership-tag>']);
   const { sanitized, orderedTokens } = sanitizeEvidenceRecords(records, extraTokens);
   const logText = await readFile(args.logInput, 'utf8');
   const publicLog = sanitizeLog(logText, sanitized, orderedTokens);

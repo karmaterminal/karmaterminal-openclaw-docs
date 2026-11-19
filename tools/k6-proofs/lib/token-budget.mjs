@@ -296,6 +296,7 @@ export function createUsageMeter({
   const seenKey = (key, sessionId) => `${key}\0${sessionId ?? ''}`;
   const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }
   let baselineKeys = null;
+  let baselineRows = null;
 
   // A configured key matches its row exactly, or, when it is bare ("main"),
   // any agent-scoped row agent:<id>:<key>: sessions.list answers canonical keys.
@@ -415,7 +416,10 @@ export function createUsageMeter({
     const at = now();
     try {
       const rows = await listAll();
-      if (asBaseline) baselineKeys = new Set(rows.map((row) => row.key));
+      if (asBaseline) {
+        baselineKeys = new Set(rows.map((row) => row.key));
+        baselineRows = rows.map((row) => ({ key: row.key, sessionId: typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null }));
+      }
       const { inScope, scope } = classify(rows);
       // A bare configured key ("main") resolves through the gateway's own main
       // key or global scope, which this meter cannot see. One that matches no
@@ -488,6 +492,15 @@ export function createUsageMeter({
       } catch (error) {
         return { at, readable: false, error: String(error?.message || error).slice(0, 200) };
       }
+    },
+    /**
+     * Every session the baseline listing showed, key and session id. Private:
+     * the token budget's cutoff (lib/token-budget-cutoff.mjs) never aborts a
+     * session that existed before the run, and reads this to know which.
+     */
+    baselineSessions() {
+      if (!baselineTaken || !baselineRows) throw new Error('baselineSessions() needs a readable baseline first');
+      return baselineRows.map((row) => ({ ...row }));
     },
     /** Per-session facts safe to publish: a 12-hex id hash, never a key or session id. */
     publicSessions() {

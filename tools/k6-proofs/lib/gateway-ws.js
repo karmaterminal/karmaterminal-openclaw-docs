@@ -12,6 +12,7 @@
  *   Don't assume uniformity; check per-method.
  */
 import { HARNESS_CLIENT_IDENTITY } from './gateway-client-identity.mjs';
+import { OWNERSHIP_TAG_ENV, ownershipRecordLine } from './session-ownership.mjs';
 
 /**
  * Build a JSON-RPC-style request frame for the OpenClaw Gateway WS protocol.
@@ -82,6 +83,17 @@ export function withSessionCreateOwner(params = {}, env = __ENV) {
 }
 
 /**
+ * Log the ownership record for an answered sessions.create. Nothing is logged
+ * unless the runner put a tag in OPENCLAW_PROOFS_OWNERSHIP_TAG (a budgeted live
+ * run), so an unbudgeted run's output is unchanged.
+ */
+export function recordSessionOwnership(payload, env = typeof __ENV === 'undefined' ? undefined : __ENV) {
+  const line = ownershipRecordLine(env?.[OWNERSHIP_TAG_ENV], payload);
+  if (line) console.log(line);
+  return line;
+}
+
+/**
  * Request tracker: maps request IDs to their method names for response correlation.
  */
 export class RequestTracker {
@@ -98,11 +110,16 @@ export class RequestTracker {
     return id;
   }
 
-  /** Classify an inbound message against pending requests. */
+  /**
+   * Classify an inbound message against pending requests. An answered
+   * sessions.create also logs this run's ownership record for the session,
+   * when a budgeted run armed one (lib/session-ownership.mjs).
+   */
   classify(msg) {
     if (msg.type === 'res' && msg.id && this._pending[msg.id]) {
       const req = this._pending[msg.id];
       delete this._pending[msg.id];
+      if (req.method === 'sessions.create' && msg.ok !== false && !msg.error) recordSessionOwnership(msg.payload);
       return {
         kind: 'response',
         method: req.method,

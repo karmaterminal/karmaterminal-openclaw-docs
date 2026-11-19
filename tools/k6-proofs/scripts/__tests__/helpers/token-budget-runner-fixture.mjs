@@ -16,8 +16,13 @@
  * ignores SIGTERM, as a k6 stuck in teardown would). The k6 stub's parent is the runner, and
  * the meter is the only process started with `--parent-pid <runner pid>`, so
  * the action never reaches another test's processes.
- * Everything else (the meter, the ledger, extraction, redaction, run-result) is
- * the real harness code.
+ * A scenario can also create sessions as it starts (`creates`): the k6 stub
+ * then opens a real WebSocket to the stub gateway and sends each sessions.create
+ * through the checkout's own RequestTracker (lib/gateway-ws.js), logging in
+ * k6's line shape, so the ownership records the token budget's cutoff reads
+ * come from the harness code a row's k6 runs.
+ * Everything else (the meter, the ledger, the cutoff, extraction, redaction,
+ * run-result) is the real harness code.
  */
 import { chmod, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -30,6 +35,45 @@ import { buildHarnessCheckout } from './harness-checkout.mjs';
 import { attachReadinessGateway } from './readiness-gateway.mjs';
 
 const run = promisify(execFile);
+
+// Runs inside the k6 stub, from the runner's harness root (k6's working
+// directory): sessions.create over the stub gateway through the harness's own
+// RequestTracker, with console output in k6's line shape.
+const CREATE_SESSIONS_HELPER = `
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+const creates = JSON.parse(readFileSync(process.argv[2], 'utf8'));
+globalThis.__ENV = { ...process.env };
+globalThis.__VU = 1;
+globalThis.__ITER = 0;
+const k6Line = (level, args) => \`time="\${new Date().toISOString()}" level=\${level} msg=\${JSON.stringify(args.map(String).join(' '))} source=console\`;
+console.log = (...args) => process.stdout.write(\`\${k6Line('info', args)}\\n\`);
+console.error = (...args) => process.stdout.write(\`\${k6Line('error', args)}\\n\`);
+const { RequestTracker, connectFrame } = await import(pathToFileURL(path.join(process.cwd(), 'lib/gateway-ws.js')).href);
+const socket = new WebSocket(process.env.OPENCLAW_GATEWAY_WS);
+const tracker = new RequestTracker();
+let pending = creates.length;
+await new Promise((resolve, reject) => {
+  const timer = setTimeout(() => reject(new Error('sessions.create timed out')), 10000);
+  socket.onopen = () => socket.send(connectFrame(process.env.OPENCLAW_GATEWAY_TOKEN));
+  socket.onerror = () => reject(new Error('socket error'));
+  socket.onmessage = (event) => {
+    const msg = JSON.parse(String(event.data));
+    if (msg.type === 'res' && msg.payload && msg.payload.type === 'hello-ok') {
+      for (const params of creates) tracker.send(socket, 'sessions.create', params);
+      return;
+    }
+    const classified = tracker.classify(msg);
+    if (classified.kind === 'response' && classified.method === 'sessions.create') {
+      console.log(classified.ok ? '✓ disposable session created' : '✗ sessions.create rejected');
+      pending -= 1;
+      if (pending === 0) { clearTimeout(timer); resolve(); }
+    }
+  };
+});
+socket.close();
+`;
 
 export const BUDGET_CANDIDATE_SHA = 'b'.repeat(40);
 export const BUDGET_SEAT = 'cael-dgx';
@@ -60,6 +104,7 @@ function shellQuote(value) {
  * @param {(ctx: {markers: string, started: (scenario: string) => boolean}) => object} options.usage
  *   gateway methods for the usage source, given access to the k6 markers
  * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'|'term-runner-twice'|'ignore-term'>} [options.actions] per-scenario k6 stub action
+ * @param {Record<string, object[]>} [options.creates] per-scenario sessions.create params the k6 stub sends as it starts
  * @param {string} [options.rows] the row list argument (default: the three BUDGET_ROWS)
  * @param {string|null} [options.staleReceipt] content of a token-budget-receipt.json left in the out dir beforehand
  * @param {boolean} [options.dryRun]
@@ -69,6 +114,7 @@ export async function runBudgetMatrix(repoRoot, {
   budget = null,
   sleepSeconds = {},
   actions = {},
+  creates = {},
   rows: rowList = null,
   staleReceipt = null,
   usage = () => ({}),
@@ -88,6 +134,10 @@ export async function runBudgetMatrix(repoRoot, {
   for (const [scenario, action] of Object.entries(actions)) {
     await writeFile(path.join(markers, `${scenario}.action`), `${action}\n`);
   }
+  for (const [scenario, params] of Object.entries(creates)) {
+    await writeFile(path.join(markers, `${scenario}.create`), `${JSON.stringify(params)}\n`);
+  }
+  await writeFile(path.join(bin, 'k6-create-sessions.mjs'), CREATE_SESSIONS_HELPER);
   if (staleReceipt !== null) await writeFile(path.join(out, 'token-budget-receipt.json'), staleReceipt);
 
   const started = (scenario) => existsSync(path.join(markers, `${scenario}.started`));
@@ -120,6 +170,7 @@ export async function runBudgetMatrix(repoRoot, {
       '  term-runner) kill -TERM "$PPID" ;;',
       '  term-runner-twice) kill -TERM "$PPID"; (sleep 1; kill -TERM "$PPID") >/dev/null 2>&1 & ;;',
       'esac',
+      `if [ -f "$markers/$scenario.create" ]; then node ${shellQuote(path.join(bin, 'k6-create-sessions.mjs'))} "$markers/$scenario.create" || echo 'k6 stub: sessions.create helper failed'; : > "$markers/$scenario.created"; fi`,
       'seconds="$(cat "$markers/$scenario.sleep" 2>/dev/null || echo 0)"',
       'sleep "$seconds" &',
       'sleeper=$!',
@@ -162,6 +213,10 @@ export async function runBudgetMatrix(repoRoot, {
       OPENCLAW_SEAT_NAME: BUDGET_SEAT,
       OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS: '0.2',
       OPENCLAW_PROOFS_TOKEN_BUDGET_READ_TIMEOUT_SECONDS: '2',
+      // A short drain and abort deadline keep the fixtures quick; the live
+      // defaults are 120 s and 60 s.
+      OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS: '0.5',
+      OPENCLAW_PROOFS_TOKEN_BUDGET_ABORT_TIMEOUT_SECONDS: '5',
       ...extraEnv,
     });
     if (budget !== null) env.OPENCLAW_PROOFS_TOKEN_BUDGET = budget;
@@ -198,7 +253,8 @@ export async function runBudgetMatrix(repoRoot, {
     }]));
     const receiptPath = path.join(out, 'token-budget-receipt.json');
     const receipt = existsSync(receiptPath) ? JSON.parse(await readFile(receiptPath, 'utf8')) : null;
-    const usageCalls = gateway.calls.filter((call) => call.method.startsWith('sessions.'));
+    const usageCalls = gateway.calls.filter((call) => call.method.startsWith('sessions.') && !['sessions.create', 'sessions.abort'].includes(call.method));
+    const abortCalls = gateway.calls.filter((call) => call.method === 'sessions.abort');
     const runnerPidFile = path.join(markers, 'runner.pid');
     const runnerPid = existsSync(runnerPidFile) ? Number((await readFile(runnerPidFile, 'utf8')).trim()) : null;
     let metersLeft = null;
@@ -219,6 +275,8 @@ export async function runBudgetMatrix(repoRoot, {
       runDirs,
       k6,
       usageCalls,
+      abortCalls,
+      calls: gateway.calls,
       runnerPid,
       metersLeft,
       connects: gateway.connects,

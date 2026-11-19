@@ -492,8 +492,19 @@ holds the source, the scope and the stop rules, with citations at openclaw
   new session id) is read once more as `agent:<agentId>:<sessionId>`. With no
   store entry, that key resolves to the session's newest `.deleted` or `.reset`
   transcript archive (`usage-session-selection.ts:72-95` →
-  `session-cost-usage-reporting.ts:545-588`). The turns it ran after the last poll
-  still count. If that archive cannot be read, the counter is unreadable.
+  `session-cost-usage-reporting.ts:545-588`). The SQLite store exports a deleted
+  transcript as `<sessionId>.jsonl.deleted.<ts>.zst` into that directory
+  (`src/config/sessions/session-accessor.sqlite-archive-artifact.ts:117-139`).
+  The turns it ran after the last poll still count.
+  - **Discovery between readings.** The meter also lists sessions about once a
+    second between readings. A session created and deleted between two readings
+    is therefore still found, and read the same way.
+  - **Traced, not exercised.** This archive path is followed in code at `ab5a`,
+    not tested against a live gateway.
+  - **Fail-closed.** If the archive cannot be read, the counter is unreadable and
+    the run stops. An incognito session is deleted with no archive
+    (`sessions-delete.ts:482,493`), so one seen with usage and then deleted stops
+    the run this way.
 
 These surfaces were rejected, and why:
 
@@ -503,26 +514,39 @@ These surfaces were rejected, and why:
 - `sessions.usage` serves a 30 s result cache and, after a ~100 ms wait, stale
   per-session summaries (`usage-cache.ts:4`, `usage-session-loading.ts:40,153,167`).
 
-**Not counted by any surface at `ab5a`:**
+**Not counted at `ab5a`:**
 
 - A compaction's own model call. A compaction transcript entry carries no usage
   (`packages/agent-core/src/harness/types.ts:77-84`). This matters for R-CD-3 and
   R-RC-2.
 - Detached internal runs such as a memory flush
   (`src/agents/internal-run-usage.ts:11-12`).
+- Sessions `sessions.list` never shows. That means internal-effects sessions
+  (`session-accessor.sqlite-entry-list.read.ts:231`), and cron runs and
+  global, unknown, archived or phantom sessions
+  (`src/gateway/session-list-filters.ts:467-486`).
+- Part of a long session's usage, possibly. After 200 points the timeseries
+  sums buckets, so the per-point "larger of `totalTokens` and the components"
+  becomes a per-bucket one. That loses tokens only where `usage.total` and the
+  components disagree in opposite directions within one bucket.
 
 **Scope.** Only the run's own sessions are charged, and only for growth since the
 baseline. A session counts if any of these holds:
 
-- it is a configured key (`OPENCLAW_SESSION_KEY`, `OPENCLAW_TARGET_SESSION_KEY`);
-- its label starts `k6 `, which every scenario's `sessions.create` sets;
+- it is a configured key (`OPENCLAW_SESSION_KEY`, `OPENCLAW_TARGET_SESSION_KEY`),
+  matched exactly or, for a bare key such as `main`, as `agent:<id>:main`;
+- it is absent from the baseline listing and its label starts `k6 `, which every
+  scenario's `sessions.create` sets;
 - `spawnedBy` or `parentSessionKey` names a session already counted
   (transitively);
 - it is any other session absent from the baseline listing. Such a session is
   counted because the harness cannot prove it is not the run's. On a dedicated
   proof gateway there are none.
 
-Unrelated sessions that existed at the baseline are never read.
+A session already listed at the baseline is read only if it is configured or
+descends from one. That excludes earlier runs' `k6 ` sessions: every disposable
+key carries a fresh nonce, so they are never this run's. The receipt counts them
+as `priorRunLabelled`. Every in-scope session is read on every reading.
 
 ### When the run stops
 
@@ -531,15 +555,17 @@ Unrelated sessions that existed at the baseline are never read.
    timeseries call refused or malformed), the matrix is refused:
    `BUDGET-UNENFORCEABLE`, exit `80`, and every row is
    `not-run (budget-unenforceable)`.
-2. **During and between rows:** the meter reads again every 5 s, start to start.
-   Each reading must finish within 20 s, or it is unreadable. A row's k6 runs in
-   the background, and the runner checks the meter every 0.2 s. It checks again
-   at every row boundary and once more just before dispatch.
+2. **During and between rows:** the meter reads again every 5 s, start to start,
+   and lists sessions about once a second in between. Each reading must finish
+   within 20 s, or it is unreadable. A row's k6 runs in the background, and the
+   runner checks the meter every 0.2 s. It checks again at every row boundary and
+   once more just before dispatch.
 3. **The meter trips** on the first of:
    - the cumulative total reaches the budget (`budget-reached`);
    - the cumulative total plus the largest growth seen between two readings would
      pass the budget (`projected-exceed`);
-   - a reading is unreadable (`counter-unreadable`).
+   - a reading, or a listing between readings, is unreadable
+     (`counter-unreadable`).
 
    The runner itself stops the run if the meter exits (`meter-exited`), or if its
    state is older than one interval plus one read timeout plus 10 s
@@ -556,12 +582,16 @@ Unrelated sessions that existed at the baseline are never read.
    A trip at any point, the last reading included, makes the run a budget abort,
    even after the last row.
 5. **Nothing is retried.** A runner interrupted while armed (for example, a
-   cancelled workflow) stops its k6 row and the meter, and writes the receipt as
+   cancelled workflow) stops its k6 row first: `SIGTERM`, then `SIGKILL` after
+   5 s. It then gives the meter 2 s for a last reading and writes the receipt as
    `RUN-INTERRUPTED`.
 
 ### How far past the bound a run can go
 
-The overshoot is bounded by one poll interval of usage, not zero:
+The counter's detection lag is bounded by one poll interval of usage. The run's
+total overshoot is not: work the gateway had already accepted when the run stopped
+keeps consuming tokens, and the counter records that use but cannot prevent it.
+In detail:
 
 - **Interval.** The live interval is 5 s plus the time each reading takes. Each
   reading's `readMs` and the measured `cadence` are in the receipt.

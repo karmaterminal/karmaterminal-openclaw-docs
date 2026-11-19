@@ -97,6 +97,9 @@ cleanup_private_artifacts() {
 
 finalize_interrupted_token_run() {
   local exit_code=$?
+  # A row's k6 runs in the background while a budget is armed, so an exit from
+  # anywhere stops it first, before any receipt describes the run.
+  if [[ -n "${K6_PID:-}" ]]; then stop_k6_row 25 || true; fi
   # ACTIVE_TOKEN_RUN_DIR is cleared only after the row's entire terminal packet
   # is complete.  If it is still set, even an already-created run-result may be
   # truncated or pre-terminal and must be superseded fail-closed.
@@ -113,10 +116,10 @@ finalize_interrupted_token_run() {
       echo "[R-CD-TOKEN] ERROR: failed to persist interruption receipt at $ACTIVE_TOKEN_RUN_DIR" >&2
     fi
   fi
-  # A row's k6 runs in the background while a budget is armed, so an exit from
-  # anywhere must not leave it running; nor the meter.
-  if [[ -n "${K6_PID:-}" ]]; then kill -TERM "$K6_PID" 2>/dev/null || true; fi
+  # An interrupted run (a cancelled workflow gets seconds, not minutes) gives
+  # the meter only a short wait for its last reading before the receipt.
   if [[ "${TOKEN_BUDGET_ARMED:-false}" == "true" && "${BUDGET_RECEIPT_WRITTEN:-false}" != "true" ]]; then
+    BUDGET_STOP_WAIT_SECONDS=2
     stop_token_budget_meter || true
     write_token_budget_receipt "RUN-INTERRUPTED" "$exit_code" "runner-exited-before-the-matrix-finished" || true
   fi
@@ -208,6 +211,8 @@ ROW_SELECTION_JSON="$(printf '%s' "$ROWS" | jq -R 'split(",") | map(ascii_upcase
 
 mkdir -p "$OUT_ROOT"
 OUT_ROOT="$(cd "$OUT_ROOT" && pwd)"
+# A reused artifact root must not carry an earlier run's budget verdict.
+rm -f "$OUT_ROOT/token-budget-receipt.json"
 # The runner owns its own harness root. Row/scenario/manifest lookups are always
 # relative to tools/k6-proofs, never to an ambient caller working directory.
 cd "$PROOFS_DIR"
@@ -386,7 +391,10 @@ token_budget_rows_json() {
 # token-budget-receipt.json: the meter's public state (every reading with its
 # time, the baseline, the trip, the measured cadence) plus this runner's facts.
 write_token_budget_receipt() {
-  local verdict="$1" exit_code="$2" reason="${3:-}" default_status state_json='null' runner_trip='null'
+  local verdict="$1" exit_code="$2" reason="${3:-}" default_status runner_trip='null' receipt="$OUT_ROOT/token-budget-receipt.json"
+  # The meter state holds every reading, far past one 128 KiB argument on a
+  # long run, so jq reads it from its file.
+  local state_doc=(--argjson stateDoc '[]')
   case "$verdict" in
     BUDGET-ABORT) default_status="not-run (budget)" ;;
     BUDGET-UNENFORCEABLE) default_status="not-run (budget-unenforceable)" ;;
@@ -395,13 +403,13 @@ write_token_budget_receipt() {
     *) default_status="not-run" ;;
   esac
   if [[ -n "$BUDGET_STATE" && -s "$BUDGET_STATE" ]] && jq -e 'type == "object"' "$BUDGET_STATE" >/dev/null 2>&1; then
-    state_json="$(jq -c . "$BUDGET_STATE")"
+    state_doc=(--slurpfile stateDoc "$BUDGET_STATE")
   fi
   if [[ -n "$BUDGET_RUNNER_TRIP" ]]; then
     runner_trip="$(jq -cn --arg reason "$BUDGET_RUNNER_TRIP" --arg at "$BUDGET_RUNNER_TRIP_AT" '{reason:$reason, at:$at}')"
   fi
   mkdir -p "$OUT_ROOT"
-  jq -n \
+  if ! jq -n \
     --arg verdict "$verdict" \
     --arg reason "$reason" \
     --argjson exitCode "$exit_code" \
@@ -414,10 +422,10 @@ write_token_budget_receipt() {
     --arg stoppedRow "$BUDGET_STOPPED_ROW" \
     --arg stoppedAt "$BUDGET_STOPPED_AT" \
     --arg recordedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    --argjson state "$state_json" \
+    "${state_doc[@]}" \
     --argjson runnerTrip "$runner_trip" \
     --argjson rows "$(token_budget_rows_json "$default_status")" \
-    '{
+    '($stateDoc[0] // null) as $state | {
       schema: "openclaw.k6.token-budget-receipt.v1",
       classification: "token-budget",
       verdict: $verdict,
@@ -446,9 +454,14 @@ write_token_budget_receipt() {
       rows: $rows,
       candidateOnly: true,
       recordedAt: $recordedAt
-    }' > "$OUT_ROOT/token-budget-receipt.json"
+    }' > "$receipt.tmp"; then
+    rm -f "$receipt.tmp"
+    echo "TOKEN BUDGET: ERROR: the $verdict receipt could not be written" >&2
+    return 1
+  fi
+  mv "$receipt.tmp" "$receipt"
   BUDGET_RECEIPT_WRITTEN=true
-  echo "TOKEN BUDGET RECEIPT: $OUT_ROOT/token-budget-receipt.json ($verdict)"
+  echo "TOKEN BUDGET RECEIPT: $receipt ($verdict)"
 }
 
 refuse_token_budget() {
@@ -535,15 +548,23 @@ token_budget_tripped() {
   return 1
 }
 
-# SIGTERM to the running row's k6 (it aborts the test and exits), SIGKILL after 10 s.
+# SIGTERM to the running row's k6 (it aborts the test and exits), then SIGKILL
+# after a grace of $1 0.2 s steps (default 50: 10 s).
 stop_k6_row() {
-  local waited=0
+  local waited=0 steps="${1:-50}"
   kill -TERM "$K6_PID" 2>/dev/null || true
-  while kill -0 "$K6_PID" 2>/dev/null && (( waited < 50 )); do
+  while kill -0 "$K6_PID" 2>/dev/null && (( waited < steps )); do
     sleep 0.2
     waited=$((waited + 1))
   done
   kill -KILL "$K6_PID" 2>/dev/null || true
+}
+
+# Record a row's status for the receipt. An empty row id (an empty entry in the
+# row list) is skipped as it always was, and must not abort the run here.
+set_budget_row_status() {
+  [[ -n "$1" ]] || return 0
+  BUDGET_ROW_STATUS["$1"]="$2"
 }
 
 # The trip that stopped the run, as JSON: the meter's own, or the runner's.
@@ -1176,7 +1197,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
 
   if [[ -z "$MANIFEST_FILE" ]]; then
     echo "[$ROW_ID] SKIPPED: Manifest not found."
-    BUDGET_ROW_STATUS["$ROW_ID"]="skipped"
+    set_budget_row_status "$ROW_ID" "skipped"
     continue
   fi
 
@@ -1194,25 +1215,25 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
 
   if [[ "$SCENARIO_STATUS" != "runnable" ]]; then
     echo "[$ROW_ID] SKIPPED: Scenario status is $SCENARIO_STATUS (not runnable)."
-    BUDGET_ROW_STATUS["$ROW_ID"]="skipped"
+    set_budget_row_status "$ROW_ID" "skipped"
     continue
   fi
 
   if [[ -z "$SCENARIO_FILE" || ! -f "scenarios/$SCENARIO_FILE" ]]; then
     echo "[$ROW_ID] SKIPPED: runnable scenario file missing: scenarios/$SCENARIO_FILE"
-    BUDGET_ROW_STATUS["$ROW_ID"]="skipped"
+    set_budget_row_status "$ROW_ID" "skipped"
     continue
   fi
 
   if [[ "$DRY_RUN" == "false" && "$LIVE_SAFETY" != "k6-runnable" ]]; then
     echo "[$ROW_ID] SKIPPED: liveRunSafety classification ($LIVE_SAFETY) rejects unattended live fire."
-    BUDGET_ROW_STATUS["$ROW_ID"]="skipped"
+    set_budget_row_status "$ROW_ID" "skipped"
     continue
   fi
 
   if [[ "$DRY_RUN" == "true" ]]; then
     echo "[$ROW_ID] DRY RUN: Would execute k6 run scenarios/$SCENARIO_FILE"
-    BUDGET_ROW_STATUS["$ROW_ID"]="dry-run"
+    set_budget_row_status "$ROW_ID" "dry-run"
   else
     ROW_MANIFEST_REL="${ROW_MANIFEST_RELPATH[$ROW_ID]:-}"
     ROW_MANIFEST_DIGEST="${ROW_MANIFEST_SHA256[$ROW_ID]:-}"
@@ -1333,7 +1354,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         rm -f "$RUN_DIR/.started"
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
-        BUDGET_ROW_STATUS["$ROW_ID"]="pre-dispatch-terminal"
+        set_budget_row_status "$ROW_ID" "pre-dispatch-terminal"
         echo "[$ROW_ID] PARTIAL-candidate: exact equal candidate/runtime SHAs are required; no dispatch occurred."
         continue
       fi
@@ -1373,7 +1394,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
         ACTIVE_TOKEN_RUN_DIR=""
         PROVISIONAL_RUN_DIR=""
         ROWS_TERMINAL_PRE_DISPATCH=$((ROWS_TERMINAL_PRE_DISPATCH + 1))
-        BUDGET_ROW_STATUS["$ROW_ID"]="pre-dispatch-terminal"
+        set_budget_row_status "$ROW_ID" "pre-dispatch-terminal"
         echo "[$ROW_ID] PARTIAL-candidate: seat readiness class '$OPENCLAW_SEAT_CLASS' is not scanner-supported raw-final-text; no dispatch occurred."
         continue
       fi
@@ -1435,7 +1456,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # From here the directory holds real candidate evidence and must survive.
     PROVISIONAL_RUN_DIR=""
     ROWS_DISPATCHED=$((ROWS_DISPATCHED + 1))
-    BUDGET_ROW_STATUS["$ROW_ID"]="dispatched"
+    set_budget_row_status "$ROW_ID" "dispatched"
     set +e
     if [[ "$TOKEN_BUDGET_ARMED" == "true" ]]; then
       # Budgeted: k6 runs in the background so a trip can stop it mid-row.
@@ -2005,9 +2026,9 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     fi
     rm -f "$RUN_DIR/.started"
     if [[ "$BUDGET_STOPPED_ROW" == "$ROW_ID" ]]; then
-      BUDGET_ROW_STATUS["$ROW_ID"]="budget-stopped"
+      set_budget_row_status "$ROW_ID" "budget-stopped"
     else
-      BUDGET_ROW_STATUS["$ROW_ID"]="completed"
+      set_budget_row_status "$ROW_ID" "completed"
     fi
 
     echo "[$ROW_ID] ARTIFACTS: $RUN_DIR"
@@ -2038,6 +2059,7 @@ if [[ "$TOKEN_BUDGET_ARMED" == "true" ]]; then
     BUDGET_VERDICT="BUDGET-ABORT"
     for BUDGET_ROW in "${ROW_ARRAY[@]}"; do
       BUDGET_ROW="$(printf '%s' "$BUDGET_ROW" | tr '[:lower:]' '[:upper:]')"
+      [[ -n "$BUDGET_ROW" ]] || continue
       if [[ -z "${BUDGET_ROW_STATUS[$BUDGET_ROW]:-}" ]]; then echo "[$BUDGET_ROW] NOT-RUN (budget)"; fi
     done
     BUDGET_ABORT_REASON="$(jq -r '.trip.reason // empty' "$BUDGET_STATE" 2>/dev/null || true)"

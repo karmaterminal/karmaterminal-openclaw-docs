@@ -10,8 +10,9 @@
  * <scenario>.started, .finished, and .terminated when it is stopped — so a test
  * can tell a row that ran from one that was stopped or never dispatched. A
  * per-scenario action lets a row break the run's own machinery as it starts:
- * kill-meter (SIGKILL the meter), stop-meter (SIGSTOP it, so it goes stale) or
- * term-runner (SIGTERM run-proofs.sh). The k6 stub's parent is the runner, and
+ * kill-meter (SIGKILL the meter), stop-meter (SIGSTOP it, so it goes stale),
+ * term-runner (SIGTERM run-proofs.sh) or ignore-term (the k6 stub ignores
+ * SIGTERM, as a k6 stuck in teardown would). The k6 stub's parent is the runner, and
  * the meter is the only process started with `--parent-pid <runner pid>`, so
  * the action never reaches another test's processes.
  * Everything else (the meter, the ledger, extraction, redaction, run-result) is
@@ -57,7 +58,9 @@ function shellQuote(value) {
  * @param {Record<string, number>} [options.sleepSeconds] per-scenario k6 stub run time
  * @param {(ctx: {markers: string, started: (scenario: string) => boolean}) => object} options.usage
  *   gateway methods for the usage source, given access to the k6 markers
- * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'>} [options.actions] per-scenario k6 stub action
+ * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'|'ignore-term'>} [options.actions] per-scenario k6 stub action
+ * @param {string} [options.rows] the row list argument (default: the three BUDGET_ROWS)
+ * @param {string|null} [options.staleReceipt] content of a token-budget-receipt.json left in the out dir beforehand
  * @param {boolean} [options.dryRun]
  * @param {string[]} [options.extraArgs] extra run-proofs.sh arguments
  */
@@ -65,6 +68,8 @@ export async function runBudgetMatrix(repoRoot, {
   budget = null,
   sleepSeconds = {},
   actions = {},
+  rows: rowList = null,
+  staleReceipt = null,
   usage = () => ({}),
   dryRun = false,
   extraArgs = [],
@@ -82,6 +87,7 @@ export async function runBudgetMatrix(repoRoot, {
   for (const [scenario, action] of Object.entries(actions)) {
     await writeFile(path.join(markers, `${scenario}.action`), `${action}\n`);
   }
+  if (staleReceipt !== null) await writeFile(path.join(out, 'token-budget-receipt.json'), staleReceipt);
 
   const started = (scenario) => existsSync(path.join(markers, `${scenario}.started`));
   const server = createServer((request, response) => response.writeHead(404).end());
@@ -115,8 +121,13 @@ export async function runBudgetMatrix(repoRoot, {
       'seconds="$(cat "$markers/$scenario.sleep" 2>/dev/null || echo 0)"',
       'sleep "$seconds" &',
       'sleeper=$!',
-      'trap \'kill "$sleeper" 2>/dev/null; : > "$markers/$scenario.terminated"; exit 143\' TERM',
-      'wait "$sleeper"',
+      'if [ "$(cat "$markers/$scenario.action" 2>/dev/null)" = ignore-term ]; then',
+      '  trap \': > "$markers/$scenario.term-ignored"\' TERM',
+      'else',
+      '  trap \'kill "$sleeper" 2>/dev/null; : > "$markers/$scenario.terminated"; exit 143\' TERM',
+      'fi',
+      // A trapped signal ends `wait` even when the trap ignores it, so wait until the sleep is gone.
+      'while kill -0 "$sleeper" 2>/dev/null; do wait "$sleeper"; done',
       'case "$scenario" in',
       ...Object.entries(rowByScenario).map(([scenario, row]) => `  ${shellQuote(scenario)}) row=${shellQuote(row)} ;;`),
       '  *) row=UNKNOWN ;;',
@@ -152,7 +163,7 @@ export async function runBudgetMatrix(repoRoot, {
       ...extraEnv,
     });
     if (budget !== null) env.OPENCLAW_PROOFS_TOKEN_BUDGET = budget;
-    const rows = BUDGET_ROWS.map(({ row }) => row).join(',');
+    const rows = rowList ?? BUDGET_ROWS.map(({ row }) => row).join(',');
     const args = ['scripts/run-proofs.sh', dryRun ? '--dry-run' : '--live', '--docs-ref', harness.docsRef, '--out-dir', out, ...extraArgs, rows, BUDGET_CANDIDATE_SHA];
     const startedAt = Date.now();
     let result;
@@ -181,6 +192,7 @@ export async function runBudgetMatrix(repoRoot, {
       started: marker(scenario, 'started'),
       finished: marker(scenario, 'finished'),
       terminated: marker(scenario, 'terminated'),
+      ...(marker(scenario, 'term-ignored') ? { termIgnored: true } : {}),
     }]));
     const receiptPath = path.join(out, 'token-budget-receipt.json');
     const receipt = existsSync(receiptPath) ? JSON.parse(await readFile(receiptPath, 'utf8')) : null;

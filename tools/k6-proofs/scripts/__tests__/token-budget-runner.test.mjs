@@ -312,6 +312,106 @@ test('an interrupted runner stops its k6 row and its meter and still writes a re
   }
 });
 
+// Review fixes (independent review of 02c0b98a).
+
+test('a long run\'s receipt is written whole, however many readings it holds', async () => {
+  let tokens = 0;
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '999999999',
+    sleepSeconds: { 'r-config-defaults.js': 35 },
+    env: { OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS: '0.05' },
+    usage: ({ started }) => ({
+      'sessions.list': disposableSessionListing(() => started('r-config-defaults.js')),
+      'sessions.usage.timeseries': ({ key }) => (key === BUDGET_CONFIGURED_SESSION ? usagePoint('configured', 5000) : usagePoint('disposable', (tokens += 1))),
+    }),
+  });
+  try {
+    const { result, receipt } = fixture;
+    assert.equal(result.code, 0, `${result.stdout}\n${result.stderr}`);
+    assert.ok(Buffer.byteLength(fixture.receiptText) > 128 * 1024, `the receipt must exceed one 128 KiB argument (it is ${Buffer.byteLength(fixture.receiptText)} bytes)`);
+    assert.equal(receipt.verdict, 'WITHIN-BUDGET');
+    assert.ok(receipt.readings.length > 400, `${receipt.readings.length} readings`);
+    assert.equal(receipt.readings.length, receipt.cadence.readings);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('a k6 that ignores SIGTERM is killed after the grace period', async () => {
+  let tokens = 0;
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '1000',
+    sleepSeconds: LONG_ROW,
+    actions: { 'r-config-defaults.js': 'ignore-term' },
+    usage: ({ started }) => ({
+      'sessions.list': disposableSessionListing(() => started('r-config-defaults.js')),
+      'sessions.usage.timeseries': ({ key }) => (key === BUDGET_CONFIGURED_SESSION ? usagePoint('configured', 0) : usagePoint('disposable', (tokens += 300))),
+    }),
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    assert.equal(k6['R-CONFIG-DEFAULTS'].termIgnored, true, 'SIGTERM was sent first');
+    assert.equal(k6['R-CONFIG-DEFAULTS'].finished, false, 'then SIGKILL, long before the 60 s row could finish');
+    assert.ok(result.elapsedMs >= 10_000 && result.elapsedMs < 45_000, `took ${result.elapsedMs} ms`);
+    assert.equal(rowStatuses(receipt)['R-CONFIG-DEFAULTS'], 'budget-stopped');
+    assert.equal(rowStatuses(receipt)['R-CONFIG-INTERSESSION'], 'not-run (budget)');
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('an empty entry in the row list still runs as before with no budget', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, { budget: null, dryRun: true, rows: 'PREFLIGHT,,R-CONFIG-DEFAULTS' });
+  try {
+    assert.equal(fixture.result.code, 0, `${fixture.result.stdout}\n${fixture.result.stderr}`);
+    assert.match(fixture.result.stdout, /\[\] SKIPPED: Manifest not found\./u);
+    assert.match(fixture.result.stdout, /\[R-CONFIG-DEFAULTS\] DRY RUN/u);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('a token-budget receipt left in a reused out dir by an earlier run is removed', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: null,
+    staleReceipt: '{"verdict":"WITHIN-BUDGET","stale":true}\n',
+    usage: () => ({ 'sessions.list': () => ({ ok: true, payload: { sessions: [], hasMore: false } }) }),
+  });
+  try {
+    assert.equal(fixture.result.code, 0, `${fixture.result.stdout}\n${fixture.result.stderr}`);
+    assert.equal(fixture.receipt, null, 'a run with no budget must not leave an earlier budget verdict beside its own rows');
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('the interrupted receipt is written quickly and k6 is gone before it', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '3200000',
+    sleepSeconds: LONG_ROW,
+    actions: { 'r-config-defaults.js': 'term-runner' },
+    env: { OPENCLAW_PROOFS_TOKEN_BUDGET_READ_TIMEOUT_SECONDS: '20' },
+    // Once the row starts the usage source stops answering, so the meter's last
+    // reading could only end at its 20 s read timeout.
+    usage: ({ started }) => ({
+      'sessions.list': disposableSessionListing(() => false),
+      'sessions.usage.timeseries': () => (started('r-config-defaults.js') ? new Promise(() => {}) : usagePoint('configured', 5000)),
+    }),
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, 143, `${result.stdout}\n${result.stderr}`);
+    assert.equal(receipt.verdict, 'RUN-INTERRUPTED');
+    assert.deepEqual(k6['R-CONFIG-DEFAULTS'], { started: true, finished: false, terminated: true });
+    // A cancelled workflow gives a job a few seconds after SIGTERM, not the
+    // meter's full stop wait (2 x read timeout + 5 s = 45 s here).
+    assert.ok(result.elapsedMs < 25_000, `took ${result.elapsedMs} ms`);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
 test('no budget keeps today\'s behaviour: the gateway is never asked for usage and no receipt is written', async () => {
   const fixture = await runBudgetMatrix(repoRoot, {
     budget: null,

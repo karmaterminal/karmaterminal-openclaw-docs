@@ -25,7 +25,8 @@ import { createHash } from 'node:crypto';
 
 export const TOKEN_BUDGET_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET';
 export const TOKEN_BUDGET_POLL_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS';
-// The overshoot is bounded by one poll interval of usage, so the interval is
+// The detection lag is bounded by one poll interval of usage (the overshoot is
+// not bounded at all: see lib/token-budget-cutoff.mjs), so the interval is
 // fixed for live runs. The variable exists so fixtures can poll faster.
 export const DEFAULT_TOKEN_BUDGET_POLL_SECONDS = 5;
 const MIN_POLL_SECONDS = 0.05;

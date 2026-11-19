@@ -435,11 +435,20 @@ successful proof with missing artifacts. Trace and correlation paths in
 
 ## Token budget for a live matrix
 
-A live matrix can be given a hard bound on the model tokens its sessions consume
-on the target gateway. 🌊 held the single rerun at `ab5a30ea` until a
-harness-side counter could abort at 🕯's 3.2M-token bound, because neither the
-seat nor the model route can enforce one (🕯, Discord 1573081925374181397; 🌊's
-ruling, 1573082087307616310). This is that counter.
+A live matrix can be given a token budget: a limit on the model tokens its
+sessions consume on the target gateway, at which the run is stopped. 🌊 held the
+single rerun at `ab5a30ea` until a harness-side counter could abort at 🕯's
+3.2M-token bound, because neither the seat nor the model route can enforce one
+(🕯, Discord 1573081925374181397; 🌊's ruling, 1573082087307616310). This is that
+counter, with the scoped `sessions.abort` cutoff 🌊 chose next (1573086211386384495).
+
+**It is a cutoff, not a hard ceiling.** The receipt says so in its `guard` field
+and its `verdictText`. The counter stops the run, and the cutoff aborts the
+sessions the run can prove it created. Neither caps what the gateway spends:
+work it already accepted can keep consuming after the abort. The receipt reports
+the overshoot it observed, and gives the maximum possible overshoot as
+`unknown / unbounded by this guard`. No live proof is GO on this guard alone; it
+needs an enforceable bound or a fresh, explicit monitored-spend decision.
 
 Set it with the `token_budget` input of `.github/workflows/project81-k6-proof.yml`,
 or `--token-budget <tokens>` / `OPENCLAW_PROOFS_TOKEN_BUDGET` for
@@ -591,15 +600,142 @@ spend on the seat, check that the seat is idle before a budgeted run.
      `run-result.json` lists `budget-stop` as a pending receipt, so it can never
      read as review-complete;
    - every row not yet reached is `not-run (budget)`, with no run directory;
+   - the **cutoff** runs once: `sessions.abort` on each session the run
+     provably owns, and on nothing else (below). A trip mid-row cuts off right
+     after that row's k6 has stopped, before its post-processing. A trip between
+     rows, or a lost meter (`meter-exited`, `meter-stale`), cuts off after the
+     loop;
+   - the meter keeps reading through a **drain window**, 120 s from the end of
+     the abort pass (`OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS`, 0 to 1800;
+     anything else is refused before any row, `drain-seconds-invalid`);
    - the meter takes one last reading, and the runner writes
      `token-budget-receipt.json` and exits `79` (`BUDGET-ABORT`).
 
    A trip at any point, the last reading included, makes the run a budget abort,
-   even after the last row.
+   even after the last row. A trip found only in the last reading still gets
+   the cutoff, but nothing meters after it, and the receipt says so
+   (`trip-in-final-reading`).
 5. **Nothing is retried.** A runner interrupted while armed (for example, a
    cancelled workflow) stops its k6 row first: `SIGTERM`, then `SIGKILL` after
    5 s. It then gives the meter 2 s for a last reading and writes the receipt as
-   `RUN-INTERRUPTED`.
+   `RUN-INTERRUPTED`. An interruption is not a trip, so it makes no cutoff. A
+   cutoff already made keeps its record, and its drain is marked
+   `runner-interrupted`.
+
+### The cutoff: aborting only the run's own sessions
+
+`scripts/token-budget-abort.mjs` makes the cutoff, and `lib/token-budget-cutoff.mjs`
+holds its rules, with citations at openclaw `ab5a30ea79b776f149e24b1fccab9e79b0a5d299`.
+
+**Recording ownership at creation.** A budgeted run puts a fresh random tag in
+`OPENCLAW_PROOFS_OWNERSHIP_TAG`. Whenever a row's `sessions.create` is answered,
+`RequestTracker.classify` (`lib/gateway-ws.js`) logs one ownership record with
+the key and session id the gateway answered, plus the tag
+(`lib/session-ownership.mjs`). `sessions.create` answers the canonical key and
+the session id (`src/gateway/server-methods/sessions-create.ts:688-691`).
+After each row's k6 exits, the runner keeps that row's records in a private
+ledger. A record with any other tag is counted as rejected. The tag is never
+sent to the gateway, so a model cannot forge one by getting text into the k6
+log. The public `k6.log` replaces each record with
+`[k6-owned-session] <redacted-ownership-record>`. Unbudgeted runs log nothing new.
+
+**Deciding ownership at the trip.** The cutoff connects as the row scenarios'
+backend identity with `operator.read` and `operator.write`, lists the sessions
+(paged), and compares them with the ledger and with the sessions the meter listed
+at its baseline (a private file, `--baseline-out`). A session is **owned** when
+it is:
+
+- **a root:** a record names its key, the listed session id equals the recorded
+  one, and the key was not listed at the baseline.
+  - The baseline check is needed because `sessions.create` adopts an existing
+    key without saying so (`src/gateway/session-create-service.ts:711-713`), so a
+    create answer alone proves no creation. Every disposable key carries a fresh
+    nonce.
+- **a descendant:** every session its `spawnedBy`, `parentSessionKey` and
+  `controlOwnerSessionKey` name is listed and owned, transitively.
+  - `spawnedBy` is the spawner's controller key
+    (`src/agents/subagents/spawn/subagent-spawn-request.ts:126`,
+    `subagent-spawn.ts:382,550`).
+  - `controlOwnerSessionKey` is the controller of the child's live or queued run
+    (`src/gateway/session-utils-row.ts:650`,
+    `src/agents/subagents/registry/subagent-registry-read.ts:476-488`).
+  - `parentSessionKey` is navigation lineage (`session-utils-row.ts:504-505`).
+
+**Never touched:**
+
+- a session listed at the baseline: every prince session (main, heartbeat,
+  channel sessions), however active, and whatever its label;
+- a configured session key (`OPENCLAW_SESSION_KEY`, `OPENCLAW_TARGET_SESSION_KEY`);
+- a session that descends only from those.
+
+**Ambiguous ownership fails closed.** The session is not aborted. It is logged
+(`TOKEN BUDGET CUTOFF: session <hash> not aborted: ambiguous ownership (<reason>)`)
+and listed in the receipt, and the run still stops. The reasons:
+
+- a record that names a pre-existing or configured session
+  (`recorded-session-present-at-baseline`, `configured-session`);
+- a record that disagrees with the listing or cannot be checked against it
+  (`recorded-session-id-mismatch`, `recorded-session-id-unverifiable`,
+  `conflicting-records`);
+- a parent that is not listed (`unknown-parent`) or is itself ambiguous
+  (`ambiguous-parent`);
+- an ancestry that mixes owned and unowned parents (`conflicting-ancestry`) or
+  loops (`ancestry-cycle`);
+- a session new since the baseline with no record and no parent
+  (`unrecorded-new-session`). When its label starts `k6 `, the reason is
+  `selector-match-without-record`: a selector match is never a record.
+
+An owned session is not aborted either when a listed session it controls is not
+owned (`cascade-would-reach-unowned-session`). A key-only `sessions.abort`
+cascades through every subagent run the session controls, recursively
+(`src/gateway/server-methods/sessions-abort.ts:570`;
+`src/agents/subagents/registry/subagent-registry-queries.ts:166-169`,
+`subagent-control-kill.ts:360-363`).
+
+**The abort pass.**
+
+- Owned sessions are aborted in order: roots, newest record first, then
+  descendants by depth.
+- Each gets exactly one `sessions.abort { key, clearQueued: true }`. A key-only
+  abort is a client-session stop, which cancels queued inputs
+  (`src/sessions/session-controller.stop.ts:77-79,91,507`). The cutoff does not
+  rely on the cascade: a session created with a parent gets no registry run
+  (`src/gateway/session-create-inheritance.ts:222-231`).
+- **Nothing is retried.**
+  - A refusal is recorded as `refused`, with a fixed `refusal` vocabulary
+    (`unauthorized`, `descendants-incomplete`, `not-found`, `other`); no gateway
+    message is published.
+  - A call with no answer is `failed`, and every later session is
+    `not-attempted`: a reconnect would be a second try under another name.
+  - Sessions left at the deadline (`OPENCLAW_PROOFS_TOKEN_BUDGET_ABORT_TIMEOUT_SECONDS`,
+    default 60) are `not-attempted`.
+- If the ledger, the baseline file or the listing cannot be read, nothing is
+  aborted.
+
+**What an abort does not stop, at `ab5a`:**
+
+- **Already-scheduled wakes.** `sessions.abort` does not cancel a
+  `continue_work` wake that is already scheduled. Only reset or delete cleanup
+  and `/continuations cancel` do
+  (`src/auto-reply/reply/session-reset-cleanup.ts:165-197`,
+  `src/auto-reply/reply/commands-continuations.ts:52`). A wake can start a new
+  model turn after the abort answered, so an abort acknowledgement does not
+  prove that future wakes or provider work have stopped.
+- **Runs started by another socket.** A non-admin caller may abort only a run
+  started from its own connection, or a run with no owner
+  (`src/gateway/server-methods/chat-abort-authorization.ts:222-227`); otherwise
+  the abort answers `unauthorized`
+  (`src/gateway/server-methods/chat-abort-handler.ts:206-208`). A `sessions.send`
+  turn is owned by the socket that sent it
+  (`src/gateway/server-methods/chat-send-admission.ts:227`). The cutoff's
+  connection is not the row's k6 socket, which is stopped first. So a live
+  in-flight dispatch turn is likely to refuse. The refusal is recorded and not
+  retried.
+- **Anything it does not own.** Work in configured sessions, in sessions of
+  ambiguous ownership, or in sessions new since the baseline that the run
+  cannot prove it created is counted, but never aborted.
+
+These fixtures use a stub gateway. No live gateway has been aborted by this cutoff.
 
 ### How far past the bound a run can go
 
@@ -619,21 +755,54 @@ In detail:
 - **Gateway-side work.** Stopping k6 stops the harness dispatching, but not work
   the gateway has already accepted. A send is acknowledged as `started`, and from
   then on dispatch owns the turn
-  (`src/gateway/server-methods/chat-send-input-dispatch.ts:589-616`). An
-  in-flight model call, scheduled `continue_work` wakes and delegate children run
-  on. The meter keeps reading after the trip, and the receipt's
-  `cadence.postTripTokens` records what was consumed after the stop decision.
-  Cutting that work off would mean calling `sessions.abort` (`operator.write`) on
-  the run's sessions. The counter does not do that.
+  (`src/gateway/server-methods/chat-send-input-dispatch.ts:589-616`). The cutoff
+  aborts what the run owns, but an abort can be refused, a scheduled wake
+  survives it, and unowned sessions are never aborted (above). In-flight model
+  calls, wakes and delegate children can run on.
+- **Delayed usage.** Usage is counted in the reading where it first becomes
+  visible, when its model call completes and is written to the transcript, not
+  when the request was sent. A request that finished before the trip, or two
+  concurrent requests completing after it, land in post-trip readings, and the
+  receipt counts them as post-trip overshoot.
 - **Uncounted calls.** Compaction calls and detached internal runs (above) are
   not counted at all.
 
+So the receipt splits the overshoot (`overshoot`):
+
+- **Observed** (`overshoot.observed`):
+  - `pastBudgetTokens`: the final total minus the budget;
+  - `postTripTokens`: counted after the trip;
+  - `postAbortTokens`: counted after the last reading that started before the
+    abort pass finished;
+  - `sessionsGrowingAfterTrip` and `sessionsGrowingAfterAbort`: the same per
+    session, by hash, owned or not, with each owned session's abort outcome;
+  - `lastGrowthAt` and `quietReadingsAtEnd`.
+- **Maximum possible** (`overshoot.maxPossible`): always
+  `unknown / unbounded by this guard`. `maxPossibleReasons` lists the reasons
+  that apply to the run, for example:
+  - an abort acknowledgement does not prove that future wakes or provider work
+    have stopped;
+  - refused, failed or skipped sessions, and sessions of ambiguous ownership;
+  - configured sessions in scope;
+  - growth after the abort;
+  - an unmetered drain;
+  - uncounted calls.
+- **Drain** (`overshoot.drain`):
+  - `metered`, or the `reason` it was not;
+  - the window and its start and end;
+  - `complete: "unproven"`, always, with the note that a quiet polling window is
+    not proof that the drain has completed.
+
 ### The receipt
 
-`token-budget-receipt.json` sits at the artifact root, which the workflow
-uploads. It is public-safe: no session key, session id, token or gateway message,
-and sessions appear only as 12-hex id hashes. It carries:
+`token-budget-receipt.json` (schema `openclaw.k6.token-budget-receipt.v2`) sits at
+the artifact root, which the workflow uploads. It is public-safe: no session key,
+session id, token, ownership tag or gateway message, and sessions appear only as
+12-hex id hashes. It carries:
 
+- `guard: "cutoff, not a hard ceiling"`, and a `verdictText` that starts with the
+  verdict and the guard (for a budget abort it ends with the observed overshoot
+  and `maximum possible overshoot unknown / unbounded by this guard`);
 - the verdict, reason and exit code;
 - the budget;
 - the counted-token definition and the source;
@@ -646,6 +815,18 @@ and sessions appear only as 12-hex id hashes. It carries:
   counts;
 - the measured cadence;
 - per-session totals;
+- `abort`, the cutoff's record:
+  - whether it was attempted, and its scopes;
+  - the ownership counts: records, rejected records, harvest failures, sessions
+    listed, baseline sessions, records not listed;
+  - each owned session by hash, with its role, depth and outcome (`aborted`,
+    `no-active-run`, `acknowledged`, `refused`, `failed`, `not-attempted`,
+    `skipped`);
+  - each ambiguous session by hash, with its reason;
+  - the untouched counts;
+  - `abortCalls`, and `retries`, which is always 0;
+  - any error;
+- `overshoot` (above);
 - every selected row with its status.
 
 The meter process is tested in `scripts/__tests__/token-budget-meter.test.mjs`
@@ -656,6 +837,28 @@ under, unreadable at the start, unreadable mid-run, a dead or frozen meter, a
 trip between rows, an interrupted runner, no budget, a malformed budget, and a
 dry run. They use a fake usage source and a k6 stub, with no gateway and no
 model.
+
+The cutoff is tested in three files, all with no live gateway:
+
+- **`token-budget-cutoff-runner.test.mjs`**, at the runner. Each row's k6 stub
+  creates its sessions over a real WebSocket through the harness's own
+  `RequestTracker`. The cases:
+  - an owned session and its child, both aborted, with the drain metered;
+  - ambiguous ownership, not aborted and logged;
+  - an active prince session matching every broad selector, untouched, then the
+    same with an adopted create and a forged record naming it;
+  - a refused abort, and an abort that loses its connection, neither retried;
+  - a queued continuation that fires after an acknowledged abort;
+  - delayed usage, and two concurrent requests, landing after the trip;
+  - a trip between rows, a runner interrupted mid-drain, a dead meter, and a
+    malformed drain window.
+- **`token-budget-cutoff.test.mjs`**: the ownership rules (every ambiguity
+  reason, the cascade guard, and a randomized check that nothing pre-existing,
+  configured or of unowned ancestry is ever owned), the abort pass, the
+  overshoot, and the abort step's fail-closed paths.
+- **`token-budget-ownership.test.mjs`**: the record's format, a real scenario's
+  tracker logging it, an unbudgeted run logging nothing, and the public k6.log
+  never carrying it.
 
 ## Tempo trace receipts
 

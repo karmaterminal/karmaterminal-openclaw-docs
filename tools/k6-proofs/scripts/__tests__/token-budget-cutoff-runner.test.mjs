@@ -28,11 +28,27 @@ import { existsSync } from 'node:fs';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { mkdir, writeFile } from 'node:fs/promises';
 import {
   BUDGET_CONFIGURED_SESSION,
-  runBudgetMatrix,
+  runBudgetMatrix as runMatrix,
   usagePoint,
 } from './helpers/token-budget-runner-fixture.mjs';
+
+// TOKEN_BUDGET_FIXTURE_RECEIPTS_DIR (unset in normal runs) keeps each case's
+// public receipt, the runner's cutoff log lines and the stub's abort calls.
+const RECEIPTS_DIR = process.env.TOKEN_BUDGET_FIXTURE_RECEIPTS_DIR;
+async function runBudgetMatrix(repo, { label, ...options }) {
+  const fixture = await runMatrix(repo, options);
+  if (RECEIPTS_DIR && label) {
+    await mkdir(RECEIPTS_DIR, { recursive: true });
+    if (fixture.receiptText) await writeFile(path.join(RECEIPTS_DIR, `${label}.token-budget-receipt.json`), fixture.receiptText);
+    const cutoffLines = `${fixture.result.stdout}\n${fixture.result.stderr}`.split('\n').filter((line) => /TOKEN BUDGET|NOT-RUN \(budget\)/u.test(line));
+    await writeFile(path.join(RECEIPTS_DIR, `${label}.runner.log`), `exit ${fixture.result.code}, ${fixture.result.elapsedMs} ms\n${cutoffLines.join('\n')}\n`);
+    await writeFile(path.join(RECEIPTS_DIR, `${label}.stub-abort-calls.json`), `${JSON.stringify(fixture.abortCalls.map(({ params, scopes }) => ({ params, scopes })), null, 2)}\n`);
+  }
+  return fixture;
+}
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const BUDGET_ABORT_EXIT = 79;
@@ -128,6 +144,7 @@ const abortedKeys = (fixture) => fixture.abortCalls.map((call) => call.params.ke
 test('cutoff (1): an owned disposable session and its child are both aborted, once each, and the drain is metered', async () => {
   const gateway = world({ baseline: [prince()], onCreate: ownedChild });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '1-owned-session-and-child',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -212,6 +229,7 @@ test('cutoff (2): ambiguous ownership is never aborted and each case is logged, 
     },
   });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '2-ambiguous-ownership',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: { 'r-config-defaults.js': [...CREATE_ROOT['r-config-defaults.js'], { key: 'r-config-defaults-mismatch', label: 'k6 R-CONFIG-DEFAULTS mismatch' }] },
@@ -255,6 +273,7 @@ test('cutoff (3a): an active prince session that matches every broad selector is
     ],
   });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '3a-active-prince-untouched',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -287,6 +306,7 @@ test('cutoff (3b): a prince session is left alone even when a record names it: a
   });
   const forged = (message) => `time="2026-11-19T00:00:00.000Z" level=info msg=${JSON.stringify(message)} source=console`;
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '3b-prince-adopted-and-forged-record',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     // The second create names the configured session; the gateway adopts it and
@@ -325,6 +345,7 @@ test('cutoff (4a): a refused abort is recorded and never retried; the harness st
     abort: () => ({ ok: false, error: { code: 'INVALID_REQUEST', message: 'unauthorized' } }),
   });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '4a-abort-refused',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -356,6 +377,7 @@ test('cutoff (4a): a refused abort is recorded and never retried; the harness st
 test('cutoff (4b): an abort that loses its connection is failed, the rest not attempted, with no reconnect', async () => {
   const gateway = world({ baseline: [prince()], onCreate: ownedChild, abort: () => ({ close: true }) });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '4b-abort-connection-lost',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -401,6 +423,7 @@ test('cutoff (5): a queued continuation that fires after an acknowledged abort i
     },
   });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '5-continuation-after-abort',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -446,6 +469,7 @@ test('cutoff (6): usage of a request that finished before the trip lands after i
     },
   });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '6-delayed-usage',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -488,6 +512,7 @@ test('cutoff (7): two concurrent requests that both complete after the trip are 
   };
   const gateway = world({ baseline: [prince()], onCreate: (session) => { session.grow = lateLanding; } });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '7-concurrent-requests',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: { 'r-config-defaults.js': [...CREATE_ROOT['r-config-defaults.js'], { key: 'r-config-defaults-second', label: 'k6 R-CONFIG-DEFAULTS second' }] },
@@ -525,6 +550,7 @@ test('cutoff (8): a trip between rows aborts the sessions an earlier row left ru
     },
   });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '8-trip-between-rows',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: { 'preflight.js': [{ key: 'preflight-owned', label: 'k6 PREFLIGHT owned' }] },
@@ -557,6 +583,7 @@ test('cutoff (9): a runner interrupted during the drain keeps the cutoff record 
     return answer;
   })(gateway.methods['sessions.abort']);
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '9-interrupted-during-drain',
     budget: '1000',
     sleepSeconds: LONG_ROW,
     creates: CREATE_ROOT,
@@ -587,6 +614,7 @@ test('cutoff (10): a meter that dies still gets the cutoff, and the receipt says
   const PREFLIGHT_OWNED = 'agent:main:preflight-owned';
   const gateway = world({ baseline: [prince()], onCreate: (session) => { session.grow = () => 10; } });
   const fixture = await runBudgetMatrix(repoRoot, {
+    label: '10-meter-died',
     budget: '3200000',
     sleepSeconds: { 'r-config-intersession.js': 60 },
     creates: { 'preflight.js': [{ key: 'preflight-owned', label: 'k6 PREFLIGHT owned' }] },

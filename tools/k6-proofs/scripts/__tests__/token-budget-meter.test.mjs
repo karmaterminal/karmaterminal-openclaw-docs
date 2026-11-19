@@ -291,3 +291,51 @@ test('a refused configuration never echoes the value it refused', async () => {
     await meter.cleanup();
   }
 });
+
+// Second review (of 78fec962).
+
+test('the meter exits once its parent is gone even while slow discoveries run back to back', async () => {
+  const gateway = await startGateway({
+    'sessions.list': () => new Promise((resolve) => setTimeout(() => resolve({ ok: true, payload: { sessions: [{ key: CONFIGURED, sessionId: 'cfg' }], hasMore: false } }), 300)),
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const parent = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 60000)'], { stdio: 'ignore' });
+  const meter = await startMeter({
+    url: gateway.url,
+    budget: '1000000',
+    parentPid: parent.pid,
+    env: { OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS: '5', OPENCLAW_PROOFS_TOKEN_BUDGET_DISCOVERY_SECONDS: '0.1' },
+  });
+  try {
+    await meter.waitFor((state) => state.phase === 'armed' && state.discoveries >= 2, 'discoveries');
+    parent.kill('SIGKILL');
+    const exited = await Promise.race([meter.exited, new Promise((resolve) => setTimeout(() => resolve('still running'), 4000))]);
+    assert.equal(exited, 0, 'a meter whose runner is gone must stop polling the gateway');
+  } finally {
+    parent.kill('SIGKILL');
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('the meter keeps its state fresh between readings and holds one connection', async () => {
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }]),
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const meter = await startMeter({
+    url: gateway.url,
+    budget: '1000000',
+    env: { OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS: '3', OPENCLAW_PROOFS_TOKEN_BUDGET_DISCOVERY_SECONDS: '0.1' },
+  });
+  try {
+    const first = await meter.waitFor((state) => state.phase === 'armed' && state.discoveries >= 1, 'a discovery');
+    const later = await meter.waitFor((state) => state.discoveries >= first.discoveries + 5, 'more discoveries');
+    assert.equal(later.readings.length, first.readings.length, 'no usage reading in between');
+    assert.ok(Date.parse(later.updatedAt) > Date.parse(first.updatedAt), 'a discovery rewrites the state, so the runner never sees a healthy meter as stale');
+    assert.equal(gateway.connects.length, 1, `one authenticated connection for the run, not one per discovery (${gateway.connects.length})`);
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});

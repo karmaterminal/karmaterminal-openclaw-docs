@@ -412,6 +412,30 @@ test('the interrupted receipt is written quickly and k6 is gone before it', asyn
   }
 });
 
+test('a second signal while the runner is exiting does not cut the receipt short', async () => {
+  const fixture = await runBudgetMatrix(repoRoot, {
+    budget: '3200000',
+    sleepSeconds: LONG_ROW,
+    actions: { 'r-config-defaults.js': 'term-runner-twice' },
+    // The meter's last reading hangs, so the runner is still inside its exit
+    // path (a 2 s meter wait) when the second SIGTERM lands.
+    usage: ({ started }) => ({
+      'sessions.list': disposableSessionListing(() => false),
+      'sessions.usage.timeseries': () => (started('r-config-defaults.js') ? new Promise(() => {}) : usagePoint('configured', 5000)),
+    }),
+  });
+  try {
+    const { result, receipt, k6 } = fixture;
+    assert.equal(result.code, 143, `${result.stdout}\n${result.stderr}`);
+    assert.ok(receipt, 'the receipt is written although a second SIGTERM arrived mid-exit');
+    assert.equal(receipt.verdict, 'RUN-INTERRUPTED');
+    assert.equal(k6['R-CONFIG-DEFAULTS'].finished, false);
+    assert.equal(fixture.metersLeft, 0);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
 test('no budget keeps today\'s behaviour: the gateway is never asked for usage and no receipt is written', async () => {
   const fixture = await runBudgetMatrix(repoRoot, {
     budget: null,

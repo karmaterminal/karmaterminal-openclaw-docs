@@ -341,3 +341,59 @@ test('a bare configured key matches its canonical agent-scoped row', async () =>
   assert.deepEqual(baseline.sessions, { 'main:m': 7 });
   assert.deepEqual(baseline.scope.byReason, { configured: 1 });
 });
+
+// Second review (of 78fec962).
+
+test('a session only a discovery saw, deleted with no archive, is an unreadable counter, never zero', async () => {
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.rows.push({ key: 'agent:main:subagent:incognito-x', sessionId: 'inc', spawnedBy: CONFIGURED });
+  await meter.discover();
+  gateway.rows = gateway.rows.filter((row) => row.sessionId !== 'inc');
+  const reading = await meter.read();
+  assert.equal(reading.readable, false, 'its consumption is unknown, so the counter cannot vouch for it');
+  assert.match(reading.error, /vanished-session-archive:missing/u);
+});
+
+test('every session id a discovery sees is kept, so a key reset twice between readings loses none', async () => {
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 's0' }], usage: { [CONFIGURED]: series('s0', 1) } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.rows = [{ key: CONFIGURED, sessionId: 's1' }];
+  await meter.discover();
+  gateway.rows = [{ key: CONFIGURED, sessionId: 's2' }];
+  await meter.discover();
+  gateway.rows = [{ key: CONFIGURED, sessionId: 's3' }];
+  gateway.usage = {
+    [CONFIGURED]: series('s3', 3),
+    'agent:main:s0': series('s0', 1, 10),
+    'agent:main:s1': series('s1', 20),
+    'agent:main:s2': series('s2', 30),
+  };
+  const reading = await meter.read();
+  assert.equal(reading.readable, true, reading.error);
+  assert.deepEqual(reading.sessions, { 'main:s3': 3, 'main:s0': 11, 'main:s1': 20, 'main:s2': 30 });
+});
+
+test('a row first listed without a session id and then with one is the same session, not a vanished one', async () => {
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.rows.push({ key: 'agent:main:r-x-n', label: 'k6 R-X n' });
+  await meter.discover();
+  gateway.rows[1] = { key: 'agent:main:r-x-n', sessionId: 'real', label: 'k6 R-X n' };
+  gateway.usage['agent:main:r-x-n'] = series('real', 9);
+  const reading = await meter.read();
+  assert.equal(reading.readable, true, reading.error);
+  assert.equal(reading.sessions['main:real'], 9);
+});
+
+test('a bare configured key that resolves to no listed session refuses the baseline', async () => {
+  const gateway = scriptedGateway({ rows: [{ key: 'agent:main:custom-main', sessionId: 'm' }], usage: {} });
+  const baseline = await createUsageMeter({ rpc: gateway.rpc, configuredKeys: ['main'], now: () => 'x' }).baseline();
+  assert.equal(baseline.readable, false, 'a non-default mainKey or global scope would leave the configured session uncounted');
+  assert.match(baseline.error, /configured-session-unresolved/u);
+  const canonical = await createUsageMeter({ rpc: gateway.rpc, configuredKeys: ['agent:main:not-yet-created'], now: () => 'x' }).baseline();
+  assert.equal(canonical.readable, true, 'a canonical key not created yet is counted when it appears');
+});

@@ -97,6 +97,9 @@ cleanup_private_artifacts() {
 
 finalize_interrupted_token_run() {
   local exit_code=$?
+  # A cancelled workflow sends SIGTERM seconds after SIGINT; a second signal
+  # must not cut this exit path short before its receipts are written.
+  trap '' INT TERM
   # A row's k6 runs in the background while a budget is armed, so an exit from
   # anywhere stops it first, before any receipt describes the run.
   if [[ -n "${K6_PID:-}" ]]; then stop_k6_row 25 || true; fi

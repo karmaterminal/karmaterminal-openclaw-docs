@@ -9,7 +9,8 @@
 // identity with operator.read and nothing more. Configured session keys come
 // from OPENCLAW_SESSION_KEY and OPENCLAW_TARGET_SESSION_KEY.
 //
-// It takes a baseline reading first. If that cannot be read, it writes phase
+// It holds one authenticated connection for the run and takes a baseline
+// reading first. If that cannot be read, it writes phase
 // "unenforceable" and exits 3, and the runner refuses to start. Otherwise it
 // writes phase "armed" and reads again every poll interval, start to start
 // (lib/token-budget.mjs has the source, the scope and the stop rules). When the
@@ -57,8 +58,12 @@ function secondsSetting(env, name, fallback, min, max) {
 }
 
 /**
- * One authenticated gateway connection that is closed, failing every pending
- * request, at `deadline` (epoch ms). request() resolves to { ok, payload, error }.
+ * One authenticated gateway connection. The handshake must finish by
+ * `deadline` (epoch ms); each request(method, params, deadline) must be
+ * answered by its own deadline. Any timeout, socket error or close fails the
+ * connection and every pending request; failed() then reports it, and the
+ * meter opens a new one for its next reading. request() resolves to
+ * { ok, payload, error }.
  */
 export function openGatewayRpc(wsUrl, token, { deadline, WebSocketImpl = globalThis.WebSocket } = {}) {
   return new Promise((resolveOpen, rejectOpen) => {
@@ -74,26 +79,29 @@ export function openGatewayRpc(wsUrl, token, { deadline, WebSocketImpl = globalT
     const fail = (reason) => {
       if (failure) return;
       failure = reason;
-      clearTimeout(timer);
+      clearTimeout(connectTimer);
       try { socket?.close(); } catch { /* already failed */ }
       if (!opened) rejectOpen(new Error(reason));
-      for (const { reject } of pending.values()) reject(new Error(reason));
+      for (const { reject, timer } of pending.values()) {
+        clearTimeout(timer);
+        reject(new Error(reason));
+      }
       pending.clear();
     };
-    const timer = setTimeout(() => fail('gateway-rpc-timeout'), Math.max(0, deadline - Date.now()));
+    const connectTimer = setTimeout(() => fail('gateway-rpc-timeout'), Math.max(0, deadline - Date.now()));
     const client = {
-      request(method, params) {
+      failed: () => failure !== null,
+      request(method, params, requestDeadline) {
         if (failure) return Promise.reject(new Error(failure));
         const id = `token-budget-${randomUUID()}`;
         return new Promise((resolve, reject) => {
-          pending.set(id, { resolve, reject });
+          const timer = setTimeout(() => fail('gateway-rpc-timeout'), Math.max(0, requestDeadline - Date.now()));
+          pending.set(id, { resolve, reject, timer });
           socket.send(JSON.stringify({ type: 'req', id, method, params }));
         });
       },
       close() {
-        clearTimeout(timer);
-        failure ??= 'closed';
-        try { socket.close(); } catch { /* closing a closed socket */ }
+        fail('closed');
       },
     };
     try {
@@ -139,12 +147,14 @@ export function openGatewayRpc(wsUrl, token, { deadline, WebSocketImpl = globalT
           return;
         }
         opened = true;
+        clearTimeout(connectTimer);
         resolveOpen(client);
         return;
       }
       const waiter = pending.get(frame.id);
       if (!waiter) return;
       pending.delete(frame.id);
+      clearTimeout(waiter.timer);
       waiter.resolve(frame.ok === true
         ? { ok: true, payload: frame.payload ?? null }
         : { ok: false, error: frame.error ?? { code: 'ERROR' } });
@@ -263,26 +273,37 @@ async function watch(args, env = process.env) {
   if (!wsUrl) return refuse('gateway-url-missing');
   if (!token) return refuse('gateway-token-missing');
 
-  let cycleRpc = null;
+  // One connection for the whole run. A connection found failed at the start
+  // of a reading (the gateway closed it while idle) is replaced quietly; a
+  // failure during a reading fails that reading. Every request in a reading
+  // shares the reading's deadline.
+  let link = null;
+  let cycleDeadline = 0;
   const meter = createUsageMeter({
-    rpc: (method, params) => cycleRpc(method, params),
+    rpc: async (method, params) => {
+      if (!link || link.client?.failed()) {
+        const opening = { client: null, promise: openGatewayRpc(wsUrl, token, { deadline: cycleDeadline }) };
+        opening.promise.then((client) => { opening.client = client; }, () => {});
+        link = opening;
+      }
+      let client;
+      try {
+        client = await link.promise;
+      } catch (error) {
+        link = null;
+        throw error;
+      }
+      return client.request(method, params, cycleDeadline);
+    },
     configuredKeys: [env.OPENCLAW_SESSION_KEY, env.OPENCLAW_TARGET_SESSION_KEY],
   });
-  // One connection per reading, closed at the reading's deadline.
   const timed = async (read) => {
     const started = Date.now();
-    let connection = null;
-    cycleRpc = async (method, params) => {
-      connection ??= openGatewayRpc(wsUrl, token, { deadline: started + timeoutMs });
-      return (await connection).request(method, params);
-    };
-    try {
-      const reading = await read();
-      return { reading, readMs: Date.now() - started };
-    } finally {
-      if (connection) (await connection.catch(() => null))?.close();
-    }
+    cycleDeadline = started + timeoutMs;
+    const reading = await read();
+    return { reading, readMs: Date.now() - started };
   };
+  const closeLink = () => link?.client?.close();
 
   const baselineRead = await timed(() => meter.baseline());
   const baseline = baselineRead.reading;
@@ -293,7 +314,10 @@ async function watch(args, env = process.env) {
     scope: baseline.scope ?? null,
     tokensInScope: baseline.readable ? Object.values(baseline.sessions).reduce((sum, tokens) => sum + tokens, 0) : null,
   };
-  if (!baseline.readable) return refuse(`baseline-unreadable: ${baseline.error}`);
+  if (!baseline.readable) {
+    closeLink();
+    return refuse(`baseline-unreadable: ${baseline.error}`);
+  }
   const ledger = createBudgetLedger({ budget: budget.budget, baseline });
   state.phase = 'armed';
   state.sessions = meter.publicSessions();
@@ -333,11 +357,20 @@ async function watch(args, env = process.env) {
   let nextDiscoveryAt = Date.now() + discoveryMs;
   for (;;) {
     while (!stopping && Date.now() < nextAt) {
+      // Checked on every pass, so neither slow discoveries run back to back nor
+      // slow readings keep a meter polling for a runner that is gone.
+      if (!parentAlive(parentPid)) {
+        stopping = true;
+        break;
+      }
       if (Date.now() >= nextDiscoveryAt) {
-        nextDiscoveryAt = Date.now() + discoveryMs;
         const { reading: found, readMs } = await timed(() => meter.discover());
+        nextDiscoveryAt = Date.now() + discoveryMs;
         state.discoveries += 1;
-        if (!found.readable) {
+        if (found.readable) {
+          // Fresh state between readings: the runner's staleness check.
+          save();
+        } else {
           observe({ at: found.at, readable: false, error: `discovery: ${found.error}` }, { readMs, discovery: true });
         }
         continue;
@@ -347,8 +380,8 @@ async function watch(args, env = process.env) {
         setTimeout(resolve, Math.min(250, Math.max(0, Math.min(nextAt, nextDiscoveryAt) - Date.now())));
       });
       wake = null;
-      if (!parentAlive(parentPid)) stopping = true;
     }
+    if (!parentAlive(parentPid)) stopping = true;
     const final = stopping;
     nextAt = Math.max(nextAt + pollMs, Date.now());
     nextDiscoveryAt = Date.now() + discoveryMs;
@@ -361,6 +394,7 @@ async function watch(args, env = process.env) {
     if (final) {
       state.phase = 'stopped';
       save();
+      closeLink();
       return 0;
     }
   }

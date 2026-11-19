@@ -209,9 +209,13 @@ export function createBudgetLedger({ budget, baseline }) {
 // src/infra/session-cost-usage-reporting.ts:545-588); sessions.delete archives
 // by default (src/gateway/server-methods/sessions-delete.ts:189,482). The turns
 // it ran after the last poll are counted that way, and the meter lists the
-// sessions about once a second between readings (discover()), so a session
-// created and deleted between two readings is read the same way. If that read
-// fails, the reading is unreadable. This archive path is traced in code at
+// sessions about once a second between readings (discover()), keeping every
+// (key, session id) it sees, so a session created and deleted between two
+// readings is usually read the same way. A session that lives less than a
+// discovery interval, or that is created after a reading's listing and deleted
+// before the next listing (none runs during a reading), can still be missed.
+// If that read fails, or a session only a listing saw has no archive, the
+// reading is unreadable. This archive path is traced in code at
 // ab5a (including the SQLite store's zstd .deleted export,
 // src/config/sessions/session-accessor.sqlite-archive-artifact.ts:117-139), not
 // exercised against a live gateway. An incognito session is deleted with no
@@ -286,14 +290,18 @@ export function createUsageMeter({
 }) {
   const configured = configuredKeys.filter((key) => typeof key === 'string' && key);
   const scopeReason = new Map(); // session key -> reason
-  const seen = new Map(); // in-scope session key -> { agentId, sessionId, reason } from the latest listing that had it
+  // Every in-scope (key, session id) any listing showed, until it is read or
+  // found gone: key + "\0" + session id -> { key, agentId, sessionId, reason }.
+  const seen = new Map();
+  const seenKey = (key, sessionId) => `${key}\0${sessionId ?? ''}`;
   const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }
   let baselineKeys = null;
 
   // A configured key matches its row exactly, or, when it is bare ("main"),
   // any agent-scoped row agent:<id>:<key>: sessions.list answers canonical keys.
-  const isConfigured = (key) => configured.some((wanted) => key === wanted
-    || (!wanted.startsWith('agent:') && agentIdOf(key) !== null && key === `agent:${agentIdOf(key)}:${wanted}`));
+  const matchesConfigured = (key, wanted) => key === wanted
+    || (!wanted.startsWith('agent:') && agentIdOf(key) !== null && key === `agent:${agentIdOf(key)}:${wanted}`);
+  const isConfigured = (key) => configured.some((wanted) => matchesConfigured(key, wanted));
 
   async function call(method, params) {
     const answer = await rpc(method, params);
@@ -352,11 +360,10 @@ export function createUsageMeter({
     for (const row of inScope) {
       const reason = scopeReason.get(row.key);
       byReason[reason] = (byReason[reason] ?? 0) + 1;
-      seen.set(row.key, {
-        agentId: agentIdOf(row.key),
-        sessionId: typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null,
-        reason,
-      });
+      const sessionId = typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null;
+      // A row that now has its session id supersedes its earlier id-less listing.
+      if (sessionId) seen.delete(seenKey(row.key, null));
+      seen.set(seenKey(row.key, sessionId), { key: row.key, agentId: agentIdOf(row.key), sessionId, reason });
     }
     return { inScope, scope: { sessionsListed: rows.length, sessionsInScope: inScope.length, byReason, priorRunLabelled } };
   }
@@ -396,7 +403,9 @@ export function createUsageMeter({
     const usage = await readUsage(`agent:${entry.agentId}:${entry.sessionId}`).catch((error) => {
       throw new Error(`vanished-session-archive:${error.message}`);
     });
-    if (usage.missing && entry.everPositive) throw new Error('vanished-session-archive:missing');
+    // No archive: harmless only for a session read before and never seen with
+    // usage. One only a discovery saw has unknown consumption.
+    if (usage.missing && (entry.everPositive || entry.discoveredOnly)) throw new Error('vanished-session-archive:missing');
     entry.closed = true;
     if (!usage.missing) entry.lastTokens = usage.tokens;
     reading[id] = entry.lastTokens;
@@ -408,6 +417,13 @@ export function createUsageMeter({
       const rows = await listAll();
       if (asBaseline) baselineKeys = new Set(rows.map((row) => row.key));
       const { inScope, scope } = classify(rows);
+      // A bare configured key ("main") resolves through the gateway's own main
+      // key or global scope, which this meter cannot see. One that matches no
+      // listed session at the baseline is refused rather than left uncounted.
+      if (asBaseline) {
+        const unresolved = configured.filter((wanted) => !wanted.startsWith('agent:') && !rows.some((row) => matchesConfigured(row.key, wanted)));
+        if (unresolved.length) throw new Error('configured-session-unresolved: pass the configured session as agent:<id>:<key>');
+      }
       const reading = {};
       const live = new Set();
       for (const row of inScope) {
@@ -427,15 +443,21 @@ export function createUsageMeter({
           if (entry.closed || live.has(id)) continue;
           await closeVanished(id, entry, reading);
         }
-        // Seen by a discovery but gone before any reading listed it.
-        const listed = new Set(rows.map((row) => row.key));
-        for (const [key, found] of seen) {
-          if (listed.has(key)) continue;
-          seen.delete(key);
-          if (!found.sessionId) throw new Error('vanished-session-archive:no-session-id');
+        // Seen by a listing (a discovery, typically) but gone before any
+        // reading read it: a session created and deleted between readings, or
+        // a session id a key held between two resets.
+        const listedKeys = new Set(rows.map((row) => row.key));
+        const listed = new Set(rows.map((row) => seenKey(row.key, typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null)));
+        for (const [entryKey, found] of seen) {
+          if (listed.has(entryKey)) continue;
+          seen.delete(entryKey);
+          if (!found.sessionId) {
+            if (listedKeys.has(found.key)) continue;
+            throw new Error('vanished-session-archive:no-session-id');
+          }
           const id = `${found.agentId ?? '?'}:${found.sessionId}`;
           if (sessions.has(id)) continue;
-          const entry = { agentId: found.agentId, sessionId: found.sessionId, reason: found.reason, baselineTokens: 0, lastTokens: 0, everPositive: false, closed: false, placeholder: false };
+          const entry = { agentId: found.agentId, sessionId: found.sessionId, reason: found.reason, baselineTokens: 0, lastTokens: 0, everPositive: false, closed: false, placeholder: false, discoveredOnly: true };
           sessions.set(id, entry);
           await closeVanished(id, entry, reading);
         }

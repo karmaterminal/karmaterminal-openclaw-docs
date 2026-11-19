@@ -11,8 +11,9 @@
  * can tell a row that ran from one that was stopped or never dispatched. A
  * per-scenario action lets a row break the run's own machinery as it starts:
  * kill-meter (SIGKILL the meter), stop-meter (SIGSTOP it, so it goes stale),
- * term-runner (SIGTERM run-proofs.sh) or ignore-term (the k6 stub ignores
- * SIGTERM, as a k6 stuck in teardown would). The k6 stub's parent is the runner, and
+ * term-runner (SIGTERM run-proofs.sh), term-runner-twice (a second SIGTERM a
+ * second later, as a cancelled workflow sends) or ignore-term (the k6 stub
+ * ignores SIGTERM, as a k6 stuck in teardown would). The k6 stub's parent is the runner, and
  * the meter is the only process started with `--parent-pid <runner pid>`, so
  * the action never reaches another test's processes.
  * Everything else (the meter, the ledger, extraction, redaction, run-result) is
@@ -58,7 +59,7 @@ function shellQuote(value) {
  * @param {Record<string, number>} [options.sleepSeconds] per-scenario k6 stub run time
  * @param {(ctx: {markers: string, started: (scenario: string) => boolean}) => object} options.usage
  *   gateway methods for the usage source, given access to the k6 markers
- * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'|'ignore-term'>} [options.actions] per-scenario k6 stub action
+ * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'|'term-runner-twice'|'ignore-term'>} [options.actions] per-scenario k6 stub action
  * @param {string} [options.rows] the row list argument (default: the three BUDGET_ROWS)
  * @param {string|null} [options.staleReceipt] content of a token-budget-receipt.json left in the out dir beforehand
  * @param {boolean} [options.dryRun]
@@ -117,6 +118,7 @@ export async function runBudgetMatrix(repoRoot, {
       '  kill-meter) pkill -KILL -f -- "--parent-pid $PPID\\$" ;;',
       '  stop-meter) pkill -STOP -f -- "--parent-pid $PPID\\$" ;;',
       '  term-runner) kill -TERM "$PPID" ;;',
+      '  term-runner-twice) kill -TERM "$PPID"; (sleep 1; kill -TERM "$PPID") >/dev/null 2>&1 & ;;',
       'esac',
       'seconds="$(cat "$markers/$scenario.sleep" 2>/dev/null || echo 0)"',
       'sleep "$seconds" &',

@@ -466,8 +466,9 @@ that wrapper to pass `OPENCLAW_PROOFS_TOKEN_BUDGET` through to `run-proofs.sh`.
 
 ### What is counted, and where it is read
 
-`scripts/token-budget-meter.mjs` reads the gateway over its WebSocket, as the row
-scenarios' backend identity with `operator.read` only. `lib/token-budget.mjs`
+`scripts/token-budget-meter.mjs` reads the gateway over one WebSocket connection
+for the whole run, as the row scenarios' backend identity with `operator.read`
+only. `lib/token-budget.mjs`
 holds the source, the scope and the stop rules, with citations at openclaw
 `ab5a30ea79b776f149e24b1fccab9e79b0a5d299`:
 
@@ -497,14 +498,19 @@ holds the source, the scope and the stop rules, with citations at openclaw
   (`src/config/sessions/session-accessor.sqlite-archive-artifact.ts:117-139`).
   The turns it ran after the last poll still count.
   - **Discovery between readings.** The meter also lists sessions about once a
-    second between readings. A session created and deleted between two readings
-    is therefore still found, and read the same way.
+    second between readings, keeping every session id it sees until it has been
+    read. A session created and deleted between two readings is therefore
+    usually still found, and read the same way.
+  - **What can still be missed.** No listing runs while a reading is in
+    progress, and a reading can take up to the read timeout. A session can still
+    go unseen if it lives less than about one discovery interval, or if it is
+    created after one reading's listing and deleted before the next listing.
   - **Traced, not exercised.** This archive path is followed in code at `ab5a`,
     not tested against a live gateway.
   - **Fail-closed.** If the archive cannot be read, the counter is unreadable and
     the run stops. An incognito session is deleted with no archive
-    (`sessions-delete.ts:482,493`), so one seen with usage and then deleted stops
-    the run this way.
+    (`sessions-delete.ts:482,493`). One seen with usage, or seen only by a listing,
+    and then deleted stops the run this way.
 
 These surfaces were rejected, and why:
 
@@ -534,7 +540,11 @@ These surfaces were rejected, and why:
 baseline. A session counts if any of these holds:
 
 - it is a configured key (`OPENCLAW_SESSION_KEY`, `OPENCLAW_TARGET_SESSION_KEY`),
-  matched exactly or, for a bare key such as `main`, as `agent:<id>:main`;
+  matched exactly or, for a bare key such as `main`, as `agent:<id>:main`. A bare
+  key the gateway resolves some other way (a non-default main key, or global
+  scope) cannot be seen. So a bare key that matches no listed session at the
+  baseline refuses the run (`configured-session-unresolved`); pass it as
+  `agent:<id>:<key>`;
 - it is absent from the baseline listing and its label starts `k6 `, which every
   scenario's `sessions.create` sets;
 - `spawnedBy` or `parentSessionKey` names a session already counted
@@ -547,6 +557,11 @@ A session already listed at the baseline is read only if it is configured or
 descends from one. That excludes earlier runs' `k6 ` sessions: every disposable
 key carries a fresh nonce, so they are never this run's. The receipt counts them
 as `priorRunLabelled`. Every in-scope session is read on every reading.
+
+Work an earlier run left running (a late wake or delegate return in that run's
+sessions) is therefore recorded by no receipt. The earlier run's meter has
+stopped, and this one excludes those sessions. If the bound is meant to cap all
+spend on the seat, check that the seat is idle before a budgeted run.
 
 ### When the run stops
 

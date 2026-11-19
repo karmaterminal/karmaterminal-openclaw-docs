@@ -44,7 +44,7 @@ test('a recorded root and its descendants by spawnedBy and controlOwnerSessionKe
       { key: 'agent:main:subagent:child', sessionId: 'c', spawnedBy: ROOT, controlOwnerSessionKey: ROOT },
       { key: ROOT, sessionId: 'root', label: 'k6 R-CW-1 nonce' },
       { key: 'agent:main:older-root', sessionId: 'older', label: 'k6 R-CD-1 nonce' },
-      { key: 'agent:main:fork', sessionId: 'f', parentSessionKey: 'agent:main:older-root' },
+      { key: 'agent:main:fork', sessionId: 'f', spawnedBy: 'agent:main:older-root', parentSessionKey: 'agent:main:older-root' },
     ],
   });
   assert.deepEqual(decision.owned.map(({ key, role, depth, abortable }) => ({ key, role, depth, abortable })), [
@@ -88,6 +88,7 @@ test('each way ownership can be undecidable is ambiguous, with its own reason, a
       { key: 'agent:main:loop-b', sessionId: 'lb', spawnedBy: 'agent:main:loop-a' },
       { key: 'agent:main:labelled', sessionId: 'l', label: 'k6 R-CW-2 nonce' },
       { key: 'agent:main:new', sessionId: 'n2' },
+      { key: 'agent:main:lineage', sessionId: 'ln', parentSessionKey: ROOT },
     ],
   });
   assert.deepEqual(reasons(decision), {
@@ -104,6 +105,7 @@ test('each way ownership can be undecidable is ambiguous, with its own reason, a
     'agent:main:loop-b': 'ancestry-cycle',
     'agent:main:labelled': 'selector-match-without-record',
     'agent:main:new': 'unrecorded-new-session',
+    'agent:main:lineage': 'lineage-only-parent',
   });
   assert.deepEqual(new Set(Object.values(reasons(decision))), new Set(AMBIGUITY_REASONS), 'every named reason is reachable');
   assert.deepEqual(keysOf(decision.owned), [ROOT]);
@@ -186,10 +188,20 @@ test('over many random gateways, nothing at the baseline, configured or unrecord
       } else {
         const parents = [row.spawnedBy, row.parentSessionKey, row.controlOwnerSessionKey].filter((parent) => parent && parent !== row.key);
         assert.ok(parents.length > 0 && parents.every((parent) => owned.has(parent)), `round ${round}: ${entry.key} has an unowned parent`);
+        assert.ok([row.spawnedBy, row.controlOwnerSessionKey].some((parent) => parent && owned.has(parent)), `round ${round}: ${entry.key} is linked by lineage alone`);
       }
     }
     for (const entry of decision.owned.filter((item) => item.abortable)) {
-      assert.ok(rows.filter((row) => row.controlOwnerSessionKey === entry.key).every((row) => owned.has(row.key)), `round ${round}: ${entry.key}'s cascade reaches an unowned session`);
+      const reach = new Set();
+      const stack = [entry.key];
+      while (stack.length) {
+        const controller = stack.pop();
+        for (const row of rows.filter((candidate) => candidate.controlOwnerSessionKey === controller && !reach.has(candidate.key))) {
+          reach.add(row.key);
+          stack.push(row.key);
+        }
+      }
+      assert.ok([...reach].every((key) => owned.has(key)), `round ${round}: ${entry.key}'s cascade reaches an unowned session`);
     }
   }
 });
@@ -490,4 +502,91 @@ test('the abort document is public-safe: sessions by hash, outcomes, counts, and
   } finally {
     await s.cleanup();
   }
+});
+
+// ---------------------------------------------------------------------------
+// Independent review of b76fedf2: repairs, each RED on that SHA
+// ---------------------------------------------------------------------------
+
+test('review F1: a session is not aborted when any session under it, at any depth, is one the run does not own', () => {
+  const B = 'agent:main:subagent:owned-b';
+  const P = 'agent:main:subagent:prince-controlled-by-b';
+  const decision = resolveOwnership({
+    records: [{ key: ROOT, sessionId: 'root' }],
+    baseline,
+    rows: [
+      ...princeRows,
+      { key: ROOT, sessionId: 'root' },
+      { key: B, sessionId: 'b', spawnedBy: ROOT, controlOwnerSessionKey: ROOT },
+      // B controls a session the prince spawned: B's abort would cascade into it,
+      // and so would the root's, through B (subagent-control-kill.ts:360-363).
+      { key: P, sessionId: 'p', spawnedBy: PRINCE, controlOwnerSessionKey: B },
+    ],
+  });
+  assert.deepEqual(decision.owned.map(({ key, abortable, skipReason }) => ({ key, abortable, skipReason })), [
+    { key: ROOT, abortable: false, skipReason: 'cascade-would-reach-unowned-session' },
+    { key: B, abortable: false, skipReason: 'cascade-would-reach-unowned-session' },
+  ]);
+});
+
+test('review F4: a link by parentSessionKey alone, which an adopting create can write, proves nothing', () => {
+  const decision = resolveOwnership({
+    records: [{ key: ROOT, sessionId: 'root' }],
+    baseline,
+    rows: [
+      ...princeRows,
+      { key: ROOT, sessionId: 'root' },
+      // A session new since the baseline (a fresh channel thread), re-parented onto the root.
+      { key: 'agent:main:discord:thread', sessionId: 't', parentSessionKey: ROOT },
+      // A spawned child that also carries the lineage is still owned.
+      { key: 'agent:main:subagent:child', sessionId: 'c', spawnedBy: ROOT, parentSessionKey: ROOT },
+    ],
+  });
+  assert.deepEqual(keysOf(decision.owned), [ROOT, 'agent:main:subagent:child']);
+  assert.deepEqual(reasons(decision), { 'agent:main:discord:thread': 'lineage-only-parent' });
+});
+
+test('review F7: a session that stopped while its descendants did not is partial, not refused', async () => {
+  const { results } = await runAbortPass({
+    rpc: async () => ({ ok: false, error: { code: 'UNAVAILABLE', message: 'Session stopped, but descendant cancellation was incomplete: x' } }),
+    owned: [owned('a')],
+    deadline: Date.now() + 1000,
+  });
+  assert.deepEqual(results.map(({ outcome, refusal, error }) => ({ outcome, refusal, error })), [
+    { outcome: 'partial', refusal: 'descendants-incomplete', error: 'sessions-abort:UNAVAILABLE' },
+  ]);
+  const overshoot = computeOvershoot({ state: stateFor(), abort: abortDoc({ sessions: [{ id: 'aaaaaaaaaaaa', outcome: 'partial' }], ambiguous: [] }), drain: { metered: true } });
+  assert.ok(overshoot.maxPossibleReasons.includes('1 owned session(s) stopped, but their descendants\' cancellation was incomplete'));
+  assert.ok(!overshoot.maxPossibleReasons.some((reason) => reason.includes('refused, failed or not attempted')));
+});
+
+test('review F3: with no readable reading after the abort or the trip, those figures are unmeasured, never zero', () => {
+  const state = {
+    ...stateFor(),
+    cumulative: 1200,
+    readings: [reading(1, 300, 300), reading(3, 900, 600), reading(4, 1200, 300, { final: true })],
+    abortSessions: null,
+  };
+  const afterAbort = computeOvershoot({ state, abort: abortDoc({ completedAt: '2026-11-19T00:00:04.500Z' }), drain: { metered: false, reason: 'meter-exited' } });
+  assert.equal(afterAbort.observed.readingsAfterAbort, 0);
+  assert.equal(afterAbort.observed.postAbortTokens, null, 'nothing read after the abort is not a measured zero');
+  assert.equal(afterAbort.observed.sessionsGrowingAfterAbort, null);
+  const noLaterReading = computeOvershoot({ state: { ...state, trip: { reason: 'budget-reached', at: '2026-11-19T00:00:04.000Z', cumulative: 1200 } }, abort: null });
+  assert.equal(noLaterReading.observed.postTripTokens, null);
+  assert.equal(noLaterReading.observed.sessionsGrowingAfterTrip, null);
+});
+
+test('review F5: a drain with no readable reading after the abort is not metered, whatever the runner saw', () => {
+  const state = { ...stateFor(), readings: [...stateFor().readings.slice(0, 5), { at: '2026-11-19T00:00:06.000Z', readable: false, error: 'x', cumulative: 1200, increment: null }], cumulative: 1200 };
+  const overshoot = computeOvershoot({ state: { ...state, abortSessions: null }, abort: abortDoc(), drain: { metered: true, windowSeconds: 1 } });
+  assert.equal(overshoot.drain.metered, false);
+  assert.equal(overshoot.drain.reason, 'no-readable-reading-after-abort');
+  assert.equal(overshoot.observed.unreadableReadingsAfterAbort, 1);
+});
+
+test('review F2: a cutoff that started but left no record is never reported as no abort', () => {
+  const overshoot = computeOvershoot({ state: stateFor(), abort: null, cutoffStarted: true });
+  assert.ok(overshoot.maxPossibleReasons.includes('the cutoff left no record, so sessions may have been aborted'));
+  assert.ok(!overshoot.maxPossibleReasons.includes('no abort was attempted'));
+  assert.equal(overshoot.drain.reason, 'drain-unrecorded');
 });

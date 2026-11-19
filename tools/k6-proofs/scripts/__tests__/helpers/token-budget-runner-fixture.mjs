@@ -106,6 +106,8 @@ function shellQuote(value) {
  * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'|'term-runner-twice'|'ignore-term'>} [options.actions] per-scenario k6 stub action
  * @param {Record<string, object[]>} [options.creates] per-scenario sessions.create params the k6 stub sends as it starts
  * @param {Record<string, string[]>} [options.logLines] per-scenario lines the k6 stub prints as it starts (a forged record, say)
+ * @param {{afterScenario: string, seconds: number}|null} [options.journalSleep] make the post-row journal capture after that
+ *   scenario finishes take `seconds`, once: a slow post-processing step
  * @param {string} [options.rows] the row list argument (default: the three BUDGET_ROWS)
  * @param {string|null} [options.staleReceipt] content of a token-budget-receipt.json left in the out dir beforehand
  * @param {boolean} [options.dryRun]
@@ -117,6 +119,7 @@ export async function runBudgetMatrix(repoRoot, {
   actions = {},
   creates = {},
   logLines = {},
+  journalSleep = null,
   rows: rowList = null,
   staleReceipt = null,
   usage = () => ({}),
@@ -143,6 +146,7 @@ export async function runBudgetMatrix(repoRoot, {
     await writeFile(path.join(markers, `${scenario}.log`), `${lines.join('\n')}\n`);
   }
   await writeFile(path.join(bin, 'k6-create-sessions.mjs'), CREATE_SESSIONS_HELPER);
+  if (journalSleep) await writeFile(path.join(markers, 'journalctl.sleep'), `${journalSleep.afterScenario} ${journalSleep.seconds}\n`);
   if (staleReceipt !== null) await writeFile(path.join(out, 'token-budget-receipt.json'), staleReceipt);
 
   const started = (scenario) => existsSync(path.join(markers, `${scenario}.started`));
@@ -197,7 +201,16 @@ export async function runBudgetMatrix(repoRoot, {
     ].join('\n'));
     await writeExecutable(path.join(bin, 'openclaw'), '#!/bin/sh\nprintf \'%s\\n\' \'{"enabled":true,"maxChainLength":3,"maxDelegatesPerTurn":3,"costCapTokens":3}\'\n');
     await writeExecutable(path.join(bin, 'hostname'), `#!/bin/sh\nprintf '%s\\n' ${BUDGET_SEAT}\n`);
-    await writeExecutable(path.join(bin, 'journalctl'), '#!/bin/sh\ncase " $* " in *" --show-cursor "*) printf \'%s\\n\' \'-- cursor: token-budget-fixture\' ;; esac\n');
+    await writeExecutable(path.join(bin, 'journalctl'), [
+      '#!/bin/sh',
+      `markers=${shellQuote(markers)}`,
+      'case " $* " in *" --show-cursor "*) printf \'%s\\n\' \'-- cursor: token-budget-fixture\' ;; esac',
+      'if [ -f "$markers/journalctl.sleep" ] && [ ! -f "$markers/journalctl.slept" ]; then',
+      '  read -r scenario seconds < "$markers/journalctl.sleep"',
+      '  case " $* " in *" --after-cursor="*) if [ -f "$markers/$scenario.finished" ]; then : > "$markers/journalctl.slept"; sleep "$seconds"; fi ;; esac',
+      'fi',
+      '',
+    ].join('\n'));
 
     const env = { ...process.env };
     for (const name of Object.keys(env)) {

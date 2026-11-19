@@ -139,3 +139,24 @@ test('the public k6.log replaces every ownership record, and the tag never survi
     await rm(dir, { recursive: true, force: true });
   }
 });
+
+test('review F9: k6\'s JSON log format is read for records, and the sanitizer never publishes one', async () => {
+  const jsonLine = (message) => JSON.stringify({ level: 'info', msg: message, source: 'console', time: '2026-11-19T00:00:00Z' });
+  const log = [jsonLine(ownershipRecordLine(TAG, { key: KEY, sessionId: SESSION_ID })), jsonLine(`${OWNERSHIP_MARKER} ${OTHER_TAG} {"key":"agent:main:main","sessionId":"prince"}`)].join('\n');
+  assert.deepEqual(parseOwnershipRecords(log, TAG), { records: [{ key: KEY, sessionId: SESSION_ID }], rejected: 1 });
+  const dir = await mkdtemp(path.join(tmpdir(), 'token-budget-ownership-json-'));
+  try {
+    const files = Object.fromEntries(['evidence', 'out', 'lines', 'receipt', 'log', 'logOut'].map((name) => [name, path.join(dir, name)]));
+    await writeFile(files.evidence, '{"row":"R-CW-1"}\n');
+    await writeFile(files.log, log);
+    await run(process.execPath, [
+      path.join(root, 'scripts/sanitize-k6-artifacts.mjs'),
+      '--input', files.evidence, '--out', files.out, '--lines-out', files.lines, '--receipt-out', files.receipt,
+      '--log-input', files.log, '--log-out', files.logOut,
+    ], { env: { PATH: process.env.PATH } });
+    const publicLog = await readFile(files.logOut, 'utf8');
+    for (const secret of [SESSION_ID, 'r-cw-1-1763500000000', 'prince', TAG]) assert.ok(!publicLog.includes(secret), `public k6.log carries ${secret}`);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});

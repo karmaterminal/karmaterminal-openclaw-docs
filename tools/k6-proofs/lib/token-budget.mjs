@@ -21,6 +21,8 @@
 // - An unreadable counter stops the run. The first trip is latched: a later
 //   reading still records consumption but never re-arms the run.
 
+import { createHash } from 'node:crypto';
+
 export const TOKEN_BUDGET_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET';
 export const TOKEN_BUDGET_POLL_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS';
 // The overshoot is bounded by one poll interval of usage, so the interval is
@@ -140,4 +142,269 @@ export function createBudgetLedger({ budget, baseline }) {
   }
 
   return { observe, state };
+}
+
+// ---------------------------------------------------------------------------
+// Reading the run's usage from the gateway
+// ---------------------------------------------------------------------------
+//
+// The usage source, at openclaw ab5a30ea79b776f149e24b1fccab9e79b0a5d299:
+// - sessions.usage.timeseries { key } (operator.read, unadvertised;
+//   src/gateway/methods/core-descriptors.ts:370) reads that session's
+//   transcript on every call, with no cache (src/gateway/server-methods/
+//   usage.ts:681-706 -> src/infra/session-cost-usage-reporting.ts:169-239).
+//   Each point is one assistant (or tool) message's recorded usage, and its
+//   totalTokens is usage.total or else input+output+cacheRead+cacheWrite
+//   (src/infra/session-cost-usage-pricing.ts:130-142). Downsampling to 200
+//   points sums buckets, so the sum over points is the session's lifetime
+//   total. An assistant message, usage included, is written to the transcript
+//   when that model response finishes (src/agents/sessions/
+//   agent-session-base.ts:368-412): a reading is current up to the last
+//   completed model call.
+// - sessions.list (operator.read; core-descriptors.ts:232) names the sessions,
+//   with spawnedBy / parentSessionKey linkage (src/gateway/session-utils-row.ts:
+//   505-506,649), paged by hasMore / nextOffset (src/gateway/
+//   session-utils-list.ts:159-168,214-219).
+// Not used, and why:
+// - sessions.list inputTokens/outputTokens are the last run's snapshot, which
+//   each run overwrites (src/config/sessions/session-entry-usage.ts:30,56-59),
+//   and its totalTokens is context occupancy (src/agents/usage.ts:450). Neither
+//   can be summed.
+// - sessions.usage serves a 30 s result cache and, after a ~100 ms wait, stale
+//   per-session summaries (src/gateway/server-methods/usage-cache.ts:4;
+//   usage-session-loading.ts:40,153,167).
+// What no surface here counts: a compaction's model call (a compaction
+// transcript entry carries no usage; packages/agent-core/src/harness/
+// types.ts:77-84) and detached internal runs such as a memory flush
+// (src/agents/internal-run-usage.ts:11-12).
+//
+// Scope, so only this run's sessions are charged (each reason sticks once
+// given):
+// - configured: the configured session key(s) the rows use;
+// - labelled: a label starting "k6 ", which every scenario's sessions.create
+//   sets ("k6 <ROW> <nonce>");
+// - spawned: spawnedBy or parentSessionKey names an in-scope session (delegate
+//   children, transitively; src/agents/subagents/spawn/
+//   subagent-spawn-session-patch.ts:146-158);
+// - new-since-baseline: any other session absent from the baseline listing.
+//   The harness cannot prove such a session is not the run's, so it is
+//   counted; on a dedicated proof gateway there are none.
+// A pre-existing session matching none of these is never read.
+//
+// A session that leaves the listing (sessions.delete, subagent
+// cleanup="delete", or a reset that gives the key a new session id) is read
+// once more by agent:<agentId>:<sessionId>. With no store entry that key
+// resolves to the newest <sessionId>.jsonl.deleted.* or .reset.* archive
+// (src/gateway/server-methods/usage-session-selection.ts:72-95 ->
+// src/infra/session-cost-usage-reporting.ts:545-588); sessions.delete archives
+// by default (src/gateway/server-methods/sessions-delete.ts:189,482). The turns
+// it ran after the last poll are counted that way. If that read fails, the
+// reading is unreadable.
+
+export const DISPOSABLE_SESSION_LABEL_PREFIX = 'k6 ';
+export const SCOPE_REASONS = Object.freeze(['configured', 'labelled', 'spawned', 'new-since-baseline']);
+const DEFAULT_LIST_PAGE = 500;
+const MAX_LIST_PAGES = 200;
+const MISSING_TRANSCRIPT = /^No transcript found for session: /u;
+const AGENT_KEY = /^agent:([^:]+):/u;
+
+const nonNegative = (value) => typeof value === 'number' && Number.isFinite(value) && value >= 0;
+
+/**
+ * The cumulative tokens in one sessions.usage.timeseries payload: per point,
+ * the larger of totalTokens and the sum of its components, rounded up.
+ */
+export function timeseriesTokens(payload) {
+  if (!payload || typeof payload !== 'object' || typeof payload.sessionId !== 'string' || !payload.sessionId || !Array.isArray(payload.points)) {
+    return { ok: false, reason: 'timeseries payload has no sessionId and points list' };
+  }
+  let tokens = 0;
+  for (const entry of payload.points) {
+    const parts = ['input', 'output', 'cacheRead', 'cacheWrite'].map((name) => entry?.[name] ?? 0);
+    if (!nonNegative(entry?.totalTokens) || !parts.every(nonNegative)) {
+      return { ok: false, reason: 'timeseries point has a missing or negative token count' };
+    }
+    tokens += Math.max(entry.totalTokens, parts.reduce((sum, part) => sum + part, 0));
+  }
+  const rounded = Math.ceil(tokens);
+  return Number.isSafeInteger(rounded) ? { ok: true, sessionId: payload.sessionId, tokens: rounded } : { ok: false, reason: 'timeseries total is out of range' };
+}
+
+/** The product's answer for a session that has no transcript yet (usage.ts:695-701). */
+export function isMissingTranscriptError(error) {
+  return error?.code === 'INVALID_REQUEST' && typeof error.message === 'string' && MISSING_TRANSCRIPT.test(error.message);
+}
+
+function rpcFailure(method, error) {
+  const code = typeof error?.code === 'string' && /^[A-Z][A-Z0-9_]{0,63}$/u.test(error.code) ? error.code : 'ERROR';
+  return `${method}:${code}`;
+}
+
+function agentIdOf(key) {
+  return AGENT_KEY.exec(key)?.[1] ?? null;
+}
+
+function publicId(accountingId) {
+  return createHash('sha256').update(accountingId).digest('hex').slice(0, 12);
+}
+
+/**
+ * The meter's reading cycle. `rpc(method, params)` resolves to
+ * { ok: true, payload } or { ok: false, error } and may throw (closed socket,
+ * timeout). baseline() must be readable before read() is used.
+ */
+export function createUsageMeter({ rpc, configuredKeys = [], now = () => new Date().toISOString(), pageSize = DEFAULT_LIST_PAGE }) {
+  const configured = new Set(configuredKeys.filter((key) => typeof key === 'string' && key));
+  const scopeReason = new Map(); // session key -> reason
+  const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed }
+  let baselineKeys = null;
+
+  async function call(method, params) {
+    const answer = await rpc(method, params);
+    if (!answer || typeof answer !== 'object') throw new Error(`${method}:no-answer`);
+    return answer;
+  }
+
+  async function listAll() {
+    const rows = [];
+    let offset = 0;
+    for (let page = 0; page < MAX_LIST_PAGES; page += 1) {
+      const answer = await call('sessions.list', { limit: pageSize, ...(offset ? { offset } : {}) });
+      if (answer.ok !== true) throw new Error(rpcFailure('sessions-list', answer.error));
+      const payload = answer.payload;
+      if (!payload || !Array.isArray(payload.sessions) || typeof payload.hasMore !== 'boolean') {
+        throw new Error('sessions-list:malformed');
+      }
+      rows.push(...payload.sessions.filter((row) => row && typeof row.key === 'string' && row.key));
+      if (!payload.hasMore) return rows;
+      if (!Number.isInteger(payload.nextOffset) || payload.nextOffset <= offset) throw new Error('sessions-list:no-next-offset');
+      offset = payload.nextOffset;
+    }
+    throw new Error('sessions-list:too-many-pages');
+  }
+
+  function classify(rows) {
+    const byKey = new Map(rows.map((row) => [row.key, row]));
+    for (const row of rows) {
+      if (scopeReason.has(row.key)) continue;
+      if (configured.has(row.key)) scopeReason.set(row.key, 'configured');
+      else if (typeof row.label === 'string' && row.label.startsWith(DISPOSABLE_SESSION_LABEL_PREFIX)) scopeReason.set(row.key, 'labelled');
+    }
+    let changed = true;
+    while (changed) {
+      changed = false;
+      for (const row of rows) {
+        if (scopeReason.has(row.key)) continue;
+        if ([row.spawnedBy, row.parentSessionKey].some((owner) => typeof owner === 'string' && scopeReason.has(owner))) {
+          scopeReason.set(row.key, 'spawned');
+          changed = true;
+        }
+      }
+    }
+    if (baselineKeys) {
+      for (const row of rows) {
+        if (!scopeReason.has(row.key) && !baselineKeys.has(row.key)) scopeReason.set(row.key, 'new-since-baseline');
+      }
+    }
+    const inScope = rows.filter((row) => scopeReason.has(row.key));
+    const byReason = {};
+    for (const row of inScope) {
+      const reason = scopeReason.get(row.key);
+      byReason[reason] = (byReason[reason] ?? 0) + 1;
+    }
+    return { inScope, byKey, scope: { sessionsListed: rows.length, sessionsInScope: inScope.length, byReason } };
+  }
+
+  // Reads one timeseries. Resolves to { sessionId, tokens } or { missing: true }; throws otherwise.
+  async function readUsage(key) {
+    const answer = await call('sessions.usage.timeseries', { key });
+    if (answer.ok !== true) {
+      if (isMissingTranscriptError(answer.error)) return { missing: true };
+      throw new Error(rpcFailure('sessions-usage-timeseries', answer.error));
+    }
+    const parsed = timeseriesTokens(answer.payload);
+    if (!parsed.ok) throw new Error('sessions-usage-timeseries:malformed');
+    return parsed;
+  }
+
+  function record(agentId, sessionId, reason, tokens, { asBaseline, placeholder = false }) {
+    const id = `${agentId ?? '?'}:${sessionId}`;
+    let entry = sessions.get(id);
+    if (!entry) {
+      entry = { agentId, sessionId, reason, baselineTokens: asBaseline ? tokens : 0, lastTokens: tokens, everPositive: false, closed: false, placeholder };
+      sessions.set(id, entry);
+    }
+    entry.lastTokens = tokens;
+    if (tokens > 0) entry.everPositive = true;
+    return id;
+  }
+
+  async function cycle({ asBaseline }) {
+    const at = now();
+    try {
+      const rows = await listAll();
+      if (asBaseline) baselineKeys = new Set(rows.map((row) => row.key));
+      const { inScope, scope } = classify(rows);
+      const reading = {};
+      const live = new Set();
+      for (const row of inScope) {
+        const agentId = agentIdOf(row.key);
+        const usage = await readUsage(row.key);
+        const listedId = typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null;
+        const sessionId = usage.missing ? (listedId ?? `key:${row.key}`) : usage.sessionId;
+        const id = record(agentId, sessionId, scopeReason.get(row.key), usage.missing ? 0 : usage.tokens, {
+          asBaseline,
+          placeholder: usage.missing && !listedId,
+        });
+        live.add(id);
+        reading[id] = sessions.get(id).lastTokens;
+      }
+      if (!asBaseline) {
+        for (const [id, entry] of sessions) {
+          if (entry.closed || live.has(id)) continue;
+          // Listed with no session id and no transcript: nothing was recorded
+          // under this placeholder, and there is no archive to read.
+          if (entry.placeholder && !entry.everPositive) {
+            entry.closed = true;
+            continue;
+          }
+          // Left the listing: one read of its archive, then it is final.
+          if (!entry.agentId) throw new Error('vanished-session-archive:no-agent-id');
+          const usage = await readUsage(`agent:${entry.agentId}:${entry.sessionId}`).catch((error) => {
+            throw new Error(`vanished-session-archive:${error.message}`);
+          });
+          if (usage.missing && entry.everPositive) throw new Error('vanished-session-archive:missing');
+          entry.closed = true;
+          if (!usage.missing) entry.lastTokens = usage.tokens;
+          reading[id] = entry.lastTokens;
+        }
+      }
+      return { at, readable: true, sessions: reading, scope };
+    } catch (error) {
+      return { at, readable: false, error: String(error?.message || error).slice(0, 200) };
+    }
+  }
+
+  let baselineTaken = false;
+  return {
+    async baseline() {
+      const reading = await cycle({ asBaseline: true });
+      baselineTaken = reading.readable;
+      return reading;
+    },
+    async read() {
+      if (!baselineTaken) throw new Error('read() needs a readable baseline first');
+      return cycle({ asBaseline: false });
+    },
+    /** Per-session facts safe to publish: a 12-hex id hash, never a key or session id. */
+    publicSessions() {
+      return [...sessions].map(([id, entry]) => ({
+        id: publicId(id),
+        reason: entry.reason,
+        baselineTokens: entry.baselineTokens,
+        lastTokens: entry.lastTokens,
+        state: entry.closed ? 'closed' : 'live',
+      }));
+    },
+  };
 }

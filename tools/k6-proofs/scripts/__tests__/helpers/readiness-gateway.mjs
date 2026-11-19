@@ -56,6 +56,10 @@ export function ab5aDeviceLessOperatorAdmission({ authMode, token, locality = 'd
  * INVALID_REQUEST instead, so a suite that only needs a working target still fails if
  * readiness stops presenting the row scenarios' identity. Pass `null` to see ab5a's own
  * answer to another identity.
+ *
+ * `methods` answers further RPCs after an admitted connect: `{ [method]: (params) => answer }`,
+ * where an answer is `{ ok: true, payload }` or `{ ok: false, error }`, or `{ close: true }` to drop
+ * the connection unanswered. An answer may be a promise. Every call is recorded in `calls`.
  */
 export function attachReadinessGateway(server, {
   token,
@@ -65,13 +69,23 @@ export function attachReadinessGateway(server, {
   authMode = 'token',
   locality = 'direct_local',
   requireClient = HARNESS_CLIENT_IDENTITY,
+  methods = {},
 } = {}) {
   const connects = [];
+  const calls = [];
   const send = (socket, value) => {
     const payload = Buffer.from(JSON.stringify(value));
-    const header = payload.length < 126
-      ? Buffer.from([0x81, payload.length])
-      : Buffer.from([0x81, 126, payload.length >> 8, payload.length & 0xff]);
+    let header;
+    if (payload.length < 126) {
+      header = Buffer.from([0x81, payload.length]);
+    } else if (payload.length < 0x10000) {
+      header = Buffer.from([0x81, 126, payload.length >> 8, payload.length & 0xff]);
+    } else {
+      header = Buffer.alloc(10);
+      header[0] = 0x81;
+      header[1] = 127;
+      header.writeBigUInt64BE(BigInt(payload.length), 2);
+    }
     socket.write(Buffer.concat([header, payload]));
   };
   const continuation = {
@@ -172,6 +186,20 @@ export function attachReadinessGateway(server, {
               policy: { maxPayload: 1024, maxBufferedBytes: 2048, tickIntervalMs: 1000 },
             },
           });
+        } else if (Object.hasOwn(methods, frame.method)) {
+          calls.push({ method: frame.method, params: frame.params ?? null, at: Date.now() });
+          Promise.resolve()
+            .then(() => methods[frame.method](frame.params ?? {}))
+            .then((answer) => {
+              if (answer?.close) {
+                socket.destroy();
+                return;
+              }
+              send(socket, answer?.ok === false
+                ? { type: 'res', id: frame.id, ok: false, error: answer.error }
+                : { type: 'res', id: frame.id, ok: true, payload: answer?.payload ?? null });
+            })
+            .catch(() => socket.destroy());
         } else if (frame.method === 'config.get') {
           send(socket, {
             type: 'res',
@@ -203,5 +231,5 @@ export function attachReadinessGateway(server, {
       }
     });
   });
-  return { connects };
+  return { connects, calls };
 }

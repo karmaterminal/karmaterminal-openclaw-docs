@@ -105,6 +105,7 @@ function shellQuote(value) {
  *   gateway methods for the usage source, given access to the k6 markers
  * @param {Record<string, 'kill-meter'|'stop-meter'|'term-runner'|'term-runner-twice'|'ignore-term'>} [options.actions] per-scenario k6 stub action
  * @param {Record<string, object[]>} [options.creates] per-scenario sessions.create params the k6 stub sends as it starts
+ * @param {Record<string, string[]>} [options.logLines] per-scenario lines the k6 stub prints as it starts (a forged record, say)
  * @param {string} [options.rows] the row list argument (default: the three BUDGET_ROWS)
  * @param {string|null} [options.staleReceipt] content of a token-budget-receipt.json left in the out dir beforehand
  * @param {boolean} [options.dryRun]
@@ -115,6 +116,7 @@ export async function runBudgetMatrix(repoRoot, {
   sleepSeconds = {},
   actions = {},
   creates = {},
+  logLines = {},
   rows: rowList = null,
   staleReceipt = null,
   usage = () => ({}),
@@ -136,6 +138,9 @@ export async function runBudgetMatrix(repoRoot, {
   }
   for (const [scenario, params] of Object.entries(creates)) {
     await writeFile(path.join(markers, `${scenario}.create`), `${JSON.stringify(params)}\n`);
+  }
+  for (const [scenario, lines] of Object.entries(logLines)) {
+    await writeFile(path.join(markers, `${scenario}.log`), `${lines.join('\n')}\n`);
   }
   await writeFile(path.join(bin, 'k6-create-sessions.mjs'), CREATE_SESSIONS_HELPER);
   if (staleReceipt !== null) await writeFile(path.join(out, 'token-budget-receipt.json'), staleReceipt);
@@ -170,6 +175,7 @@ export async function runBudgetMatrix(repoRoot, {
       '  term-runner) kill -TERM "$PPID" ;;',
       '  term-runner-twice) kill -TERM "$PPID"; (sleep 1; kill -TERM "$PPID") >/dev/null 2>&1 & ;;',
       'esac',
+      'if [ -f "$markers/$scenario.log" ]; then cat "$markers/$scenario.log"; fi',
       `if [ -f "$markers/$scenario.create" ]; then node ${shellQuote(path.join(bin, 'k6-create-sessions.mjs'))} "$markers/$scenario.create" || echo 'k6 stub: sessions.create helper failed'; : > "$markers/$scenario.created"; fi`,
       'seconds="$(cat "$markers/$scenario.sleep" 2>/dev/null || echo 0)"',
       'sleep "$seconds" &',

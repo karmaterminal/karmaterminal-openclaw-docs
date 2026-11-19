@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -47,11 +47,14 @@ async function startGateway(methods) {
 const listing = (rows) => () => ({ ok: true, payload: { sessions: rows(), count: rows().length, hasMore: false, nextOffset: null } });
 const usageOf = (sessionId, tokens) => ({ ok: true, payload: { sessionId, points: [{ timestamp: 1, input: tokens, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: tokens, cost: 0 }] } });
 
-async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = null, env = {} }) {
+async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = null, env = {}, baselineOut = false, baselineOutBlocked = false }) {
   const dir = await mkdtemp(path.join(tmpdir(), 'token-budget-meter-'));
   const state = path.join(dir, 'state.json');
   const flag = path.join(dir, 'tripped');
   const args = [meterScript, 'watch', '--budget', budget, '--state', state, '--trip-flag', flag];
+  if (baselineOut) args.push('--baseline-out', path.join(dir, 'baseline-sessions.json'));
+  // A directory where the file should go makes its write fail.
+  if (baselineOutBlocked) await mkdir(path.join(dir, 'baseline-sessions.json'));
   if (parentPid) args.push('--parent-pid', String(parentPid));
   const child = spawn(process.execPath, args, {
     env: {
@@ -84,6 +87,8 @@ async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = nul
     readState,
     waitFor,
     flag,
+    baselineSessions: async () => JSON.parse(await readFile(path.join(dir, 'baseline-sessions.json'), 'utf8')),
+    baselineSessionsPath: path.join(dir, 'baseline-sessions.json'),
     output: () => output,
     cleanup: async () => {
       child.kill('SIGKILL');
@@ -334,6 +339,60 @@ test('the meter keeps its state fresh between readings and holds one connection'
     assert.equal(later.readings.length, first.readings.length, 'no usage reading in between');
     assert.ok(Date.parse(later.updatedAt) > Date.parse(first.updatedAt), 'a discovery rewrites the state, so the runner never sees a healthy meter as stale');
     assert.equal(gateway.connects.length, 1, `one authenticated connection for the run, not one per discovery (${gateway.connects.length})`);
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+// The token budget's cutoff (🌊, Discord 1573086211386384495) never aborts a
+// session that existed before the run, and reports per-session usage that
+// landed after the trip; the meter supplies both.
+
+test('--baseline-out holds every session the baseline listed, written before the meter arms; the trip keeps per-session totals', async () => {
+  let tokens = 0;
+  let lists = 0;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [
+        { key: CONFIGURED, sessionId: 'cfg' },
+        { key: 'agent:main:heartbeat', sessionId: 'hb' },
+        ...(lists > 1 ? [{ key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }] : []),
+      ])();
+    },
+    'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += 150)) : usageOf('cfg', 9000)),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '1000', baselineOut: true });
+  try {
+    const armed = await meter.waitFor((state) => state.phase !== 'baseline', 'armed');
+    assert.ok(existsSync(meter.baselineSessionsPath), 'written by the time the phase leaves baseline');
+    const baseline = await meter.baselineSessions();
+    assert.equal(baseline.at, armed.baseline.at);
+    assert.deepEqual(baseline.sessions, [{ key: CONFIGURED, sessionId: 'cfg' }, { key: 'agent:main:heartbeat', sessionId: 'hb' }]);
+    const tripped = await meter.waitFor((state) => state.trip, 'a trip');
+    assert.deepEqual(tripped.tripSessions, tripped.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })), 'the totals the tripping reading left');
+    const later = await meter.waitFor((state) => state.readings.length >= tripped.readings.length + 2, 'readings after the trip');
+    assert.deepEqual(later.tripSessions, tripped.tripSessions, 'kept as the trip left them');
+    assert.ok(!JSON.stringify(later).includes('uuid-secret'), 'the public state still carries no session id');
+    assert.ok(gateway.connects.every((connect) => JSON.stringify(connect.scopes) === '["operator.read"]'), 'the meter stays read-only');
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('a baseline file that cannot be written refuses the run rather than arming without it', async () => {
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }]),
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const meter = await startMeter({ url: gateway.url, baselineOut: true, baselineOutBlocked: true });
+  try {
+    assert.equal(await meter.exited, 3, meter.output());
+    const state = await meter.readState();
+    assert.equal(state.phase, 'unenforceable');
+    assert.equal(state.error, 'baseline-sessions-unwritten');
   } finally {
     await meter.cleanup();
     await gateway.close();

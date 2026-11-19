@@ -178,24 +178,38 @@ export function resolveOwnership({ records = [], baseline = [], rows = [], confi
   const parentsOf = (row) => [...new Set(
     [row.spawnedBy, row.parentSessionKey, row.controlOwnerSessionKey].map(nonEmpty).filter((parent) => parent && parent !== row.key),
   )];
-  const visiting = new Set();
+  // A recorded, pre-existing or configured session is decided without its
+  // parents, so an ancestry loop can only run through the other sessions.
+  // Every session on such a loop is marked before anything descends from it.
+  const linksAncestry = (key) => listed.has(key) && !recordsByKey.has(key) && !baselineKeys.has(key) && !isConfigured(key);
+  for (const start of listed.keys()) {
+    if (!linksAncestry(start)) continue;
+    const seen = new Set();
+    const stack = parentsOf(listed.get(start)).filter(linksAncestry);
+    while (stack.length) {
+      const key = stack.pop();
+      if (key === start) {
+        decide(start, { status: 'ambiguous', reason: 'ancestry-cycle' });
+        break;
+      }
+      if (seen.has(key)) continue;
+      seen.add(key);
+      stack.push(...parentsOf(listed.get(key)).filter(linksAncestry));
+    }
+  }
   function resolve(key) {
     if (decided.has(key)) return decided.get(key);
     const row = listed.get(key);
     if (!row) return { status: 'unknown' };
     if (recordsByKey.has(key)) return decide(key, rootVerdict(key, row));
     if (baselineKeys.has(key) || isConfigured(key)) return decide(key, { status: 'untouched' });
-    if (visiting.has(key)) return { status: 'cycle' };
     const parents = parentsOf(row);
     if (parents.length === 0) {
       const labelled = typeof row.label === 'string' && row.label.startsWith(DISPOSABLE_LABEL_PREFIX);
       return decide(key, { status: 'ambiguous', reason: labelled ? 'selector-match-without-record' : 'unrecorded-new-session' });
     }
-    visiting.add(key);
     const verdicts = parents.map(resolve);
-    visiting.delete(key);
     const has = (status) => verdicts.some((verdict) => verdict.status === status);
-    if (has('cycle')) return decide(key, { status: 'ambiguous', reason: 'ancestry-cycle' });
     if (has('unknown')) return decide(key, { status: 'ambiguous', reason: 'unknown-parent' });
     if (has('ambiguous')) return decide(key, { status: 'ambiguous', reason: 'ambiguous-parent' });
     if (verdicts.every((verdict) => verdict.status === 'owned')) {

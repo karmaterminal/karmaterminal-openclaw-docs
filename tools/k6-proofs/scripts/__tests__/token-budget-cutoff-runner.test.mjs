@@ -605,3 +605,18 @@ test('cutoff (10): a meter that dies still gets the cutoff, and the receipt says
     await fixture.cleanup();
   }
 });
+
+test('a malformed drain window is refused before any row, naming the setting and never its value', async () => {
+  for (const drain of ['-1', '1801', '1e3', 'soon', '0.0001']) {
+    const fixture = await runBudgetMatrix(repoRoot, { budget: '3200000', env: { OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS: drain } });
+    try {
+      assert.equal(fixture.result.code, 80, `${drain}: ${fixture.result.stdout}\n${fixture.result.stderr}`);
+      assert.equal(fixture.receipt.verdict, 'BUDGET-UNENFORCEABLE');
+      assert.equal(fixture.receipt.reason, 'drain-seconds-invalid');
+      assert.equal(fixture.k6.PREFLIGHT.started, false);
+      assert.deepEqual(fixture.usageCalls, []);
+    } finally {
+      await fixture.cleanup();
+    }
+  }
+});

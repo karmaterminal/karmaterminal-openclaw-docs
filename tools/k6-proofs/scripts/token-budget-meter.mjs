@@ -146,6 +146,25 @@ export function openGatewayRpc(wsUrl, token, { deadline, WebSocketImpl = globalT
   });
 }
 
+/**
+ * The cadence the readings actually kept: start-to-start intervals, read
+ * durations, and the tokens counted after the trip (the measured overshoot
+ * past the stop decision).
+ */
+export function readingCadence(readings, trip) {
+  const times = readings.map((reading) => Date.parse(reading.at)).filter(Number.isFinite);
+  const intervals = times.slice(1).map((time, index) => time - times[index]).sort((a, b) => a - b);
+  const readMs = readings.map((reading) => reading.readMs).filter(Number.isFinite);
+  const last = readings.at(-1);
+  return {
+    readings: readings.length,
+    intervalMsMedian: intervals.length ? intervals[Math.floor(intervals.length / 2)] : null,
+    intervalMsMax: intervals.length ? intervals.at(-1) : null,
+    readMsMax: readMs.length ? Math.max(...readMs) : null,
+    postTripTokens: trip && last ? last.cumulative - trip.cumulative : null,
+  };
+}
+
 function parseArgs(argv) {
   const [command, ...rest] = argv;
   const args = { command };
@@ -192,6 +211,7 @@ async function watch(args, env = process.env) {
     maxIncrement: 0,
     trip: null,
     readings: [],
+    cadence: readingCadence([], null),
     sessions: [],
     error: null,
     updatedAt: new Date().toISOString(),
@@ -294,6 +314,7 @@ async function watch(args, env = process.env) {
     state.maxIncrement = entry.maxIncrement;
     state.trip = entry.trip;
     state.sessions = meter.publicSessions();
+    state.cadence = readingCadence(state.readings, state.trip);
     if (entry.trip) state.phase = 'tripped';
     if (final) state.phase = 'stopped';
     save();

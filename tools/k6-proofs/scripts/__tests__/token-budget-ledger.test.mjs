@@ -25,7 +25,8 @@ test('an empty or absent budget disables enforcement; only a positive decimal in
   assert.deepEqual(parseTokenBudget(''), { enabled: false, budget: null });
   assert.deepEqual(parseTokenBudget('3200000'), { enabled: true, budget: 3_200_000 });
   assert.deepEqual(parseTokenBudget('1'), { enabled: true, budget: 1 });
-  for (const bad of ['0', '-1', '1.5', '1e6', ' 12', '12 ', '012', 'abc', '3,200,000', '9007199254740993', ' ']) {
+  assert.deepEqual(parseTokenBudget('999999999999999'), { enabled: true, budget: 999_999_999_999_999 }, 'up to 15 digits, the shape run-proofs.sh checks before any node runs');
+  for (const bad of ['0', '-1', '1.5', '1e6', ' 12', '12 ', '012', 'abc', '3,200,000', '9007199254740993', '1000000000000000', ' ']) {
     assert.throws(() => parseTokenBudget(bad), /token budget/u, `${JSON.stringify(bad)} must be refused, not read as some budget`);
   }
 });

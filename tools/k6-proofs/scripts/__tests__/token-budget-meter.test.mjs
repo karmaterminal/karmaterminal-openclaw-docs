@@ -159,6 +159,12 @@ test('climbing usage trips the flag, readings continue after the trip, and SIGTE
     assert.equal(stopped.phase, 'stopped');
     assert.equal(stopped.readings.at(-1).final, true);
     assert.equal(stopped.pollIntervalMs, 100);
+    // The measured cadence is what bounds the overshoot, so the meter reports it.
+    assert.equal(stopped.cadence.readings, stopped.readings.length);
+    assert.ok(stopped.cadence.intervalMsMax >= stopped.cadence.intervalMsMedian);
+    assert.ok(stopped.cadence.intervalMsMedian >= 90, `start-to-start polling at 100 ms: ${JSON.stringify(stopped.cadence)}`);
+    assert.ok(stopped.cadence.readMsMax >= 0);
+    assert.ok(Number.isInteger(stopped.cadence.postTripTokens) && stopped.cadence.postTripTokens > 0, 'consumption after the trip is reported');
     for (const reading of stopped.readings) {
       assert.match(reading.at, /^\d{4}-\d{2}-\d{2}T/u);
       assert.equal(typeof reading.readMs, 'number');

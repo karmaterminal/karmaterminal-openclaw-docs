@@ -1,5 +1,5 @@
 name: project81-k6-proof
-run-name: project81-k6-proof ${{ inputs.rows }} dry=${{ inputs.dry_run }}
+run-name: project81-k6-proof ${{ inputs.rows }} dry=${{ inputs.dry_run }}${{ inputs.token_budget && format(' budget={0}', inputs.token_budget) || '' }}
 
 # Public/self-hostable Project 81 proof runner.
 # Dry runs can execute on a generic GitHub runner. Live continuation rows need
@@ -83,6 +83,11 @@ on:
         required: false
         default: ""
         type: string
+      token_budget:
+        description: "Hard bound on model tokens this run's sessions may consume (positive integer, at most 15 digits); empty = no budget. Unreadable usage refuses the run (exit 80); at the bound the running row stops and the rest are not run (exit 79)"
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -133,9 +138,15 @@ jobs:
           GATEWAY_UNIT_INPUT: ${{ inputs.gateway_unit }}
           RUNNER_LABELS_JSON: ${{ inputs.runner_labels_json }}
           DRY_RUN: ${{ inputs.dry_run }}
+          TOKEN_BUDGET_INPUT: ${{ inputs.token_budget }}
         run: |
           set -euo pipefail
           node -e 'const v=JSON.parse(process.env.RUNNER_LABELS_JSON); if (!Array.isArray(v) || !v.every(x => typeof x === "string" && x.length)) throw new Error("runner_labels_json must be a JSON array of non-empty strings")'
+          # run-proofs.sh refuses a malformed budget too (BUDGET-UNENFORCEABLE); this fails the dispatch first.
+          if [[ -n "$TOKEN_BUDGET_INPUT" ]] && ! [[ "$TOKEN_BUDGET_INPUT" =~ ^[1-9][0-9]{0,14}$ ]]; then
+            echo "::error::token_budget must be empty or a positive integer of at most 15 digits"
+            exit 1
+          fi
           if [[ "$DRY_RUN" != "true" ]]; then
             if [[ -z "$CANDIDATE_SHA_INPUT" ]] || ! printf '%s' "$CANDIDATE_SHA_INPUT" | grep -Eq '^[0-9a-f]{40}$'; then
               echo "::error::candidate_sha must be a 40-char hex string when dry_run=false"
@@ -227,6 +238,9 @@ jobs:
         shell: bash
         env:
           OPENCLAW_SELECTED_ROWS: ${{ steps.rows.outputs.rows }}
+          # Empty means no budget. With one, run-proofs.sh enforces it and writes
+          # token-budget-receipt.json, which the artifact upload below carries.
+          OPENCLAW_PROOFS_TOKEN_BUDGET: ${{ inputs.token_budget }}
         run: |
           set -euo pipefail
           cd tools/k6-proofs

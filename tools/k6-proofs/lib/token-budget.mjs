@@ -31,7 +31,9 @@ export const DEFAULT_TOKEN_BUDGET_POLL_SECONDS = 5;
 const MIN_POLL_SECONDS = 0.05;
 const MAX_POLL_SECONDS = 60;
 const POLL_SECONDS = /^\d+(?:\.\d{1,3})?$/u;
-const BUDGET = /^[1-9]\d*$/u;
+// At most 15 digits: always a safe integer, and the same shape run-proofs.sh
+// checks in bash before it runs any node.
+const BUDGET = /^[1-9]\d{0,14}$/u;
 
 export const BUDGET_TRIP_REASONS = Object.freeze(['budget-reached', 'projected-exceed', 'counter-unreadable']);
 
@@ -45,8 +47,8 @@ export function parseTokenBudget(raw) {
   const value = typeof raw === 'string' && BUDGET.test(raw) ? Number(raw) : NaN;
   if (!Number.isSafeInteger(value)) {
     throw new Error(
-      `invalid token budget: set ${TOKEN_BUDGET_ENV} (or --token-budget) to a positive whole number of tokens ` +
-      'with no sign, separators, exponent or surrounding spaces, or leave it empty for no budget',
+      `invalid token budget: set ${TOKEN_BUDGET_ENV} (or --token-budget) to a positive whole number of tokens, ` +
+      'at most 15 digits with no sign, separators, exponent or surrounding spaces, or leave it empty for no budget',
     );
   }
   return { enabled: true, budget: value };

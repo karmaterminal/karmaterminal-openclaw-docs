@@ -125,12 +125,6 @@ finalize_interrupted_token_run() {
       echo "[R-CD-TOKEN] ERROR: failed to persist interruption receipt at $ACTIVE_TOKEN_RUN_DIR" >&2
     fi
   fi
-  # A run that tripped and then failed (not a signal: a cancelled job gets
-  # seconds) still gets its cutoff before anything else is torn down.
-  if [[ "${TOKEN_BUDGET_ARMED:-false}" == "true" && "${BUDGET_CUTOFF_DONE:-false}" != "true" && "$exit_code" -ne 130 && "$exit_code" -ne 143 ]] \
-    && token_budget_tripped; then
-    token_budget_cutoff || true
-  fi
   # An interrupted run (a cancelled workflow gets seconds, not minutes) gives
   # the meter only a short wait for its last reading before the receipt.
   if [[ "${TOKEN_BUDGET_ARMED:-false}" == "true" && "${BUDGET_RECEIPT_WRITTEN:-false}" != "true" ]]; then
@@ -489,6 +483,8 @@ write_token_budget_receipt() {
         "\($subject) left no complete record (it stopped while aborting \($abort.sessions | length) owned session(s)), so sessions may have been aborted"
       elif ($abort.phase // "done") != "done" then "\($subject) stopped while \($abort.phase), before any abort call"
       elif $abort.attempted != true then "no abort was attempted (\($abort.reason))"
+      elif ($abort.ownership // {}) | has("rowsListed") and .rowsListed == null then
+        "\($subject) could not decide ownership (\($abort.error // "unknown")), so no session was aborted"
       else
         "\($subject) aborted \($abort.counts.aborted) of \($abort.counts.owned) owned session(s)" +
         ([ (if $abort.counts.noActiveRun > 0 then "\($abort.counts.noActiveRun) no-active-run" else empty end),
@@ -648,6 +644,9 @@ arm_token_budget() {
 token_budget_tripped() {
   [[ "$TOKEN_BUDGET_ARMED" == "true" ]] || return 1
   if [[ -n "$BUDGET_RUNNER_TRIP" || -e "$BUDGET_TRIP_FLAG" ]]; then return 0; fi
+  # stop_token_budget_meter clears the pid: a meter the runner stopped itself
+  # is not a lost one.
+  [[ -n "${METER_PID:-}" ]] || return 1
   if ! kill -0 "$METER_PID" 2>/dev/null; then
     BUDGET_RUNNER_TRIP="meter-exited"
     BUDGET_RUNNER_TRIP_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
@@ -730,8 +729,10 @@ token_budget_cutoff() {
   jq -r '
     (if .attempted then empty else "TOKEN BUDGET CUTOFF: no abort attempted: \(.reason)" end),
     (if .error then "TOKEN BUDGET CUTOFF: \(.error)" else empty end),
-    (if .phase != "done" then "TOKEN BUDGET CUTOFF: the abort step stopped while \(.phase); its record is incomplete." else empty end),
-    (if .attempted then "TOKEN BUDGET CUTOFF: \(.counts.owned) owned session(s): \(.counts.aborted) aborted, \(.counts.noActiveRun) no-active-run, \(.counts.partial) partial, \(.counts.refused) refused, \(.counts.failed) failed, \(.counts.notAttempted) not attempted, \(.counts.skipped) skipped; \(.abortCalls) abort call(s), no retry." else empty end),
+    (if .phase == "aborting" then "TOKEN BUDGET CUTOFF: the abort step stopped while aborting; its record is incomplete, so sessions may have been aborted."
+     elif .phase != "done" then "TOKEN BUDGET CUTOFF: the abort step stopped while \(.phase), before any abort call."
+     else empty end),
+    (if .phase == "done" and .attempted then "TOKEN BUDGET CUTOFF: \(.counts.owned) owned session(s): \(.counts.aborted) aborted, \(.counts.noActiveRun) no-active-run, \(.counts.partial) partial, \(.counts.refused) refused, \(.counts.failed) failed, \(.counts.notAttempted) not attempted, \(.counts.skipped) skipped; \(.abortCalls) abort call(s), no retry." else empty end),
     (.sessions[] | select(.outcome == "partial" or .outcome == "refused" or .outcome == "failed" or .outcome == "not-attempted" or .outcome == "skipped" or .outcome == "pending")
       | "TOKEN BUDGET CUTOFF: session \(.id) (\(.role)) \(.outcome)\(if .refusal then " (\(.refusal))" elif .error then " (\(.error))" elif .reason then " (\(.reason))" else "" end); not retried."),
     (.ambiguous[] | "TOKEN BUDGET CUTOFF: session \(.id) not aborted: ambiguous ownership (\(.reason))."),

@@ -609,9 +609,10 @@ spend on the seat, check that the seat is idle before a budgeted run.
      - a trip during a row's post-processing: at the next checkpoint, right
        after k6 exits or before trace collection, the step that can take
        minutes;
-     - a trip between rows: before the next row;
-     - a run that fails after a trip (not one stopped by a signal): on its way
-       out;
+     - a trip between rows: before the next row.
+
+     A run that fails between a trip and its next checkpoint exits without a
+     cutoff. Its receipt shows the trip and says that no cutoff was made;
    - the meter keeps reading through a **drain window**, 120 s from the end of
      the abort pass (`OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS`, 0 to 1800;
      anything else is refused before any row, `drain-seconds-invalid`);

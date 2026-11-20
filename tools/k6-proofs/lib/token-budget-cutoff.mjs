@@ -456,7 +456,9 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
     reasons.push(ABORT_ACK_NOTE);
   } else if (phase !== 'done') reasons.push(`the cutoff stopped while ${phase}, before any abort call`);
   else if (abort.attempted === false) reasons.push(`no abort was attempted: ${abort.reason}`);
-  else {
+  else if (abort.ownership && abort.ownership.rowsListed === null) {
+    reasons.push(`the cutoff could not decide ownership, so no session was aborted: ${abort.error ?? 'unknown'}`);
+  } else {
     reasons.push(ABORT_ACK_NOTE);
     reasons.push('sessions.abort does not cancel a continue_work wake that was already scheduled (openclaw ab5a30ea, by code reading)');
     if (abort.error) reasons.push(`the abort pass stopped early: ${abort.error}`);

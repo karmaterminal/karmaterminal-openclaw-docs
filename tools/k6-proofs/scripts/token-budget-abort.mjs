@@ -216,7 +216,14 @@ export async function cutoff({ ledgerFile, baselineFile, env = process.env, conn
     doc.ownership.recordedNotListed = decision.recordedNotListed;
     doc.untouched = decision.untouched;
     doc.ambiguous = decision.ambiguous.map((session) => ({ id: sessionPublicId(session.key, session.sessionId), reason: session.reason, labelled: session.labelled }));
-    doc.sessions = decision.owned.map((session) => ({ id: sessionPublicId(session.key, session.sessionId), role: session.role, depth: session.depth, outcome: 'pending' }));
+    // Before the first call: every session to be called is pending; one that
+    // will never be called is already skipped, with its reason.
+    doc.sessions = decision.owned.map((session) => ({
+      id: sessionPublicId(session.key, session.sessionId),
+      role: session.role,
+      depth: session.depth,
+      ...(session.abortable === false ? { outcome: 'skipped', reason: session.skipReason ?? 'not-abortable' } : { outcome: 'pending' }),
+    }));
     doc.counts = { ...doc.counts, owned: doc.sessions.length, ambiguous: doc.ambiguous.length };
     enter('aborting');
     const pass = await runAbortPass({ rpc, owned: decision.owned, deadline, clock });

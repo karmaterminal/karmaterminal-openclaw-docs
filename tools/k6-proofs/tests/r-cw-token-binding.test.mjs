@@ -20,6 +20,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { viaToolSearch } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PARENT = 'agent:main:r-cw-token-parent';
@@ -92,10 +93,10 @@ function gatewayFor(world) {
   };
 }
 
-async function fire(world) {
+async function fire(world, wrap = (gateway) => gateway) {
   const { log } = await runK6Scenario({
     scenarioPath: path.join(root, 'scenarios', 'r-cw-token-bracket.js'),
-    gateway: gatewayFor(world),
+    gateway: wrap(gatewayFor(world)),
     env: {
       OPENCLAW_ROW_MANIFEST: path.join(root, 'manifests', 'r-cw-token.json'),
       OPENCLAW_GATEWAY_TOKEN: 'r-cw-token-binding-token',
@@ -150,4 +151,22 @@ test('the hop-2 token reproduced only in the dispatch run is not a return', asyn
   assert.equal(evidence.hop_2_executed, true);
   assert.equal(evidence.parent_return, false);
   assert.equal(verdict, 'PARTIAL-candidate');
+});
+
+// Tool Search seat (run 44245772142, openclaw/openclaw#129388 H1): the call is dispatch_action and its
+// result the { tool, result } envelope (helpers/tool-search-envelope.mjs viaToolSearch).
+test('through Tool Search: the dispatched sessions_spawn envelope carries the accepted receipt and child key, and the true chain passes', async () => {
+  const { evidence, verdict } = await fire({ childRows: 'true', parentReturnRun: 'wake' }, viaToolSearch);
+  assert.equal(evidence.spawn_receipt_status, 'accepted');
+  assert.equal(evidence.subagent_spawn_accepted, true);
+  assert.equal(evidence.hop_2_executed, true, evidence.hop_reason);
+  assert.equal(evidence.parent_return, true, evidence.parent_return_reason);
+  assert.equal(verdict, 'PASS-candidate');
+});
+
+test('through Tool Search: an envelope naming another tool gives no spawn receipt', async () => {
+  const { evidence, verdict } = await fire({ childRows: 'true', parentReturnRun: 'wake' }, (gateway) => viaToolSearch(gateway, { envelope: () => ({ name: 'continue_work', id: 'openclaw:core:continue_work' }) }));
+  assert.equal(evidence.spawn_receipt_status, null);
+  assert.notEqual(evidence.subagent_spawn_accepted, true);
+  assert.notEqual(verdict, 'PASS-candidate');
 });

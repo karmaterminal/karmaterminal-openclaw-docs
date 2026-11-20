@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { continueWorkChain, tokenWorkHops } from '../lib/continue-work-chain.mjs';
 import { toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
-import { toolCallTarget } from '../lib/tool-call-identity.mjs';
+import { toolCallTarget, unwrapToolResult } from '../lib/tool-call-identity.mjs';
 
 function usage() {
   console.error(`Usage: node tools/k6-proofs/scripts/recover-session-receipts.mjs \\
@@ -83,33 +84,28 @@ function toolCalls(message) {
   return calls;
 }
 
-function safeJsonFromText(text) {
-  const match = String(text || '').match(/\{[\s\S]*\}/);
-  if (!match) return null;
-  try { return JSON.parse(match[0]); } catch { return null; }
-}
-
-function toolResultObject(message) {
-  if (message.role !== 'toolResult') return null;
-  const text = messageText(message);
-  return safeJsonFromText(text);
+// A toolResult row's answer for `toolName`: its own JSON, or the tool's JSON inside
+// Tool Search's { tool, result } envelope (lib/tool-call-identity.mjs, #129388 H1).
+// A row of another tool, or an unreadable one, answers nothing.
+function toolResultObject(message, toolName) {
+  return unwrapToolResult(message, toolName).payload;
 }
 
 function receipt(name, required, status, extra = {}) {
   return { name, required, status, ...extra };
 }
 
-function evaluate(row, nonce, messages) {
+export function evaluate(row, nonce, messages) {
   const allText = messages.map(messageText).join('\n');
   const cwToolCalls = messages.flatMap(toolCalls).filter((c) => c.name === 'continue_work');
   const scheduledToolResults = messages
-    .map(toolResultObject)
+    .map((message) => toolResultObject(message, 'continue_work'))
     .filter((obj) => obj && obj.status === 'scheduled');
 
   if (row === 'R-CONFIG-DEFAULTS') {
     const configToolCalls = messages.flatMap(toolCalls).filter((c) => c.name === 'gateway');
     const configToolResults = messages
-      .map(toolResultObject)
+      .map((message) => toolResultObject(message, 'gateway'))
       .filter((obj) => obj?.ok === true && obj?.result?.path === 'agents.defaults.continuation');
     const sentinel = String(allText).match(new RegExp('CONFIG-DEFAULTS ' + nonce + ' ENABLED (true|false) MAXCHAIN (\\d+) MAXDELEGATES (\\d+) COSTCAP (\\d+)'));
     return [
@@ -272,7 +268,9 @@ async function main() {
   console.log(JSON.stringify(result, null, 2));
 }
 
-main().catch((error) => {
-  console.error(error && error.stack ? error.stack : String(error));
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    console.error(error && error.stack ? error.stack : String(error));
+    process.exitCode = 1;
+  });
+}

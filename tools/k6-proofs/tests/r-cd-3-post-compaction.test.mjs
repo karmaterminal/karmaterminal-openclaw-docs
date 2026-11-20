@@ -27,6 +27,7 @@ import { fileURLToPath } from 'node:url';
 import { ROW_METHODS } from '../lib/child-observer.mjs';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { viaToolSearch } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SCENARIO = path.join(root, 'scenarios', 'r-cd-3-post-compaction.js');
@@ -168,10 +169,10 @@ function gatewayFor(world) {
   };
 }
 
-async function fire(world, env = {}) {
+async function fire(world, env = {}, wrap = (gateway) => gateway) {
   const { log, frames } = await runK6Scenario({
     scenarioPath: process.env.RCD3_SCENARIO_UNDER_TEST || SCENARIO,
-    gateway: gatewayFor(world),
+    gateway: wrap(gatewayFor(world)),
     env: {
       OPENCLAW_ROW_MANIFEST: process.env.RCD3_MANIFEST_UNDER_TEST || MANIFEST,
       OPENCLAW_GATEWAY_TOKEN: 'r-cd-3-sentinel-echo-token',
@@ -305,4 +306,22 @@ test('the fill refuses a non-disposable session', async () => {
   assert.equal(verdict, 'PARTIAL-candidate');
   assert.match(evidence.fill_stop_reason, /only in a disposable session/);
   assert.ok(!frames.some((frame) => frame.method === 'sessions.send'));
+});
+
+// Tool Search seat (run 44245772142, openclaw/openclaw#129388 H1): the call is dispatch_action and its
+// result the { tool, result } envelope (helpers/tool-search-envelope.mjs viaToolSearch).
+const TRUE_CHAIN = { window: 200_000, perTurnTokens: 40_000, compaction: ACCEPTED, lifeboat: true, parentReturnRun: 'wake' };
+
+test('through Tool Search: the dispatched staging and compaction envelopes are both receipts, and the true chain passes', async () => {
+  const { evidence, verdict } = await fire(TRUE_CHAIN, {}, viaToolSearch);
+  assert.equal(evidence.staging_receipt_observed, true);
+  assert.equal(evidence.compaction_outcome_kind, 'accepted');
+  assert.equal(verdict, 'PASS-candidate', evidence.verdict_reason);
+});
+
+test('through Tool Search: envelopes naming another tool are neither receipt', async () => {
+  const { evidence, verdict } = await fire(TRUE_CHAIN, {}, (gateway) => viaToolSearch(gateway, { envelope: () => ({ name: 'sessions_spawn', id: 'openclaw:core:sessions_spawn' }) }));
+  assert.notEqual(evidence.staging_receipt_observed, true);
+  assert.notEqual(evidence.compaction_outcome_kind, 'accepted');
+  assert.notEqual(verdict, 'PASS-candidate');
 });

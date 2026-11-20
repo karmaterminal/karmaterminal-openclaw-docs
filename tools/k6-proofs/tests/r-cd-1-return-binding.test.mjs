@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { ROW_METHODS } from '../lib/child-observer.mjs';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { viaToolSearch } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PARENT = 'agent:main:r-cd-1-parent';
@@ -83,10 +84,10 @@ function gatewayFor(world) {
   };
 }
 
-async function fire(world) {
+async function fire(world, wrap = (gateway) => gateway) {
   const { log } = await runK6Scenario({
     scenarioPath: path.join(root, 'scenarios', 'r-cd-1-typed-delegate.js'),
-    gateway: gatewayFor(world),
+    gateway: wrap(gatewayFor(world)),
     env: {
       OPENCLAW_ROW_MANIFEST: manifestDelayZero(),
       OPENCLAW_GATEWAY_TOKEN: 'r-cd-1-return-token',
@@ -124,4 +125,21 @@ test('a child return the parent never reproduces is not a parent return', async 
   assert.equal(evidence.child_return_bound, true);
   assert.equal(evidence.parent_return_event, false);
   assert.equal(verdict, 'PARTIAL-candidate');
+});
+
+// Tool Search seat (run 44245772142, openclaw/openclaw#129388 H1): the call is dispatch_action and its
+// result the { tool, result } envelope (helpers/tool-search-envelope.mjs viaToolSearch).
+test('through Tool Search: the dispatched continue_delegate envelope is the scheduled receipt, and the true return passes', async () => {
+  const { evidence, verdict } = await fire({ child: 'mints', parent: 'reproduces' }, viaToolSearch);
+  assert.equal(evidence.scheduled_receipt_observed, true);
+  assert.equal(evidence.delegate_scheduled_sentinel, true);
+  assert.equal(evidence.parent_return_event, true, evidence.parent_return_reason);
+  assert.equal(verdict, 'PASS-candidate');
+});
+
+test('through Tool Search: an envelope naming another tool is no scheduled receipt', async () => {
+  const { evidence, verdict } = await fire({ child: 'mints', parent: 'reproduces' }, (gateway) => viaToolSearch(gateway, { envelope: () => ({ name: 'sessions_spawn', id: 'openclaw:core:sessions_spawn' }) }));
+  assert.notEqual(evidence.scheduled_receipt_observed, true);
+  assert.notEqual(evidence.delegate_scheduled_sentinel, true);
+  assert.notEqual(verdict, 'PASS-candidate');
 });

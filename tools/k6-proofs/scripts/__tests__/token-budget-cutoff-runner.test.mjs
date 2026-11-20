@@ -782,12 +782,13 @@ test('review F5 sibling: a meter that dies during the drain is reported as such'
 });
 
 test('review F6: a trip after a row\'s k6 exits on its own is cut off during that row\'s post-processing, not after it', async () => {
-  // The root burns only once its row's k6 has finished, and that row's journal
-  // capture then takes 2 s: the trip lands mid post-processing.
+  // The root burns only once its row's k6 has exited and the row's slow (2 s)
+  // journal capture has begun: the trip lands mid post-processing, after the
+  // checkpoint right after k6 exits.
   const gateway = world({
     baseline: [prince({ tokens: 0 })],
     onCreate: (session) => {
-      session.grow = (s) => (s.aborted || !existsSync(path.join(gateway.markers, 'r-config-defaults.js.finished')) ? 0 : 600);
+      session.grow = (s) => (s.aborted || !existsSync(path.join(gateway.markers, 'journalctl.slept')) ? 0 : 600);
     },
   });
   const fixture = await runBudgetMatrix(repoRoot, {

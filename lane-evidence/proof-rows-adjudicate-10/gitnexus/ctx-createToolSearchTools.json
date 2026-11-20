@@ -1,0 +1,157 @@
+{
+  "status": "found",
+  "symbol": {
+    "uid": "Function:src/agents/tool-search.ts:createToolSearchTools",
+    "name": "createToolSearchTools",
+    "kind": "Function",
+    "filePath": "src/agents/tool-search.ts",
+    "startLine": 324,
+    "endLine": 431
+  },
+  "incoming": {
+    "calls": [
+      {
+        "uid": "File:test/plugins/tool-search-plugin-catalog.integration.test.ts",
+        "name": "tool-search-plugin-catalog.integration.test.ts",
+        "filePath": "test/plugins/tool-search-plugin-catalog.integration.test.ts"
+      },
+      {
+        "uid": "File:src/agents/embedded-agent-runner/run/attempt.skills-policy.test.ts",
+        "name": "attempt.skills-policy.test.ts",
+        "filePath": "src/agents/embedded-agent-runner/run/attempt.skills-policy.test.ts"
+      },
+      {
+        "uid": "File:src/agents/embedded-agent-runner/run/attempt-prompt-tool-policy.integration.test.ts",
+        "name": "attempt-prompt-tool-policy.integration.test.ts",
+        "filePath": "src/agents/embedded-agent-runner/run/attempt-prompt-tool-policy.integration.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-surface-plan.test.ts",
+        "name": "tool-surface-plan.test.ts",
+        "filePath": "src/agents/tool-surface-plan.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-search.test.ts",
+        "name": "tool-search.test.ts",
+        "filePath": "src/agents/tool-search.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-search.discovery.test.ts",
+        "name": "tool-search.discovery.test.ts",
+        "filePath": "src/agents/tool-search.discovery.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-search-selection.test.ts",
+        "name": "tool-search-selection.test.ts",
+        "filePath": "src/agents/tool-search-selection.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-search-runtime.test.ts",
+        "name": "tool-search-runtime.test.ts",
+        "filePath": "src/agents/tool-search-runtime.test.ts"
+      },
+      {
+        "uid": "File:src/agents/gateway-tool-policy.test.ts",
+        "name": "gateway-tool-policy.test.ts",
+        "filePath": "src/agents/gateway-tool-policy.test.ts"
+      },
+      {
+        "uid": "File:src/agents/agent-tools.assembly.ts",
+        "name": "agent-tools.assembly.ts",
+        "filePath": "src/agents/agent-tools.assembly.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search-mcp-directory.test.ts:apply",
+        "name": "apply",
+        "filePath": "src/agents/tool-search-mcp-directory.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search-selection.test.ts:applyCatalog",
+        "name": "applyCatalog",
+        "filePath": "src/agents/tool-search-selection.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.agent-loop.test.ts:callThroughToolSearch",
+        "name": "callThroughToolSearch",
+        "filePath": "src/agents/tool-search.agent-loop.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.mcp-error.test.ts:createDeferredCall",
+        "name": "createDeferredCall",
+        "filePath": "src/agents/tool-search.mcp-error.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.metadata.test.ts:setup",
+        "name": "setup",
+        "filePath": "src/agents/tool-search.metadata.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.test.ts:controlTool",
+        "name": "controlTool",
+        "filePath": "src/agents/tool-search.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.test.ts:controlCalls",
+        "name": "controlCalls",
+        "filePath": "src/agents/tool-search.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/cron-tool.output-contract.test.ts:codeMode",
+        "name": "codeMode",
+        "filePath": "src/agents/tools/cron-tool.output-contract.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/agent-tool-availability.test.ts:catalogFixture",
+        "name": "catalogFixture",
+        "filePath": "src/agents/agent-tool-availability.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/agent-tools.finalize.test.ts:controls",
+        "name": "controls",
+        "filePath": "src/agents/agent-tools.finalize.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/harness/tool-surface-bridge.test.ts:searchTools",
+        "name": "searchTools",
+        "filePath": "src/agents/harness/tool-surface-bridge.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/embedded-agent-runner/run/attempt-tool-search-prompt.test.ts:promptFixture",
+        "name": "promptFixture",
+        "filePath": "src/agents/embedded-agent-runner/run/attempt-tool-search-prompt.test.ts"
+      }
+    ]
+  },
+  "outgoing": {
+    "calls": [
+      {
+        "uid": "Function:src/agents/tool-search-config.ts:resolveToolSearchConfig",
+        "name": "resolveToolSearchConfig",
+        "filePath": "src/agents/tool-search-config.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.ts:resolveSearchParameters",
+        "name": "resolveSearchParameters",
+        "filePath": "src/agents/tool-search.ts"
+      },
+      {
+        "uid": "Function:src/agents/agent-tool-metadata.ts:bindGatewayToolPolicyControl",
+        "name": "bindGatewayToolPolicyControl",
+        "filePath": "src/agents/agent-tool-metadata.ts"
+      },
+      {
+        "uid": "Class:src/agents/tool-search-runtime.ts:ToolSearchRuntime",
+        "name": "ToolSearchRuntime",
+        "filePath": "src/agents/tool-search-runtime.ts"
+      }
+    ],
+    "accesses": [
+      {
+        "uid": "Const:src/agents/tool-search.ts:config",
+        "name": "config",
+        "filePath": "src/agents/tool-search.ts"
+      }
+    ]
+  },
+  "processes": []
+}

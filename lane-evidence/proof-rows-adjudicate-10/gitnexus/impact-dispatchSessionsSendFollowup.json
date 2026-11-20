@@ -1,0 +1,40 @@
+{
+  "target": {
+    "id": "Function:src/agents/tools/sessions-send-followup.ts:dispatchSessionsSendFollowup",
+    "name": "dispatchSessionsSendFollowup",
+    "type": "Function",
+    "filePath": "src/agents/tools/sessions-send-followup.ts"
+  },
+  "direction": "upstream",
+  "impactedCount": 1,
+  "risk": "LOW",
+  "summary": {
+    "direct": 1,
+    "processes_affected": 0,
+    "modules_affected": 1
+  },
+  "byDepthCounts": {
+    "1": 1
+  },
+  "affected_processes": [],
+  "affected_modules": [
+    {
+      "name": "Tools",
+      "hits": 1,
+      "impact": "direct"
+    }
+  ],
+  "byDepth": {
+    "1": [
+      {
+        "depth": 1,
+        "id": "Function:src/agents/tools/sessions-send-executor.ts:run",
+        "name": "run",
+        "filePath": "src/agents/tools/sessions-send-executor.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,240 @@
+{
+  "schema": "proof-rows-adjudicate-10.envelope-repro.v1",
+  "harnessLibRef": "karmaterminal-openclaw-docs fe8e3c2188f4a3cb82a7c04c47dab96d49e13955 tools/k6-proofs/lib",
+  "productShapeRef": "karmaterminal/openclaw ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+  "cases": 20,
+  "allExpectationsHeld": true,
+  "report": [
+    {
+      "id": "continueWorkChain/dispatched",
+      "rows": [
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4"
+      ],
+      "observed": {
+        "complete": false,
+        "reason": "hop 1: the continue_work result is not \"scheduled\""
+      }
+    },
+    {
+      "id": "continueWorkChain/direct",
+      "rows": [
+        "R-CW-1",
+        "R-CW-2",
+        "R-CW-3",
+        "R-CW-4"
+      ],
+      "observed": {
+        "complete": true,
+        "reason": null
+      }
+    },
+    {
+      "id": "toolResultPayload/dispatched",
+      "rows": [
+        "shared reader"
+      ],
+      "observed": {
+        "keys": [
+          "result",
+          "tool"
+        ],
+        "status": null
+      }
+    },
+    {
+      "id": "createToolReceiptTracker/dispatched",
+      "rows": [
+        "R-CD-1",
+        "R-CD-SILENT"
+      ],
+      "observed": {
+        "status": null,
+        "scheduledReceiptObserved": false
+      }
+    },
+    {
+      "id": "createToolReceiptTracker/direct",
+      "rows": [
+        "R-CD-1",
+        "R-CD-SILENT"
+      ],
+      "observed": {
+        "status": "scheduled",
+        "scheduledReceiptObserved": true
+      }
+    },
+    {
+      "id": "toolReceiptsFromHistory-sessions_spawn/dispatched",
+      "rows": [
+        "R-CW-TOKEN"
+      ],
+      "observed": {
+        "status": null,
+        "childSessionKey": null,
+        "subagentSpawnAccepted": false
+      }
+    },
+    {
+      "id": "toolReceiptsFromHistory-sessions_spawn/direct",
+      "rows": [
+        "R-CW-TOKEN"
+      ],
+      "observed": {
+        "status": "accepted",
+        "childSessionKey": "agent:main:subagent:synthetic",
+        "subagentSpawnAccepted": true
+      }
+    },
+    {
+      "id": "continueWorkScheduledIndex/dispatched",
+      "rows": [
+        "R-CW-DELEGATE-SELF-CONTINUATION"
+      ],
+      "observed": {
+        "index": -1
+      }
+    },
+    {
+      "id": "continueWorkScheduledIndex/direct",
+      "rows": [
+        "R-CW-DELEGATE-SELF-CONTINUATION"
+      ],
+      "observed": {
+        "index": 2
+      }
+    },
+    {
+      "id": "sameRunDelegate/direct",
+      "rows": [
+        "R-CD-2"
+      ],
+      "observed": {
+        "outcome": "scheduled"
+      }
+    },
+    {
+      "id": "sameRunDelegate/dispatched-args",
+      "rows": [
+        "R-CD-2"
+      ],
+      "observed": {
+        "outcome": "failed"
+      }
+    },
+    {
+      "id": "sameRunDelegate/dispatched-input",
+      "rows": [
+        "R-CD-2"
+      ],
+      "observed": {
+        "outcome": null
+      }
+    },
+    {
+      "id": "sameRunDelegate/dispatched-dotted",
+      "rows": [
+        "R-CD-2"
+      ],
+      "observed": {
+        "outcome": null
+      }
+    },
+    {
+      "id": "sameRunDelegate/dispatched-flattened",
+      "rows": [
+        "R-CD-2"
+      ],
+      "observed": {
+        "outcome": null
+      }
+    },
+    {
+      "id": "sameRunDelegate/dispatched-string-args",
+      "rows": [
+        "R-CD-2"
+      ],
+      "observed": {
+        "outcome": null
+      }
+    },
+    {
+      "id": "toolCallTarget/shapes",
+      "rows": [
+        "R-CW-*",
+        "R-CD-*",
+        "R-RC-1"
+      ],
+      "observed": {
+        "args": {
+          "name": "continue_work",
+          "reasonBound": true
+        },
+        "input": {
+          "name": "continue_work",
+          "reasonBound": false
+        },
+        "dotted": {
+          "name": "continue_work",
+          "reasonBound": false
+        },
+        "flattened": {
+          "name": "continue_work",
+          "reasonBound": false
+        },
+        "string-args": {
+          "name": "continue_work",
+          "reasonBound": false
+        }
+      }
+    },
+    {
+      "id": "requestCompaction/direct-measured",
+      "rows": [
+        "R-RC-1"
+      ],
+      "observed": {
+        "kind": "threshold_rejected",
+        "status": "rejected",
+        "guard": "context_threshold",
+        "receiptToolId": null
+      }
+    },
+    {
+      "id": "requestCompaction/dispatched-measured",
+      "rows": [
+        "R-RC-1"
+      ],
+      "observed": {
+        "kind": "non_threshold_result",
+        "status": null,
+        "guard": null,
+        "receiptToolId": "openclaw:core:request_compaction"
+      }
+    },
+    {
+      "id": "requestCompaction/direct-unmeasured",
+      "rows": [
+        "R-RC-1"
+      ],
+      "observed": {
+        "kind": "non_threshold_result",
+        "status": "rejected",
+        "guard": "context_unmeasured",
+        "receiptToolId": null
+      }
+    },
+    {
+      "id": "classifyRequestCompactionReceipt/dispatched-event",
+      "rows": [
+        "R-RC-1"
+      ],
+      "observed": {
+        "kind": "non_threshold_result",
+        "scenarioStatus": "invalid"
+      }
+    }
+  ]
+}

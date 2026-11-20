@@ -1,0 +1,274 @@
+{
+  "target": {
+    "id": "Function:src/agents/tool-search.ts:createToolSearchTools",
+    "name": "createToolSearchTools",
+    "type": "Function",
+    "filePath": "src/agents/tool-search.ts"
+  },
+  "direction": "upstream",
+  "impactedCount": 27,
+  "risk": "LOW",
+  "summary": {
+    "direct": 1,
+    "processes_affected": 0,
+    "modules_affected": 0
+  },
+  "byDepthCounts": {
+    "1": 1,
+    "2": 2,
+    "3": 24
+  },
+  "affected_processes": [],
+  "affected_modules": [],
+  "byDepth": {
+    "1": [
+      {
+        "depth": 1,
+        "id": "File:src/agents/agent-tools.assembly.ts",
+        "name": "agent-tools.assembly.ts",
+        "filePath": "src/agents/agent-tools.assembly.ts",
+        "relationType": "CALLS",
+        "confidence": 0.85,
+        "processes": []
+      }
+    ],
+    "2": [
+      {
+        "depth": 2,
+        "id": "File:src/agents/agent-tools.ts",
+        "name": "agent-tools.ts",
+        "filePath": "src/agents/agent-tools.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 2,
+        "id": "File:src/agents/agent-tools.async.ts",
+        "name": "agent-tools.async.ts",
+        "filePath": "src/agents/agent-tools.async.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      }
+    ],
+    "3": [
+      {
+        "depth": 3,
+        "id": "File:scripts/perf/finalized-tool-schemas-measure.ts",
+        "name": "finalized-tool-schemas-measure.ts",
+        "filePath": "scripts/perf/finalized-tool-schemas-measure.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/cron/isolated-agent/run.authority.test-support.ts",
+        "name": "run.authority.test-support.ts",
+        "filePath": "src/cron/isolated-agent/run.authority.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/auto-reply/reply/commands-system-prompt.ts",
+        "name": "commands-system-prompt.ts",
+        "filePath": "src/auto-reply/reply/commands-system-prompt.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/gateway/worker-environments/worker-turn-execution.ts",
+        "name": "worker-turn-execution.ts",
+        "filePath": "src/gateway/worker-environments/worker-turn-execution.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/harness/host-capability.ts",
+        "name": "host-capability.ts",
+        "filePath": "src/agents/harness/host-capability.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/harness/host-capability-types.ts",
+        "name": "host-capability-types.ts",
+        "filePath": "src/agents/harness/host-capability-types.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/gateway/server-methods/requester-cron-authority.test-support.ts",
+        "name": "requester-cron-authority.test-support.ts",
+        "filePath": "src/gateway/server-methods/requester-cron-authority.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/embedded-agent-runner/prepared-compaction-runtime.ts",
+        "name": "prepared-compaction-runtime.ts",
+        "filePath": "src/agents/embedded-agent-runner/prepared-compaction-runtime.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/embedded-agent-runner/compact.hooks.tools.test-support.ts",
+        "name": "compact.hooks.tools.test-support.ts",
+        "filePath": "src/agents/embedded-agent-runner/compact.hooks.tools.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/embedded-agent-runner/compact.hooks.harness.ts",
+        "name": "compact.hooks.harness.ts",
+        "filePath": "src/agents/embedded-agent-runner/compact.hooks.harness.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/plugin-sdk/agent-harness.ts",
+        "name": "agent-harness.ts",
+        "filePath": "src/plugin-sdk/agent-harness.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/flows/doctor-tool-schema-projection.ts",
+        "name": "doctor-tool-schema-projection.ts",
+        "filePath": "src/flows/doctor-tool-schema-projection.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/cron/trigger-script.ts",
+        "name": "trigger-script.ts",
+        "filePath": "src/cron/trigger-script.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/plugin-sdk/test-helpers/agents/host-tool-factory.ts",
+        "name": "host-tool-factory.ts",
+        "filePath": "src/plugin-sdk/test-helpers/agents/host-tool-factory.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/subagents/spawn/subagent-spawn.plugin-native-policy.test-support.ts",
+        "name": "subagent-spawn.plugin-native-policy.test-support.ts",
+        "filePath": "src/agents/subagents/spawn/subagent-spawn.plugin-native-policy.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/subagents/spawn/subagent-spawn.plugin-disk-profile.test-support.ts",
+        "name": "subagent-spawn.plugin-disk-profile.test-support.ts",
+        "filePath": "src/agents/subagents/spawn/subagent-spawn.plugin-disk-profile.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/subagents/spawn/subagent-spawn.participants.test-support.ts",
+        "name": "subagent-spawn.participants.test-support.ts",
+        "filePath": "src/agents/subagents/spawn/subagent-spawn.participants.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/gateway/tool-resolution.ts",
+        "name": "tool-resolution.ts",
+        "filePath": "src/gateway/tool-resolution.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/gateway/server.talk-native-action.test-support.ts",
+        "name": "server.talk-native-action.test-support.ts",
+        "filePath": "src/gateway/server.talk-native-action.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/embedded-agent-runner/run/attempt-tool-prepare.ts",
+        "name": "attempt-tool-prepare.ts",
+        "filePath": "src/agents/embedded-agent-runner/run/attempt-tool-prepare.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/embedded-agent-runner/run/attempt-spawn-workspace.test-support.ts",
+        "name": "attempt-spawn-workspace.test-support.ts",
+        "filePath": "src/agents/embedded-agent-runner/run/attempt-spawn-workspace.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/tools-effective-inventory.ts",
+        "name": "tools-effective-inventory.ts",
+        "filePath": "src/agents/tools-effective-inventory.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/plugin-native-subagent.ts",
+        "name": "plugin-native-subagent.ts",
+        "filePath": "src/agents/plugin-native-subagent.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      },
+      {
+        "depth": 3,
+        "id": "File:src/agents/agent-tools.caller-identity.test-support.ts",
+        "name": "agent-tools.caller-identity.test-support.ts",
+        "filePath": "src/agents/agent-tools.caller-identity.test-support.ts",
+        "relationType": "IMPORTS",
+        "confidence": 1,
+        "processes": []
+      }
+    ]
+  }
+}

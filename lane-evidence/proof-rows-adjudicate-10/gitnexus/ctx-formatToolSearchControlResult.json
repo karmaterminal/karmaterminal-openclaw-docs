@@ -1,0 +1,70 @@
+{
+  "status": "found",
+  "symbol": {
+    "uid": "Function:src/agents/tool-search-runtime.ts:formatToolSearchControlResult",
+    "name": "formatToolSearchControlResult",
+    "kind": "Function",
+    "filePath": "src/agents/tool-search-runtime.ts",
+    "startLine": 561,
+    "endLine": 587
+  },
+  "incoming": {
+    "calls": [
+      {
+        "uid": "Function:src/agents/code-mode.ts:formatResult",
+        "name": "formatResult",
+        "filePath": "src/agents/code-mode.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-search-runtime.test.ts",
+        "name": "tool-search-runtime.test.ts",
+        "filePath": "src/agents/tool-search-runtime.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search.ts:execute",
+        "name": "execute",
+        "filePath": "src/agents/tool-search.ts"
+      }
+    ]
+  },
+  "outgoing": {
+    "calls": [
+      {
+        "uid": "Method:src/agents/tool-search-runtime.ts:ToolSearchRuntime.hasNetworkContent#1",
+        "name": "hasNetworkContent",
+        "filePath": "src/agents/tool-search-runtime.ts"
+      },
+      {
+        "uid": "Method:src/agents/tool-search-runtime.ts:ToolSearchRuntime.takeTerminalTargetBatch#1",
+        "name": "takeTerminalTargetBatch",
+        "filePath": "src/agents/tool-search-runtime.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search-control-result.ts:serializeToolSearchControlResult",
+        "name": "serializeToolSearchControlResult",
+        "filePath": "src/agents/tool-search-control-result.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search-control-result.ts:renderToolSearchControlText",
+        "name": "renderToolSearchControlText",
+        "filePath": "src/agents/tool-search-control-result.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/tool-results.ts:textResult",
+        "name": "textResult",
+        "filePath": "src/agents/tools/tool-results.ts"
+      },
+      {
+        "uid": "Function:packages/agent-core/src/internal-hooks.ts:attachInternalToolResultContentSource",
+        "name": "attachInternalToolResultContentSource",
+        "filePath": "packages/agent-core/src/internal-hooks.ts"
+      },
+      {
+        "uid": "Function:packages/agent-core/src/internal-hooks.ts:copyInternalToolResultState",
+        "name": "copyInternalToolResultState",
+        "filePath": "packages/agent-core/src/internal-hooks.ts"
+      }
+    ]
+  },
+  "processes": []
+}

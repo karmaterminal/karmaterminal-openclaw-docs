@@ -1,0 +1,527 @@
+{
+ "schema": "proof-rows-adjudicate-10.run-row-evidence.v1",
+ "run": "44245772142",
+ "artifact": "project81-k6-proof-44245772142 (id 14404091587)",
+ "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+ "docsRef": "fe8e3c2188f4a3cb82a7c04c47dab96d49e13955",
+ "seat": "emeric",
+ "note": "Public run artifacts only; nonce-bearing and session-identifying fields dropped; provider tool-call ids masked.",
+ "rows": {
+  "R-CD-1": {
+   "runId": "20261118T054012Z-r-cd-1-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "052acd50672cc3dbfbaa4731c0b4ad99",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CD-1",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T05:40:15.240Z",
+    "tool_invoke_accepted": true,
+    "delegate_scheduled_sentinel": false,
+    "parent_return_event": true,
+    "child_record_observed_optional": true,
+    "channel_message_observed": true,
+    "dispatch_accepted_at_ms": 1794980416204,
+    "wake_gate_ms": 5000,
+    "delegate_scheduled_at_ms": null,
+    "parent_return_event_at_ms": 1794980443766,
+    "trace_collect_after_ms": null,
+    "reason_length": 276,
+    "delegate_mode": "normal",
+    "delegate_delay_ms": 1000,
+    "delegate_wake_gate_ms": 5000,
+    "return_window_opens_at_ms": null,
+    "return_before_legacy_wake_gate": false,
+    "prompt_echoes_ignored": 7,
+    "scheduled_receipt_observed": false,
+    "scheduled_text_bound": true,
+    "child_return_bound": true,
+    "child_return_reason": null,
+    "parent_return_reason": null,
+    "child_history_reads": 2,
+    "parent_history_reads": 3,
+    "return_text_seen": false,
+    "trace_id": null,
+    "preflight": {
+     "ok": true,
+     "missing": [],
+     "reason": null,
+     "advertised_count": 612
+    },
+    "observation_refused": null,
+    "verdict_reason": null,
+    "ended": "2026-11-18T05:42:15.620Z",
+    "duration_ms": 120380,
+    "observation_incomplete": null,
+    "observation_errors": [],
+    "observer_list_responses": 4,
+    "observer_rows_seen": 3,
+    "observer_history_responses": 3,
+    "observer_history_retries": 0,
+    "observer_history_unbound": [],
+    "observer_rounds_completed": 4,
+    "observer_rounds_invalid": 0,
+    "observer_children_recorded": 1
+   },
+   "journalMarkers": {
+    "[continuation:delegate-spawned] hop=1": 1,
+    "[continuation:targeted-return] Delivered": 1
+   }
+  },
+  "R-CD-2": {
+   "runId": "20261118T054220Z-r-cd-2-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 0,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "r-cd-2-authoritative-receipt",
+    "traceId": null,
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "authoritative": {
+     "verdict": "PARTIAL-candidate",
+     "failureCategory": "delegate-not-spawned",
+     "lifecycleFalse": [
+      "typedDelegateAttemptedSameRun",
+      "typedDelegateSuccessSameRun"
+     ],
+     "topologyFalse": [],
+     "joinsFalse": [],
+     "topologyComplete": true,
+     "joinComplete": true,
+     "lifecycleComplete": false
+    },
+    "publicK6Log": "withheld by design (private acquisition)"
+   },
+   "journalMarkers": {}
+  },
+  "R-CD-SILENT": {
+   "runId": "20261118T055234Z-r-cd-silent-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "984c503912d52eaeefadff0de654bc2c",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CD-SILENT",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T05:52:36.633Z",
+    "dispatch_accepted": true,
+    "scheduled_sentinel": false,
+    "child_completion_observed": true,
+    "followup_accepted": true,
+    "parent_internal_context_observed": true,
+    "no_channel_delivery": true,
+    "child_channel_delivery_observed": false,
+    "dispatch_accepted_at_ms": 1794981158277,
+    "followup_sent_at_ms": 1794981189076,
+    "trace_id": null,
+    "scheduled_receipt_observed": false,
+    "scheduled_text_bound": true,
+    "child_report_reason": null,
+    "parent_readback_reason": null,
+    "scheduled_text_seen": true,
+    "parent_observed_text_seen": true,
+    "reason_length": 294,
+    "delegate_mode": "silent",
+    "ended": "2026-11-18T05:55:37.442Z",
+    "duration_ms": 180809
+   },
+   "journalMarkers": {
+    "[continuation:delegate-spawned] hop=1": 1,
+    "[continuation:targeted-return] Delivered": 1
+   }
+  },
+  "R-CW-1": {
+   "runId": "20261118T055556Z-r-cw-1-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "17408495dbe4e9bf1a4cf8c5ce74bf6a",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CW-1",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T05:55:59.500Z",
+    "tool_invoke_accepted": true,
+    "continue_work_tool_result_scheduled": false,
+    "work_woke_event": false,
+    "chain_reason": "hop 1: the continue_work result is not \"scheduled\"",
+    "history_reads": 17,
+    "scheduled_text_seen": true,
+    "woke_text_seen": true,
+    "dispatch_accepted_at_ms": 1794981360319,
+    "scheduled_result_at_ms": null,
+    "wake_delay_ms": null,
+    "reason_length": 45,
+    "trace_id": null,
+    "ended": "2026-11-18T05:57:29.787Z",
+    "duration_ms": 90287
+   },
+   "journalMarkers": {
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1": 1,
+    "[continuation:work-wake] hop=1": 1
+   }
+  },
+  "R-CW-2": {
+   "runId": "20261118T055734Z-r-cw-2-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "b17068ec4aceb9cf385ab1c26c036f03",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CW-2",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T05:57:37.329Z",
+    "dispatch_accepted": true,
+    "scheduled_sentinel": false,
+    "immediate_wake_observed": false,
+    "chain_reason": "hop 1: the continue_work result is not \"scheduled\"",
+    "history_reads": 17,
+    "scheduled_text_seen": true,
+    "woke_text_seen": true,
+    "prompt_echo_ignored": true,
+    "reason_length": 55,
+    "dispatch_accepted_at_ms": 1794981458168,
+    "scheduled_result_at_ms": null,
+    "wake_delay_ms": null,
+    "trace_id": null,
+    "ended": "2026-11-18T05:59:07.639Z",
+    "duration_ms": 90310
+   },
+   "journalMarkers": {
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1": 1,
+    "[continuation:work-wake] hop=1": 1
+   }
+  },
+  "R-CW-3": {
+   "runId": "20261118T055912Z-r-cw-3-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "review-pending",
+    "pendingReceipts": [
+     "reason-telemetry-redaction-review",
+     "reason-telemetry-redaction-review-join"
+    ],
+    "rowReview": {
+     "receipt": "r-cw-3-reason-telemetry-review.json",
+     "sha256": "7fe0ddfddeac24e9520057070b0e8081df2dd5959d131f7cda8ec8c4c1579ee2",
+     "verdict": "review-pending",
+     "status": "review-join-invalid",
+     "source": "r-cw-3-row-scoped-review-join",
+     "manualAcceptanceRequired": true,
+     "coordinatorAccepted": false
+    }
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "b5f707756d984707c69dcc2276db49c3",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CW-3",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T05:59:15.309Z",
+    "dispatch_accepted": true,
+    "scheduled_sentinel": false,
+    "wake_observed": false,
+    "chain_reason": "hop 1: the continue_work result is not \"scheduled\"",
+    "history_reads": 119,
+    "scheduled_text_seen": true,
+    "woke_text_seen": true,
+    "public_artifact_raw_reason_absent": true,
+    "tempo_assertion": "pending-review",
+    "reason_length": 64,
+    "trace_id": null,
+    "trace_id_source": null,
+    "dispatch_accepted_at_ms": 1794981556136,
+    "scheduled_result_at_ms": null,
+    "wake_delay_ms": null,
+    "ended": "2026-11-18T06:09:15.608Z",
+    "duration_ms": 600299
+   },
+   "journalMarkers": {
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1": 1,
+    "[continuation:work-wake] hop=1": 1
+   }
+  },
+  "R-CW-4": {
+   "runId": "20261118T060920Z-r-cw-4-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "2e5bad9d050c0bc04e1848ed6696a13d",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CW-4",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T06:09:23.254Z",
+    "dispatch_accepted": true,
+    "hop1_scheduled": false,
+    "hop2_scheduled": false,
+    "hop3_scheduled": false,
+    "final_done": false,
+    "hop_events": [],
+    "chain_reason": "hop 1: the continue_work result is not \"scheduled\"",
+    "history_reads": 119,
+    "hop_text_seen": [
+     "CW4-HOP1-SCHEDULED",
+     "CW4-HOP2-SCHEDULED",
+     "CW4-HOP3-SCHEDULED",
+     "CW4-DONE"
+    ],
+    "trace_id": null,
+    "reason_length": 60,
+    "ended": "2026-11-18T06:19:23.563Z",
+    "duration_ms": 600309
+   },
+   "journalMarkers": {
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1": 1,
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=2": 1,
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=3": 1,
+    "[continuation:work-wake] hop=1": 1,
+    "[continuation:work-wake] hop=2": 1,
+    "[continuation:work-wake] hop=3": 1,
+    "[continuation:work-finish-not-committed]": 2
+   }
+  },
+  "R-CW-DELEGATE-SELF-CONTINUATION": {
+   "runId": "20261118T061939Z-r-cw-delegate-self-continuation-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "ef6070c2275bc09fe98e875b58aa3aac",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CW-DELEGATE-SELF-CONTINUATION",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T06:19:41.724Z",
+    "delegate_accepted": true,
+    "child_spawned": true,
+    "child_continue_work_accepted": false,
+    "child_hop_2_woke": false,
+    "parent_return": false,
+    "child_status": "done",
+    "event_child_candidates": [],
+    "child_identity_conflict": false,
+    "child_identity_reason": null,
+    "child_hop_history_reads": 20,
+    "child_hops": {
+     "yield_index": 3,
+     "scheduled_result_index": -1,
+     "scheduled_sentinel_index": -1,
+     "wake_index": -1,
+     "hop2_index": -1,
+     "reason": "continue_work result is not \"scheduled\""
+    },
+    "child_token_minted": false,
+    "child_token_reason": "continue_work result is not \"scheduled\"",
+    "parent_return_history_reads": 0,
+    "parent_return_receipt": null,
+    "parent_return_heuristic": true,
+    "hop2_output_reached_parent": null,
+    "hop2_output_reached_parent_reason": "not claimed by this row: the child delivers one return (its spawned run), before hop 2; no hop-2 delivery exists to bind",
+    "parent_stream_cw_scheduled_seen": true,
+    "parent_stream_hop2_seen": true,
+    "observation_refused": null,
+    "dispatch_accepted_at_ms": 1794982782600,
+    "trace_id": null,
+    "reason_length": 566,
+    "delegate_mode": "normal",
+    "preflight": {
+     "ok": true,
+     "missing": [],
+     "reason": null,
+     "advertised_count": 612
+    },
+    "verdict_reason": null,
+    "ended": "2026-11-18T06:21:42.049Z",
+    "duration_ms": 120325,
+    "observation_incomplete": null,
+    "observation_errors": [],
+    "observer_list_responses": 5,
+    "observer_rows_seen": 2,
+    "observer_history_responses": 21,
+    "observer_history_retries": 0,
+    "observer_history_unbound": [],
+    "observer_rounds_completed": 5,
+    "observer_rounds_invalid": 0,
+    "observer_children_recorded": 1
+   },
+   "journalMarkers": {
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=2": 1,
+    "[continuation:work-wake] hop=2": 1,
+    "[continuation:delegate-spawned] hop=1": 1,
+    "[continuation:targeted-return] Delivered": 2
+   }
+  },
+  "R-CW-TOKEN": {
+   "runId": "20261118T062202Z-r-cw-token-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "a497baba30b4fe158d01c4017f886589",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-CW-TOKEN",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T06:22:05.466Z",
+    "parent_dispatch_accepted": true,
+    "subagent_spawn_requested": true,
+    "subagent_spawn_accepted": false,
+    "token_emitted_or_stripped": false,
+    "hop_2_executed": false,
+    "parent_return": false,
+    "dispatch_accepted_at_ms": 1794982926299,
+    "hop_2_at_ms": null,
+    "trace_id": null,
+    "spawn_receipt_status": null,
+    "spawn_receipt_source": "chat.history",
+    "child_subscribed": false,
+    "child_rows_seen": 0,
+    "child_history_reads": 0,
+    "child_typed_continue_work_observed": false,
+    "spawn_refusal_reason": null,
+    "hop_reason": null,
+    "parent_history_reads": 36,
+    "parent_return_reason": null,
+    "hop1_text_seen": true,
+    "hop2_text_seen": true,
+    "ended": "2026-11-18T06:24:35.762Z",
+    "duration_ms": 150296
+   },
+   "journalMarkers": {
+    "[continuation:work-parked-on-turn-end] session=<redacted-session-key> hop=1": 1,
+    "[continuation:work-wake] hop=1": 1,
+    "bracket-parse: kind=work": 1,
+    "dispatch_action failed: Error: Followup has no retained original caller policy.": 1
+   }
+  },
+  "R-RC-1": {
+   "runId": "20261118T062518Z-r-rc-1-46386235",
+   "verdict": "PARTIAL-candidate",
+   "k6ExitCode": 99,
+   "review": {
+    "status": "ready-for-human-review",
+    "pendingReceipts": [],
+    "rowReview": null
+   },
+   "observability": {
+    "traceStatus": "present",
+    "traceId": "49c5a125c6e83bc91091ba0df6da528f",
+    "serviceLogStatus": "captured"
+   },
+   "evidence": {
+    "row": "R-RC-1",
+    "manifest_loaded": true,
+    "seat": "emeric",
+    "session_created": true,
+    "candidateSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+    "started": "2026-11-18T06:25:21.348Z",
+    "tool_inventory_checked": true,
+    "tool_registered": true,
+    "dispatch_accepted": true,
+    "dispatch_accepted_at_ms": 1794983126664,
+    "tool_name": "request_compaction",
+    "tool_invocation_observed": false,
+    "tool_result_observed": true,
+    "tool_call_id": "call_<masked>|<provider-blob sha256:4a13216f3f71 len:486>",
+    "tool_result_status": "invalid",
+    "tool_invoke_rejected": false,
+    "guard": null,
+    "context_usage": null,
+    "threshold": null,
+    "no_compaction_side_effect": false,
+    "assistant_sentinel_observed": true,
+    "history_requested": true,
+    "history_attempts": 1,
+    "trace_id": null,
+    "ended": "2026-11-18T06:25:44.670Z",
+    "duration_ms": 23322
+   },
+   "journalMarkers": {}
+  }
+ }
+}

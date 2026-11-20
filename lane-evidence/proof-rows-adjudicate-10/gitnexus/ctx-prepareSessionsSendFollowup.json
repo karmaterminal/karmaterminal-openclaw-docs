@@ -1,0 +1,149 @@
+{
+  "status": "found",
+  "symbol": {
+    "uid": "Function:src/agents/tools/sessions-send-followup-custody.ts:prepareSessionsSendFollowup",
+    "name": "prepareSessionsSendFollowup",
+    "kind": "Function",
+    "filePath": "src/agents/tools/sessions-send-followup-custody.ts",
+    "startLine": 22,
+    "endLine": 209
+  },
+  "incoming": {
+    "calls": [
+      {
+        "uid": "Function:src/agents/tools/agent-step.ts:runAgentStep",
+        "name": "runAgentStep",
+        "filePath": "src/agents/tools/agent-step.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/sessions-send-followup.test.ts:prepare",
+        "name": "prepare",
+        "filePath": "src/agents/tools/sessions-send-followup.test.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/sessions-send-followup.ts:dispatchSessionsSendFollowup",
+        "name": "dispatchSessionsSendFollowup",
+        "filePath": "src/agents/tools/sessions-send-followup.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/sessions-send-owner-continuation.test.ts:prepareCompletion",
+        "name": "prepareCompletion",
+        "filePath": "src/agents/tools/sessions-send-owner-continuation.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tools/sessions-send-followup.test.ts",
+        "name": "sessions-send-followup.test.ts",
+        "filePath": "src/agents/tools/sessions-send-followup.test.ts"
+      }
+    ],
+    "accesses": [
+      {
+        "uid": "File:src/gateway/server.agent-input-authority.test.ts",
+        "name": "server.agent-input-authority.test.ts",
+        "filePath": "src/gateway/server.agent-input-authority.test.ts"
+      }
+    ]
+  },
+  "outgoing": {
+    "calls": [
+      {
+        "uid": "Function:src/agents/subagents/requester-cron-authority.ts:captureRequesterFollowupAuthority",
+        "name": "captureRequesterFollowupAuthority",
+        "filePath": "src/agents/subagents/requester-cron-authority.ts"
+      },
+      {
+        "uid": "Function:src/state/user-channel-identity-operations.ts:prepareUserProfileRoleAuthority",
+        "name": "prepareUserProfileRoleAuthority",
+        "filePath": "src/state/user-channel-identity-operations.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/gateway-caller-context.ts:getGatewayToolCallerIdentity",
+        "name": "getGatewayToolCallerIdentity",
+        "filePath": "src/agents/tools/gateway-caller-context.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/gateway-caller-context.ts:captureGatewayToolCallerAssertion",
+        "name": "captureGatewayToolCallerAssertion",
+        "filePath": "src/agents/tools/gateway-caller-context.ts"
+      },
+      {
+        "uid": "Function:src/config/runtime-snapshot.ts:readRuntimeConfig",
+        "name": "readRuntimeConfig",
+        "filePath": "src/config/runtime-snapshot.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/sessions-send-followup-custody.ts:release",
+        "name": "release",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/sessions-send-followup-custody.ts:assertCurrent",
+        "name": "assertCurrent",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Function:src/agents/tools/sessions-send-followup-custody.ts:assertCurrent",
+        "name": "assertCurrent",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Function:src/gateway/server-plugin-in-process-authority.ts:captureOperatorToolGatewayContinuationContext",
+        "name": "captureOperatorToolGatewayContinuationContext",
+        "filePath": "src/gateway/server-plugin-in-process-authority.ts"
+      },
+      {
+        "uid": "Method:src/agents/tools/sessions-send-followup-custody.ts:run#1",
+        "name": "run",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Method:src/sessions/session-row-changes.ts:subscribe#1",
+        "name": "subscribe",
+        "filePath": "src/sessions/session-row-changes.ts"
+      },
+      {
+        "uid": "Class:src/agents/tools/sessions-send-followup-custody.ts:FollowupAccessChangedError",
+        "name": "FollowupAccessChangedError",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Function:src/gateway/operator-role-policy.ts:resolveGatewayOperatorRoleActor",
+        "name": "resolveGatewayOperatorRoleActor",
+        "filePath": "src/gateway/operator-role-policy.ts"
+      },
+      {
+        "uid": "Function:src/gateway/session-sharing-preparation.ts:prepareSessionMutationFacts",
+        "name": "prepareSessionMutationFacts",
+        "filePath": "src/gateway/session-sharing-preparation.ts"
+      }
+    ],
+    "accesses": [
+      {
+        "uid": "Const:src/agents/tools/sessions-send-followup-custody.ts:signal",
+        "name": "signal",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Const:src/agents/tools/sessions-send-followup-custody.ts:signal",
+        "name": "signal",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Const:src/agents/tools/sessions-send-followup-custody.ts:target",
+        "name": "target",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Const:src/agents/tools/sessions-send-followup-custody.ts:requesterTurnRunId",
+        "name": "requesterTurnRunId",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      },
+      {
+        "uid": "Const:src/agents/tools/sessions-send-followup-custody.ts:requesterTurnRunId",
+        "name": "requesterTurnRunId",
+        "filePath": "src/agents/tools/sessions-send-followup-custody.ts"
+      }
+    ]
+  },
+  "processes": []
+}

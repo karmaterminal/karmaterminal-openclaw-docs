@@ -1,0 +1,57 @@
+{
+  "status": "found",
+  "symbol": {
+    "uid": "Function:src/agents/tool-search-request.ts:readToolSearchCallArgs",
+    "name": "readToolSearchCallArgs",
+    "kind": "Function",
+    "filePath": "src/agents/tool-search-request.ts",
+    "startLine": 29,
+    "endLine": 88
+  },
+  "incoming": {
+    "calls": [
+      {
+        "uid": "File:src/agents/tool-search-runtime.test.ts",
+        "name": "tool-search-runtime.test.ts",
+        "filePath": "src/agents/tool-search-runtime.test.ts"
+      },
+      {
+        "uid": "File:src/agents/tool-search-runtime.test.ts",
+        "name": "tool-search-runtime.test.ts",
+        "filePath": "src/agents/tool-search-runtime.test.ts"
+      }
+    ]
+  },
+  "outgoing": {
+    "calls": [
+      {
+        "uid": "Function:packages/normalization-core/src/record-coerce.ts:isRecord",
+        "name": "isRecord",
+        "filePath": "packages/normalization-core/src/record-coerce.ts"
+      },
+      {
+        "uid": "Function:packages/normalization-core/src/record-coerce.ts:asNonArrayRecord",
+        "name": "asNonArrayRecord",
+        "filePath": "packages/normalization-core/src/record-coerce.ts"
+      },
+      {
+        "uid": "Function:src/agents/tool-search-request.ts:readToolSearchId",
+        "name": "readToolSearchId",
+        "filePath": "src/agents/tool-search-request.ts"
+      },
+      {
+        "uid": "Class:src/agents/tool-input-error.ts:ToolInputError",
+        "name": "ToolInputError",
+        "filePath": "src/agents/tool-input-error.ts"
+      }
+    ],
+    "accesses": [
+      {
+        "uid": "Const:src/agents/tool-search-request.ts:id",
+        "name": "id",
+        "filePath": "src/agents/tool-search-request.ts"
+      }
+    ]
+  },
+  "processes": []
+}

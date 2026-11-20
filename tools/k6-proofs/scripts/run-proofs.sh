@@ -723,7 +723,9 @@ token_budget_cutoff() {
   # reading that completed after this time (one begun before it straddles the
   # abort and counts after it), so the receipt can tell what grew after the
   # abort from what grew before it. It reads the abort document with the mark.
-  printf '%s\n' "$BUDGET_CUTOFF_ENDED_AT" > "$BUDGET_ABORT_MARK"
+  # Written whole, then renamed, so the meter never reads it without its time.
+  printf '%s\n' "$BUDGET_CUTOFF_ENDED_AT" > "$BUDGET_ABORT_MARK.tmp"
+  mv -f "$BUDGET_ABORT_MARK.tmp" "$BUDGET_ABORT_MARK"
   if ! jq -e 'type == "object"' "$BUDGET_ABORT_DOC" >/dev/null 2>&1; then
     rm -f "$BUDGET_ABORT_DOC"
     echo "TOKEN BUDGET CUTOFF: no abort document was written; no session is known to have been aborted." >&2

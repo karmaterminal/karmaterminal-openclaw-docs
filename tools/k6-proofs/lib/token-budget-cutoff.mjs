@@ -434,7 +434,8 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
       .map((session) => ({ id: session.id, tokens: session.lastTokens - (Object.hasOwn(atTrip, session.id) ? atTrip[session.id] : session.baselineTokens) }))
       .filter((session) => session.tokens > 0)
     : null;
-  const snapshot = marked && readableAfterAbort ? Object.fromEntries((marked.sessions ?? []).map(({ id, lastTokens }) => [id, lastTokens])) : null;
+  // A meter that kept no totals from before the abort (sessions null) gives no per-session figure.
+  const snapshot = Array.isArray(marked?.sessions) && readableAfterAbort ? Object.fromEntries(marked.sessions.map(({ id, lastTokens }) => [id, lastTokens])) : null;
   // A session the cutoff named by its key, because it had no session id then,
   // is metered under the session id it has since: the meter links the two
   // (abortId). A meter that could not read the cutoff's document could link

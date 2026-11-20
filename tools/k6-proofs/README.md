@@ -801,12 +801,15 @@ So the receipt splits the overshoot (`overshoot`):
   - `pastBudgetTokens`: the final total minus the budget;
   - `postTripTokens`: counted after the trip;
   - `postAbortTokens`: counted in the readings that completed at or after the
-    abort, which is when the cutoff ended (the runner's mark). A reading begun
+    abort, which is when the cutoff ended (the runner's mark, written whole;
+    without the meter's snapshot, the abort document's finish). A reading begun
     before the abort and completed after it **straddles** the abort: the meter
     marks it `straddlesAbort` and counts its growth after the abort
     (`readingsStraddlingAbort`; the rule is stated in `abortBoundary`). That
     growth may include usage that landed during the abort pass, so the figure
-    can overstate post-abort growth but never understates it;
+    can overstate post-abort growth but never understates it. A meter that kept
+    no totals from before the mark's time claims none, and the receipt then
+    splits the readings itself and gives no per-session figure;
   - each of these is `null`, never 0, when no readable reading came after the
     event;
   - `sessionsGrowingAfterTrip` and `sessionsGrowingAfterAbort`: the same per
@@ -816,7 +819,9 @@ So the receipt splits the overshoot (`overshoot`):
       `sessionPublicId` in `lib/token-budget.mjs`). When it later grows under a
       session id of its own, the meter links the two (it reads the abort
       document with the mark), so the entry carries `abortId`, the cutoff's id
-      for it, and keeps its abort outcome.
+      for it, and keeps its abort outcome. Only the first session the key
+      takes is linked: a later reset is a new session, as it is for a key the
+      cutoff named by its session id.
     - If the meter could not read the abort document, a session that no abort
       id names is `owned: null` (unknown), never `owned: false`;
   - `lastGrowthAt` and `quietReadingsAtEnd`.
@@ -865,7 +870,8 @@ session id, token, ownership tag or gateway message, and sessions appear only as
   cumulative total, increment, read time and scope counts, and `straddlesAbort`
   on the one begun before the abort and completed after it;
 - the measured cadence;
-- per-session totals, with `abortId` on a session the cutoff named by its key;
+- per-session totals, with `abortId` on the session metered under its own
+  session id whose key the cutoff named (it had no session id then);
 - `abort`, the cutoff's record:
   - whether it was attempted, and its scopes;
   - the ownership counts: records, rejected records, harvest failures, sessions

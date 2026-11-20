@@ -249,8 +249,9 @@ async function watch(args, env = process.env) {
     tripSessions: null,
     // The same, as they stood before the first reading that completed at or
     // after the cutoff ended (see --abort-mark), with the cumulative total then
-    // and how many of the abort document's session ids were read to link
-    // id-less sessions (null: the document could not be read).
+    // (both null when no totals were kept from before it) and how many of the
+    // abort document's session ids were read to link id-less sessions (null:
+    // the document could not be read).
     abortSessions: null,
     readings: [],
     cadence: readingCadence([], null),
@@ -395,18 +396,21 @@ async function watch(args, env = process.env) {
     if (entry.trip && !wasTripped) writeAtomic(flagPath, `${JSON.stringify(entry.trip)}\n`);
   };
 
-  // The abort snapshot (see --abort-mark and --abort-doc), once. A mark with
-  // no readable time places the abort before every kept reading: growth after
-  // it may then be overstated, never understated.
+  // The abort snapshot (see --abort-mark and --abort-doc), once. A mark read
+  // without its time (caught before the time was written) is taken at a later
+  // reading. If no kept totals completed before the mark's time, the meter
+  // claims none (cumulative and sessions null) rather than later ones; the
+  // receipt then splits the readings itself.
   const keepAbortSnapshot = () => {
     let markedAt = null;
     try {
       markedAt = readFileSync(args['abort-mark'], 'utf8').trim() || null;
-    } catch { /* no time: the earliest kept totals stand */ }
+    } catch { /* not readable yet */ }
     const abortMs = Date.parse(markedAt ?? '');
-    const kept = (Number.isFinite(abortMs) ? checkpoints.filter((checkpoint) => checkpoint.completedMs < abortMs).at(-1) : null) ?? checkpoints[0];
-    for (const later of checkpoints.slice(checkpoints.indexOf(kept) + 1)) {
-      if (later.startedMs < abortMs) state.readings[later.index].straddlesAbort = true;
+    if (!Number.isFinite(abortMs)) return;
+    const kept = checkpoints.filter((checkpoint) => checkpoint.completedMs < abortMs).at(-1) ?? null;
+    for (const later of checkpoints.slice(kept ? checkpoints.indexOf(kept) + 1 : 0)) {
+      if (later.index !== null && later.startedMs < abortMs) state.readings[later.index].straddlesAbort = true;
     }
     if (args['abort-doc']) {
       try {
@@ -417,7 +421,7 @@ async function watch(args, env = process.env) {
         abortIds = null;
       }
     }
-    state.abortSessions = { markedAt, cumulative: kept.cumulative, sessions: kept.sessions, abortIdsRead: abortIds ? abortIds.size : null };
+    state.abortSessions = { markedAt, cumulative: kept?.cumulative ?? null, sessions: kept?.sessions ?? null, abortIdsRead: abortIds ? abortIds.size : null };
     state.sessions = meter.publicSessions({ abortIds });
     checkpoints = null;
     save();

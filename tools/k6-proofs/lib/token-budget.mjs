@@ -525,17 +525,29 @@ export function createUsageMeter({
     },
     /**
      * Per-session facts safe to publish: a 12-hex id hash, never a key or
-     * session id. Given the ids the cutoff published (`abortIds`), a session
-     * whose own id is not among them, listed under a key the cutoff named
-     * because the session had no session id then, carries that name as
-     * `abortId`: its abort outcome, under the session id it is metered by.
+     * session id. Given the ids the cutoff published (`abortIds`), the first
+     * session the meter saw with a session id of its own under a key the
+     * cutoff named by its key (the session had no session id then) carries
+     * that name as `abortId`: its abort outcome, under the session id it is
+     * metered by. A later session under that key (a reset) is a new session,
+     * as it is for a key the cutoff named by its session id.
      */
     publicSessions({ abortIds = null } = {}) {
+      const linked = new Map(); // accounting id -> the cutoff's id for its key
+      if (abortIds) {
+        const taken = new Set();
+        for (const [id, entry] of sessions) {
+          if (entry.placeholder || abortIds.has(publicId(id))) continue;
+          const keyId = [...entry.keys].map((key) => sessionPublicId(key, null)).find((candidate) => abortIds.has(candidate) && !taken.has(candidate));
+          if (keyId) {
+            taken.add(keyId);
+            linked.set(id, keyId);
+          }
+        }
+      }
       return [...sessions].map(([id, entry]) => {
         const own = publicId(id);
-        const abortId = abortIds && !abortIds.has(own)
-          ? [...entry.keys].map((key) => sessionPublicId(key, null)).find((keyId) => abortIds.has(keyId))
-          : undefined;
+        const abortId = linked.get(id);
         return {
           id: own,
           reason: entry.reason,

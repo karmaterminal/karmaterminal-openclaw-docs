@@ -149,6 +149,11 @@ Every scenario keeps these properties; the gateway and nonce rules are for live 
   - Match a toolCall by the tool it invoked, never by its raw name alone. With Tool Search on, a
     typed call is recorded as `dispatch_action` with the tool in `arguments.id`;
     `tools/k6-proofs/lib/tool-call-identity.mjs` unwraps it.
+  - Read a toolResult's answer with `unwrapToolResult(message, tool)` from the same file, never
+    by parsing its first JSON object. The dispatcher's result is a `{ tool, result }` envelope
+    with the tool's JSON inside, and the helper checks the envelope names the expected tool. Build
+    test rows with `tools/k6-proofs/tests/helpers/tool-search-envelope.mjs`, not the bare answer
+    under the dispatcher's name: no product build writes that row.
   - A minted token must also be absent from the requester's own call arguments and from the
     child's spawn task, so read the child's transcript from its start.
   - An exclusion list with a missing run id binds nothing. Do not drop an unknown dispatch,

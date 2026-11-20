@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { ROW_METHODS } from '../lib/child-observer.mjs';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { viaToolSearch } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PARENT = 'agent:main:late-call-model-token-parent';
@@ -103,10 +104,10 @@ function gatewayFor(world) {
   };
 }
 
-async function fire(world) {
+async function fire(world, wrap = (gateway) => gateway) {
   const { log } = await runK6Scenario({
     scenarioPath: path.join(root, 'scenarios', 'r-cd-model-token.js'),
-    gateway: gatewayFor(world),
+    gateway: wrap(gatewayFor(world)),
     env: {
       OPENCLAW_ROW_MANIFEST: path.join(root, 'manifests', 'r-cd-model-token.json'),
       OPENCLAW_GATEWAY_TOKEN: 'late-call-model-token',
@@ -147,4 +148,22 @@ test('N10: a late typed call delivered live is seen even when hop 1 is deleted b
   const { evidence, verdict } = await fire({ lateTypedCall: true, deleteHop1: true });
   assert.equal(evidence.hop1_typed_continue_delegate, true);
   assert.notEqual(verdict, 'PASS-candidate');
+});
+
+// Tool Search seat (run 44245772142, openclaw/openclaw#129388 H1): the call is dispatch_action and its
+// result the { tool, result } envelope (helpers/tool-search-envelope.mjs viaToolSearch).
+test('through Tool Search: the dispatched sessions_spawn envelope is the spawn receipt, and the bracket form still binds', async () => {
+  const { evidence, verdict } = await fire({ lateTypedCall: false }, viaToolSearch);
+  assert.equal(evidence.spawn_receipt_status, 'accepted');
+  assert.equal(evidence.bracket_token_observed, true);
+  assert.equal(verdict, 'PASS-candidate');
+});
+
+test('through Tool Search: an envelope naming another tool gives no spawn receipt; only the observer binding of hop 1 remains', async () => {
+  // The row credits the spawn from the toolResult OR from the observer binding hop 1 by its
+  // own spawnedBy and task (scenarios/r-cd-model-token.js:243): a refused envelope removes
+  // the receipt and leaves that product-side binding as the only spawn evidence.
+  const { evidence } = await fire({ lateTypedCall: false }, (gateway) => viaToolSearch(gateway, { envelope: () => ({ name: 'continue_work', id: 'openclaw:core:continue_work' }) }));
+  assert.equal(evidence.spawn_receipt_status, null);
+  assert.equal(evidence.child_session_observed, true);
 });

@@ -17,6 +17,23 @@
 // fails closed. toolCallTarget unwraps the call the way the product's display
 // projection does; each matcher then applies its own name rule to the result.
 //
+// The RESULT of a dispatched call is wrapped too (openclaw/openclaw#129388,
+// lane proof-rows-adjudicate-10 finding H1). At openclaw ab5a30ea79
+// src/agents/tool-search.ts:396-422 the dispatcher returns
+//   content: one text part, the JSON of { tool: { id, name, source }, result }
+//            where `result` is the tool's own result minus its details
+//            (compact at ab5a and 9476c7aaf7; pretty-printed at f15237ec92);
+//   details: { tool: <catalog entry>, result: <the tool's own result> }, plus
+//            `status: <failure kind>` when that result failed.
+// The tool's own answer ({"status":"scheduled",...}) is a JSON string inside
+// result.content[].text. Every build with a dispatcher has returned this
+// envelope; at v2026.7.1-1 `tool_call` returned it through jsonResult, with
+// the inner details kept. session.message events keep details; chat.history
+// keeps only an allowlisted projection of them (chat-display-projection
+// sanitize.ts:504-532, canvas.ts projectToolResultDetails) that drops every key
+// of a dispatcher row's details. unwrapToolResult reads both forms for every
+// receipt reader.
+//
 // k6 and Node compatible: no k6 or Node imports.
 
 /** Raw names of the Tool Search dispatcher (tool-display-call.ts:5 TOOL_CALL_DISPLAY_NAMES). */
@@ -74,4 +91,95 @@ export function toolCallTarget(part) {
 export function toolResultNameAdmits(message, toolName) {
   const name = message?.toolName;
   return name === toolName || isToolSearchDispatcherName(name);
+}
+
+// ---------------------------------------------------------------------------
+// Tool results
+// ---------------------------------------------------------------------------
+
+/** A tool's own name, or a provider-namespaced `<prefix>__<tool>`. */
+function isOwnToolName(name, toolName) {
+  return typeof name === 'string' && (name === toolName || name.endsWith(`__${toolName}`));
+}
+
+/** Tool Search's { tool, result } envelope shape (content text or details). */
+function isToolSearchEnvelope(value) {
+  return isRecord(value) && isRecord(value.tool) && isRecord(value.result);
+}
+
+/** The first text part (or string content) that is a JSON object. */
+function structuredText(content) {
+  if (typeof content === 'string') return parseJsonRecord(content);
+  if (!Array.isArray(content)) return null;
+  for (const part of content) {
+    if (!isRecord(part) || part.type !== 'text' || typeof part.text !== 'string') continue;
+    const parsed = parseJsonRecord(part.text);
+    if (parsed) return parsed;
+  }
+  return null;
+}
+
+/**
+ * The structured answer of one tool result: its JSON content text, else its
+ * details. Both carry the same payload (jsonResult, src/agents/tools/tool-results.ts:10-12);
+ * chat.history keeps the text and at most a projection of the details.
+ */
+function structuredResult(result) {
+  return structuredText(result?.content) ?? (isRecord(result?.details) ? result.details : null);
+}
+
+/**
+ * Why an envelope's tool is not OpenClaw's core `toolName`, or null. Every tool
+ * a receipt reads is core-owned at ab5a (created in src/agents/openclaw-tools*.ts
+ * with no plugin metadata, so classifyAgentToolSource names it "core",
+ * src/plugins/tool-metadata.ts:56-71), and every envelope form carries `source`.
+ * So the id must be exactly `openclaw:core:<tool>` (tool-search-catalog.ts:195)
+ * and the source `openclaw`: a same-named MCP, client or plugin tool is never it.
+ */
+function envelopeToolMismatch(tool, toolName) {
+  if (tool.name !== toolName) return `the envelope names tool ${JSON.stringify(tool.name ?? null)}, not ${toolName}`;
+  if (tool.id !== `openclaw:core:${toolName}`) {
+    return `the envelope tool id ${JSON.stringify(tool.id ?? null)} is not openclaw:core:${toolName}`;
+  }
+  if (tool.source !== 'openclaw') return `the envelope tool source ${JSON.stringify(tool.source ?? null)} is not openclaw`;
+  return null;
+}
+
+/**
+ * The structured answer a toolResult row gives for a call of `toolName`:
+ * { payload, dispatched, reason }. The caller pairs the row with its call by
+ * toolCallId first; this reads the answer.
+ *   - A row named after the tool (or with no name) is direct: its JSON content
+ *     text, else its details.
+ *   - A row named after the dispatcher must carry the { tool, result }
+ *     envelope, whose tool is OpenClaw's core `toolName`; the answer is the
+ *     inner result's JSON text, else its details.
+ * Everything else is unreadable (payload null, with the reason): a row named
+ * after another tool, a dispatcher row without an envelope, an envelope for
+ * another tool or source, an envelope inside an envelope, an envelope on a
+ * direct row, and a result with no JSON object at all.
+ */
+export function unwrapToolResult(message, toolName) {
+  const unreadable = (reason, dispatched = false) => ({ payload: null, dispatched, reason });
+  if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'toolresult') return unreadable('not a toolResult row');
+  if (typeof toolName !== 'string' || !toolName) return unreadable('no expected tool to read the result for');
+  const name = message.toolName;
+  const dispatched = isToolSearchDispatcherName(name);
+  if (!dispatched && typeof name === 'string' && name && !isOwnToolName(name, toolName)) {
+    return unreadable(`the result row is named ${name}, not ${toolName}`);
+  }
+  const outer = structuredResult(message);
+  if (!outer) return unreadable('the result carries no JSON object', dispatched);
+  if (!dispatched) {
+    return isToolSearchEnvelope(outer)
+      ? unreadable('a direct result row carries a Tool Search envelope')
+      : { payload: outer, dispatched: false, reason: null };
+  }
+  if (!isToolSearchEnvelope(outer)) return unreadable('the dispatcher result carries no { tool, result } envelope', true);
+  const mismatch = envelopeToolMismatch(outer.tool, toolName);
+  if (mismatch) return unreadable(mismatch, true);
+  const inner = structuredResult(outer.result);
+  if (!inner) return unreadable('the envelope result carries no JSON object', true);
+  if (isToolSearchEnvelope(inner)) return unreadable('the envelope result is itself an envelope', true);
+  return { payload: inner, dispatched: true, reason: null };
 }

@@ -1,33 +1,7 @@
-import { isToolSearchDispatcherName, toolCallTarget } from './tool-call-identity.mjs';
+import { isToolSearchDispatcherName, toolCallTarget, unwrapToolResult } from './tool-call-identity.mjs';
 import { hasExactSentinelText } from './wake-turn-receipt.mjs';
 function isRecord(value) {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-function parseJsonText(value) {
-  const text = String(value || '').trim();
-  if (!text.startsWith('{')) return null;
-  try {
-    const parsed = JSON.parse(text);
-    return isRecord(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-}
-
-function receiptFromContent(content) {
-  if (isRecord(content)) return content;
-  if (typeof content === 'string') return parseJsonText(content);
-  if (!Array.isArray(content)) return null;
-
-  for (const part of content) {
-    if (isRecord(part?.details)) return part.details;
-    if (typeof part?.text === 'string') {
-      const parsed = parseJsonText(part.text);
-      if (parsed) return parsed;
-    }
-  }
-  return null;
 }
 
 export function effectiveToolNames(payload) {
@@ -69,23 +43,27 @@ export function requestCompactionToolCallIdForNonce(messages, rowNonce) {
 /**
  * Classify one sessions.messages session.message event for an authoritative
  * request_compaction tool-result receipt. Assistant prose is intentionally not
- * accepted here: only role=toolResult + toolName=request_compaction can pass,
- * or, given the bound call's `toolCallId`, the Tool Search dispatcher's result
- * for exactly that call (its row is named dispatch_action).
+ * accepted here: only a role=toolResult row of request_compaction can pass.
+ * That is a row named request_compaction, or a Tool Search dispatcher row
+ * (named dispatch_action) whose { tool, result } envelope names the OpenClaw
+ * request_compaction, or, given the bound call's `toolCallId`, the dispatcher's
+ * row for exactly that call, read through the same envelope (#129388 H1). The
+ * receipt is the tool's own answer, never the dispatcher's envelope.
  */
 export function classifyRequestCompactionReceipt(eventPayload, { toolCallId = null } = {}) {
   const message = eventPayload?.message || eventPayload?.payload?.message || eventPayload;
   if (!isRecord(message) || message.role !== 'toolResult') return { kind: 'unrelated' };
-  const dispatchedResult = Boolean(toolCallId) && message.toolCallId === toolCallId && isToolSearchDispatcherName(message.toolName);
-  if (message.toolName !== 'request_compaction' && !dispatchedResult) return { kind: 'unrelated' };
+  const read = unwrapToolResult(message, 'request_compaction');
+  const dispatcherRow = isToolSearchDispatcherName(message.toolName);
+  const boundDispatcherRow = dispatcherRow && Boolean(toolCallId) && message.toolCallId === toolCallId;
+  const namedDispatcherRow = dispatcherRow && read.payload !== null;
+  if (message.toolName !== 'request_compaction' && !boundDispatcherRow && !namedDispatcherRow) return { kind: 'unrelated' };
 
-  const receipt = isRecord(message.details)
-    ? message.details
-    : receiptFromContent(message.content);
+  const receipt = read.payload;
   if (!receipt) {
     return {
       kind: 'invalid',
-      error: 'request_compaction tool result did not contain a structured receipt',
+      error: `request_compaction tool result did not contain a structured receipt (${read.reason})`,
       toolCallId: message.toolCallId || null,
     };
   }

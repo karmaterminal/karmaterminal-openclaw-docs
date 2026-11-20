@@ -22,7 +22,7 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
-import { toolCallTarget } from './tool-call-identity.mjs';
+import { toolCallTarget, unwrapToolResult } from './tool-call-identity.mjs';
 import { hasExactSentinelText, messageRunId, runExclusion } from './wake-turn-receipt.mjs';
 
 export const HARNESS_MARKER = '[k6-proof-harness]';
@@ -39,17 +39,6 @@ function role(message) {
 
 function escapeRegex(value) {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-function parseJsonRecord(text) {
-  const trimmed = String(text || '').trim();
-  if (!trimmed.startsWith('{')) return null;
-  try {
-    const parsed = JSON.parse(trimmed);
-    return isRecord(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
 }
 
 /** Text of a message's `type:"text"` parts, or its string content. Tool calls and thinking never count. */
@@ -171,26 +160,25 @@ export function boundToolCalls(message, { toolName, argField, needle }) {
     .filter((call) => typeof call.args[argField] === 'string' && call.args[argField].includes(needle));
 }
 
-/** The structured payload of a toolResult row: its JSON content text, else its details. */
-export function toolResultPayload(message) {
-  if (role(message) !== 'toolresult') return null;
-  const parts = Array.isArray(message.content) ? message.content
-    : typeof message.content === 'string' ? [{ type: 'text', text: message.content }] : [];
-  for (const part of parts) {
-    if (!isRecord(part) || part.type !== 'text') continue;
-    const parsed = parseJsonRecord(part.text);
-    if (parsed) return parsed;
-  }
-  return isRecord(message.details) ? message.details : null;
+/**
+ * The structured answer a toolResult row gives for a call of `toolName`: the
+ * tool's own JSON, read through Tool Search's { tool, result } envelope when
+ * the row is the dispatcher's (lib/tool-call-identity.mjs unwrapToolResult).
+ * Null when the row is unreadable for that tool.
+ */
+export function toolResultPayload(message, toolName) {
+  return unwrapToolResult(message, toolName).payload;
 }
 
-function receiptFor(call, message, extra) {
-  const payload = toolResultPayload(message);
+function receiptFor(call, message, toolName, extra) {
+  const { payload, dispatched, reason } = unwrapToolResult(message, toolName);
   return {
     toolCallId: call.id,
     status: typeof payload?.status === 'string' ? payload.status : null,
     isError: message.isError === true,
     payload: payload || null,
+    dispatched,
+    unreadableReason: reason,
     ...extra,
   };
 }
@@ -212,7 +200,7 @@ export function toolReceiptsFromHistory(messages, { toolName, argField, needle }
     }
     if (role(message) === 'toolresult' && typeof message.toolCallId === 'string' && calls.has(message.toolCallId)) {
       const bound = calls.get(message.toolCallId);
-      receipts.push(receiptFor(bound.call, message, {
+      receipts.push(receiptFor(bound.call, message, toolName, {
         callIndex: bound.index,
         resultIndex: index,
         runId: bound.runId || rowRunId(message),
@@ -245,7 +233,7 @@ export function createToolReceiptTracker({ sessionKey, toolName, argField, needl
       if (role(message) !== 'toolresult' || typeof message.toolCallId !== 'string' || !calls.has(message.toolCallId)) return null;
       if (receipts.some((r) => r.toolCallId === message.toolCallId)) return null;
       const bound = calls.get(message.toolCallId);
-      const receipt = receiptFor(bound.call, message, { runId: bound.runId || rowRunId(message, eventData), args: bound.call.args });
+      const receipt = receiptFor(bound.call, message, toolName, { runId: bound.runId || rowRunId(message, eventData), args: bound.call.args });
       receipts.push(receipt);
       return receipt;
     },

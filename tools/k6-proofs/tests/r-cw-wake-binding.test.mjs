@@ -22,6 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { viaToolSearch } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SESSION = 'agent:main:r-cw-disposable';
@@ -120,6 +121,24 @@ for (const row of Object.keys(ROWS)) {
     if (row !== 'R-CW-3') assert.match(log, new RegExp(`\\[${row}\\] VERDICT: PASS-candidate`));
   });
 
+  // Tool Search seat (run 44245772142, openclaw/openclaw#129388 H1): the call is
+  // dispatch_action and its result the { tool, result } envelope. Red before the
+  // unwrap with the live run's reason, hop 1: the continue_work result is not "scheduled".
+  test(`${row} through Tool Search: the dispatched continue_work and its envelope bind the same chain`, async () => {
+    const { evidence, log } = await fire(row, { manifest: manifestFor(row), gateway: viaToolSearch(oneHopGateway(spec, { wakeReply: true })) });
+    assert.equal(evidence[spec.scheduledField], true, evidence.chain_reason);
+    assert.equal(evidence[spec.wokeField], true, evidence.chain_reason);
+    if (row !== 'R-CW-3') assert.match(log, new RegExp(`\\[${row}\\] VERDICT: PASS-candidate`));
+  });
+
+  test(`${row} through Tool Search: an envelope naming another tool never schedules the hop`, async () => {
+    const gateway = viaToolSearch(oneHopGateway(spec, { wakeReply: true }), { envelope: () => ({ name: 'sessions_spawn', id: 'openclaw:core:sessions_spawn' }) });
+    const { evidence, log } = await fire(row, { manifest: manifestFor(row), gateway });
+    assert.notEqual(evidence[spec.scheduledField], true);
+    assert.equal(evidence.chain_reason, 'hop 1: the continue_work result is not "scheduled"');
+    assert.doesNotMatch(log, new RegExp(`\\[${row}\\] VERDICT: PASS-candidate`));
+  });
+
   test(`${row}: the shipped reason carries no wake sentinel`, () => {
     const manifest = JSON.parse(readFileSync(path.join(root, 'manifests', spec.manifest), 'utf8'));
     assert.doesNotMatch(manifest.invocation.reason, new RegExp(spec.woke));
@@ -178,4 +197,19 @@ test('R-CW-4: three transcript-bound hops and CW4-DONE in the third wake turn pa
   assert.equal(evidence.hop3_scheduled, true);
   assert.equal(evidence.final_done, true);
   assert.match(log, /\[R-CW-4\] VERDICT: PASS-candidate/);
+});
+
+test('R-CW-4 through Tool Search: three dispatched hops and their envelopes pass (#129388 H1)', async () => {
+  const { evidence, log } = await fire('R-CW-4', { manifest: path.join(root, 'manifests', 'r-cw-4.json'), gateway: viaToolSearch(chainGateway({ withTranscript: true })) });
+  assert.equal(evidence.hop1_scheduled, true, evidence.chain_reason);
+  assert.equal(evidence.hop3_scheduled, true, evidence.chain_reason);
+  assert.equal(evidence.final_done, true, evidence.chain_reason);
+  assert.match(log, /\[R-CW-4\] VERDICT: PASS-candidate/);
+});
+
+test('R-CW-4 through Tool Search: an envelope for a same-named MCP tool schedules nothing', async () => {
+  const gateway = viaToolSearch(chainGateway({ withTranscript: true }), { envelope: () => ({ id: 'mcp:lookalike:continue_work', source: 'mcp' }) });
+  const { evidence, log } = await fire('R-CW-4', { manifest: path.join(root, 'manifests', 'r-cw-4.json'), gateway });
+  assert.notEqual(evidence.hop1_scheduled, true);
+  assert.doesNotMatch(log, /\[R-CW-4\] VERDICT: PASS-candidate/);
 });

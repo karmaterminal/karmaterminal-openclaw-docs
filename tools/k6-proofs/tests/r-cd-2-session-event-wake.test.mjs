@@ -52,6 +52,7 @@ import {
 } from '../lib/r-cd-2-authoritative-receipt.mjs';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { viaToolSearch } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const scenarioPath = path.join(root, 'scenarios/r-cd-2-silent-wake.js');
@@ -176,7 +177,7 @@ async function fireRcd2(options = {}) {
   try {
     fired = await runK6Scenario({
       scenarioPath,
-      gateway: scriptedGateway({ clock, ...options }),
+      gateway: (options.wrap || ((gateway) => gateway))(scriptedGateway({ clock, ...options })),
       env: {
         OPENCLAW_ROW_MANIFEST: manifestPath,
         OPENCLAW_GATEWAY_TOKEN: SIGNING_KEY,
@@ -304,4 +305,24 @@ test('the wake acknowledgement must be the exact assistant answer, not echoed or
     });
     assertWakeUnbound(fired);
   }
+});
+
+// Tool Search seat (run 44245772142, openclaw/openclaw#129388 H1). The dispatch
+// prompt itself asks for tool_search then dispatch_action (r-cd-2-silent-wake.js),
+// so the send run's continue_delegate is dispatch_action { id, args } and its result
+// the { tool, result } envelope. Before the unwrap a bound call read as a failed
+// delegate (the adjudication's latent H1 behind R-CD-2's live delegate-not-spawned).
+test('through Tool Search: the dispatched continue_delegate and its envelope are same-run delegate success', async () => {
+  const fired = await fireRcd2({ wrap: viaToolSearch });
+  assert.equal(fired.evidence.typed_delegate_success_same_run, true);
+  assert.notEqual(fired.evidence.typed_delegate_failed_same_run, true);
+  assert.deepEqual(fired.failing, []);
+  assert.equal(fired.receipt.failureCategory, 'missing-continuation-topology');
+});
+
+test('through Tool Search: an envelope naming another tool is never same-run delegate success', async () => {
+  const fired = await fireRcd2({ wrap: (gateway) => viaToolSearch(gateway, { envelope: () => ({ name: 'sessions_spawn', id: 'openclaw:core:sessions_spawn' }) }) });
+  assert.notEqual(fired.evidence.typed_delegate_success_same_run, true);
+  assert.notEqual(fired.receipt.failureCategory, 'missing-continuation-topology');
+  assert.notEqual(fired.receipt.verdict, 'PASS-candidate');
 });

@@ -37,7 +37,7 @@
 //
 // k6 and Node compatible: no k6 or Node imports.
 
-import { toolCallTarget, toolResultNameAdmits } from './tool-call-identity.mjs';
+import { toolCallTarget, toolResultNameAdmits, unwrapToolResult } from './tool-call-identity.mjs';
 
 export const HEARTBEAT_RESPOND_TOOL = 'heartbeat_respond';
 const HARNESS_MARKER = '[k6-proof-harness]';
@@ -58,17 +58,6 @@ export function hasExactSentinelText(text, marker, nonce) {
 
 function isRecord(value) {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
-
-function parseJsonRecord(text) {
-  const trimmed = String(text || '').trim();
-  if (!trimmed.startsWith('{')) return null;
-  try {
-    const parsed = JSON.parse(trimmed);
-    return isRecord(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
 }
 
 function sentinelField(record, marker, nonce) {
@@ -115,22 +104,15 @@ export function heartbeatRespondCalls(message) {
 /**
  * A toolResult row that can answer a heartbeat_respond call, or null. Under
  * Tool Search the row is named dispatch_action, so every caller pairs it with
- * a heartbeatRespondCalls call by toolCallId.
+ * a heartbeatRespondCalls call by toolCallId, and its answer sits inside the
+ * { tool, result } envelope (unwrapToolResult, #129388 H1). chat.history drops
+ * details, so the answer is its JSON content text, else its details; an
+ * unreadable row answers with an empty payload, which accepts nothing.
  */
 export function heartbeatRespondResult(message) {
   if (!isRecord(message) || String(message.role || '').toLowerCase() !== 'toolresult') return null;
   if (!toolResultNameAdmits(message, HEARTBEAT_RESPOND_TOOL)) return null;
-  // chat.history drops details; prefer the content text, fall back to details.
-  let payload = null;
-  if (Array.isArray(message.content)) {
-    for (const part of message.content) {
-      if (isRecord(part) && part.type === 'text') payload = parseJsonRecord(part.text);
-      if (payload) break;
-    }
-  } else if (typeof message.content === 'string') {
-    payload = parseJsonRecord(message.content);
-  }
-  if (!payload && isRecord(message.details)) payload = message.details;
+  const payload = unwrapToolResult(message, HEARTBEAT_RESPOND_TOOL).payload;
   return {
     toolCallId: typeof message.toolCallId === 'string' ? message.toolCallId : null,
     isError: message.isError === true,

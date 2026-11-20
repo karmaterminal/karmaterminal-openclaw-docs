@@ -61,7 +61,9 @@ test('only the process-local rows declare a verdict cap today', async () => {
     if (Object.prototype.hasOwnProperty.call(row, 'verdictCap')) declared.push(row.rowId);
     if (row.transport === 'process-local') assert.ok(row.verdictCap, `${file} is process-local without a verdictCap`);
   }
-  assert.deepEqual(declared, ['R-CW-5', 'R-CW-6']);
+  // R-CD-RECIPIENT-AUTHORITY-MATRIX is process-local too: its only producer is the matrix
+  // launcher and its fixture driver (docs#549, split from the restart control after docs#615).
+  assert.deepEqual(declared, ['R-CD-RECIPIENT-AUTHORITY-MATRIX', 'R-CW-5', 'R-CW-6']);
 });
 
 test('the row-manifest schema declares verdictCap with its fixed cap and no adopted superseding authority', async () => {
@@ -192,11 +194,12 @@ test('(a) the RETURN-COVENANT restart control is declared a disposable real proc
   // What a run is expected to produce stays the PASS the supervised cases can earn.
   assert.equal(row.liveRunSafety.expectedArtifactClass, 'PASS-candidate');
 
-  // (b) Across the whole catalog, exactly R-CW-5 and R-CW-6 are capped, both as process-local fixtures.
+  // (b) Across the whole catalog, exactly the process-local rows are capped, all as process-local
+  // fixtures: R-CW-5, R-CW-6 and the recipient-authority matrix, never the restart control.
   const files = (await readdir(manifestsDir)).filter((name) => name.endsWith('.json')).sort();
   const entries = await Promise.all(files.map(async (file) => ({ file, manifest: await manifest(file) })));
   const caps = verdictCapCatalog(entries);
-  assert.deepEqual([...caps.keys()].sort(), ['R-CW-5', 'R-CW-6']);
+  assert.deepEqual([...caps.keys()].sort(), ['R-CD-RECIPIENT-AUTHORITY-MATRIX', 'R-CW-5', 'R-CW-6']);
   for (const cap of caps.values()) assert.equal(cap.artifactClass, 'process-local-fixture');
 });
 

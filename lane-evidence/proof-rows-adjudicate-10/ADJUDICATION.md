@@ -7,22 +7,33 @@ Bound issue: openclaw/openclaw#129388.
 
 **product 0 / harness 10 / infra 0 / new 0 / undecidable 0.**
 
-None of the 10 rows shows an authoritative runtime contradiction on ab5a. In every row the
-row-bound Tempo trace (correlated by the row's own reason hash, `resultClass: unique`) or R-CD-2's
-signed topology shows the continuation doing what the row asks. All 10 go PARTIAL at a harness
-reader, and one defect explains all 10:
+None of the 10 rows shows an authoritative runtime contradiction on ab5a. The product side is
+shown by different receipts per row:
+
+- seven rows (R-CD-1, R-CD-SILENT, R-CW-1..4, DELEGATE-SELF) have a Tempo trace correlated by the
+  row's own reason hash (`resultClass: unique`) showing the continuation doing what the row asks;
+- R-CD-2 has its signed topology;
+- R-RC-1 and R-CW-TOKEN have only window-attributed traces (`seat-tool-dispatch-window`: tool name
+  plus a time window on a live, unit-wide gateway). Their product side rests on product bytes and
+  time-aligned journal lines, not on a row-bound trace.
+
+Every row goes PARTIAL at a harness reader. One defect explains nine rows directly; R-CD-2 failed
+one step earlier, at call/result binding, with the same defect latent behind it:
 
 - **H1. The harness never unwraps the Tool Search result envelope.**
   - On emeric's live gateway Tool Search is on. It is the default when `tools.toolSearch` is
-    unset (openclaw ab5a `src/agents/tool-search-config.ts:11`), and only `message` stays direct
-    (`src/agents/tool-surface-plan.ts:145-151`).
+    unset (openclaw ab5a `src/agents/tool-search-config.ts:11`).
+  - The surface plan holds only `message` direct for non-ollama models
+    (`src/agents/tool-surface-plan.ts:145-151`). Core coding tools and `catalogMode: "direct-only"`
+    tools also stay direct (`tool-search-catalog.ts:210-229`). None of the four tools these rows use
+    is either at ab5a.
   - So `continue_work`, `continue_delegate`, `sessions_spawn` and `request_compaction` run through
     `dispatch_action`. Their result comes back as an envelope:
     - content text: `{"tool":{id,name,source},"result":<inner result without details>}`;
     - `details`: `{tool:<catalog entry>, result:<inner result>}`;
     - source: `src/agents/tool-search.ts:373-426` (envelope `:412`, details `:421`).
-  - The inner `{"status":"scheduled",…}` is one level down. Four harness readers take the first
-    JSON object they find and look for a top-level `status`:
+  - The inner `{"status":"scheduled",…}` sits inside `result.content[].text`, as a JSON string.
+    Four harness readers take the first JSON object they find and look for a top-level `status`:
     - `sentinel-binding.mjs:175` `toolResultPayload`, which feeds `continue-work-chain.mjs:56`,
       `createToolReceiptTracker` (`:231`) and `toolReceiptsFromHistory` (`:205`);
     - `cw-delegate-self-receipt.mjs:45`;
@@ -30,22 +41,26 @@ reader, and one defect explains all 10:
     - `request-compaction-receipt.js:76`, which reads `details` first and so gets the `callResult`.
   - Docs PR #617 (merged `d3d2094b`, 2026-10-31) taught the matchers to unwrap the **call**
     (`tool-call-identity.mjs:59`). No reader unwraps the **result**.
-  - The 2026-10-30 harness review predicted this exact failure set: `REVIEW-harness-sentinel-echo.md`
-    N1, "every positive receipt fail[s] closed when the call is recorded as `dispatch_action`…
-    R-CD-1/3/SILENT…, R-CW-1..4…, R-CW-TOKEN".
+  - The 2026-10-30 harness review (`REVIEW-harness-sentinel-echo.md` N1, `:232-237`) flagged 7 of
+    these rows as failing closed on a Tool Search seat. But N1 is about matching the **call** by name,
+    which #617 fixed. It never names the result envelope, and its own table (`:309`) treats toolResult
+    content as directly parseable. H1 is a gap that review missed, not one it predicted.
   - Reproduced offline on the run's own harness bytes (docs `fe8e3c21`) and on docs main
-    (`54d750e8`): 20 of 20 cases held on both (`repro/`). The dispatched shape reproduces each row's
-    recorded failure string, and the direct shape passes the same gate.
+    (`54d750e8`): 20 of 20 cases held on both (`repro/`). For nine rows the dispatched shape reproduces
+    the recorded failure, and the direct shape passes the same gate. R-CD-2's recorded category is
+    not reproduced: see its row.
 
-Why this is the first time it shows: every last PASS of these rows was fired on 2026-10-29/30, at
-docs `215235ed` / `860bd4ec`, on an isolated gateway (`openai/gpt-6-sol`).
+Why this is the first time it shows: every last **fired** PASS-candidate of these rows dates from
+2026-10-29/30, at docs `215235ed` / `860bd4ec`, on an isolated gateway (`openai/gpt-6-sol`).
+(R-CD-2's latest manifest `pass` is older still: 6ee7eca2, 2026-07-17, docs 246c447a.)
 
 - That harness predates #617. None of `continue-work-chain.mjs`, `sentinel-binding.mjs` or
   `tool-call-identity.mjs` exists at `215235ed`.
 - That seat used direct tool names. R-RC-1's call id was `exec-<uuid>` and its status was read at
   the top level. N1 records R-CD-2's `typedDelegateSuccessSameRun: true` there.
-- No `run-result.json` for these rows was committed on any fetched branch after 2026-10-30. The other two docs runs since
-  then fired no row (44243905837, 44082334447 and 44082522523 all failed with no artifact). So run
+- No `run-result.json` for these rows was committed on any fetched branch after 2026-10-30. The
+  other three docs proof runs since then fired no row: 44243905837, 44082334447 and 44082522523
+  all failed with no artifact. So run
   44245772142 is **the first live fire of the post-#617 predicates**, and the first on a Tool Search
   seat.
 
@@ -58,16 +73,16 @@ docs `215235ed` → `fe8e3c21`.
 
 | row | last PASS | diff axes (product / harness) | class | evidence | owning-issue suggestion |
 |---|---|---|---|---|---|
-| R-CD-1 | f15237ec, run `20261030T012952Z-r-cd-1-44aa4c89`, docs 215235ed, emeric-isolated-composite, state pass (audit: unverified-echo-vulnerable) | product: same envelope bytes, different seat surface (Tool Search dispatch vs direct). Harness: #617 receipt tracker added | **harness (H1)** | only failing gate is `scheduled_receipt_observed` (→ `delegate_scheduled_sentinel`). `tool_invoke_accepted`, `child_return_bound` and `parent_return_event` are true. Trace unique: `continuation.delegate.dispatch` + `.fire` + tool span. Journal: `delegate-spawned hop=1`, `targeted-return Delivered` | docs: H1 |
-| R-CD-2 | manifest pass at 6ee7eca2 (docs 246c447a, run 29573369445). Latest fire f15237ec `20261030T013026Z-r-cd-2-44aa4c89`: PASS-candidate held **partial** by 🌊's ruling (a) (HMAC keyed to the gateway token) | same as above; the f152 seat used direct names (N1) | **harness (H1 certain; immediate sub-cause open)** | Signed receipt: `failureCategory: delegate-not-spawned`. All 14 topology checks and all joins are true: `typedTool`, `exactlyOneToolSpan`, dispatch + fire, `silentWake`, `nonceBinding`, `sendRunBinding`. So a product non-spawn is refuted. The same-run tracker never bound the nonce-bound call on the send run. If it had, H1 would still make it `tool-result-not-scheduled` (`repro` case `sameRunDelegate/dispatched-args`). The k6 log and journal are withheld by design | docs: H1 + H2; H3 before any pure-line fire. Ruling (a) still caps the row at PARTIAL |
+| R-CD-1 | f15237ec, run `20261030T012952Z-r-cd-1-44aa4c89`, docs 215235ed, emeric-isolated-composite, state pass (audit: unverified-echo-vulnerable) | product: same envelope shape (ab5a only adds `compact`), different seat surface (Tool Search dispatch vs direct). Harness: #617 receipt tracker added | **harness (H1)** | only failing gate is `scheduled_receipt_observed` (→ `delegate_scheduled_sentinel`). `tool_invoke_accepted`, `child_return_bound` and `parent_return_event` are true. Trace unique: `continuation.delegate.dispatch` + `.fire` + tool span. Journal: `delegate-spawned hop=1`, `targeted-return Delivered` | docs: H1 |
+| R-CD-2 | manifest pass at 6ee7eca2 (docs 246c447a, run 29573369445). Latest fire f15237ec `20261030T013026Z-r-cd-2-44aa4c89`: PASS-candidate held **partial** by 🌊's ruling (a) (HMAC keyed to the gateway token) | same as above; the f152 seat used direct names (N1) | **harness (call/result binding; H1 latent)** | Signed receipt: `failureCategory: delegate-not-spawned`, with `typedDelegateAttemptedSameRun:false` and `typedDelegateFailureFree:true`. All 14 topology checks and all 3 joins are true: `typedTool`, `exactlyOneToolSpan`, dispatch + fire, `silentWake`, `nonceBinding`, `sendRunBinding`. So a product non-spawn is refuted. The same-run tracker recorded no outcome: either it never bound the nonce-bound call (H2), or the paired result never arrived on the accepted run. Once bound, H1 would turn the outcome into `failed` (`repro` case `sameRunDelegate/dispatched-args`), which the resolver files as `provider-or-turn-failure` (`r-cd-2-authoritative-receipt.mjs:556-558`). The k6 log and journal are withheld by design | docs: H1 + H2; H3 before any pure-line fire. Ruling (a) still caps the row at PARTIAL |
 | R-CD-SILENT | manifest pass at 08c37a15, run `20261029T214550Z-r-cd-silent-7ec4c1cf`, docs 860bd4ec, pre-#617. The f15237ec PASS was **corrected to missing** on 2026-10-31 (confirmed echo) | as R-CD-1 | **harness (H1)** | only `scheduled_sentinel` false (`scheduled_receipt_observed` false, `scheduled_text_bound` true). Child completion, followup, parent internal context and no-channel-delivery are all true. Trace unique (delegate dispatch + fire). Journal: spawned + targeted return | docs: H1. No PASS exists under the current predicate |
-| R-CW-1 | f15237ec refire `20261030T021254Z-r-cw-1-bca3fca7`, docs 215235ed, pass (audit: CW-WOKE at 5.69 s, likely wake-input echo) | same envelope bytes; harness moved from event text to the transcript chain (#617) | **harness (H1)** | `chain_reason: hop 1: the continue_work result is not "scheduled"`, the exact string the repro's dispatched case returns. Trace unique: `continuation.work` + `.fire`. Journal: parked hop 1, then `work-wake hop=1` 5.0 s later. Later gates were never evaluated | docs: H1 |
+| R-CW-1 | f15237ec refire `20261030T021254Z-r-cw-1-bca3fca7`, docs 215235ed, pass (audit: CW-WOKE at 5.69 s, likely wake-input echo) | same envelope shape; harness moved from event text to the transcript chain (#617) | **harness (H1)** | `chain_reason: hop 1: the continue_work result is not "scheduled"`, the exact string the repro's dispatched case returns. Trace unique: `continuation.work` + `.fire`. Journal: parked hop 1, then `work-wake hop=1` 5.0 s later. Later gates were never evaluated | docs: H1 |
 | R-CW-2 | f15237ec `20261030T014440Z-r-cw-2-44aa4c89`, docs 215235ed, pass | as R-CW-1 | **harness (H1)** | same chain reason; trace unique; journal parked hop 1 → wake hop 1 | docs: H1 |
 | R-CW-3 | f15237ec `20261030T014534Z-r-cw-3-44aa4c89`: runner PARTIAL (manual receipt) → reviewed pass. Never a runner PASS, by design | as R-CW-1 | **harness (H1)** | same chain reason. The review join is `review-join-invalid` only because its `scheduledSentinel`/`wakeObserved` checks mirror the chain. The other 14 checks all passed, including every redaction and telemetry check (no raw reason in Tempo or public artifacts). Trace unique | docs: H1. The manual review receipt stays owed |
 | R-CW-4 | f15237ec `20261030T014605Z-r-cw-4-44aa4c89`, docs 215235ed, pass | as R-CW-1 | **harness (H1)** | chain stops at hop 1. Trace: 3 `continue_work` tool spans and 3 `continuation.work`. Journal: wakes hop 1/2/3. The two `work-finish-not-committed` lines also appear in the last-PASS journal (f152, 2026-10-29): unchanged behaviour | docs: H1 |
 | R-CW-DELEGATE-SELF-CONTINUATION | f15237ec `20261030T014645Z-…-44aa4c89`, docs 215235ed, pass | as R-CW-1 | **harness (H1)** | `child_hops.reason: continue_work result is not "scheduled"` (`cw-delegate-self-receipt.mjs:45` admits the `dispatch_action` name but parses the envelope). Child spawned and done. Journal: child `work-wake hop=2`. Trace unique. Parent return never read (0 reads, downstream) | docs: H1 |
-| R-CW-TOKEN | manifest pass at 08c37a15, run `20261029T215228Z-r-cw-token-7ec4c1cf`, docs 860bd4ec. The f15237ec PASS was **corrected to missing** (confirmed echo) | as R-CD-1 (sessions_spawn) | **harness (H1)** | `spawn_receipt_status: null` from chat.history: the sessions_spawn envelope, so there is no `accepted` and no `childSessionKey`. The child is never subscribed and everything downstream goes unread. Journal: `bracket-parse: kind=work`, parked hop 1, wake hop 1 (the token form fired). Product observation O1 below | docs: H1. O1 and parent-return reachability are open post-fix risks |
-| R-RC-1 | f15237ec `20261030T014819Z-r-rc-1-44aa4c89`, docs 215235ed, pass (audit: unverified-unmeasured-receipt) | product: **dd32c17eba** (2026-10-30, in ab5a and 9476c7aa, not in f152) made an unmeasured request answer `guard: context_unmeasured`. Harness: dispatcher-aware call binding | **harness (H1; H4 latent)** | `tool_result_status: invalid` is the scenario's fallback when `receipt.status` is missing. The k6 log prints the receipt: `{"tool":{"id":"openclaw:core:request_compaction","source":"openclaw","sourceName":"core","name":"request_compaction","label":"Compaction",…`. That is the dispatcher's `details` (`tool-search.ts:421`), not the tool's answer. The trace shows `request_compaction` executed in a 2-model-call turn | docs: H1 + H4 |
+| R-CW-TOKEN | manifest pass at 08c37a15, run `20261029T215228Z-r-cw-token-7ec4c1cf`, docs 860bd4ec. The f15237ec PASS was **corrected to missing** (confirmed echo) | as R-CD-1 (sessions_spawn) | **harness (H1)** | `spawn_receipt_status: null` from chat.history: the sessions_spawn envelope, so there is no `accepted` and no `childSessionKey`. The child is never subscribed and everything downstream goes unread. The journal shows `bracket-parse: kind=work`, parked hop 1 and wake hop 1 in the row window. That fits the token form firing, but the journal is unit-wide and the trace only window-attributed, so nothing public proves the child emitted the token. Beyond the first gate the row is undecidable from public artifacts. Product observation O1 below | docs: H1. O1 and parent-return reachability are open post-fix risks |
+| R-RC-1 | f15237ec `20261030T014819Z-r-rc-1-44aa4c89`, docs 215235ed, pass (audit: unverified-unmeasured-receipt) | product: **dd32c17eba** (2026-10-30, in ab5a and 9476c7aa, not in f152) made an unmeasured request answer `guard: context_unmeasured`. Harness: dispatcher-aware call binding | **harness (H1; H4 latent)** | `tool_result_status: invalid` is the scenario's fallback when `receipt.status` is missing. The k6 log prints the receipt: `{"tool":{"id":"openclaw:core:request_compaction","source":"openclaw","sourceName":"core","name":"request_compaction","label":"Compaction",…`. That is the dispatcher's `details` (`tool-search.ts:421`), not the tool's answer. The window-attributed trace shows `request_compaction` executed in a 2-model-call turn, beside an unnamed `openclaw.tool.execution` span, the dispatcher's own | docs: H1 + H4 |
 
 ## The harness defects (karmaterminal/karmaterminal-openclaw-docs)
 
@@ -75,6 +90,12 @@ docs `215235ed` → `fe8e3c21`.
   also decide R-CD-3's compaction and staging receipts (`r-cd-3-lifeboat.mjs`),
   R-CD-MODEL-TOKEN's spawn receipt and R-RC-2's receipt. So H1 reaches past these 10 rows on any
   Tool Search seat.
+  - A fifth reader has the same pattern: `wake-turn-receipt.mjs:120-139,158-161`
+    (`heartbeatRespondResult`), which requires a top-level `status:'accepted'`. It feeds
+    DELEGATE-SELF's parent-return receipt (`cw-delegate-self-receipt.mjs:204`) and R-CD-4. R-CD-4
+    PASSed in this run, and whether `heartbeat_respond` is dispatched at ab5a was not checked.
+  - `r-rc-1-threshold-reject.js:250` classifies live events without a `toolCallId`, so a dispatched
+    result event reads as unrelated. R-RC-1's receipt came from the `sessions.get` read.
   - A fix must read the inner result from both forms:
     - content text `result.content[].text`, parsed as JSON;
     - `details.result.details`.
@@ -86,12 +107,15 @@ docs `215235ed` → `fe8e3c21`.
     (`core-tool-facts.ts:5`). It does not fix H1 as written.
 - **H2. Call binding covers fewer argument shapes than the product accepts.**
   - `toolCallTarget` (`tool-call-identity.mjs:59-67`) reads only a record under `args`.
-  - The dispatcher also accepts `input`, dotted `args.*` keys and flattened top-level arguments
-    (`tool-search-request.ts:30-88`, `:91-105`).
+  - The dispatcher also accepts `input`, dotted `args.*` keys, flattened top-level arguments, the
+    `toolId`/`name` selectors (`tool-search-request.ts:14-18`), and a selector nested inside `args`
+    that `prepareToolSearchDispatcherArguments` hoists (`tool-search-request.ts:30-88`, `:91-105`).
+    `toolCallTarget` reads only `arguments.id`.
   - A call in any of those shapes executes, but the harness sees no nonce-bound call
     (`repro` cases `toolCallTarget/shapes` and `sameRunDelegate/dispatched-*`).
-  - This is one candidate for R-CD-2's unbound call. A run-stamp mismatch between the row's
-    `__openclaw.runId` and the send run's id is the other.
+  - This is one candidate for R-CD-2's missing outcome. The other is a result row that never
+    reached the tracker on the accepted run: a row run-stamp that differs from `acceptedRunId`, or
+    the row absent from the stream.
   - **Deciding receipt:** the private R-CD-2 acquisition's send-run `session.message` rows. That
     means the nonce-bound toolCall part's `arguments` shape and its row run-stamp, compared with
     `acceptedRunId`.
@@ -113,7 +137,8 @@ docs `215235ed` → `fe8e3c21`.
 ## Product-side observations (not the cause of any PARTIAL; same bytes on the pure line)
 
 - **O1 (R-CW-TOKEN).** `[tools] dispatch_action failed: Error: Followup has no retained original
-  caller policy.` was logged at 22:22:37, inside the child's hop-1 wake window.
+  caller policy.` was logged at 22:22:37, in the row window, 8 s after a `work-wake hop=1` that fits
+  the child's hop 1 (that attribution is not provable from public artifacts).
   - Source: `sessions-send-followup-custody.ts:76-81`. A `sessions_send` followup needs the original
     gateway caller in scope, and a token-form (system-event) wake carries none.
   - The rows don't show which session made the call: session keys are redacted, and the capture is
@@ -129,8 +154,8 @@ docs `215235ed` → `fe8e3c21`.
   are in the last-PASS journal: not a regression.
 - **The journal is corroboration only.** It is unit-wide on a live gateway, with session keys
   redacted. In R-CW-3's window it caught an unrelated `Context overflow … (precheck)` on a 3-message
-  session (`preflightEstimatedTokens=31772`) that the row cannot own. The row-bound product receipts
-  are the reason-hash-correlated traces.
+  session (`preflightEstimatedTokens=31772`) that the row cannot own. The row-bound product receipts are
+  the reason-hash-correlated traces, for the seven rows that have them.
 
 ## The pure candidate question (9476c7aa)
 
@@ -140,15 +165,18 @@ adjudication rests on, compared across the two lines:
 - **The composite and the pure line diverge exactly where these rows exercise.**
   - They are different lines: merge-base `541d0428`; ab5a has 284 commits the pure line lacks, and
     the pure line has 3,062 that ab5a lacks.
-  - Commit **7a8857205d** ("keep continue_work and continue_delegate direct beside sessions_yield",
-    2026-11-19, replayed onto the pure rebuild for #129388) is on the pure line only. It sets
+  - Commit **7a8857205d** ("keep continue_work and continue_delegate direct beside sessions_yield")
+    is on the pure line only. It was committed 2026-11-19 as a cherry-pick of b199126db0, which is
+    not in ab5a, and replayed onto the pure rebuild for #129388. It sets
     `catalogMode: "direct-only"` (`continue-work-tool.ts:46`, `continue-delegate-tool.ts:265`).
     Direct-only tools leave the catalog (`tool-search-catalog.ts:218`, `:616-617`).
   - So on the pure line these two tools are **not** dispatched, and H1 does not touch R-CW-1..4,
     R-CD-1, R-CD-SILENT, R-CD-2 or DELEGATE-SELF's continuation calls.
   - H1 still hits `sessions_spawn` (R-CW-TOKEN, MODEL-TOKEN) and `request_compaction` (R-RC-1,
-    R-RC-2, R-CD-3). The envelope bytes are unchanged at 9476c7aa: `tool-search.ts:464`, details
-    at `:473`, Tool Search default on.
+    R-RC-2, R-CD-3).
+  - The envelope's **shape** is unchanged at 9476c7aa: `tool-search.ts:464`, details = callResult at
+    `:473`, Tool Search default on. Its bytes are not: the pure line drops `compact:true`, the
+    serializer is always compact, and budget/partial logic is added.
   - The run-k6-proofs binding check ("prove the continuation surface is unchanged by the extra
     bytes") therefore **fails** for ab5a against 9476c7aa. This run's results transfer to the pure
     line in neither direction.
@@ -169,7 +197,8 @@ Facts:
 - **Measured on emeric at ab5a in this run:**
   - window 922,000 (R-CD-3 `fill_context_tokens`);
   - first fill turn: 40,000 filler chars took the total to 56,813 tokens, so each model call
-    carries about 47–49k tokens of prompt (R-CD-4's journal shows a 45,568-token cache read);
+    carries about 47–51k tokens of prompt (at 0.25–0.14 tokens/char). R-CD-4's journal shows an
+    earlier request's 45,568-token cache read;
   - R-RC-1's turn made 2 model calls; the R-CW-TOKEN trace holds 7.
 - **R-CD-3 fill.** Target 0.77 × 922k = 709,940 tokens. Each fill turn re-sends the growing total:
   - 0.21 tokens/char: 8 turns, Σ ≈ **3.22M** (docs#627's figure);
@@ -179,8 +208,9 @@ Facts:
   `continue_delegate` and `request_compaction` are cataloged, so `tool_search`/`tool_describe`
   steps can make it about 4 calls ≈ 2.84M. The compaction summarizer reads about 710k more, outside
   the meter.
-- **R-CD-3 metered total**, estimated: about **4.8–6.4M at 0.21**, about **5.9–7.4M at 0.14**. Not
-  measured.
+- **R-CD-3 metered total**, estimated as fill + proof turn + about 0.15–0.3M for the
+  post-compaction lifeboat and return turns: about **4.8–6.4M at 0.21**, about **5.9–7.4M at 0.14**.
+  Fill + proof turn alone is 4.64–6.06M and 5.72–7.14M. Not measured.
 - **The other rows.** About 20 rows drive model turns in a full run: 14 dispatched here by evidence
   flags, plus R-CD-4, plus R-CD-3, R-CD-TOKEN and the three MODEL-* rows that did not dispatch. At
   about 48k metered tokens per call, 3.2M buys roughly **66 model calls** in total. The rest of the
@@ -199,8 +229,17 @@ Options:
 
 ## Limits of this adjudication
 
-- R-CD-2's immediate sub-cause (H2 or run stamp) and O1's actor are not decidable from public
-  artifacts. The deciding receipts are named above.
+- R-CD-2's immediate sub-cause (H2, or a result never observed on the accepted run) and O1's actor
+  are not decidable from public artifacts. The deciding receipts are named above.
+- For the CW rows, `scheduledResultIndex` (`continue-work-chain.mjs:56`) also returns -1 when the
+  result row is absent from the turn, is an error, or cannot be parsed.
+  - The artifacts exclude timing (17–20 history reads), a product rejection (work and fire spans
+    OK, tool span status UNSET not ERROR, journal park then wake) and truncation (size).
+  - They only weakly exclude a call-id mismatch.
+  - They cannot exclude a result row missing from or hidden in chat.history.
+  - Every surviving alternative is on the observer side, so the harness classification does not
+    depend on H1 being the exact mechanism for those rows. H1 is the one the product bytes predict
+    and the offline repro reproduces.
 - "Downstream gates would pass once H1 is fixed" is **not** claimed. The chain stops at its first
   failed gate, so later gates (sentinel order, wake row, done sentinel, parent return) were never
   evaluated. The diagnostics are consistent with them holding (`scheduled_text_seen`,

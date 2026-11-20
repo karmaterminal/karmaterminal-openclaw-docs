@@ -58,7 +58,7 @@ function scheduledResultIndex(messages, toolCallId, from, end) {
     const m = messages[i];
     if (role(m) !== 'toolresult' || m.toolCallId !== toolCallId) continue;
     if (m.isError === true) return -1;
-    return toolResultPayload(m)?.status === 'scheduled' ? i : -1;
+    return toolResultPayload(m, 'continue_work')?.status === 'scheduled' ? i : -1;
   }
   return -1;
 }

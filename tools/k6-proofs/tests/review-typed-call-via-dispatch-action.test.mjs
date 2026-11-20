@@ -34,6 +34,7 @@ import { fileURLToPath } from 'node:url';
 import { ROW_METHODS } from '../lib/child-observer.mjs';
 import { extractEvidence } from '../scripts/extract-k6-evidence.mjs';
 import { runK6Scenario } from './helpers/k6-node-runtime.mjs';
+import { resultRow } from './helpers/tool-search-envelope.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const user = (text) => ({ role: 'user', content: [{ type: 'text', text }] });
@@ -96,7 +97,8 @@ function modelTokenGateway(world) {
           return ok({ messages: [
             user(`[Subagent Task]\n\n${childTask}`),
             { role: 'assistant', content: [typedCall('cd-1', 'continue_delegate', { task: delegateTask, delaySeconds: 1, model: MODEL }, world.via)], __openclaw: { runId: 'run-h' } },
-            { role: 'toolResult', toolCallId: 'cd-1', toolName: world.via === 'dispatch_action' ? 'dispatch_action' : 'continue_delegate', content: [{ type: 'text', text: JSON.stringify({ status: 'scheduled', mode: 'normal', delaySeconds: 1, model: MODEL }) }], __openclaw: { runId: 'run-h' } },
+            // Under Tool Search the result is the dispatcher's { tool, result } envelope (#129388 H1).
+            resultRow({ toolCallId: 'cd-1', tool: 'continue_delegate', payload: { status: 'scheduled', mode: 'normal', delaySeconds: 1, model: MODEL }, via: world.via === 'dispatch_action' ? 'dispatch' : 'direct', runId: 'run-h' }),
             say(`MODEL-TOKEN-HOP1 ${nonce}`, 'run-h'),
           ], hasMore: false });
         }
@@ -183,7 +185,7 @@ function cwTokenGateway(world) {
           user(`[Subagent Task] ${task}`),
           // The child ignored "Do not call the continue_work tool": the typed tool scheduled hop 2.
           { role: 'assistant', content: [typedCall('cw-1', 'continue_work', { delaySeconds: 5, reason: 'hop 2' }, world.via)], __openclaw: { runId: 'run-c1' }, timestamp: 8 },
-          { role: 'toolResult', toolCallId: 'cw-1', toolName: world.via === 'dispatch_action' ? 'dispatch_action' : 'continue_work', content: [{ type: 'text', text: JSON.stringify({ status: 'scheduled', delaySeconds: 5 }) }], __openclaw: { runId: 'run-c1' }, timestamp: 9 },
+          resultRow({ toolCallId: 'cw-1', tool: 'continue_work', payload: { status: 'scheduled', delaySeconds: 5 }, via: world.via === 'dispatch_action' ? 'dispatch' : 'direct', runId: 'run-c1', extra: { timestamp: 9 } }),
           say(`TOKEN-HOP1 ${nonce}`, 'run-c1', { timestamp: 10 }),
           user('[continuation:wake] Turn 1/10. The agent elected to continue working. Prior reason: "hop 2"'),
           say(`TOKEN-HOP2-DONE ${nonce} TOKEN ${MINTED}`, 'run-c2', { timestamp: 20 }),

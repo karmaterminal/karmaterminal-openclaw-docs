@@ -8,10 +8,11 @@
 // carries the row nonce) and the toolResult for that toolCallId:
 //   assistant part { type:"toolCall", id, name:"continue_delegate", arguments:{ task } }
 //   { role:"toolResult", toolCallId, toolName, isError?, content:[{ type:"text", text:'{"status":"scheduled",...}' }] }
-// both stamped __openclaw.runId. Success = a nonce-bound call and its
+// both stamped __openclaw.runId. Under Tool Search the call is dispatch_action
+// { id, args } and its result the { tool, result } envelope. Success = a nonce-bound call and its
 // non-error result with status "scheduled", both on the accepted send run.
 
-import { toolCallTarget } from './tool-call-identity.mjs';
+import { toolCallTarget, unwrapToolResult } from './tool-call-identity.mjs';
 import { messageRunId } from './wake-turn-receipt.mjs';
 
 const TOOL = 'continue_delegate';
@@ -24,20 +25,11 @@ function toolNameMatches(name) {
   return typeof name === 'string' && (name === TOOL || name.endsWith(`__${TOOL}`));
 }
 
+// The tool's own status, through Tool Search's { tool, result } envelope when
+// the row is the dispatcher's (#129388 H1). An unreadable row has none.
 function resultStatus(message) {
-  const parts = Array.isArray(message.content) ? message.content
-    : typeof message.content === 'string' ? [{ type: 'text', text: message.content }] : [];
-  for (const part of parts) {
-    if (!isRecord(part) || part.type !== 'text' || typeof part.text !== 'string') continue;
-    const text = part.text.trim();
-    if (!text.startsWith('{')) continue;
-    try {
-      const parsed = JSON.parse(text);
-      if (isRecord(parsed) && typeof parsed.status === 'string') return parsed.status;
-    } catch { /* not JSON */ }
-  }
-  if (isRecord(message.details) && typeof message.details.status === 'string') return message.details.status;
-  return null;
+  const status = unwrapToolResult(message, TOOL).payload?.status;
+  return typeof status === 'string' ? status : null;
 }
 
 /**

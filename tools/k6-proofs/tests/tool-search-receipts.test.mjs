@@ -10,6 +10,15 @@
 // other side of the same name-only matching: every positive receipt failed
 // closed on a Tool Search seat. They import only modules that predate the fix,
 // so they run unchanged against the pre-fix tree as its negative control.
+//
+// Correction (openclaw/openclaw#129388, finding H1 of lane proof-rows-adjudicate-10):
+// these fixtures first wrote the dispatcher's result row as the tool's own JSON
+// under the name dispatch_action. No product build writes that row: the
+// dispatcher returns the { tool, result } envelope (openclaw ab5a30ea79
+// tool-search.ts:396-422), so the readers passed here and failed live on run
+// 44245772142. The result rows below are the product envelope
+// (helpers/tool-search-envelope.mjs); tool-search-result-envelope.test.mjs
+// covers every reader and the shapes that must stay unreadable.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { continueWorkChain, tokenWorkHops } from '../lib/continue-work-chain.mjs';
@@ -18,6 +27,7 @@ import { createSameRunDelegateTracker } from '../lib/r-cd-2-same-run-delegate.mj
 import { findRequestCompactionReceipt, measuredRequestCompactionOutcome } from '../lib/request-compaction-receipt.js';
 import { boundToolCalls, createToolReceiptTracker, toolReceiptsFromHistory } from '../lib/sentinel-binding.mjs';
 import { createHeartbeatAckTracker, heartbeatAckFromHistory } from '../lib/wake-turn-receipt.mjs';
+import { resultRow } from './helpers/tool-search-envelope.mjs';
 
 const N = 'R-CD-1-1793326378000-abcd1234';
 const user = (text) => ({ role: 'user', content: [{ type: 'text', text }] });
@@ -28,15 +38,9 @@ const dispatched = (id, tool, args, { name = 'dispatch_action', runId = null } =
   content: [{ type: 'toolCall', id, name, arguments: { id: tool, args } }],
   ...(runId ? { __openclaw: { runId } } : {}),
 });
-/** Its toolResult row, named after the dispatcher. */
-const dispatchedResult = (id, payload, { runId = null, isError = false } = {}) => ({
-  role: 'toolResult',
-  toolCallId: id,
-  toolName: 'dispatch_action',
-  isError,
-  content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }],
-  ...(runId ? { __openclaw: { runId } } : {}),
-});
+/** Its toolResult row: named after the dispatcher, the tool's answer inside the { tool, result } envelope. */
+const dispatchedResult = (id, tool, payload, { runId = null, isError = false } = {}) =>
+  resultRow({ toolCallId: id, tool, payload, via: 'dispatch', runId, isError });
 
 test('a continue_delegate call made through dispatch_action is that call, with its inner args', () => {
   const calls = boundToolCalls(dispatched('cd-1', 'continue_delegate', { task: `k6 ${N}`, mode: 'silent' }), { toolName: 'continue_delegate', argField: 'task', needle: N });
@@ -64,7 +68,7 @@ test('R-CD-1/SILENT/3 scheduled receipt: a dispatch_action call pairs with its d
   const rows = [
     user(`[k6-proof-harness] ${N}`),
     dispatched('cd-1', 'continue_delegate', { task: `k6 ${N}`, delaySeconds: 1 }, { runId: 'run-d' }),
-    dispatchedResult('cd-1', { status: 'scheduled', mode: 'normal' }, { runId: 'run-d' }),
+    dispatchedResult('cd-1', 'continue_delegate', { status: 'scheduled', mode: 'normal' }, { runId: 'run-d' }),
   ];
   const [receipt] = toolReceiptsFromHistory(rows, { toolName: 'continue_delegate', argField: 'task', needle: N });
   assert.equal(receipt?.status, 'scheduled');
@@ -78,14 +82,14 @@ test('R-CD-1/SILENT/3 scheduled receipt: a dispatch_action call pairs with its d
 test('R-CD-2 same-run delegate: a dispatch_action continue_delegate on the send run reports scheduled', () => {
   const tracker = createSameRunDelegateTracker({ acceptedRunId: 'run-s', nonce: N });
   assert.equal(tracker.observe({ sessionKey: 'k', message: dispatched('cd-1', 'continue_delegate', { task: `k6 ${N}`, mode: 'silent-wake' }, { runId: 'run-s' }) }), null);
-  assert.equal(tracker.observe({ sessionKey: 'k', message: dispatchedResult('cd-1', { status: 'scheduled' }, { runId: 'run-s' }) }), 'scheduled');
+  assert.equal(tracker.observe({ sessionKey: 'k', message: dispatchedResult('cd-1', 'continue_delegate', { status: 'scheduled' }, { runId: 'run-s' }) }), 'scheduled');
 });
 
 test('R-CW-1..4: a continue_work chain scheduled through dispatch_action binds by turn order', () => {
   const chain = continueWorkChain([
     user(`[k6-proof-harness] ${N}`),
     dispatched('cw-1', 'continue_work', { reason: `k6 ${N}`, delaySeconds: 5 }),
-    dispatchedResult('cw-1', { status: 'scheduled', delaySeconds: 5 }),
+    dispatchedResult('cw-1', 'continue_work', { status: 'scheduled', delaySeconds: 5 }),
     say(`CW-SCHEDULED ${N}`),
     user(`[continuation:wake] Turn 1/200. Prior reason: "k6 ${N}"`),
     say(`CW-WOKE ${N}`),
@@ -97,7 +101,7 @@ test('R-CW-TOKEN: a typed continue_work through dispatch_action marks the child 
   const hops = tokenWorkHops([
     user(`[Subagent Task] k6 proof R-CW-TOKEN nonce ${N}.`),
     dispatched('cw-1', 'continue_work', { delaySeconds: 5, reason: 'hop 2' }, { runId: 'run-c1' }),
-    dispatchedResult('cw-1', { status: 'scheduled' }, { runId: 'run-c1' }),
+    dispatchedResult('cw-1', 'continue_work', { status: 'scheduled' }, { runId: 'run-c1' }),
     say(`TOKEN-HOP1 ${N}`, 'run-c1'),
     user('[continuation:wake] Turn 1/200.'),
     { ...say(`TOKEN-HOP2-DONE ${N} TOKEN q1w2e3r4t5y6`, 'run-c2'), timestamp: 20 },
@@ -110,7 +114,7 @@ test('R-CW-DELEGATE-SELF: the child continue_work yield and its scheduled result
   const hops = cwDelegateSelfHops([
     user(`[Subagent Task] ${N}`),
     dispatched('cw-1', 'continue_work', { reason: `child hop 2 ${N}`, delaySeconds: 5 }),
-    dispatchedResult('cw-1', { status: 'scheduled', delaySeconds: 5 }),
+    dispatchedResult('cw-1', 'continue_work', { status: 'scheduled', delaySeconds: 5 }),
     say(`CHILD-CW-SCHEDULED ${N}`),
     user(`[continuation:wake] Turn 1/200. Prior reason: "child hop 2 ${N}"`),
     say(`CHILD-HOP2-DONE ${N}`),
@@ -123,22 +127,22 @@ test('R-RC-1/2: a request_compaction result named dispatch_action binds only to 
   const rows = [
     user(`[Subagent Task] ${N}`),
     dispatched('rc-1', 'request_compaction', { reason: `k6 ${N}` }),
-    dispatchedResult('rc-1', { status: 'rejected', guard: 'context_threshold', contextUsage: 12, threshold: 70, reason: 'below' }),
+    dispatchedResult('rc-1', 'request_compaction', { status: 'rejected', guard: 'context_threshold', contextUsage: 12, threshold: 70, reason: 'below' }),
   ];
   const found = findRequestCompactionReceipt(rows, { rowNonce: N });
   assert.equal(found.kind, 'threshold_rejected');
   assert.equal(found.toolCallId, 'rc-1');
   // A dispatcher-named result for a different call is never this receipt.
-  const stray = [rows[0], rows[1], dispatchedResult('other', { status: 'compaction_requested', contextUsage: 80 })];
+  const stray = [rows[0], rows[1], dispatchedResult('other', 'request_compaction', { status: 'compaction_requested', contextUsage: 80 })];
   assert.equal(findRequestCompactionReceipt(stray, { rowNonce: N }).kind, 'missing');
   // The measured R-RC-2 outcome reads the same pairing.
   const yieldRows = [
     user(`[Subagent Task] ${N}`),
     dispatched('cw-1', 'continue_work', { reason: `yield ${N}` }),
-    dispatchedResult('cw-1', { status: 'scheduled' }),
+    dispatchedResult('cw-1', 'continue_work', { status: 'scheduled' }),
     user(`[continuation:wake] Turn 1/200. Prior reason: "yield ${N}"`),
     dispatched('rc-1', 'request_compaction', { reason: `k6 ${N}` }),
-    dispatchedResult('rc-1', { status: 'rejected', guard: 'context_threshold', contextUsage: 12, threshold: 70, reason: 'below' }),
+    dispatchedResult('rc-1', 'request_compaction', { status: 'rejected', guard: 'context_threshold', contextUsage: 12, threshold: 70, reason: 'below' }),
   ];
   const outcome = measuredRequestCompactionOutcome(yieldRows, { rowNonce: N });
   assert.equal(outcome.kind, 'threshold_rejected_measured');
@@ -150,7 +154,7 @@ test('heartbeat_respond acknowledgements bind through dispatch_action, call and 
   const rows = [
     say(`TARGET-READY ${N}`, 'run-prime'),
     dispatched('hb-1', 'heartbeat_respond', args, { runId: 'run-wake' }),
-    dispatchedResult('hb-1', { status: 'accepted', ...args }, { runId: 'run-wake' }),
+    dispatchedResult('hb-1', 'heartbeat_respond', { status: 'accepted', ...args }, { runId: 'run-wake' }),
   ];
   const receipt = heartbeatAckFromHistory(rows, { sessionKey: 'agent:main:t', marker: 'TARGET-ACK', nonce: N, afterIndex: 0, excludeRunIds: ['run-prime'] });
   assert.equal(receipt?.toolCallId, 'hb-1');

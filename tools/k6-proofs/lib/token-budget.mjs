@@ -25,7 +25,8 @@ import { createHash } from 'node:crypto';
 
 export const TOKEN_BUDGET_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET';
 export const TOKEN_BUDGET_POLL_ENV = 'OPENCLAW_PROOFS_TOKEN_BUDGET_POLL_SECONDS';
-// The overshoot is bounded by one poll interval of usage, so the interval is
+// The detection lag is bounded by one poll interval of usage (the overshoot is
+// not bounded at all: see lib/token-budget-cutoff.mjs), so the interval is
 // fixed for live runs. The variable exists so fixtures can poll faster.
 export const DEFAULT_TOKEN_BUDGET_POLL_SECONDS = 5;
 const MIN_POLL_SECONDS = 0.05;
@@ -271,6 +272,21 @@ export function publicId(accountingId) {
 }
 
 /**
+ * A session's accounting id: its agent id and session id, or, for a session
+ * listed with no session id yet, its key. The meter keys its ledger by it and
+ * the cutoff (lib/token-budget-cutoff.mjs) names the sessions it aborts by it,
+ * so the two never publish different hashes for one session.
+ */
+export function sessionAccountingId(key, sessionId) {
+  return `${agentIdOf(key) ?? '?'}:${sessionId || `key:${key}`}`;
+}
+
+/** The public form of a session: the 12-hex hash of its accounting id. */
+export function sessionPublicId(key, sessionId) {
+  return publicId(sessionAccountingId(key, sessionId));
+}
+
+/**
  * The meter's reading cycle. `rpc(method, params)` resolves to
  * { ok: true, payload } or { ok: false, error } and may throw (closed socket,
  * timeout). baseline() must be readable before read() or discover() is used.
@@ -295,7 +311,21 @@ export function createUsageMeter({
   const seen = new Map();
   const seenKey = (key, sessionId) => `${key}\0${sessionId ?? ''}`;
   const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }
+  // The cutoff names a session that has no session id by its key. Once its ids
+  // are linked (linkAbortIds), each such key is linked, privately, to the
+  // session it held at the reading before the abort or else the first it took
+  // after: key-form id -> accounting id. currentByKey is the session each
+  // key's last reading recorded.
+  let abortKeyIds = null;
+  const abortLinks = new Map();
+  const currentByKey = new Map();
+  const linkKey = (key, id) => {
+    if (!abortKeyIds || sessions.get(id)?.placeholder || abortKeyIds.has(publicId(id))) return;
+    const keyId = sessionPublicId(key, null);
+    if (abortKeyIds.has(keyId) && !abortLinks.has(keyId)) abortLinks.set(keyId, id);
+  };
   let baselineKeys = null;
+  let baselineRows = null;
 
   // A configured key matches its row exactly, or, when it is bare ("main"),
   // any agent-scoped row agent:<id>:<key>: sessions.list answers canonical keys.
@@ -380,15 +410,17 @@ export function createUsageMeter({
     return parsed;
   }
 
-  function record(agentId, sessionId, reason, tokens, { asBaseline, placeholder = false }) {
-    const id = `${agentId ?? '?'}:${sessionId}`;
+  function record(key, sessionId, reason, tokens, { asBaseline, placeholder = false }) {
+    const id = sessionAccountingId(key, sessionId);
     let entry = sessions.get(id);
     if (!entry) {
-      entry = { agentId, sessionId, reason, baselineTokens: asBaseline ? tokens : 0, lastTokens: tokens, everPositive: false, closed: false, placeholder };
+      entry = { agentId: agentIdOf(key), sessionId, reason, baselineTokens: asBaseline ? tokens : 0, lastTokens: tokens, everPositive: false, closed: false, placeholder };
       sessions.set(id, entry);
     }
     entry.lastTokens = tokens;
     if (tokens > 0) entry.everPositive = true;
+    currentByKey.set(key, id);
+    linkKey(key, id);
     return id;
   }
 
@@ -415,7 +447,10 @@ export function createUsageMeter({
     const at = now();
     try {
       const rows = await listAll();
-      if (asBaseline) baselineKeys = new Set(rows.map((row) => row.key));
+      if (asBaseline) {
+        baselineKeys = new Set(rows.map((row) => row.key));
+        baselineRows = rows.map((row) => ({ key: row.key, sessionId: typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null }));
+      }
       const { inScope, scope } = classify(rows);
       // A bare configured key ("main") resolves through the gateway's own main
       // key or global scope, which this meter cannot see. One that matches no
@@ -427,11 +462,11 @@ export function createUsageMeter({
       const reading = {};
       const live = new Set();
       for (const row of inScope) {
-        const agentId = agentIdOf(row.key);
         const usage = await readUsage(row.key);
         const listedId = typeof row.sessionId === 'string' && row.sessionId ? row.sessionId : null;
-        const sessionId = usage.missing ? (listedId ?? `key:${row.key}`) : usage.sessionId;
-        const id = record(agentId, sessionId, scopeReason.get(row.key), usage.missing ? 0 : usage.tokens, {
+        // With no transcript and no listed session id, the key stands in (a placeholder).
+        const sessionId = usage.missing ? listedId : usage.sessionId;
+        const id = record(row.key, sessionId, scopeReason.get(row.key), usage.missing ? 0 : usage.tokens, {
           asBaseline,
           placeholder: usage.missing && !listedId,
         });
@@ -455,10 +490,11 @@ export function createUsageMeter({
             if (listedKeys.has(found.key)) continue;
             throw new Error('vanished-session-archive:no-session-id');
           }
-          const id = `${found.agentId ?? '?'}:${found.sessionId}`;
+          const id = sessionAccountingId(found.key, found.sessionId);
           if (sessions.has(id)) continue;
           const entry = { agentId: found.agentId, sessionId: found.sessionId, reason: found.reason, baselineTokens: 0, lastTokens: 0, everPositive: false, closed: false, placeholder: false, discoveredOnly: true };
           sessions.set(id, entry);
+          linkKey(found.key, id);
           await closeVanished(id, entry, reading);
         }
       }
@@ -489,15 +525,53 @@ export function createUsageMeter({
         return { at, readable: false, error: String(error?.message || error).slice(0, 200) };
       }
     },
-    /** Per-session facts safe to publish: a 12-hex id hash, never a key or session id. */
+    /**
+     * Every session the baseline listing showed, key and session id. Private:
+     * the token budget's cutoff (lib/token-budget-cutoff.mjs) never aborts a
+     * session that existed before the run, and reads this to know which.
+     */
+    baselineSessions() {
+      if (!baselineTaken || !baselineRows) throw new Error('baselineSessions() needs a readable baseline first');
+      return baselineRows.map((row) => ({ ...row }));
+    },
+    /**
+     * The session each key's last reading recorded. Private: it holds keys.
+     * The meter keeps it with each reading's totals for linkAbortIds.
+     */
+    heldSessions() {
+      return new Map(currentByKey);
+    },
+    /**
+     * Link the ids the cutoff published, once: a key the cutoff named by its
+     * key (its session had no session id then) is linked to the session with a
+     * session id of its own that `held` (heldSessions() at the reading before
+     * the abort; by default the last reading) names for it, or else to the
+     * first such session it takes after. A session from a later reset is a new
+     * session, as it is for a key the cutoff named by its session id.
+     */
+    linkAbortIds(ids, held = currentByKey) {
+      abortKeyIds = new Set(ids);
+      for (const [key, id] of held) linkKey(key, id);
+    },
+    /**
+     * Per-session facts safe to publish: a 12-hex id hash, never a key or
+     * session id. A session linked to the cutoff's id for its key carries it
+     * as `abortId`: its abort outcome, under the session id it is metered by.
+     */
     publicSessions() {
-      return [...sessions].map(([id, entry]) => ({
-        id: publicId(id),
-        reason: entry.reason,
-        baselineTokens: entry.baselineTokens,
-        lastTokens: entry.lastTokens,
-        state: entry.closed ? 'closed' : 'live',
-      }));
+      const linked = new Map([...abortLinks].map(([keyId, id]) => [id, keyId]));
+      return [...sessions].map(([id, entry]) => {
+        const own = publicId(id);
+        const abortId = linked.get(id);
+        return {
+          id: own,
+          reason: entry.reason,
+          baselineTokens: entry.baselineTokens,
+          lastTokens: entry.lastTokens,
+          state: entry.closed ? 'closed' : 'live',
+          ...(abortId ? { abortId } : {}),
+        };
+      });
     },
   };
 }

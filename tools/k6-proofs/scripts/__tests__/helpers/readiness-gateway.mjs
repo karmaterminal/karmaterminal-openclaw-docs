@@ -59,7 +59,8 @@ export function ab5aDeviceLessOperatorAdmission({ authMode, token, locality = 'd
  *
  * `methods` answers further RPCs after an admitted connect: `{ [method]: (params) => answer }`,
  * where an answer is `{ ok: true, payload }` or `{ ok: false, error }`, or `{ close: true }` to drop
- * the connection unanswered. An answer may be a promise. Every call is recorded in `calls`.
+ * the connection unanswered. An answer may be a promise. Every call is recorded in `calls`, with
+ * the scopes its connection was admitted with.
  */
 export function attachReadinessGateway(server, {
   token,
@@ -112,6 +113,10 @@ export function attachReadinessGateway(server, {
       payload: { nonce: 'readiness-fixture-challenge', ts: Date.now() },
     });
     let buffered = Buffer.alloc(0);
+    let admittedScopes = null;
+    // A client killed mid-request (a SIGKILLed meter) resets its socket; that is
+    // the client's failure to observe, never an uncaught error in the test.
+    socket.on('error', () => socket.destroy());
     socket.on('data', (chunk) => {
       buffered = Buffer.concat([buffered, chunk]);
       while (buffered.length >= 2) {
@@ -167,6 +172,7 @@ export function attachReadinessGateway(server, {
             socket.end(Buffer.from([0x88, 0x02, 0x03, 0xf0]));
             return;
           }
+          admittedScopes = admission.scopes;
           send(socket, {
             type: 'res',
             id: frame.id,
@@ -187,7 +193,7 @@ export function attachReadinessGateway(server, {
             },
           });
         } else if (Object.hasOwn(methods, frame.method)) {
-          calls.push({ method: frame.method, params: frame.params ?? null, at: Date.now() });
+          calls.push({ method: frame.method, params: frame.params ?? null, at: Date.now(), scopes: admittedScopes });
           Promise.resolve()
             .then(() => methods[frame.method](frame.params ?? {}))
             .then((answer) => {

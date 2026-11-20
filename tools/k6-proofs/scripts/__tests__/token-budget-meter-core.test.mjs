@@ -12,8 +12,10 @@ import assert from 'node:assert/strict';
 import {
   createUsageMeter,
   isMissingTranscriptError,
+  publicId,
   timeseriesTokens,
 } from '../../lib/token-budget.mjs';
+import { sessionPublicId } from '../../lib/token-budget-cutoff.mjs';
 
 const CONFIGURED = 'agent:main:proof-disposable';
 
@@ -396,4 +398,82 @@ test('a bare configured key that resolves to no listed session refuses the basel
   assert.match(baseline.error, /configured-session-unresolved/u);
   const canonical = await createUsageMeter({ rpc: gateway.rpc, configuredKeys: ['agent:main:not-yet-created'], now: () => 'x' }).baseline();
   assert.equal(canonical.readable, true, 'a canonical key not created yet is counted when it appears');
+});
+
+// Third review of #629 (🪨, Discord 1573378876984266873; 🌫's review at
+// b50e22fc): the meter and the cutoff must name an id-less session alike, and
+// the session id it is metered under later must lead back to that name. Each
+// test is RED at b50e22fc.
+
+test('review round 3, P2b: a session listed with no session id has one public id, the same from the meter and the cutoff', async () => {
+  const CHILD = 'agent:main:subagent:not-started';
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  // Spawned but not started: no session id in the listing and no transcript.
+  gateway.rows.push({ key: CHILD, spawnedBy: CONFIGURED });
+  assert.equal((await meter.read()).readable, true);
+  const ids = meter.publicSessions().map((entry) => entry.id);
+  assert.ok(ids.includes(sessionPublicId(CHILD, null)), `the meter's id for it is the cutoff's: ${ids.join(', ')}`);
+});
+
+test('review round 3, P2b: a session that had no session id when the cutoff named it carries that name under the session id it is metered by', async () => {
+  // The listing shows no session id, but its transcript answers with one.
+  const LISTED_ONLY = 'agent:main:subagent:listed-without-id';
+  // No session id and no transcript until it starts, after the abort.
+  const NOT_STARTED = 'agent:main:subagent:not-started';
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.rows.push({ key: LISTED_ONLY, spawnedBy: CONFIGURED }, { key: NOT_STARTED, spawnedBy: CONFIGURED });
+  gateway.usage[LISTED_ONLY] = series('listed-real', 0);
+  assert.equal((await meter.read()).readable, true);
+  gateway.rows[2] = { key: NOT_STARTED, sessionId: 'started-real', spawnedBy: CONFIGURED };
+  gateway.usage[LISTED_ONLY] = series('listed-real', 400);
+  gateway.usage[NOT_STARTED] = series('started-real', 500);
+  const reading = await meter.read();
+  assert.equal(reading.readable, true, reading.error);
+  assert.deepEqual(reading.sessions, { 'main:cfg': 0, 'main:listed-real': 400, 'main:started-real': 500 });
+
+  assert.ok(meter.publicSessions().every((entry) => entry.abortId === undefined), 'no abort ids, no links');
+  meter.linkAbortIds(new Set([sessionPublicId(LISTED_ONLY, null), sessionPublicId(NOT_STARTED, null), 'eeeeeeeeeeee']));
+  const linked = Object.fromEntries(meter.publicSessions().filter((entry) => entry.abortId).map((entry) => [entry.id, entry.abortId]));
+  assert.deepEqual(linked, {
+    [publicId('main:listed-real')]: sessionPublicId(LISTED_ONLY, null),
+    [publicId('main:started-real')]: sessionPublicId(NOT_STARTED, null),
+  }, 'linked by key, and only where its own id is not the cutoff\'s');
+});
+
+test('review round 3 follow-up: the session a key holds when the cutoff\'s ids are linked carries the cutoff\'s id, or else the first it takes; never one from a reset on either side', async () => {
+  const CHILD = 'agent:main:subagent:listed-without-id';
+  const linkedIds = (meter) => Object.fromEntries(meter.publicSessions().filter((entry) => entry.abortId).map((entry) => [entry.id, entry.abortId]));
+  const abortIds = new Set([sessionPublicId(CHILD, null)]);
+  const start = async () => {
+    const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+    const meter = meterFor(gateway);
+    await meter.baseline();
+    // Never listed with a session id; its transcript answers with one.
+    gateway.rows.push({ key: CHILD, spawnedBy: CONFIGURED });
+    gateway.usage[CHILD] = series('first', 100);
+    assert.equal((await meter.read()).readable, true);
+    return { gateway, meter };
+  };
+  const reset = async ({ gateway, meter }) => {
+    gateway.usage[CHILD] = series('after-reset', 50);
+    gateway.usage['agent:main:first'] = series('first', 100);
+    const reading = await meter.read();
+    assert.equal(reading.readable, true, reading.error);
+  };
+
+  // A reset after the abort: the session the abort reached keeps the link.
+  const after = await start();
+  after.meter.linkAbortIds(abortIds);
+  await reset(after);
+  assert.deepEqual(linkedIds(after.meter), { [publicId('main:first')]: sessionPublicId(CHILD, null) });
+
+  // A reset before the abort: the session the key held when the cutoff ran is the one it reached.
+  const before = await start();
+  await reset(before);
+  before.meter.linkAbortIds(abortIds);
+  assert.deepEqual(linkedIds(before.meter), { [publicId('main:after-reset')]: sessionPublicId(CHILD, null) });
 });

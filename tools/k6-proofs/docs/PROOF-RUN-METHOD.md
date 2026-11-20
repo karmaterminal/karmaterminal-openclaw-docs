@@ -175,7 +175,7 @@ Important inputs:
 
 Use it to remove manual row-selection and artifact-shape improv. It does not replace GATES judgment or human review of candidate evidence.
 
-That wrapper has no token budget. A run that must stay under a hard token bound dispatches this repository's `.github/workflows/project81-k6-proof.yml` with `token_budget` (and `runner_labels_json` naming the seat). See `tools/k6-proofs/README.md`, "Token budget for a live matrix", for what is counted, when the run stops, and how far past the bound it can go.
+That wrapper has no token budget. A run that needs a token budget dispatches this repository's `.github/workflows/project81-k6-proof.yml` with `token_budget` (and `runner_labels_json` naming the seat). The budget is a cutoff, not a hard ceiling: at the trip it stops the run and aborts only the sessions the run provably owns, and the receipt reports the observed overshoot and the maximum possible one as unknown. See `tools/k6-proofs/README.md`, "Token budget for a live matrix", for what is counted, when the run stops, the cutoff's ownership rules, and how far past the budget it can go.
 
 ## Adding a new row
 

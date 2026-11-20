@@ -84,7 +84,7 @@ on:
         default: ""
         type: string
       token_budget:
-        description: "Hard bound on model tokens this run's sessions may consume (positive integer, at most 15 digits); empty = no budget. Unreadable usage refuses the run (exit 80); at the bound the running row stops and the rest are not run (exit 79)"
+        description: "Token budget for this run's sessions, a cutoff, not a hard ceiling (positive integer, at most 15 digits); empty = no budget. Unreadable usage refuses the run (exit 80); at the budget the running row stops, the run's own sessions are aborted, and the rest are not run (exit 79)"
         required: false
         default: ""
         type: string

@@ -24,8 +24,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
-import { readFile, readdir } from 'node:fs/promises';
+import { existsSync, readdirSync } from 'node:fs';
+import { mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -62,6 +63,8 @@ const CHILD = 'agent:main:subagent:owned-child';
 
 /** The 12-hex public id the meter and the cutoff publish for a session. */
 const publicIdOf = (key, sessionId) => createHash('sha256').update(`${/^agent:([^:]+):/u.exec(key)[1]}:${sessionId}`).digest('hex').slice(0, 12);
+/** The same for a session listed with no session id: its key stands in. */
+const idlessIdOf = (key) => publicIdOf(key, `key:${key}`);
 
 const rowStatuses = (receipt) => Object.fromEntries(receipt.rows.map((entry) => [entry.row, entry.status]));
 
@@ -890,6 +893,147 @@ test('review round 2, F2: a cutoff that could not list the sessions says it coul
     assert.match(receipt.verdictText, /the cutoff could not decide ownership \(listing-failed: sessions-list:FORBIDDEN\), so no session was aborted; /u);
     assert.doesNotMatch(receipt.verdictText, /aborted 0 of 0/u);
     assertCutoffLabels(receipt);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+// Third review of #629 (🪨, Discord 1573378876984266873; 🌫's review at
+// b50e22fc): two receipt-accounting repairs at the runner boundary, each RED
+// at b50e22fc.
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+test('review round 3, P2a: a usage reading in flight across the abort counts after it, and the receipt names it straddling', async () => {
+  // The root's model call completes during the abort pass. The reading that
+  // sees it began before the pass finished, and its answer is held until the
+  // runner has marked the cutoff's end. The runner's budget directory is under
+  // this TMPDIR, so the stub can see the mark appear.
+  const budgetTmp = await mkdtemp(path.join(tmpdir(), 'token-budget-straddle-'));
+  const marked = () => readdirSync(budgetTmp).some((entry) => existsSync(path.join(budgetTmp, entry, 'abort-mark')));
+  const gateway = world({ baseline: [prince()] });
+  let hold = null;
+  const timeseries = gateway.methods['sessions.usage.timeseries'];
+  gateway.methods['sessions.usage.timeseries'] = async (params) => {
+    if (params.key !== ROOT || !hold || hold.taken) return timeseries(params);
+    hold.taken = true;
+    const session = gateway.sessions.get(ROOT);
+    session.tokens += 700;
+    hold.entered();
+    for (const deadline = Date.now() + 8000; !marked() && Date.now() < deadline;) await sleep(20);
+    hold.answeredAfterMark = marked();
+    await sleep(50);
+    return usagePoint(session.sessionId, session.tokens);
+  };
+  const abort = gateway.methods['sessions.abort'];
+  gateway.methods['sessions.abort'] = async (params) => {
+    const answer = abort(params);
+    if (params.key === ROOT) {
+      const entered = new Promise((resolve) => { hold = { taken: false, entered: resolve }; });
+      hold.enteredBeforeAnswer = await Promise.race([entered.then(() => true), sleep(3000).then(() => false)]);
+    }
+    return answer;
+  };
+  const fixture = await runBudgetMatrix(repoRoot, {
+    label: '17-reading-straddles-abort',
+    budget: '1000',
+    sleepSeconds: LONG_ROW,
+    creates: CREATE_ROOT,
+    env: { TMPDIR: budgetTmp, OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS: '1', OPENCLAW_PROOFS_TOKEN_BUDGET_READ_TIMEOUT_SECONDS: '10' },
+    usage: () => gateway.methods,
+  });
+  try {
+    const { result, receipt } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    assert.deepEqual(abortedKeys(fixture), [ROOT]);
+    assert.equal(hold.enteredBeforeAnswer, true, 'the reading was in flight before the abort answered');
+    assert.equal(hold.answeredAfterMark, true, 'and was answered only after the runner marked the cutoff\'s end');
+    const { observed } = receipt.overshoot;
+    assert.equal(observed.postAbortTokens, 700, 'the 700 the straddling reading saw counts after the abort');
+    assert.deepEqual(observed.sessionsGrowingAfterAbort.filter((entry) => entry.owned), [
+      { id: publicIdOf(ROOT, 'sid-r-config-defaults-owned'), tokens: 700, owned: true, abortOutcome: 'aborted' },
+    ]);
+    assert.equal(observed.readingsStraddlingAbort, 1);
+    assert.match(observed.abortBoundary, /straddles the abort and counts after it/u);
+    const straddling = receipt.readings.filter((entry) => entry.straddlesAbort);
+    assert.equal(straddling.length, 1, JSON.stringify(receipt.readings));
+    const [held] = straddling;
+    assert.ok(held.increment >= 700, JSON.stringify(held));
+    assert.ok(Date.parse(held.at) < Date.parse(receipt.abort.completedAt), `begun (${held.at}) before the abort pass finished (${receipt.abort.completedAt})`);
+    assert.ok(Date.parse(held.completedAt) > Date.parse(receipt.overshoot.drain.startedAt), `completed (${held.completedAt}) after the cutoff's end (${receipt.overshoot.drain.startedAt})`);
+    assertCutoffLabels(receipt);
+  } finally {
+    await fixture.cleanup();
+    await rm(budgetTmp, { recursive: true, force: true });
+  }
+});
+
+test('review round 3, P2b: id-less descendants the cutoff aborts keep their abort outcome when they grow under their own session ids', async () => {
+  // Listed with no session id, though its transcript answers with one.
+  const LISTED_ONLY = 'agent:main:subagent:listed-without-id';
+  // Spawned but not started: no session id and no transcript, until a wake
+  // after the abort starts it.
+  const NOT_STARTED = 'agent:main:subagent:not-started';
+  const wakeAfterAbort = (tokens) => (session) => {
+    if (!session.aborted || session.woke || Date.now() - session.abortedAt < 600) return 0;
+    session.woke = true;
+    return tokens;
+  };
+  const gateway = world({
+    baseline: [prince()],
+    onCreate: (root, { add }) => {
+      if (root.key !== ROOT) return;
+      add({ key: LISTED_ONLY, sessionId: undefined, spawnedBy: ROOT, controlOwnerSessionKey: ROOT, grow: wakeAfterAbort(400) });
+      add({ key: NOT_STARTED, sessionId: undefined, spawnedBy: ROOT, controlOwnerSessionKey: ROOT, grow: wakeAfterAbort(500) });
+    },
+  });
+  const timeseries = gateway.methods['sessions.usage.timeseries'];
+  gateway.methods['sessions.usage.timeseries'] = (params) => {
+    const session = gateway.sessions.get(params.key);
+    if (params.key === LISTED_ONLY) {
+      session.tokens += session.grow(session);
+      return usagePoint('listed-real', session.tokens);
+    }
+    if (params.key === NOT_STARTED) {
+      session.tokens += session.grow(session);
+      if (!session.woke) return { ok: false, error: { code: 'INVALID_REQUEST', message: `No transcript found for session: ${params.key}` } };
+      // Its run gives it a session id and a transcript.
+      session.sessionId = 'started-real';
+      return usagePoint('started-real', session.tokens);
+    }
+    return timeseries(params);
+  };
+  const fixture = await runBudgetMatrix(repoRoot, {
+    label: '18-idless-descendants-grow-after-abort',
+    budget: '1000',
+    sleepSeconds: LONG_ROW,
+    creates: CREATE_ROOT,
+    env: { OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS: '2' },
+    usage: () => gateway.methods,
+  });
+  try {
+    const { result, receipt } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    assert.deepEqual(abortedKeys(fixture), [ROOT, LISTED_ONLY, NOT_STARTED]);
+    assert.equal(gateway.sessions.get(LISTED_ONLY).woke, true);
+    assert.equal(gateway.sessions.get(NOT_STARTED).woke, true);
+    // One identity on both sides: the cutoff names each id-less descendant by
+    // its key, as the meter does while it has no session id.
+    assert.deepEqual(receipt.abort.sessions.map(({ id, role, outcome }) => ({ id, role, outcome })), [
+      { id: publicIdOf(ROOT, 'sid-r-config-defaults-owned'), role: 'root', outcome: 'aborted' },
+      { id: idlessIdOf(LISTED_ONLY), role: 'descendant', outcome: 'aborted' },
+      { id: idlessIdOf(NOT_STARTED), role: 'descendant', outcome: 'aborted' },
+    ]);
+    assert.ok(receipt.sessions.some((entry) => entry.id === idlessIdOf(NOT_STARTED)), 'the meter\'s placeholder for the unstarted child carries the cutoff\'s id');
+    // Their growth after the abort, under the session ids they are metered by, keeps the abort outcome.
+    const { observed } = receipt.overshoot;
+    assert.deepEqual(observed.sessionsGrowingAfterAbort.filter((entry) => entry.owned !== false), [
+      { id: publicIdOf(LISTED_ONLY, 'listed-real'), tokens: 400, owned: true, abortOutcome: 'aborted', abortId: idlessIdOf(LISTED_ONLY) },
+      { id: publicIdOf(NOT_STARTED, 'started-real'), tokens: 500, owned: true, abortOutcome: 'aborted', abortId: idlessIdOf(NOT_STARTED) },
+    ]);
+    assert.ok(receipt.overshoot.maxPossibleReasons.includes('usage grew after the abort in 2 session(s)'));
+    assertCutoffLabels(receipt);
+    assertPublicSafe(fixture, [LISTED_ONLY, NOT_STARTED, 'listed-real', 'started-real', 'subagent:']);
   } finally {
     await fixture.cleanup();
   }

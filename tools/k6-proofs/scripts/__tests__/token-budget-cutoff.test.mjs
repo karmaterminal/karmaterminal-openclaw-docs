@@ -622,3 +622,67 @@ test('review round 2, F3: the record written before the abort calls shows a skip
     await s.cleanup();
   }
 });
+
+// ---------------------------------------------------------------------------
+// Third review of #629 (🪨, Discord 1573378876984266873; 🌫's review at
+// b50e22fc): two receipt-accounting repairs, each RED at b50e22fc
+// ---------------------------------------------------------------------------
+
+test('review round 3, P2a: a reading begun before the abort and completed after it counts after the abort, and is named straddling', () => {
+  // No snapshot from the meter (it was gone), so the readings are split by when each completed.
+  const straddled = (extra) => ({
+    ...stateFor(),
+    abortSessions: null,
+    cumulative: 1900,
+    readings: [
+      reading(1, 300, 300, { completedAt: '2026-11-19T00:00:01.100Z' }),
+      reading(3, 900, 600, { completedAt: '2026-11-19T00:00:03.100Z' }),
+      // Begun at 04.000, before the abort finished at 04.500; answered at 04.800.
+      reading(4, 1200, 300, extra),
+      reading(5, 1900, 700, { completedAt: '2026-11-19T00:00:05.100Z', final: true }),
+    ],
+  });
+  for (const [label, extra] of [['completedAt', { completedAt: '2026-11-19T00:00:04.800Z' }], ['readMs', { readMs: 800 }]]) {
+    const overshoot = computeOvershoot({ state: straddled(extra), abort: abortDoc({ completedAt: '2026-11-19T00:00:04.500Z' }), drain: { metered: true } });
+    assert.equal(overshoot.observed.postAbortTokens, 1000, `${label}: the straddling reading's 300 counts after the abort, with the 700 after it`);
+    assert.equal(overshoot.observed.readingsAfterAbort, 2, label);
+    assert.equal(overshoot.observed.readingsStraddlingAbort, 1, label);
+    assert.match(overshoot.observed.abortBoundary, /straddles the abort and counts after it/u, label);
+    assert.equal(overshoot.drain.metered, true, `${label}: a readable reading begun after the abort metered the drain`);
+  }
+  // A straddling reading alone measures the growth after the abort, but not the drain.
+  const alone = straddled({ completedAt: '2026-11-19T00:00:04.800Z', final: true });
+  alone.readings.pop();
+  alone.cumulative = 1200;
+  const overshoot = computeOvershoot({ state: alone, abort: abortDoc({ completedAt: '2026-11-19T00:00:04.500Z' }), drain: { metered: true } });
+  assert.equal(overshoot.observed.postAbortTokens, 300);
+  assert.equal(overshoot.observed.readingsStraddlingAbort, 1);
+  assert.equal(overshoot.drain.metered, false);
+  assert.equal(overshoot.drain.reason, 'no-readable-reading-after-abort');
+});
+
+test('review round 3, P2b: a session the cutoff aborted while it had no session id keeps its abort outcome when it grows under its own', () => {
+  const state = {
+    ...stateFor(),
+    sessions: [
+      ...stateFor().sessions,
+      // Listed with no session id at the cutoff (aborted as eeeeeeeeeeee), metered under its own afterwards.
+      { id: 'ffffffffffff', abortId: 'eeeeeeeeeeee', baselineTokens: 0, lastTokens: 400, state: 'live' },
+    ],
+    abortSessions: { ...stateFor().abortSessions, abortIdsRead: 3 },
+  };
+  const abort = abortDoc({ sessions: [...abortDoc().sessions, { id: 'eeeeeeeeeeee', outcome: 'aborted' }] });
+  const growing = computeOvershoot({ state, abort, drain: { metered: true } }).observed.sessionsGrowingAfterAbort;
+  assert.deepEqual(growing, [
+    { id: 'aaaaaaaaaaaa', tokens: 700, owned: true, abortOutcome: 'aborted' },
+    { id: 'cccccccccccc', tokens: 200, owned: false },
+    { id: 'ffffffffffff', tokens: 400, owned: true, abortOutcome: 'aborted', abortId: 'eeeeeeeeeeee' },
+  ]);
+  // A meter that could not read the cutoff's document could not link such a
+  // session: one that no abort id names by its own id is of unknown ownership, never unowned.
+  const unlinked = { ...state, sessions: stateFor().sessions, abortSessions: { ...state.abortSessions, abortIdsRead: null } };
+  assert.deepEqual(computeOvershoot({ state: unlinked, abort, drain: { metered: true } }).observed.sessionsGrowingAfterAbort, [
+    { id: 'aaaaaaaaaaaa', tokens: 700, owned: true, abortOutcome: 'aborted' },
+    { id: 'cccccccccccc', tokens: 200, owned: null },
+  ]);
+});

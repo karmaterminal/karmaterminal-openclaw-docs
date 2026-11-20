@@ -819,9 +819,10 @@ So the receipt splits the overshoot (`overshoot`):
       `sessionPublicId` in `lib/token-budget.mjs`). When it later grows under a
       session id of its own, the meter links the two (it reads the abort
       document with the mark), so the entry carries `abortId`, the cutoff's id
-      for it, and keeps its abort outcome. Only the first session the key
-      takes is linked: a later reset is a new session, as it is for a key the
-      cutoff named by its session id.
+      for it, and keeps its abort outcome. The link goes to the session the key
+      held at the meter's last reading when the abort ended, or else to the
+      first one it takes after: a session from a later reset is a new session,
+      as it is for a key the cutoff named by its session id.
     - If the meter could not read the abort document, a session that no abort
       id names is `owned: null` (unknown), never `owned: false`;
   - `lastGrowthAt` and `quietReadingsAtEnd`.

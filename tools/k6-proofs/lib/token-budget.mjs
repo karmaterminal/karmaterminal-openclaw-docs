@@ -310,11 +310,20 @@ export function createUsageMeter({
   // found gone: key + "\0" + session id -> { key, agentId, sessionId, reason }.
   const seen = new Map();
   const seenKey = (key, sessionId) => `${key}\0${sessionId ?? ''}`;
-  // accounting id -> { agentId, sessionId, keys, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }.
-  // keys: every key the session was listed under, kept private, so a session
-  // the cutoff named by its key (it had no session id then) can be linked to
-  // the session id it is metered by (publicSessions).
-  const sessions = new Map();
+  const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }
+  // The cutoff names a session that has no session id by its key. Once its ids
+  // are linked (linkAbortIds), each such key is linked, privately, to the
+  // session it held then or else the first it took after: key-form id ->
+  // accounting id. currentByKey is the session each key's last reading
+  // recorded.
+  let abortKeyIds = null;
+  const abortLinks = new Map();
+  const currentByKey = new Map();
+  const linkKey = (key, id) => {
+    if (!abortKeyIds || sessions.get(id)?.placeholder || abortKeyIds.has(publicId(id))) return;
+    const keyId = sessionPublicId(key, null);
+    if (abortKeyIds.has(keyId) && !abortLinks.has(keyId)) abortLinks.set(keyId, id);
+  };
   let baselineKeys = null;
   let baselineRows = null;
 
@@ -405,12 +414,13 @@ export function createUsageMeter({
     const id = sessionAccountingId(key, sessionId);
     let entry = sessions.get(id);
     if (!entry) {
-      entry = { agentId: agentIdOf(key), sessionId, keys: new Set(), reason, baselineTokens: asBaseline ? tokens : 0, lastTokens: tokens, everPositive: false, closed: false, placeholder };
+      entry = { agentId: agentIdOf(key), sessionId, reason, baselineTokens: asBaseline ? tokens : 0, lastTokens: tokens, everPositive: false, closed: false, placeholder };
       sessions.set(id, entry);
     }
-    entry.keys.add(key);
     entry.lastTokens = tokens;
     if (tokens > 0) entry.everPositive = true;
+    currentByKey.set(key, id);
+    linkKey(key, id);
     return id;
   }
 
@@ -482,8 +492,9 @@ export function createUsageMeter({
           }
           const id = sessionAccountingId(found.key, found.sessionId);
           if (sessions.has(id)) continue;
-          const entry = { agentId: found.agentId, sessionId: found.sessionId, keys: new Set([found.key]), reason: found.reason, baselineTokens: 0, lastTokens: 0, everPositive: false, closed: false, placeholder: false, discoveredOnly: true };
+          const entry = { agentId: found.agentId, sessionId: found.sessionId, reason: found.reason, baselineTokens: 0, lastTokens: 0, everPositive: false, closed: false, placeholder: false, discoveredOnly: true };
           sessions.set(id, entry);
+          linkKey(found.key, id);
           await closeVanished(id, entry, reading);
         }
       }
@@ -524,27 +535,24 @@ export function createUsageMeter({
       return baselineRows.map((row) => ({ ...row }));
     },
     /**
-     * Per-session facts safe to publish: a 12-hex id hash, never a key or
-     * session id. Given the ids the cutoff published (`abortIds`), the first
-     * session the meter saw with a session id of its own under a key the
-     * cutoff named by its key (the session had no session id then) carries
-     * that name as `abortId`: its abort outcome, under the session id it is
-     * metered by. A later session under that key (a reset) is a new session,
-     * as it is for a key the cutoff named by its session id.
+     * Link the ids the cutoff published, once, as the abort ends: a key the
+     * cutoff named by its key (its session had no session id then) is linked
+     * to the session with a session id of its own that the key held at its
+     * last reading, or else to the first such session it takes. A session from
+     * a later reset is a new session, as it is for a key the cutoff named by
+     * its session id.
      */
-    publicSessions({ abortIds = null } = {}) {
-      const linked = new Map(); // accounting id -> the cutoff's id for its key
-      if (abortIds) {
-        const taken = new Set();
-        for (const [id, entry] of sessions) {
-          if (entry.placeholder || abortIds.has(publicId(id))) continue;
-          const keyId = [...entry.keys].map((key) => sessionPublicId(key, null)).find((candidate) => abortIds.has(candidate) && !taken.has(candidate));
-          if (keyId) {
-            taken.add(keyId);
-            linked.set(id, keyId);
-          }
-        }
-      }
+    linkAbortIds(ids) {
+      abortKeyIds = new Set(ids);
+      for (const [key, id] of currentByKey) linkKey(key, id);
+    },
+    /**
+     * Per-session facts safe to publish: a 12-hex id hash, never a key or
+     * session id. A session linked to the cutoff's id for its key carries it
+     * as `abortId`: its abort outcome, under the session id it is metered by.
+     */
+    publicSessions() {
+      const linked = new Map([...abortLinks].map(([keyId, id]) => [id, keyId]));
       return [...sessions].map(([id, entry]) => {
         const own = publicId(id);
         const abortId = linked.get(id);

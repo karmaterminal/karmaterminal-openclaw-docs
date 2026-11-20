@@ -363,7 +363,6 @@ async function watch(args, env = process.env) {
   // on every one is kept until the snapshot; before it, the last two.
   const totalsNow = () => ({ cumulative: state.cumulative, sessions: state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })) });
   let checkpoints = [{ index: null, startedMs: null, completedMs: Date.now(), ...totalsNow() }];
-  let abortIds = null;
 
   let stopping = false;
   let wake = null;
@@ -388,7 +387,7 @@ async function watch(args, env = process.env) {
     state.cumulative = entry.cumulative;
     state.maxIncrement = entry.maxIncrement;
     state.trip = entry.trip;
-    state.sessions = meter.publicSessions({ abortIds });
+    state.sessions = meter.publicSessions();
     if (entry.trip && !wasTripped) state.tripSessions = state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens }));
     state.cadence = readingCadence(state.readings.filter((item) => !item.discovery), state.trip);
     if (entry.trip) state.phase = 'tripped';
@@ -412,6 +411,7 @@ async function watch(args, env = process.env) {
     for (const later of checkpoints.slice(kept ? checkpoints.indexOf(kept) + 1 : 0)) {
       if (later.index !== null && later.startedMs < abortMs) state.readings[later.index].straddlesAbort = true;
     }
+    let abortIds = null;
     if (args['abort-doc']) {
       try {
         const doc = JSON.parse(readFileSync(args['abort-doc'], 'utf8'));
@@ -421,8 +421,9 @@ async function watch(args, env = process.env) {
         abortIds = null;
       }
     }
+    if (abortIds) meter.linkAbortIds(abortIds);
     state.abortSessions = { markedAt, cumulative: kept?.cumulative ?? null, sessions: kept?.sessions ?? null, abortIdsRead: abortIds ? abortIds.size : null };
-    state.sessions = meter.publicSessions({ abortIds });
+    state.sessions = meter.publicSessions();
     checkpoints = null;
     save();
   };

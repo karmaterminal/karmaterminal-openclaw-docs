@@ -800,12 +800,25 @@ So the receipt splits the overshoot (`overshoot`):
 - **Observed** (`overshoot.observed`):
   - `pastBudgetTokens`: the final total minus the budget;
   - `postTripTokens`: counted after the trip;
-  - `postAbortTokens`: counted after the last reading that started before the
-    abort pass finished;
+  - `postAbortTokens`: counted in the readings that completed at or after the
+    abort, which is when the cutoff ended (the runner's mark). A reading begun
+    before the abort and completed after it **straddles** the abort: the meter
+    marks it `straddlesAbort` and counts its growth after the abort
+    (`readingsStraddlingAbort`; the rule is stated in `abortBoundary`). That
+    growth may include usage that landed during the abort pass, so the figure
+    can overstate post-abort growth but never understates it;
   - each of these is `null`, never 0, when no readable reading came after the
     event;
   - `sessionsGrowingAfterTrip` and `sessionsGrowingAfterAbort`: the same per
-    session, by hash, owned or not, with each owned session's abort outcome;
+    session, by hash, owned or not, with each owned session's abort outcome.
+    - A session the cutoff aborted while it had no session id is named by its
+      key, as the meter names it until it has one (one helper,
+      `sessionPublicId` in `lib/token-budget.mjs`). When it later grows under a
+      session id of its own, the meter links the two (it reads the abort
+      document with the mark), so the entry carries `abortId`, the cutoff's id
+      for it, and keeps its abort outcome.
+    - If the meter could not read the abort document, a session that no abort
+      id names is `owned: null` (unknown), never `owned: false`;
   - `lastGrowthAt` and `quietReadingsAtEnd`.
 - **Maximum possible** (`overshoot.maxPossible`): always
   `unknown / unbounded by this guard`. `maxPossibleReasons` lists the reasons
@@ -820,7 +833,7 @@ So the receipt splits the overshoot (`overshoot`):
 - **Drain** (`overshoot.drain`):
   - `metered`, or the `reason` it was not: the meter exited or went stale
     during the drain, the trip was found only in the last reading, the runner
-    was interrupted, or no readable reading came after the abort;
+    was interrupted, or no readable reading began after the abort;
   - the window and its start and end;
   - `complete: "unproven"`, always, with the note that a quiet polling window is
     not proof that the drain has completed.
@@ -848,10 +861,11 @@ session id, token, ownership tag or gateway message, and sessions appear only as
 - the cumulative total and the largest increment;
 - the trip, or the runner's own trip;
 - the stopped row and its stop time;
-- every reading, with its time, cumulative total, increment, read time and scope
-  counts;
+- every reading, with its start and completion times (`at`, `completedAt`),
+  cumulative total, increment, read time and scope counts, and `straddlesAbort`
+  on the one begun before the abort and completed after it;
 - the measured cadence;
-- per-session totals;
+- per-session totals, with `abortId` on a session the cutoff named by its key;
 - `abort`, the cutoff's record:
   - whether it was attempted, and its scopes;
   - the ownership counts: records, rejected records, harvest failures, sessions
@@ -893,7 +907,11 @@ The cutoff is tested in three files, all with no live gateway:
   - a queued continuation that fires after an acknowledged abort;
   - delayed usage, and two concurrent requests, landing after the trip;
   - a trip between rows, a runner interrupted mid-drain, a dead meter, and a
-    malformed drain window.
+    malformed drain window;
+  - a usage reading held in flight across the abort, counted after it and named
+    straddling, and two id-less descendants (one whose listing has no session
+    id though its transcript has one, one not started until a wake after the
+    abort) that keep their abort outcome when they grow.
 - **`token-budget-cutoff.test.mjs`**: the ownership rules (every ambiguity
   reason, the cascade guard, and a randomized check that nothing pre-existing,
   configured or of unowned ancestry is ever owned), the abort pass, the

@@ -74,7 +74,7 @@ test('(a) usage that climbs past the budget mid-row stops that row, leaves the r
     assert.deepEqual(k6['R-CONFIG-INTERSESSION'], { started: false, finished: false, terminated: false }, 'no row is dispatched after the trip');
 
     assert.ok(receipt, 'a budget-abort receipt is written');
-    assert.equal(receipt.schema, 'openclaw.k6.token-budget-receipt.v1');
+    assert.equal(receipt.schema, 'openclaw.k6.token-budget-receipt.v2');
     assert.equal(receipt.verdict, 'BUDGET-ABORT');
     assert.equal(receipt.budget, 1000);
     assert.equal(receipt.exitCode, BUDGET_ABORT_EXIT);
@@ -129,6 +129,12 @@ test('(b) usage that stays under the budget lets every row finish and records a 
       assert.deepEqual(k6[row], { started: true, finished: true, terminated: false }, row);
     }
     assert.equal(receipt.verdict, 'WITHIN-BUDGET');
+    // The guard is labelled on every verdict, not only on an abort.
+    assert.equal(receipt.guard, 'cutoff, not a hard ceiling');
+    assert.match(receipt.verdictText, /^WITHIN-BUDGET \(cutoff, not a hard ceiling\): .*it never caps one$/u);
+    assert.equal(receipt.abort, null, 'no trip, no cutoff');
+    assert.equal(receipt.overshoot.maxPossible, 'unknown / unbounded by this guard');
+    assert.equal(receipt.overshoot.drain.reason, 'no-cutoff');
     assert.equal(receipt.budget, 3_200_000);
     assert.equal(receipt.trip, null);
     assert.equal(receipt.exitCode, 0);
@@ -161,6 +167,7 @@ test('(c) a counter that is unreadable at the start refuses the matrix before an
       assert.equal(fixture.runDirs[row], null, `${row} must leave no run directory`);
     }
     assert.equal(receipt.verdict, 'BUDGET-UNENFORCEABLE');
+    assert.equal(receipt.guard, 'cutoff, not a hard ceiling');
     assert.equal(receipt.exitCode, BUDGET_UNENFORCEABLE_EXIT);
     assert.equal(receipt.reason, 'baseline-unreadable: sessions-list:FORBIDDEN');
     assert.deepEqual(new Set(Object.values(rowStatuses(receipt))), new Set(['not-run (budget-unenforceable)']));

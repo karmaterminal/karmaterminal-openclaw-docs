@@ -10,12 +10,13 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { attachReadinessGateway } from './helpers/readiness-gateway.mjs';
+import { publicId } from '../../lib/token-budget.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const meterScript = path.resolve(here, '../token-budget-meter.mjs');
@@ -47,11 +48,16 @@ async function startGateway(methods) {
 const listing = (rows) => () => ({ ok: true, payload: { sessions: rows(), count: rows().length, hasMore: false, nextOffset: null } });
 const usageOf = (sessionId, tokens) => ({ ok: true, payload: { sessionId, points: [{ timestamp: 1, input: tokens, output: 0, cacheRead: 0, cacheWrite: 0, totalTokens: tokens, cost: 0 }] } });
 
-async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = null, env = {} }) {
+async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = null, env = {}, baselineOut = false, baselineOutBlocked = false, abortMark = false, abortDoc = false }) {
   const dir = await mkdtemp(path.join(tmpdir(), 'token-budget-meter-'));
   const state = path.join(dir, 'state.json');
   const flag = path.join(dir, 'tripped');
   const args = [meterScript, 'watch', '--budget', budget, '--state', state, '--trip-flag', flag];
+  if (baselineOut) args.push('--baseline-out', path.join(dir, 'baseline-sessions.json'));
+  if (abortMark) args.push('--abort-mark', path.join(dir, 'abort-mark'));
+  if (abortDoc) args.push('--abort-doc', path.join(dir, 'abort.json'));
+  // A directory where the file should go makes its write fail.
+  if (baselineOutBlocked) await mkdir(path.join(dir, 'baseline-sessions.json'));
   if (parentPid) args.push('--parent-pid', String(parentPid));
   const child = spawn(process.execPath, args, {
     env: {
@@ -84,6 +90,10 @@ async function startMeter({ url, budget = '1000', token = TOKEN, parentPid = nul
     readState,
     waitFor,
     flag,
+    baselineSessions: async () => JSON.parse(await readFile(path.join(dir, 'baseline-sessions.json'), 'utf8')),
+    baselineSessionsPath: path.join(dir, 'baseline-sessions.json'),
+    markAbort: (at) => writeFile(path.join(dir, 'abort-mark'), `${at}\n`),
+    writeAbortDoc: (doc) => writeFile(path.join(dir, 'abort.json'), `${JSON.stringify(doc)}\n`),
     output: () => output,
     cleanup: async () => {
       child.kill('SIGKILL');
@@ -335,6 +345,301 @@ test('the meter keeps its state fresh between readings and holds one connection'
     assert.ok(Date.parse(later.updatedAt) > Date.parse(first.updatedAt), 'a discovery rewrites the state, so the runner never sees a healthy meter as stale');
     assert.equal(gateway.connects.length, 1, `one authenticated connection for the run, not one per discovery (${gateway.connects.length})`);
   } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+// The token budget's cutoff (🌊, Discord 1573086211386384495) never aborts a
+// session that existed before the run, and reports per-session usage that
+// landed after the trip; the meter supplies both.
+
+test('--baseline-out holds every session the baseline listed, written before the meter arms; the trip keeps per-session totals', async () => {
+  let tokens = 0;
+  let lists = 0;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [
+        { key: CONFIGURED, sessionId: 'cfg' },
+        { key: 'agent:main:heartbeat', sessionId: 'hb' },
+        ...(lists > 1 ? [{ key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }] : []),
+      ])();
+    },
+    'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += 150)) : usageOf('cfg', 9000)),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '1000', baselineOut: true });
+  try {
+    const armed = await meter.waitFor((state) => state.phase !== 'baseline', 'armed');
+    assert.ok(existsSync(meter.baselineSessionsPath), 'written by the time the phase leaves baseline');
+    const baseline = await meter.baselineSessions();
+    assert.equal(baseline.at, armed.baseline.at);
+    assert.deepEqual(baseline.sessions, [{ key: CONFIGURED, sessionId: 'cfg' }, { key: 'agent:main:heartbeat', sessionId: 'hb' }]);
+    const tripped = await meter.waitFor((state) => state.trip, 'a trip');
+    assert.deepEqual(tripped.tripSessions, tripped.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })), 'the totals the tripping reading left');
+    const later = await meter.waitFor((state) => state.readings.length >= tripped.readings.length + 2, 'readings after the trip');
+    assert.deepEqual(later.tripSessions, tripped.tripSessions, 'kept as the trip left them');
+    assert.ok(!JSON.stringify(later).includes('uuid-secret'), 'the public state still carries no session id');
+    assert.ok(gateway.connects.every((connect) => JSON.stringify(connect.scopes) === '["operator.read"]'), 'the meter stays read-only');
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('a baseline file that cannot be written refuses the run rather than arming without it', async () => {
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }]),
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const meter = await startMeter({ url: gateway.url, baselineOut: true, baselineOutBlocked: true });
+  try {
+    assert.equal(await meter.exited, 3, meter.output());
+    const state = await meter.readState();
+    assert.equal(state.phase, 'unenforceable');
+    assert.equal(state.error, 'baseline-sessions-unwritten');
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('once the abort mark appears, the meter keeps the totals the readings before it left, and later growth is measured against them', async () => {
+  let tokens = 0;
+  let aborted = false;
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, { key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }]),
+    'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += aborted ? 0 : 100)) : usageOf('cfg', 1)),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true });
+  try {
+    const growing = await meter.waitFor((state) => state.readings.length >= 3, 'three readings');
+    aborted = true;
+    // Two more readings: one begun after the growth stopped has completed, so
+    // no reading in flight when the mark appears can still grow.
+    const before = await meter.waitFor((state) => state.readings.length >= growing.readings.length + 2, 'the growth stopped');
+    assert.equal(before.abortSessions, null, 'nothing is kept before the mark');
+    const markedAt = new Date().toISOString();
+    await meter.markAbort(markedAt);
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
+    const later = await meter.waitFor((state) => state.readings.length >= marked.readings.length + 2, 'readings after the mark');
+    assert.equal(later.abortSessions.markedAt, markedAt);
+    assert.deepEqual(later.abortSessions, marked.abortSessions, 'kept once, as the mark found it');
+    assert.equal(later.abortSessions.cumulative, before.cumulative, 'the totals before the abort');
+    assert.equal(later.cumulative, later.abortSessions.cumulative, 'nothing grew after the abort, and the snapshot says so');
+    assert.ok(!JSON.stringify(later.abortSessions).includes('uuid-secret'));
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+// Third review of #629 (🪨, Discord 1573378876984266873; 🌫's review at
+// b50e22fc): each test is RED at b50e22fc.
+
+const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+test('review round 3, P2a: a reading in flight when the abort mark appears counts after the abort, and is marked as straddling it', async () => {
+  // 🌫's reproduction: a baseline of 0, a tripping reading of 500, then the
+  // next reading held in flight across the mark and answered with 900.
+  let lists = 0;
+  let tokens = 500;
+  let hold = null;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, ...(lists > 1 ? [{ key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }] : [])])();
+    },
+    'sessions.usage.timeseries': async ({ key }) => {
+      if (key !== SECRET_KEY) return usageOf('cfg', 1);
+      if (hold && !hold.taken) {
+        hold.taken = true;
+        hold.entered();
+        await hold.released;
+        tokens = 900;
+      }
+      return usageOf('uuid-secret', tokens);
+    },
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '400', abortMark: true });
+  let release;
+  try {
+    const tripped = await meter.waitFor((state) => state.trip, 'the trip');
+    assert.equal(tripped.cumulative, 500);
+    const entered = new Promise((resolve) => {
+      hold = { taken: false, entered: resolve, released: new Promise((done) => { release = done; }) };
+    });
+    await entered;
+    await pause(30);
+    const markedAt = new Date().toISOString();
+    await meter.markAbort(markedAt);
+    await pause(30);
+    release();
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
+    const later = await meter.waitFor((state) => state.readings.length >= marked.readings.length + 2, 'readings after the mark');
+    assert.equal(later.abortSessions.cumulative, 500, 'the totals before the reading that completed after the abort');
+    assert.equal(later.cumulative, 900);
+    const straddling = later.readings.filter((reading) => reading.straddlesAbort);
+    assert.equal(straddling.length, 1, JSON.stringify(later.readings));
+    const [held] = straddling;
+    assert.equal(held.cumulative, 900, 'the held reading is the straddling one');
+    assert.ok(Date.parse(held.at) < Date.parse(markedAt) && Date.parse(held.completedAt) > Date.parse(markedAt), JSON.stringify(held));
+    assert.deepEqual(later.abortSessions.sessions.find((entry) => entry.id === publicId('main:uuid-secret')), { id: publicId('main:uuid-secret'), lastTokens: 500 }, 'per session, too');
+  } finally {
+    release?.();
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('review round 3, P2b: once the abort mark appears, a session the cutoff aborted with no session id carries that id under its own', async () => {
+  // The listing shows no session id, but its transcript answers with one.
+  const LISTED_ONLY = 'agent:main:subagent:listed-without-id';
+  // No session id and no transcript until it starts, after the abort.
+  const NOT_STARTED = 'agent:main:subagent:not-started';
+  const idless = (key) => publicId(`main:key:${key}`);
+  let lists = 0;
+  let started = false;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [
+        { key: CONFIGURED, sessionId: 'cfg' },
+        ...(lists > 1 ? [{ key: LISTED_ONLY, spawnedBy: CONFIGURED }, { key: NOT_STARTED, spawnedBy: CONFIGURED, ...(started ? { sessionId: 'started-real' } : {}) }] : []),
+      ])();
+    },
+    'sessions.usage.timeseries': ({ key }) => {
+      if (key === LISTED_ONLY) return usageOf('listed-real', started ? 400 : 0);
+      if (key === NOT_STARTED) return started ? usageOf('started-real', 500) : { ok: false, error: { code: 'INVALID_REQUEST', message: `No transcript found for session: ${key}` } };
+      return usageOf('cfg', 1);
+    },
+  });
+  try {
+    for (const withDoc of [true, false, 'malformed']) {
+      started = false;
+      lists = 0;
+      const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true, abortDoc: withDoc !== false });
+      try {
+        await meter.waitFor((state) => state.readings.length >= 2, 'two readings');
+        if (withDoc === true) await meter.writeAbortDoc({ sessions: [{ id: idless(LISTED_ONLY), outcome: 'aborted' }, { id: idless(NOT_STARTED), outcome: 'aborted' }] });
+        if (withDoc === 'malformed') await meter.writeAbortDoc({ phase: 'done' });
+        await meter.markAbort(new Date().toISOString());
+        await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
+        started = true;
+        const later = await meter.waitFor((state) => state.sessions.some((entry) => entry.lastTokens === 500), 'growth after the abort');
+        const byId = Object.fromEntries(later.sessions.map((entry) => [entry.id, entry]));
+        if (withDoc === true) {
+          assert.equal(later.abortSessions.abortIdsRead, 2);
+          assert.equal(byId[publicId('main:listed-real')].abortId, idless(LISTED_ONLY));
+          assert.equal(byId[publicId('main:started-real')].abortId, idless(NOT_STARTED));
+          assert.equal(byId[idless(NOT_STARTED)].abortId, undefined, 'the placeholder is the cutoff\'s id itself');
+        } else {
+          assert.equal(later.abortSessions.abortIdsRead, null, `${withDoc ? 'a malformed' : 'no'} document: the receipt cannot call the session unowned`);
+          assert.ok(later.sessions.every((entry) => entry.abortId === undefined));
+        }
+        assert.equal(byId[publicId('main:cfg')].abortId, undefined);
+      } finally {
+        await meter.cleanup();
+      }
+    }
+  } finally {
+    await gateway.close();
+  }
+});
+
+test('review round 3 follow-up: an abort mark caught before its time is written is not taken until the time is there', async () => {
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }]),
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true });
+  try {
+    await meter.waitFor((state) => state.readings.length >= 2, 'two readings');
+    // The runner's redirect creates the file before printf writes the time.
+    await meter.markAbort('');
+    const waiting = await meter.readState();
+    const later = await meter.waitFor((state) => state.readings.length >= waiting.readings.length + 3, 'readings with an empty mark');
+    assert.equal(later.abortSessions, null, 'no snapshot from a mark with no time');
+    const markedAt = new Date().toISOString();
+    await meter.markAbort(markedAt);
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
+    assert.equal(marked.abortSessions.markedAt, markedAt);
+    assert.equal(marked.abortSessions.cumulative, 0);
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('review round 3 follow-up: with no totals kept from before the mark\'s time, the meter claims none rather than later ones', async () => {
+  let tokens = 0;
+  let lists = 0;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, ...(lists > 1 ? [{ key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }] : [])])();
+    },
+    'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += 100)) : usageOf('cfg', 1)),
+  });
+  // Untripped, so only the last two readings' totals are kept; the mark's time predates both.
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true });
+  try {
+    await meter.waitFor((state) => state.readings.length >= 4, 'four readings');
+    await meter.markAbort('2026-11-19T00:00:00.000Z');
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort record');
+    assert.ok(marked.cumulative >= 400, 'the kept readings had grown');
+    assert.equal(marked.abortSessions.cumulative, null);
+    assert.equal(marked.abortSessions.sessions, null);
+    assert.equal(marked.abortSessions.markedAt, '2026-11-19T00:00:00.000Z');
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('review round 3 follow-up: an id-less key is linked to the session it held at the reading whose totals are kept, not one from a reset after the abort', async () => {
+  // Never listed with a session id; its transcript answers with one.
+  const CHILD = 'agent:main:subagent:listed-without-id';
+  const idless = (key) => publicId(`main:key:${key}`);
+  let lists = 0;
+  let hold = null;
+  let reset = false;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, ...(lists > 1 ? [{ key: CHILD, spawnedBy: CONFIGURED }] : [])])();
+    },
+    'sessions.usage.timeseries': async ({ key }) => {
+      if (key !== CHILD) return usageOf('cfg', 1);
+      if (hold && !hold.taken) {
+        hold.taken = true;
+        hold.entered();
+        await hold.released;
+        // Reset while the reading after the abort was in flight: a new session.
+        reset = true;
+      }
+      return reset ? usageOf('after-reset', 50) : usageOf('held-at-abort', 100);
+    },
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true, abortDoc: true });
+  let release;
+  try {
+    await meter.waitFor((state) => state.sessions.some((entry) => entry.id === publicId('main:held-at-abort')), 'the session before the abort');
+    const entered = new Promise((resolve) => {
+      hold = { taken: false, entered: resolve, released: new Promise((done) => { release = done; }) };
+    });
+    await entered;
+    await meter.writeAbortDoc({ sessions: [{ id: idless(CHILD), outcome: 'aborted' }] });
+    await pause(30);
+    await meter.markAbort(new Date().toISOString());
+    await pause(30);
+    release();
+    const later = await meter.waitFor((state) => state.abortSessions && state.sessions.some((entry) => entry.id === publicId('main:after-reset')), 'the snapshot and the reset session');
+    const byId = Object.fromEntries(later.sessions.map((entry) => [entry.id, entry]));
+    assert.equal(byId[publicId('main:held-at-abort')].abortId, idless(CHILD), 'the session the abort reached');
+    assert.equal(byId[publicId('main:after-reset')].abortId, undefined, 'a session from a reset after the abort is a new one');
+  } finally {
+    release?.();
     await meter.cleanup();
     await gateway.close();
   }

@@ -12,13 +12,19 @@
 # fires. --docs-ref (or OPENCLAW_PROOFS_DOCS_REF) is resolved and frozen once at
 # startup; ambient HEAD is never re-read after rows have run.
 #
-# --token-budget (or OPENCLAW_PROOFS_TOKEN_BUDGET) bounds the model tokens this
-# run's sessions consume on the target gateway. Empty means no budget. With one,
-# a live run reads usage before any row and refuses to start if it cannot
-# (BUDGET-UNENFORCEABLE, exit 80), then scripts/token-budget-meter.mjs polls at
-# a fixed interval during and between rows; at the bound the running k6 row is
+# --token-budget (or OPENCLAW_PROOFS_TOKEN_BUDGET) sets a token budget for the
+# model tokens this run's sessions consume on the target gateway. Empty means no
+# budget. With one, a live run reads usage before any row and refuses to start
+# if it cannot (BUDGET-UNENFORCEABLE, exit 80), then scripts/token-budget-meter.mjs
+# polls at a fixed interval during and between rows; at the budget the running k6 row is
 # stopped, the remaining rows are not run, and token-budget-receipt.json records
 # every reading (BUDGET-ABORT, exit 79). No retry is ever made.
+# At the trip, scripts/token-budget-abort.mjs calls sessions.abort once on each
+# session this run provably created (each budgeted row's k6 logs an ownership
+# record when its sessions.create is answered) and on their descendants, never
+# on any other session, then the meter keeps reading through a drain window.
+# It is a cutoff, not a hard ceiling: the receipt reports the observed
+# overshoot, and the maximum possible overshoot as unknown / unbounded.
 
 set -euo pipefail
 
@@ -124,6 +130,12 @@ finalize_interrupted_token_run() {
   if [[ "${TOKEN_BUDGET_ARMED:-false}" == "true" && "${BUDGET_RECEIPT_WRITTEN:-false}" != "true" ]]; then
     BUDGET_STOP_WAIT_SECONDS=2
     stop_token_budget_meter || true
+    # A cutoff already made keeps its record; its drain window was cut short.
+    if [[ "${BUDGET_CUTOFF_DONE:-false}" == "true" && ! -s "${BUDGET_DRAIN_DOC:-}" ]]; then
+      BUDGET_DRAIN_METERED=false
+      BUDGET_DRAIN_REASON="runner-interrupted"
+      write_token_budget_drain || true
+    fi
     write_token_budget_receipt "RUN-INTERRUPTED" "$exit_code" "runner-exited-before-the-matrix-finished" || true
   fi
   if [[ -n "${METER_PID:-}" ]]; then kill -KILL "$METER_PID" 2>/dev/null || true; fi
@@ -174,6 +186,22 @@ BUDGET_VERDICT=""
 BUDGET_STALE_SECONDS=35
 BUDGET_STOP_WAIT_SECONDS=45
 BUDGET_LAST_STALE_CHECK=0
+# The cutoff at the trip (scripts/token-budget-abort.mjs) and the drain after it.
+BUDGET_LEDGER=""
+BUDGET_BASELINE_SESSIONS=""
+BUDGET_ABORT_DOC=""
+BUDGET_DRAIN_DOC=""
+BUDGET_ABORT_MARK=""
+BUDGET_CUTOFF_DONE=false
+BUDGET_CUTOFF_ENDED_AT=""
+BUDGET_CUTOFF_ENDED_MS=0
+BUDGET_DRAIN_SECONDS="${OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS:-120}"
+TOKEN_BUDGET_GUARD="cutoff, not a hard ceiling"
+BUDGET_DRAIN_METERED=false
+BUDGET_DRAIN_REASON=""
+# Only a budgeted run issues an ownership tag (arm_token_budget); one inherited
+# from the caller would make an unbudgeted run's k6 log ownership records.
+unset OPENCLAW_PROOFS_OWNERSHIP_TAG
 METER_PID=""
 K6_PID=""
 declare -A BUDGET_ROW_STATUS=()
@@ -392,12 +420,16 @@ token_budget_rows_json() {
 }
 
 # token-budget-receipt.json: the meter's public state (every reading with its
-# time, the baseline, the trip, the measured cadence) plus this runner's facts.
+# time, the baseline, the trip, the measured cadence), the cutoff's abort
+# document, the overshoot (observed, and the maximum possible, which this guard
+# never bounds), plus this runner's facts.
 write_token_budget_receipt() {
   local verdict="$1" exit_code="$2" reason="${3:-}" default_status runner_trip='null' receipt="$OUT_ROOT/token-budget-receipt.json"
   # The meter state holds every reading, far past one 128 KiB argument on a
   # long run, so jq reads it from its file.
   local state_doc=(--argjson stateDoc '[]')
+  local abort_doc=(--argjson abortDoc '[]')
+  local overshoot_doc=(--argjson overshootDoc '[]')
   case "$verdict" in
     BUDGET-ABORT) default_status="not-run (budget)" ;;
     BUDGET-UNENFORCEABLE) default_status="not-run (budget-unenforceable)" ;;
@@ -407,6 +439,16 @@ write_token_budget_receipt() {
   esac
   if [[ -n "$BUDGET_STATE" && -s "$BUDGET_STATE" ]] && jq -e 'type == "object"' "$BUDGET_STATE" >/dev/null 2>&1; then
     state_doc=(--slurpfile stateDoc "$BUDGET_STATE")
+    local overshoot_args=(overshoot --state "$BUDGET_STATE" --cutoff-started "$BUDGET_CUTOFF_DONE")
+    if [[ -s "$BUDGET_ABORT_DOC" ]]; then overshoot_args+=(--abort "$BUDGET_ABORT_DOC"); fi
+    if [[ -s "$BUDGET_DRAIN_DOC" ]]; then overshoot_args+=(--drain "$BUDGET_DRAIN_DOC"); fi
+    if node "$SCRIPT_DIR/token-budget-abort.mjs" "${overshoot_args[@]}" > "$BUDGET_DIR/overshoot.json" 2>/dev/null \
+      && jq -e 'type == "object"' "$BUDGET_DIR/overshoot.json" >/dev/null 2>&1; then
+      overshoot_doc=(--slurpfile overshootDoc "$BUDGET_DIR/overshoot.json")
+    fi
+  fi
+  if [[ -n "$BUDGET_ABORT_DOC" && -s "$BUDGET_ABORT_DOC" ]] && jq -e 'type == "object"' "$BUDGET_ABORT_DOC" >/dev/null 2>&1; then
+    abort_doc=(--slurpfile abortDoc "$BUDGET_ABORT_DOC")
   fi
   if [[ -n "$BUDGET_RUNNER_TRIP" ]]; then
     runner_trip="$(jq -cn --arg reason "$BUDGET_RUNNER_TRIP" --arg at "$BUDGET_RUNNER_TRIP_AT" '{reason:$reason, at:$at}')"
@@ -425,13 +467,59 @@ write_token_budget_receipt() {
     --arg stoppedRow "$BUDGET_STOPPED_ROW" \
     --arg stoppedAt "$BUDGET_STOPPED_AT" \
     --arg recordedAt "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --arg guard "$TOKEN_BUDGET_GUARD" \
+    --arg cutoffDone "$BUDGET_CUTOFF_DONE" \
     "${state_doc[@]}" \
+    "${abort_doc[@]}" \
+    "${overshoot_doc[@]}" \
     --argjson runnerTrip "$runner_trip" \
     --argjson rows "$(token_budget_rows_json "$default_status")" \
-    '($stateDoc[0] // null) as $state | {
-      schema: "openclaw.k6.token-budget-receipt.v1",
+    '($stateDoc[0] // null) as $state | ($abortDoc[0] // null) as $abort | ($overshootDoc[0] // null) as $overshoot |
+    # What the cutoff did, from its own record; never what it set out to do.
+    def cutoff_text($subject):
+      if $abort == null then
+        (if $cutoffDone == "true" then "\($subject) left no record, so sessions may have been aborted" else "no cutoff was made" end)
+      elif ($abort.phase // "done") == "aborting" then
+        "\($subject) left no complete record (it stopped while aborting \($abort.sessions | length) owned session(s)), so sessions may have been aborted"
+      elif ($abort.phase // "done") != "done" then "\($subject) stopped while \($abort.phase), before any abort call"
+      elif $abort.attempted != true then "no abort was attempted (\($abort.reason))"
+      elif ($abort.ownership // {}) | has("rowsListed") and .rowsListed == null then
+        "\($subject) could not decide ownership (\($abort.error // "unknown")), so no session was aborted"
+      else
+        "\($subject) aborted \($abort.counts.aborted) of \($abort.counts.owned) owned session(s)" +
+        ([ (if $abort.counts.noActiveRun > 0 then "\($abort.counts.noActiveRun) no-active-run" else empty end),
+           (if $abort.counts.acknowledged > 0 then "\($abort.counts.acknowledged) acknowledged" else empty end),
+           (if ($abort.counts.partial // 0) > 0 then "\($abort.counts.partial) partial" else empty end),
+           (if $abort.counts.refused > 0 then "\($abort.counts.refused) refused" else empty end),
+           (if $abort.counts.failed > 0 then "\($abort.counts.failed) failed" else empty end),
+           (if $abort.counts.notAttempted > 0 then "\($abort.counts.notAttempted) not attempted" else empty end),
+           (if $abort.counts.skipped > 0 then "\($abort.counts.skipped) skipped" else empty end) ]
+          | if length > 0 then " (" + join(", ") + ")" else "" end) +
+        (if $abort.counts.ambiguous > 0 then " and left \($abort.counts.ambiguous) session(s) of ambiguous ownership alone" else "" end) +
+        (if $abort.error then "; \($subject) stopped early: \($abort.error)" else "" end)
+      end;
+    {
+      schema: "openclaw.k6.token-budget-receipt.v2",
       classification: "token-budget",
+      guard: $guard,
       verdict: $verdict,
+      verdictText: ($verdict + " (" + $guard + "): " + (
+        if $verdict == "BUDGET-ABORT" then
+          (if $runnerTrip != null then "the run was stopped when its token counter was lost (\($runnerTrip.reason))"
+           else "the run was stopped after its token budget tripped (\($state.trip.reason // "unknown"))" end) +
+          "; " + cutoff_text("the cutoff") +
+          "; observed overshoot " + (($overshoot.observed.pastBudgetTokens // "unknown") | tostring) + " token(s) past the budget, " +
+          (($overshoot.observed.postTripTokens // "unknown") | tostring) + " after the trip; maximum possible overshoot " +
+          ($overshoot.maxPossible // "unknown / unbounded by this guard")
+        elif $verdict == "WITHIN-BUDGET" then
+          "the run finished below its token budget as metered; this guard stops a run at a trip, it never caps one"
+        elif $verdict == "BUDGET-UNENFORCEABLE" then "the budget could not be enforced, so no row ran"
+        elif $verdict == "NOT-ENFORCED-DRY-RUN" then "a dry run fires no row and is not metered"
+        elif $verdict == "RUN-INTERRUPTED" then
+          "the runner exited before the matrix finished" +
+          (if $abort == null and $cutoffDone != "true" then "; no cutoff was made"
+           else "; a cutoff was made at the trip before the interruption: " + cutoff_text("it") end)
+        else "" end)),
       reason: (if $reason == "" then null else $reason end),
       exitCode: $exitCode,
       budget: (if $budget == "" then null else ($budget | tonumber) end),
@@ -454,6 +542,8 @@ write_token_budget_receipt() {
       cadence: ($state.cadence // null),
       readings: ($state.readings // []),
       sessions: ($state.sessions // []),
+      abort: $abort,
+      overshoot: $overshoot,
       rows: $rows,
       candidateOnly: true,
       recordedAt: $recordedAt
@@ -498,10 +588,22 @@ arm_token_budget() {
   chmod 700 "$BUDGET_DIR"
   BUDGET_STATE="$BUDGET_DIR/state.json"
   BUDGET_TRIP_FLAG="$BUDGET_DIR/tripped"
+  # Private, like the whole directory: the ownership ledger the rows' k6 runs
+  # feed, and the sessions that existed before the run, which the cutoff never
+  # aborts.
+  BUDGET_LEDGER="$BUDGET_DIR/owned-sessions.jsonl"
+  BUDGET_BASELINE_SESSIONS="$BUDGET_DIR/baseline-sessions.json"
+  BUDGET_ABORT_DOC="$BUDGET_DIR/abort.json"
+  BUDGET_DRAIN_DOC="$BUDGET_DIR/drain.json"
+  BUDGET_ABORT_MARK="$BUDGET_DIR/abort-mark"
+  : > "$BUDGET_LEDGER"
   node "$SCRIPT_DIR/token-budget-meter.mjs" watch \
     --budget "$TOKEN_BUDGET" \
     --state "$BUDGET_STATE" \
     --trip-flag "$BUDGET_TRIP_FLAG" \
+    --baseline-out "$BUDGET_BASELINE_SESSIONS" \
+    --abort-mark "$BUDGET_ABORT_MARK" \
+    --abort-doc "$BUDGET_ABORT_DOC" \
     --parent-pid "$$" \
     > "$BUDGET_DIR/meter.log" 2>&1 &
   METER_PID=$!
@@ -518,7 +620,17 @@ arm_token_budget() {
     if [[ -s "$BUDGET_STATE" ]]; then reason="$(jq -r '.error // empty' "$BUDGET_STATE" 2>/dev/null || true)"; fi
     refuse_token_budget "${reason:-meter-did-not-arm}"
   fi
+  # The cutoff cannot tell the run's sessions from a prince's without the
+  # baseline listing, so a meter that armed without writing it is refused.
+  if ! jq -e '.sessions | type == "array"' "$BUDGET_BASELINE_SESSIONS" >/dev/null 2>&1; then
+    refuse_token_budget "baseline-sessions-unwritten"
+  fi
   TOKEN_BUDGET_ARMED=true
+  # Every budgeted row's k6 logs an ownership record, carrying this tag, for
+  # each session its sessions.create was answered with (lib/session-ownership.mjs).
+  # The tag never leaves this runner and its children, so no model can forge one.
+  OPENCLAW_PROOFS_OWNERSHIP_TAG="$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')"
+  export OPENCLAW_PROOFS_OWNERSHIP_TAG
   local poll_ms timeout_ms
   poll_ms="$(jq -r '.pollIntervalMs' "$BUDGET_STATE")"
   timeout_ms="$(jq -r '.readTimeoutMs' "$BUDGET_STATE")"
@@ -533,6 +645,9 @@ arm_token_budget() {
 token_budget_tripped() {
   [[ "$TOKEN_BUDGET_ARMED" == "true" ]] || return 1
   if [[ -n "$BUDGET_RUNNER_TRIP" || -e "$BUDGET_TRIP_FLAG" ]]; then return 0; fi
+  # stop_token_budget_meter clears the pid: a meter the runner stopped itself
+  # is not a lost one.
+  [[ -n "${METER_PID:-}" ]] || return 1
   if ! kill -0 "$METER_PID" 2>/dev/null; then
     BUDGET_RUNNER_TRIP="meter-exited"
     BUDGET_RUNNER_TRIP_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
@@ -570,6 +685,115 @@ set_budget_row_status() {
   BUDGET_ROW_STATUS["$1"]="$2"
 }
 
+# After a budgeted row's k6 exits: keep the ownership records its k6 logged.
+# A failed harvest only loses records, so the cutoff can abort less, never more.
+harvest_token_budget_ownership() {
+  [[ "$TOKEN_BUDGET_ARMED" == "true" && -n "$1" ]] || return 0
+  if ! node "$SCRIPT_DIR/token-budget-abort.mjs" harvest \
+    --log "$PRIVATE_K6_LOG" --row "$1" --ledger "$BUDGET_LEDGER" > /dev/null 2>> "$BUDGET_DIR/abort.log"; then
+    echo "[$1] TOKEN BUDGET: WARNING: this row's ownership records could not be kept; the cutoff will not abort its sessions." >&2
+  fi
+}
+
+# A trip found between a row's steps cuts off at once, not after the row's
+# remaining post-processing (trace collection can take minutes).
+token_budget_checkpoint() {
+  if token_budget_tripped; then token_budget_cutoff; fi
+}
+
+# The cutoff, once, at the first trip (🌊's ruling, Discord 1573086211386384495):
+# sessions.abort on each session the run provably owns, never on another, with
+# no retry. Ambiguous ownership is logged and left alone. The run stops either way.
+token_budget_cutoff() {
+  [[ "$TOKEN_BUDGET_ARMED" == "true" && "$BUDGET_CUTOFF_DONE" != "true" ]] || return 0
+  BUDGET_CUTOFF_DONE=true
+  echo "TOKEN BUDGET CUTOFF ($TOKEN_BUDGET_GUARD): aborting only the sessions this run provably owns." >&2
+  # --foreground: a signal to the runner's process group reaches the abort step
+  # too, so a cancelled job is not held up by it; its phased record says how
+  # far it got.
+  if ! timeout --foreground 660 node "$SCRIPT_DIR/token-budget-abort.mjs" abort \
+    --ledger "$BUDGET_LEDGER" \
+    --baseline "$BUDGET_BASELINE_SESSIONS" \
+    --out "$BUDGET_ABORT_DOC" > /dev/null 2>> "$BUDGET_DIR/abort.log"; then
+    echo "TOKEN BUDGET CUTOFF: WARNING: the abort step did not finish cleanly." >&2
+  fi
+  BUDGET_CUTOFF_ENDED_MS="$(date +%s%3N)"
+  BUDGET_CUTOFF_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
+  # The meter keeps the per-session totals as they stood before the first
+  # reading that completed after this time (one begun before it straddles the
+  # abort and counts after it), so the receipt can tell what grew after the
+  # abort from what grew before it. It reads the abort document with the mark.
+  # Written whole, then renamed, so the meter never reads it without its time.
+  printf '%s\n' "$BUDGET_CUTOFF_ENDED_AT" > "$BUDGET_ABORT_MARK.tmp"
+  mv -f "$BUDGET_ABORT_MARK.tmp" "$BUDGET_ABORT_MARK"
+  if ! jq -e 'type == "object"' "$BUDGET_ABORT_DOC" >/dev/null 2>&1; then
+    rm -f "$BUDGET_ABORT_DOC"
+    echo "TOKEN BUDGET CUTOFF: no abort document was written; no session is known to have been aborted." >&2
+    return 0
+  fi
+  jq -r '
+    (if .attempted then empty else "TOKEN BUDGET CUTOFF: no abort attempted: \(.reason)" end),
+    (if .error then "TOKEN BUDGET CUTOFF: \(.error)" else empty end),
+    (if .phase == "aborting" then "TOKEN BUDGET CUTOFF: the abort step stopped while aborting; its record is incomplete, so sessions may have been aborted."
+     elif .phase != "done" then "TOKEN BUDGET CUTOFF: the abort step stopped while \(.phase), before any abort call."
+     else empty end),
+    (if .phase == "done" and .attempted then "TOKEN BUDGET CUTOFF: \(.counts.owned) owned session(s): \(.counts.aborted) aborted, \(.counts.noActiveRun) no-active-run, \(.counts.partial) partial, \(.counts.refused) refused, \(.counts.failed) failed, \(.counts.notAttempted) not attempted, \(.counts.skipped) skipped; \(.abortCalls) abort call(s), no retry." else empty end),
+    (.sessions[] | select(.outcome == "partial" or .outcome == "refused" or .outcome == "failed" or .outcome == "not-attempted" or .outcome == "skipped" or .outcome == "pending")
+      | "TOKEN BUDGET CUTOFF: session \(.id) (\(.role)) \(.outcome)\(if .refusal then " (\(.refusal))" elif .error then " (\(.error))" elif .reason then " (\(.reason))" else "" end); not retried."),
+    (.ambiguous[] | "TOKEN BUDGET CUTOFF: session \(.id) not aborted: ambiguous ownership (\(.reason))."),
+    "TOKEN BUDGET CUTOFF: \(.note)."
+  ' "$BUDGET_ABORT_DOC" >&2 || true
+}
+
+# Keep metering after the cutoff: the meter runs on until the drain window
+# has passed since the abort finished, then takes its final reading. The
+# receipt never calls a quiet window a finished drain.
+token_budget_drain() {
+  [[ "$BUDGET_CUTOFF_DONE" == "true" && "$BUDGET_CUTOFF_ENDED_MS" -gt 0 ]] || return 0
+  local window_ms end_ms
+  window_ms="$(awk -v s="$BUDGET_DRAIN_SECONDS" 'BEGIN { printf "%d", s * 1000 }')"
+  end_ms=$((BUDGET_CUTOFF_ENDED_MS + window_ms))
+  BUDGET_DRAIN_METERED=true
+  BUDGET_DRAIN_REASON=""
+  if [[ -n "$BUDGET_RUNNER_TRIP" ]]; then
+    BUDGET_DRAIN_METERED=false
+    BUDGET_DRAIN_REASON="$BUDGET_RUNNER_TRIP"
+  elif [[ -z "${METER_PID:-}" ]] || ! kill -0 "$METER_PID" 2>/dev/null; then
+    BUDGET_DRAIN_METERED=false
+    BUDGET_DRAIN_REASON="meter-not-running"
+  else
+    local written
+    while (( $(date +%s%3N) < end_ms )); do
+      if ! kill -0 "$METER_PID" 2>/dev/null; then
+        BUDGET_DRAIN_METERED=false
+        BUDGET_DRAIN_REASON="meter-exited-during-drain"
+        break
+      fi
+      # Alive is not metering: a meter that stops writing stops the drain too.
+      written="$(stat -c %Y "$BUDGET_STATE" 2>/dev/null || echo 0)"
+      if (( EPOCHSECONDS - written > BUDGET_STALE_SECONDS )); then
+        BUDGET_DRAIN_METERED=false
+        BUDGET_DRAIN_REASON="meter-stale-during-drain"
+        break
+      fi
+      sleep 0.2
+    done
+  fi
+}
+
+# The drain's record, written once the meter has taken its final reading.
+write_token_budget_drain() {
+  [[ "$BUDGET_CUTOFF_DONE" == "true" ]] || return 0
+  jq -n \
+    --argjson metered "${BUDGET_DRAIN_METERED:-false}" \
+    --arg reason "${BUDGET_DRAIN_REASON:-}" \
+    --arg startedAt "$BUDGET_CUTOFF_ENDED_AT" \
+    --arg endedAt "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
+    --arg windowSeconds "$BUDGET_DRAIN_SECONDS" \
+    '{metered: $metered, reason: (if $reason == "" then null else $reason end), startedAt: $startedAt, endedAt: $endedAt, windowSeconds: ($windowSeconds | tonumber)}' \
+    > "$BUDGET_DRAIN_DOC" || true
+}
+
 # The trip that stopped the run, as JSON: the meter's own, or the runner's.
 token_budget_trip_json() {
   if [[ -s "$BUDGET_TRIP_FLAG" ]] && jq -e 'type == "object"' "$BUDGET_TRIP_FLAG" >/dev/null 2>&1; then
@@ -590,6 +814,11 @@ if [[ -n "$TOKEN_BUDGET_INPUT" || "$TOKEN_BUDGET_FLAG_SEEN" == "true" ]]; then
     TOKEN_BUDGET_ENABLED=true
   else
     refuse_token_budget "budget-malformed"
+  fi
+  # The drain window after a cutoff: seconds, 0 to 1800, at most millisecond precision.
+  if ! [[ "$BUDGET_DRAIN_SECONDS" =~ ^[0-9]{1,4}(\.[0-9]{1,3})?$ ]] \
+    || ! awk -v s="$BUDGET_DRAIN_SECONDS" 'BEGIN { exit !(s <= 1800) }'; then
+    refuse_token_budget "drain-seconds-invalid"
   fi
 fi
 
@@ -1478,6 +1707,11 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
       wait "$K6_PID"
       k6_rc=$?
       K6_PID=""
+      # k6 has exited, so its log holds every session it created.
+      harvest_token_budget_ownership "$ROW_ID"
+      # A trip mid-row, or one that landed as k6 exited, cuts the run's
+      # sessions off now, before this row's post-processing.
+      token_budget_checkpoint
     else
       k6 run "scenarios/$SCENARIO_FILE" > "$PRIVATE_K6_LOG" 2>&1
       k6_rc=$?
@@ -1698,6 +1932,7 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     # plus the correlation receipt the collector names for this tool counts as
     # captured. Anything less leaves both receipts pending (#600), so the
     # envelope writer cannot call the review complete.
+    token_budget_checkpoint
     if [[ "$TRACE_CONTINUATION" == "true" ]]; then
       COLLECTOR_RESULT="$RUN_DIR/continuation-trace-collector.json"
       COLLECTOR_ERROR="$RUN_DIR/continuation-trace-collector.error.log"
@@ -2054,11 +2289,23 @@ done
 
 # The meter takes its last reading on the way out, so the receipt also records
 # what was consumed after a stop. A trip at any point, that last reading
-# included, makes the run a budget abort.
+# included, makes the run a budget abort. A trip found before that reading
+# gets its cutoff (if a row stop has not made it already) and the drain
+# window, metered; a trip found only in the last reading still gets the
+# cutoff, but nothing meters after it, and the receipt says so.
 if [[ "$TOKEN_BUDGET_ARMED" == "true" ]]; then
-  token_budget_tripped || true
+  if token_budget_tripped; then
+    token_budget_cutoff
+    token_budget_drain
+  fi
   stop_token_budget_meter
   if [[ -n "$BUDGET_RUNNER_TRIP" ]] || jq -e '.trip != null' "$BUDGET_STATE" >/dev/null 2>&1; then
+    if [[ "$BUDGET_CUTOFF_DONE" != "true" ]]; then
+      token_budget_cutoff
+      BUDGET_DRAIN_METERED=false
+      BUDGET_DRAIN_REASON="trip-in-final-reading"
+    fi
+    write_token_budget_drain
     BUDGET_VERDICT="BUDGET-ABORT"
     for BUDGET_ROW in "${ROW_ARRAY[@]}"; do
       BUDGET_ROW="$(printf '%s' "$BUDGET_ROW" | tr '[:lower:]' '[:upper:]')"

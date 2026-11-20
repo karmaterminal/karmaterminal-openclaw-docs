@@ -591,3 +591,34 @@ test('review F2: a cutoff that started but left no record is never reported as n
   assert.ok(!overshoot.maxPossibleReasons.includes('no abort was attempted'));
   assert.equal(overshoot.drain.reason, 'drain-unrecorded');
 });
+
+test('review round 2, F3: the record written before the abort calls shows a skipped session as skipped, not pending', async () => {
+  const s = await cutoffFiles();
+  try {
+    const saved = [];
+    const gateway = fakeGateway({
+      list: () => ({
+        ok: true,
+        payload: {
+          sessions: [
+            ...princeRows,
+            { key: ROOT, sessionId: 'root' },
+            { key: 'agent:main:subagent:proxied', sessionId: 'p', spawnedBy: PRINCE, controlOwnerSessionKey: ROOT },
+          ],
+          hasMore: false,
+        },
+      }),
+    });
+    const doc = await cutoff({ ...s.args, connect: gateway.connect, save: (current) => saved.push(JSON.parse(JSON.stringify(current))) });
+    const aborting = saved.find((entry) => entry.phase === 'aborting');
+    assert.ok(aborting, 'a record is written before the abort pass');
+    assert.deepEqual(aborting.sessions.map(({ role, outcome, reason }) => ({ role, outcome, reason })), [
+      { role: 'root', outcome: 'skipped', reason: 'cascade-would-reach-unowned-session' },
+    ]);
+    assert.deepEqual(saved.map((entry) => entry.phase), ['connecting', 'listing', 'aborting', 'done']);
+    assert.equal(doc.abortCalls, 0);
+    assert.equal(gateway.calls.filter((call) => call.method === 'sessions.abort').length, 0);
+  } finally {
+    await s.cleanup();
+  }
+});

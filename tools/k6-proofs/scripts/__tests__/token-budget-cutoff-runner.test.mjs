@@ -556,17 +556,20 @@ test('cutoff (7): two concurrent requests that both complete after the trip are 
 
 test('cutoff (8): a trip between rows aborts the sessions an earlier row left running', async () => {
   const PREFLIGHT_OWNED = 'agent:main:preflight-owned';
+  // PREFLIGHT's session works on after its row ended (a late wake or delegate
+  // return), starting while the next row reads its journal cursor before
+  // dispatch, which takes 1 s: the trip lands between the rows.
   const gateway = world({
     baseline: [prince({ tokens: 0 })],
     onCreate: (session) => {
-      // Residual work after its row ended (a late wake or delegate return).
-      session.grow = (s) => (s.aborted || !existsSync(path.join(gateway.markers, 'preflight.js.finished')) ? 0 : 600);
+      session.grow = (s) => (s.aborted || !existsSync(path.join(gateway.markers, 'journalctl.slept')) ? 0 : 600);
     },
   });
   const fixture = await runBudgetMatrix(repoRoot, {
     label: '8-trip-between-rows',
     budget: '1000',
     sleepSeconds: LONG_ROW,
+    journalSleep: { afterScenario: 'preflight.js', seconds: 1, at: 'cursor' },
     creates: { 'preflight.js': [{ key: 'preflight-owned', label: 'k6 PREFLIGHT owned' }] },
     usage: ({ markers }) => {
       gateway.markers = markers;
@@ -578,8 +581,9 @@ test('cutoff (8): a trip between rows aborts the sessions an earlier row left ru
     assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
     assert.deepEqual(abortedKeys(fixture), [PREFLIGHT_OWNED]);
     assert.equal(receipt.abort.counts.aborted, 1);
-    assert.equal(rowStatuses(receipt).PREFLIGHT, 'completed');
-    assert.equal(rowStatuses(receipt)['R-CONFIG-INTERSESSION'], 'not-run (budget)');
+    assert.deepEqual(rowStatuses(receipt), { PREFLIGHT: 'completed', 'R-CONFIG-DEFAULTS': 'not-run (budget)', 'R-CONFIG-INTERSESSION': 'not-run (budget)' });
+    assert.equal(fixture.k6['R-CONFIG-DEFAULTS'].started, false, 'caught before dispatch');
+    assert.equal(fixture.runDirs['R-CONFIG-DEFAULTS'], null);
     assert.equal(receipt.overshoot.drain.metered, true);
     assertCutoffLabels(receipt);
   } finally {
@@ -710,6 +714,9 @@ test('review F2: an abort step killed mid-pass leaves its in-progress record, an
     assert.equal(receipt.abort.completedAt, null);
     assert.deepEqual(receipt.abort.sessions.map((entry) => entry.outcome), ['pending', 'pending']);
     assert.match(receipt.verdictText, /the cutoff left no complete record \(it stopped while aborting 2 owned session\(s\)\), so sessions may have been aborted/u);
+    // Review round 2, F3: the runner's log makes no claim about calls it cannot know.
+    assert.match(result.stderr, /TOKEN BUDGET CUTOFF: the abort step stopped while aborting; its record is incomplete, so sessions may have been aborted\./u);
+    assert.doesNotMatch(result.stderr, /abort call\(s\), no retry/u);
     assert.ok(receipt.overshoot.maxPossibleReasons.includes('the cutoff left no complete record, so sessions may have been aborted'));
     assertCutoffLabels(receipt);
   } finally {
@@ -831,6 +838,58 @@ test('review F8: an ownership tag inherited from the caller is cleared, so an un
     const k6Log = await readFile(path.join(fixture.runDirs['R-CONFIG-DEFAULTS'], 'k6.log'), 'utf8');
     assert.ok(!k6Log.includes('[k6-owned-session]'), 'no ownership record, not even a redacted one');
     assert.deepEqual(fixture.abortCalls, []);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+// Independent review of 39fcecc9 (round 2): repairs, each RED on 24f009c0.
+
+test('review round 2, F1: a run that ends within its budget never cuts off, on its way out or anywhere', async () => {
+  const gateway = world({ baseline: [prince()], onCreate: (session) => { session.grow = () => 10; } });
+  const fixture = await runBudgetMatrix(repoRoot, {
+    label: '15-within-budget-no-cutoff',
+    budget: '3200000',
+    sleepSeconds: { 'r-config-defaults.js': 1 },
+    creates: CREATE_ROOT,
+    usage: () => gateway.methods,
+  });
+  try {
+    const { result, receipt } = fixture;
+    assert.equal(result.code, 0, `${result.stdout}\n${result.stderr}`);
+    assert.equal(receipt.verdict, 'WITHIN-BUDGET');
+    assert.equal(gateway.sessions.has(ROOT), true, 'the row created a session the run owns');
+    assert.deepEqual(fixture.abortCalls, [], 'no trip, no abort: not even from the exit path');
+    assert.doesNotMatch(`${result.stdout}\n${result.stderr}`, /TOKEN BUDGET CUTOFF/u);
+    assert.equal(receipt.abort, null);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('review round 2, F2: a cutoff that could not list the sessions says it could not decide ownership, not that the run owned none', async () => {
+  const gateway = world({ baseline: [prince()], onCreate: ownedChild });
+  const listing = gateway.methods['sessions.list'];
+  // Once the row is stopped, the gateway refuses listings: the cutoff cannot decide ownership.
+  gateway.methods['sessions.list'] = (params) => (terminated(gateway) ? { ok: false, error: { code: 'FORBIDDEN', message: 'missing scope' } } : listing(params));
+  const fixture = await runBudgetMatrix(repoRoot, {
+    label: '16-cutoff-listing-refused',
+    budget: '1000',
+    sleepSeconds: LONG_ROW,
+    creates: CREATE_ROOT,
+    usage: ({ markers }) => {
+      gateway.markers = markers;
+      return gateway.methods;
+    },
+  });
+  try {
+    const { result, receipt } = fixture;
+    assert.equal(result.code, BUDGET_ABORT_EXIT, `${result.stdout}\n${result.stderr}`);
+    assert.deepEqual(fixture.abortCalls, []);
+    assert.equal(receipt.abort.error, 'listing-failed: sessions-list:FORBIDDEN');
+    assert.match(receipt.verdictText, /the cutoff could not decide ownership \(listing-failed: sessions-list:FORBIDDEN\), so no session was aborted; /u);
+    assert.doesNotMatch(receipt.verdictText, /aborted 0 of 0/u);
+    assertCutoffLabels(receipt);
   } finally {
     await fixture.cleanup();
   }

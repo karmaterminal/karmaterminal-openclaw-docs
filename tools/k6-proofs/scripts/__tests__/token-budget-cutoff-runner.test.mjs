@@ -931,6 +931,8 @@ test('review round 3, P2a: a usage reading in flight across the abort counts aft
     if (params.key === ROOT) {
       const entered = new Promise((resolve) => { hold = { taken: false, entered: resolve }; });
       hold.enteredBeforeAnswer = await Promise.race([entered.then(() => true), sleep(3000).then(() => false)]);
+      // Clear of the reading's start, at millisecond resolution.
+      await sleep(20);
     }
     return answer;
   };

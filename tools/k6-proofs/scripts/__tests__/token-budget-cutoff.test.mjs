@@ -689,3 +689,13 @@ test('review round 3, P2b: a session the cutoff aborted while it had no session 
     { id: 'cccccccccccc', tokens: 200, owned: null },
   ]);
 });
+
+test('review round 3 follow-up: a meter that kept no totals from before the abort claims none; the receipt splits the readings itself and names no session figure', () => {
+  const state = {
+    ...stateFor(),
+    abortSessions: { markedAt: '2026-11-19T00:00:04.500Z', cumulative: null, sessions: null, abortIdsRead: 2 },
+  };
+  const overshoot = computeOvershoot({ state, abort: abortDoc(), drain: { metered: true } });
+  assert.equal(overshoot.observed.postAbortTokens, 900, 'from the readings: 2100 against the 1200 the last reading before the abort left');
+  assert.equal(overshoot.observed.sessionsGrowingAfterAbort, null, 'no per-session totals were kept, so none is claimed');
+});

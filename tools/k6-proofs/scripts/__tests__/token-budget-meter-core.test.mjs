@@ -443,3 +443,24 @@ test('review round 3, P2b: a session that had no session id when the cutoff name
   }, 'linked by key, and only where its own id is not the cutoff\'s');
   assert.ok(meter.publicSessions().every((entry) => entry.abortId === undefined), 'no abort ids, no links');
 });
+
+test('review round 3 follow-up: only the first session a key takes after the cutoff named it carries the cutoff\'s id; a later reset does not', async () => {
+  const CHILD = 'agent:main:subagent:not-started';
+  const gateway = scriptedGateway({ rows: [{ key: CONFIGURED, sessionId: 'cfg' }], usage: { [CONFIGURED]: series('cfg') } });
+  const meter = meterFor(gateway);
+  await meter.baseline();
+  gateway.rows.push({ key: CHILD, spawnedBy: CONFIGURED });
+  await meter.read();
+  gateway.rows[1] = { key: CHILD, sessionId: 'first-real', spawnedBy: CONFIGURED };
+  gateway.usage[CHILD] = series('first-real', 300);
+  await meter.read();
+  // A reset gives the key a new session id: a new session, as for a key the cutoff named by its session id.
+  gateway.rows[1] = { key: CHILD, sessionId: 'after-reset', spawnedBy: CONFIGURED };
+  gateway.usage[CHILD] = series('after-reset', 50);
+  gateway.usage['agent:main:first-real'] = series('first-real', 300);
+  const reading = await meter.read();
+  assert.equal(reading.readable, true, reading.error);
+  const abortIds = new Set([sessionPublicId(CHILD, null)]);
+  const linked = Object.fromEntries(meter.publicSessions({ abortIds }).filter((entry) => entry.abortId).map((entry) => [entry.id, entry.abortId]));
+  assert.deepEqual(linked, { [publicId('main:first-real')]: sessionPublicId(CHILD, null) });
+});

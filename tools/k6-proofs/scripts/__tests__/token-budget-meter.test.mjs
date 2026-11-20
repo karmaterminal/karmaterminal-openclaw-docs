@@ -515,25 +515,26 @@ test('review round 3, P2b: once the abort mark appears, a session the cutoff abo
     },
   });
   try {
-    for (const withDoc of [true, false]) {
+    for (const withDoc of [true, false, 'malformed']) {
       started = false;
       lists = 0;
-      const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true, abortDoc: withDoc });
+      const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true, abortDoc: withDoc !== false });
       try {
         await meter.waitFor((state) => state.readings.length >= 2, 'two readings');
-        if (withDoc) await meter.writeAbortDoc({ sessions: [{ id: idless(LISTED_ONLY), outcome: 'aborted' }, { id: idless(NOT_STARTED), outcome: 'aborted' }] });
+        if (withDoc === true) await meter.writeAbortDoc({ sessions: [{ id: idless(LISTED_ONLY), outcome: 'aborted' }, { id: idless(NOT_STARTED), outcome: 'aborted' }] });
+        if (withDoc === 'malformed') await meter.writeAbortDoc({ phase: 'done' });
         await meter.markAbort(new Date().toISOString());
         await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
         started = true;
         const later = await meter.waitFor((state) => state.sessions.some((entry) => entry.lastTokens === 500), 'growth after the abort');
         const byId = Object.fromEntries(later.sessions.map((entry) => [entry.id, entry]));
-        if (withDoc) {
+        if (withDoc === true) {
           assert.equal(later.abortSessions.abortIdsRead, 2);
           assert.equal(byId[publicId('main:listed-real')].abortId, idless(LISTED_ONLY));
           assert.equal(byId[publicId('main:started-real')].abortId, idless(NOT_STARTED));
           assert.equal(byId[idless(NOT_STARTED)].abortId, undefined, 'the placeholder is the cutoff\'s id itself');
         } else {
-          assert.equal(later.abortSessions.abortIdsRead, null, 'no document read: the receipt cannot call the session unowned');
+          assert.equal(later.abortSessions.abortIdsRead, null, `${withDoc ? 'a malformed' : 'no'} document: the receipt cannot call the session unowned`);
           assert.ok(later.sessions.every((entry) => entry.abortId === undefined));
         }
         assert.equal(byId[publicId('main:cfg')].abortId, undefined);
@@ -542,6 +543,56 @@ test('review round 3, P2b: once the abort mark appears, a session the cutoff abo
       }
     }
   } finally {
+    await gateway.close();
+  }
+});
+
+test('review round 3 follow-up: an abort mark caught before its time is written is not taken until the time is there', async () => {
+  const gateway = await startGateway({
+    'sessions.list': listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }]),
+    'sessions.usage.timeseries': () => usageOf('cfg', 1),
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true });
+  try {
+    await meter.waitFor((state) => state.readings.length >= 2, 'two readings');
+    // The runner's redirect creates the file before printf writes the time.
+    await meter.markAbort('');
+    const waiting = await meter.readState();
+    const later = await meter.waitFor((state) => state.readings.length >= waiting.readings.length + 3, 'readings with an empty mark');
+    assert.equal(later.abortSessions, null, 'no snapshot from a mark with no time');
+    const markedAt = new Date().toISOString();
+    await meter.markAbort(markedAt);
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort snapshot');
+    assert.equal(marked.abortSessions.markedAt, markedAt);
+    assert.equal(marked.abortSessions.cumulative, 0);
+  } finally {
+    await meter.cleanup();
+    await gateway.close();
+  }
+});
+
+test('review round 3 follow-up: with no totals kept from before the mark\'s time, the meter claims none rather than later ones', async () => {
+  let tokens = 0;
+  let lists = 0;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, ...(lists > 1 ? [{ key: SECRET_KEY, sessionId: 'uuid-secret', label: 'k6 R-CW-2 secretnonce' }] : [])])();
+    },
+    'sessions.usage.timeseries': ({ key }) => (key === SECRET_KEY ? usageOf('uuid-secret', (tokens += 100)) : usageOf('cfg', 1)),
+  });
+  // Untripped, so only the last two readings' totals are kept; the mark's time predates both.
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true });
+  try {
+    await meter.waitFor((state) => state.readings.length >= 4, 'four readings');
+    await meter.markAbort('2026-11-19T00:00:00.000Z');
+    const marked = await meter.waitFor((state) => state.abortSessions, 'the abort record');
+    assert.ok(marked.cumulative >= 400, 'the kept readings had grown');
+    assert.equal(marked.abortSessions.cumulative, null);
+    assert.equal(marked.abortSessions.sessions, null);
+    assert.equal(marked.abortSessions.markedAt, '2026-11-19T00:00:00.000Z');
+  } finally {
+    await meter.cleanup();
     await gateway.close();
   }
 });

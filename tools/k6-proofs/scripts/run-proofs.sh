@@ -1752,7 +1752,6 @@ for ROW_ID in "${ROW_ARRAY[@]}"; do
     if [[ "$GATEWAY_JOURNAL_RC" -ne 0 ]]; then
       GATEWAY_JOURNAL_STATUS="unavailable"
     fi
-    token_budget_checkpoint
     jq -n \
       --arg unit "$GATEWAY_UNIT" \
       --arg method "$GATEWAY_JOURNAL_METHOD" \

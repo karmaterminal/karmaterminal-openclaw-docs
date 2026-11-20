@@ -606,8 +606,9 @@ spend on the seat, check that the seat is idle before a budgeted run.
      - a trip while a row's k6 runs, a lost meter (`meter-exited`,
        `meter-stale`) included: right after that row's k6 has stopped, before
        its post-processing;
-     - a trip during a row's post-processing: at the next step boundary (after
-       k6 exits, after the journal capture, before trace collection);
+     - a trip during a row's post-processing: at the next checkpoint, right
+       after k6 exits or before trace collection, the step that can take
+       minutes;
      - a trip between rows: before the next row;
      - a run that fails after a trip (not one stopped by a signal): on its way
        out;

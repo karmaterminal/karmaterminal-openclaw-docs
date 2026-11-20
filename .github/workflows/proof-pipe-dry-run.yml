@@ -1,0 +1,153 @@
+name: proof-pipe-dry-run
+run-name: proof-pipe-dry-run ${{ inputs.trigger }} ${{ inputs.rows }} dry=${{ inputs.dry_run }}
+
+# The scheduled proof pipe's dry-run skeleton (docs#587;
+# tools/k6-proofs/docs/PROOF-PIPE-DESIGN.md):
+# Actions -> Temporal -> isolated proof gateway -> evidence lane -> docs PR.
+#
+# Only the plan is built. The job validates the dispatch, resolves rows from
+# PROOFS/<corpus>/proofs-manifest.json::dispatch_allocation at the exact docs
+# SHA, refuses any consumed or possibly consumed row, and prints the plan and
+# the receipts the pipe would collect. It fires no row and contacts no seat,
+# gateway or Temporal Service. The planner refuses dry_run=false: while the
+# bugs-first hold (tools/k6-proofs/proof-pipe/hold.json, and
+# vars.PROOF_PIPE_HOLD, which can only add one) is in effect, and after it,
+# because the live leg is not built.
+#
+# Cost: ARC or self-hosted only, never a rented runner. runs-on comes from
+# vars.PROOF_PIPE_RUNS_ON, default the ARC scale set oc-4cpu-16gb. The job's
+# `if:` admits only an unset variable, a JSON list or string starting with an
+# oc-* scale set, or a list starting with "self-hosted", written without
+# spaces; it then refuses any GitHub-hosted image or Blacksmith runner among
+# the decoded labels (toJSON(fromJSON(...)), so a JSON escape cannot hide
+# one). Anything else, a runner group object included, skips the job before a
+# runner is assigned, and the planner refuses it again from inside. The docs
+# repository has not used ARC before: grant it the runner group first.
+
+on:
+  workflow_dispatch:
+    inputs:
+      product_sha:
+        description: "40-char OpenClaw runtime SHA the rows would fire against"
+        required: true
+        type: string
+      docs_sha:
+        description: "40-char docs SHA: the corpus manifest, the catalog and the harness the seat would pin"
+        required: true
+        type: string
+      corpus_sha:
+        description: "40-char pure corpus SHA when the runtime is a composite (blank: the product SHA)"
+        required: false
+        default: ""
+        type: string
+      rows:
+        description: "all, owner:<dispatch_allocation bucket>, or comma-separated row ids"
+        required: true
+        default: "all"
+        type: string
+      trigger:
+        description: "What would start the live run"
+        required: true
+        default: manual
+        type: choice
+        options: [manual, nightly, on-deploy]
+      label:
+        description: "Workflow id label, a lowercase slug (blank: <trigger>-<docs sha 8>)"
+        required: false
+        default: ""
+        type: string
+      dry_run:
+        description: "Leave true. false is refused: the hold, and no live leg"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: proof-pipe-dry-run-${{ inputs.product_sha }}-${{ inputs.label || inputs.docs_sha }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: proof pipe plan (dry run)
+    if: >-
+      (vars.PROOF_PIPE_RUNS_ON == ''
+        || startsWith(vars.PROOF_PIPE_RUNS_ON, '["oc-')
+        || startsWith(vars.PROOF_PIPE_RUNS_ON, '"oc-')
+        || startsWith(vars.PROOF_PIPE_RUNS_ON, '["self-hosted"'))
+      && !contains(toJSON(fromJSON(vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]')), 'ubuntu-')
+      && !contains(toJSON(fromJSON(vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]')), 'windows-')
+      && !contains(toJSON(fromJSON(vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]')), 'macos-')
+      && !contains(toJSON(fromJSON(vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]')), 'blacksmith')
+    runs-on: ${{ fromJSON(vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]') }}
+    timeout-minutes: 10
+    steps:
+      - name: Check out the pipeline
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Fetch the docs SHA
+        env:
+          DOCS_SHA: ${{ inputs.docs_sha }}
+        run: |
+          set -euo pipefail
+          # Only a full SHA reaches git; the planner checks every input again.
+          if ! [[ "$DOCS_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error::docs_sha must be a 40-character lowercase hex SHA"
+            exit 1
+          fi
+          if ! git cat-file -e "${DOCS_SHA}^{commit}" 2>/dev/null; then
+            git fetch --no-tags --quiet origin "$DOCS_SHA"
+          fi
+
+      - name: Plan (dry run; fires nothing)
+        env:
+          PRODUCT_SHA: ${{ inputs.product_sha }}
+          DOCS_SHA: ${{ inputs.docs_sha }}
+          CORPUS_SHA: ${{ inputs.corpus_sha }}
+          ROWS: ${{ inputs.rows }}
+          TRIGGER: ${{ inputs.trigger }}
+          LABEL: ${{ inputs.label }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          RUNS_ON: ${{ vars.PROOF_PIPE_RUNS_ON || '["oc-4cpu-16gb"]' }}
+          PROOF_PIPE_HOLD: ${{ vars.PROOF_PIPE_HOLD }}
+          PLAN_OUT: ${{ runner.temp }}/proof-pipe-plan.json
+          PLAN_TEXT: ${{ runner.temp }}/proof-pipe-plan.txt
+        run: |
+          set -euo pipefail
+          args=(--product-sha "$PRODUCT_SHA" --docs-sha "$DOCS_SHA" --rows "$ROWS" --trigger "$TRIGGER")
+          args+=(--runner-labels "$RUNS_ON" --dry-run "$DRY_RUN" --out "$PLAN_OUT")
+          if [ -n "$CORPUS_SHA" ]; then args+=(--corpus-sha "$CORPUS_SHA"); fi
+          if [ -n "$LABEL" ]; then args+=(--label "$LABEL"); fi
+          set +e
+          node tools/k6-proofs/scripts/proof-pipe-dry-run.mjs "${args[@]}" 2>&1 | tee "$PLAN_TEXT"
+          rc=${PIPESTATUS[0]}
+          set -e
+          {
+            echo "## Proof pipe plan (dry run, exit $rc)"
+            echo
+            echo '```text'
+            cat "$PLAN_TEXT"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
+      - name: Upload the plan
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: proof-pipe-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/proof-pipe-plan.json
+            ${{ runner.temp }}/proof-pipe-plan.txt
+          if-no-files-found: warn
+          retention-days: 30

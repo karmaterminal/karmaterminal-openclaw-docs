@@ -119,6 +119,7 @@ See [`docs/GOLDEN-PATH.md`](docs/GOLDEN-PATH.md). Output remains
 `PASS-candidate` / review-required and must not be folded automatically.
 
 - [`docs/PROOF-RUN-METHOD.md`](docs/PROOF-RUN-METHOD.md) is the short GATES/proof-round entrypoint: row enumeration, dry-run/live run shape, bootstrap workflow anchor, and the #331 receipt boundary.
+- [`docs/PROOF-PIPE-DESIGN.md`](docs/PROOF-PIPE-DESIGN.md) is the design of the scheduled proof pipe (Actions → Temporal → isolated proof gateway → evidence lane → docs PR, #587). Only its dry run is built: `scripts/proof-pipe-dry-run.mjs` prints the plan and fires nothing, and refuses `dry_run=false` while [`proof-pipe/hold.json`](proof-pipe/hold.json) holds.
 
 ### 1. Seat readiness / version preflight
 

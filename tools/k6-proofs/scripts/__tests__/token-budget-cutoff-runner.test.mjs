@@ -741,7 +741,9 @@ test('review F5: a meter that freezes during the drain is not reported as having
     assert.deepEqual(abortedKeys(fixture), [ROOT]);
     assert.equal(receipt.overshoot.drain.metered, false);
     assert.ok(['meter-stale-during-drain', 'no-readable-reading-after-abort'].includes(receipt.overshoot.drain.reason), receipt.overshoot.drain.reason);
-    assert.ok(result.elapsedMs < 45_000, `a frozen meter ends the drain early (took ${result.elapsedMs} ms)`);
+    // Stale after poll + read timeout + 10 s (12.2 s here), then the frozen meter's
+    // bounded stop: well inside the 30 s window it would otherwise have held.
+    assert.ok(result.elapsedMs < 36_000, `a frozen meter ends the drain early (took ${result.elapsedMs} ms)`);
     assert.equal(fixture.metersLeft, 0);
   } finally {
     await fixture.cleanup();

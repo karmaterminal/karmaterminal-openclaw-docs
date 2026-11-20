@@ -22,14 +22,17 @@
 // src/agents/tool-search.ts:396-422 the dispatcher returns
 //   content: one text part, the JSON of { tool: { id, name, source }, result }
 //            where `result` is the tool's own result minus its details
-//            (compact at ab5a; pretty-printed at f15237ec92 and 9476c7aaf7);
+//            (compact at ab5a and 9476c7aaf7; pretty-printed at f15237ec92);
 //   details: { tool: <catalog entry>, result: <the tool's own result> }, plus
 //            `status: <failure kind>` when that result failed.
 // The tool's own answer ({"status":"scheduled",...}) is a JSON string inside
 // result.content[].text. Every build with a dispatcher has returned this
 // envelope; at v2026.7.1-1 `tool_call` returned it through jsonResult, with
-// the inner details kept. chat.history drops details, session.message events
-// keep them. unwrapToolResult reads both forms for every receipt reader.
+// the inner details kept. session.message events keep details; chat.history
+// keeps only an allowlisted projection of them (chat-display-projection
+// sanitize.ts:504-532, canvas.ts projectToolResultDetails) that drops every key
+// of a dispatcher row's details. unwrapToolResult reads both forms for every
+// receipt reader.
 //
 // k6 and Node compatible: no k6 or Node imports.
 
@@ -119,27 +122,26 @@ function structuredText(content) {
 /**
  * The structured answer of one tool result: its JSON content text, else its
  * details. Both carry the same payload (jsonResult, src/agents/tools/tool-results.ts:10-12);
- * chat.history keeps only the text.
+ * chat.history keeps the text and at most a projection of the details.
  */
 function structuredResult(result) {
   return structuredText(result?.content) ?? (isRecord(result?.details) ? result.details : null);
 }
 
 /**
- * Why an envelope's tool is not the OpenClaw tool `toolName`, or null. The id
- * must be the catalog id `openclaw:<sourceName>:<tool>`
- * (tool-search-catalog.ts:195), so a same-named MCP or client tool is never it.
+ * Why an envelope's tool is not OpenClaw's core `toolName`, or null. Every tool
+ * a receipt reads is core-owned at ab5a (created in src/agents/openclaw-tools*.ts
+ * with no plugin metadata, so classifyAgentToolSource names it "core",
+ * src/plugins/tool-metadata.ts:56-71), and every envelope form carries `source`.
+ * So the id must be exactly `openclaw:core:<tool>` (tool-search-catalog.ts:195)
+ * and the source `openclaw`: a same-named MCP, client or plugin tool is never it.
  */
 function envelopeToolMismatch(tool, toolName) {
   if (tool.name !== toolName) return `the envelope names tool ${JSON.stringify(tool.name ?? null)}, not ${toolName}`;
-  const id = typeof tool.id === 'string' ? tool.id : '';
-  const match = id.match(CATALOG_ID);
-  if (!match || match[1] !== toolName || !id.startsWith('openclaw:')) {
-    return `the envelope tool id ${JSON.stringify(tool.id ?? null)} is not an OpenClaw ${toolName}`;
+  if (tool.id !== `openclaw:core:${toolName}`) {
+    return `the envelope tool id ${JSON.stringify(tool.id ?? null)} is not openclaw:core:${toolName}`;
   }
-  if (tool.source !== undefined && tool.source !== 'openclaw') {
-    return `the envelope tool source ${JSON.stringify(tool.source)} is not openclaw`;
-  }
+  if (tool.source !== 'openclaw') return `the envelope tool source ${JSON.stringify(tool.source ?? null)} is not openclaw`;
   return null;
 }
 
@@ -150,8 +152,8 @@ function envelopeToolMismatch(tool, toolName) {
  *   - A row named after the tool (or with no name) is direct: its JSON content
  *     text, else its details.
  *   - A row named after the dispatcher must carry the { tool, result }
- *     envelope, whose tool is the OpenClaw `toolName`; the answer is the inner
- *     result's JSON text, else its details.
+ *     envelope, whose tool is OpenClaw's core `toolName`; the answer is the
+ *     inner result's JSON text, else its details.
  * Everything else is unreadable (payload null, with the reason): a row named
  * after another tool, a dispatcher row without an envelope, an envelope for
  * another tool or source, an envelope inside an envelope, an envelope on a

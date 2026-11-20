@@ -8,15 +8,21 @@
 // the matchers to unwrap the call; no reader unwrapped the result, so each one
 // read no status and the rows went PARTIAL although the work was scheduled.
 //
-// Per reader: the direct row, the envelope in each product form (ab5a compact,
-// f15237ec/9476c7aa pretty-printed, a live event with details, the older
+// Per reader: the direct row, the envelope in each product form (ab5a/9476c7aa
+// compact, f15237ec pretty-printed, a live event with details, the older
 // tool_call), and the shapes that must stay unreadable (another tool's envelope,
-// a same-named MCP tool, name and id disagreeing, the #617 fixture's bare JSON
-// under the dispatcher name, an envelope inside an envelope, an envelope with no
-// JSON answer or no tool, an envelope on a direct row, a row named after another
-// tool). This file imports only exports that predate the fix, so it runs
-// unchanged against docs main 54d750e8 as its negative control: the direct rows
-// and the unreadable shapes hold there, the envelope rows fail.
+// a same-named MCP or plugin tool, name and id disagreeing, the #617 fixture's
+// bare JSON under the dispatcher name, an envelope inside an envelope, an
+// envelope with no JSON answer or no tool, an envelope on a direct row, a row
+// named after another tool). This file imports only exports that predate the
+// fix, so it runs unchanged against docs main 54d750e8 as its negative control
+// (167 tests: 87 pass, 80 fail there). What fails there: all 44 envelope-form
+// cases (4 forms x 11 readers) and the R-RC-1 catalog-entry test. Two shapes
+// that base accepted and the fix refuses on purpose also fail there: the #617
+// bare answer under the dispatcher name (9 readers; no product build writes it),
+// and a result row named after another tool (the 6 shared-reader cases). The
+// 20 parent tests holding those cases fail with them. Every direct row and every
+// other unreadable shape holds on both trees.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { continueWorkChain } from '../lib/continue-work-chain.mjs';
@@ -51,7 +57,7 @@ function callRow(id, tool, args, via, runId) {
 const READABLE = [
   ['direct', { via: 'direct' }],
   ['dispatch_action, ab5a compact envelope (chat.history)', { via: 'dispatch' }],
-  ['dispatch_action, f15237ec/9476c7aa pretty envelope (chat.history)', { via: 'dispatch', compact: false }],
+  ['dispatch_action, f15237ec pretty envelope (chat.history)', { via: 'dispatch', compact: false }],
   ['dispatch_action, live event with details', { via: 'dispatch', surface: 'event' }],
   ['tool_call, v2026.7.1-1 envelope', { via: 'legacy-tool-call' }],
 ];
@@ -66,6 +72,7 @@ const UNREADABLE = [
     return resultRow({ ...f, via: 'dispatch', envelope: { name: other, id: `openclaw:core:${other}` } });
   }],
   ['an envelope for a same-named MCP tool', (f) => resultRow({ ...f, via: 'dispatch', envelope: { id: `mcp:lookalike:${f.tool}`, source: 'mcp' } })],
+  ['an envelope for a same-named plugin tool', (f) => resultRow({ ...f, via: 'dispatch', envelope: { id: `openclaw:lookalike-plugin:${f.tool}`, sourceName: 'lookalike-plugin' } })],
   ['an envelope whose name and id disagree', (f) => resultRow({ ...f, via: 'dispatch', envelope: { id: 'openclaw:core:exec' } })],
   ['the #617 fixture: the bare answer under the dispatcher name', (f) => ({ ...resultRow({ ...f, via: 'direct' }), toolName: DISPATCHER })],
   ['an envelope inside an envelope', (f) => {

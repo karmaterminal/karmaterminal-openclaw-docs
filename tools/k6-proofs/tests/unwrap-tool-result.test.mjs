@@ -1,8 +1,9 @@
 // unwrapToolResult (lib/tool-call-identity.mjs): the one reader of a tool's answer,
 // direct or through Tool Search's dispatch_action envelope (openclaw/openclaw#129388 H1).
-// Product anchors: openclaw ab5a30ea79 src/agents/tool-search.ts:396-422 (envelope),
-// tool-search-control-result.ts:12-24 (network-sourced text is wrapped and capped),
-// tool-result-error.ts:56-90 (failure kind copied into details.status).
+// Product anchors: openclaw ab5a30ea79 src/agents/tool-search.ts:396-422 (envelope; the
+// failure kind is copied into details.status at :418-421), tool-result-error.ts:56-84
+// (the failure kind), tool-search-control-result.ts:12-24 (network-sourced text is
+// wrapped and capped), src/plugins/tool-metadata.ts:56-71 (core vs plugin sourceName).
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { unwrapToolResult } from '../lib/tool-call-identity.mjs';
@@ -38,10 +39,15 @@ test('a live dispatcher row whose text is not JSON falls back to its details env
 });
 
 test('a failed inner result: details carry the failure kind beside the envelope; the answer is the tool\'s own', () => {
-  const inner = jsonResult({ status: 'error', error: 'synthetic failure' });
-  const result = dispatchedResult('continue_work', inner);
-  const failed = { role: 'toolResult', toolCallId: 'c1', toolName: DISPATCHER, isError: true, content: [{ type: 'text', text: 'not json' }], details: { ...result.details, status: 'failed' } };
-  assert.deepEqual(unwrapToolResult(failed, 'continue_work').payload, { status: 'error', error: 'synthetic failure' });
+  // A tool that returns a failed answer normally: the envelope text carries it, and details add status.
+  const answer = { status: 'error', error: 'synthetic failure' };
+  const live = resultRow({ toolCallId: 'c1', tool: 'continue_work', payload: answer, via: 'dispatch', surface: 'event', failureKind: 'failed' });
+  assert.equal(live.details.status, 'failed');
+  assert.deepEqual(unwrapToolResult(live, 'continue_work').payload, answer);
+  // With unreadable text, the details path reads the same inner answer, never the outer failure kind.
+  const result = dispatchedResult('continue_work', jsonResult(answer), { failureKind: 'failed' });
+  const wrapped = { role: 'toolResult', toolCallId: 'c1', toolName: DISPATCHER, isError: true, content: [{ type: 'text', text: 'not json' }], details: result.details };
+  assert.deepEqual(unwrapToolResult(wrapped, 'continue_work').payload, answer);
 });
 
 test('every unreadable shape names why', () => {
@@ -55,10 +61,13 @@ test('every unreadable shape names why', () => {
     ['a direct result row carries a Tool Search envelope', { ...row({ via: 'dispatch' }), toolName: 'continue_work' }, 'continue_work'],
     ['the dispatcher result carries no { tool, result } envelope', { ...row({}), toolName: DISPATCHER }, 'continue_work'],
     ['the envelope names tool "sessions_spawn", not continue_work', env({ name: 'sessions_spawn', id: 'openclaw:core:sessions_spawn' }), 'continue_work'],
-    ['the envelope tool id "mcp:lookalike:continue_work" is not an OpenClaw continue_work', env({ id: 'mcp:lookalike:continue_work', source: 'mcp' }), 'continue_work'],
-    ['the envelope tool id "openclaw:core:exec" is not an OpenClaw continue_work', env({ id: 'openclaw:core:exec' }), 'continue_work'],
-    ['the envelope tool id null is not an OpenClaw continue_work', env({ id: undefined }), 'continue_work'],
+    ['the envelope tool id "mcp:lookalike:continue_work" is not openclaw:core:continue_work', env({ id: 'mcp:lookalike:continue_work', source: 'mcp' }), 'continue_work'],
+    ['the envelope tool id "openclaw:lookalike-plugin:continue_work" is not openclaw:core:continue_work', env({ id: 'openclaw:lookalike-plugin:continue_work' }), 'continue_work'],
+    ['the envelope tool id "openclaw:core:exec" is not openclaw:core:continue_work', env({ id: 'openclaw:core:exec' }), 'continue_work'],
+    ['the envelope tool id "continue_work" is not openclaw:core:continue_work', env({ id: 'continue_work' }), 'continue_work'],
+    ['the envelope tool id null is not openclaw:core:continue_work', env({ id: undefined }), 'continue_work'],
     ['the envelope tool source "client" is not openclaw', env({ source: 'client' }), 'continue_work'],
+    ['the envelope tool source null is not openclaw', env({ source: undefined }), 'continue_work'],
     ['the envelope result carries no JSON object', text({ tool: { id: 'openclaw:core:continue_work', name: 'continue_work', source: 'openclaw' }, result: { content: [{ type: 'text', text: 'ok' }] } }), 'continue_work'],
     ['the envelope result is itself an envelope', text({ tool: { id: 'openclaw:core:continue_work', name: 'continue_work', source: 'openclaw' }, result: { content: [{ type: 'text', text: JSON.stringify({ tool: { id: 'openclaw:core:continue_work', name: 'continue_work' }, result: { content: [] } }) }] } }), 'continue_work'],
   ];

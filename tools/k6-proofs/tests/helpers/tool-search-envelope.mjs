@@ -9,14 +9,16 @@
 //                                               text: JSON.stringify(p, null, 2) }], details: p }
 //   - src/agents/tool-search.ts:396-422         dispatch_action result: content text = JSON of
 //                                               { tool: { id, name, source }, result: <inner minus details> }
-//                                               (compact), details = { tool: <catalog entry>, result: <inner> },
-//                                               plus status: <failure kind> when the inner result failed
+//                                               (compact; pretty-printed only at f15237ec92),
+//                                               details = { tool: <catalog entry>, result: <inner> },
+//                                               plus status: <failure kind> when the inner result failed (:421)
 //   - src/agents/tool-search-catalog.ts:195     catalog id `<source>:<sourceName>:<tool>`
 //   - src/agents/core-tool-facts.ts:5           TOOL_CALL_RAW_TOOL_NAME = "dispatch_action"
 //   - src/agents/tool-surface-plan.ts:145-151   only `message` stays direct (non-ollama)
 //   - v2026.7.1-1 src/agents/tool-search.ts:2361-2367  the older `tool_call` returned
 //                                               jsonResult({ tool: <catalog entry>, result: <inner> })
-// chat.history drops details (chat-display-projection sanitize); session.message events keep them.
+// session.message events keep details; chat.history keeps only an allowlisted projection of them
+// (chat-display-projection.sanitize.ts:504-532) that drops every key these rows' details carry.
 // Every value here is synthetic.
 
 export const DISPATCHER = 'dispatch_action';
@@ -35,6 +37,7 @@ export function catalogEntry(tool, overrides = {}) {
     name: tool,
     label: 'Synthetic',
     description: `synthetic catalog entry for ${tool}`,
+    input: 'synthetic input hint',
     ...overrides,
   };
 }
@@ -42,13 +45,16 @@ export function catalogEntry(tool, overrides = {}) {
 /**
  * The dispatch_action result for `inner` (an AgentToolResult), as ab5a builds it.
  * envelope: overrides for the envelope's tool identity ({ name, id, source }), to
- * build a mismatched envelope; compact: false gives the f15237ec/9476c7aa bytes.
+ * build a mismatched envelope; compact: false gives the f15237ec92 bytes;
+ * failureKind: the canonical failure kind ab5a copies into details.status when
+ * the inner result failed (tool-search.ts:418-421, tool-result-error.ts:56-84).
  */
-export function dispatchedResult(tool, inner, { envelope = {}, compact = true } = {}) {
+export function dispatchedResult(tool, inner, { envelope = {}, compact = true, failureKind } = {}) {
   const entry = { ...catalogEntry(tool), ...envelope };
   const { details: _drop, ...modelResult } = inner;
   const text = JSON.stringify({ tool: { id: entry.id, name: entry.name, source: entry.source }, result: modelResult }, null, compact ? undefined : 2);
-  return { content: [{ type: 'text', text }], details: { tool: entry, result: inner } };
+  const details = { tool: entry, result: inner };
+  return { content: [{ type: 'text', text }], details: failureKind ? { ...details, status: failureKind } : details };
 }
 
 /** The older `tool_call` result (v2026.7.1-1): jsonResult of { tool: <entry>, result: <inner, details kept> }. */
@@ -67,9 +73,9 @@ export function dispatchedCallPart(id, tool, args) {
  *   surface: 'history' drops details (chat.history); 'event' keeps them.
  *   envelope: envelope tool overrides (dispatch only).
  */
-export function resultRow({ toolCallId, tool, payload, via = 'direct', surface = 'history', envelope, compact, runId, isError = false, extra = {} }) {
+export function resultRow({ toolCallId, tool, payload, via = 'direct', surface = 'history', envelope, compact, failureKind, runId, isError = false, extra = {} }) {
   const inner = jsonResult(payload);
-  const result = via === 'dispatch' ? dispatchedResult(tool, inner, { envelope, compact })
+  const result = via === 'dispatch' ? dispatchedResult(tool, inner, { envelope, compact, failureKind })
     : via === 'legacy-tool-call' ? legacyToolCallResult(tool, inner)
     : inner;
   const toolName = via === 'dispatch' ? DISPATCHER : via === 'legacy-tool-call' ? 'tool_call' : tool;

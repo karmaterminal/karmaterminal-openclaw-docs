@@ -313,9 +313,9 @@ export function createUsageMeter({
   const sessions = new Map(); // accounting id -> { agentId, sessionId, reason, baselineTokens, lastTokens, everPositive, closed, placeholder }
   // The cutoff names a session that has no session id by its key. Once its ids
   // are linked (linkAbortIds), each such key is linked, privately, to the
-  // session it held then or else the first it took after: key-form id ->
-  // accounting id. currentByKey is the session each key's last reading
-  // recorded.
+  // session it held at the reading before the abort or else the first it took
+  // after: key-form id -> accounting id. currentByKey is the session each
+  // key's last reading recorded.
   let abortKeyIds = null;
   const abortLinks = new Map();
   const currentByKey = new Map();
@@ -535,16 +535,23 @@ export function createUsageMeter({
       return baselineRows.map((row) => ({ ...row }));
     },
     /**
-     * Link the ids the cutoff published, once, as the abort ends: a key the
-     * cutoff named by its key (its session had no session id then) is linked
-     * to the session with a session id of its own that the key held at its
-     * last reading, or else to the first such session it takes. A session from
-     * a later reset is a new session, as it is for a key the cutoff named by
-     * its session id.
+     * The session each key's last reading recorded. Private: it holds keys.
+     * The meter keeps it with each reading's totals for linkAbortIds.
      */
-    linkAbortIds(ids) {
+    heldSessions() {
+      return new Map(currentByKey);
+    },
+    /**
+     * Link the ids the cutoff published, once: a key the cutoff named by its
+     * key (its session had no session id then) is linked to the session with a
+     * session id of its own that `held` (heldSessions() at the reading before
+     * the abort; by default the last reading) names for it, or else to the
+     * first such session it takes after. A session from a later reset is a new
+     * session, as it is for a key the cutoff named by its session id.
+     */
+    linkAbortIds(ids, held = currentByKey) {
       abortKeyIds = new Set(ids);
-      for (const [key, id] of currentByKey) linkKey(key, id);
+      for (const [key, id] of held) linkKey(key, id);
     },
     /**
      * Per-session facts safe to publish: a 12-hex id hash, never a key or

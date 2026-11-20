@@ -360,8 +360,13 @@ async function watch(args, env = process.env) {
   // The totals each usage reading left, with when it began and completed, so
   // the abort snapshot can be the totals before the first reading that
   // completed after the abort, wherever the mark is first seen. From the trip
-  // on every one is kept until the snapshot; before it, the last two.
-  const totalsNow = () => ({ cumulative: state.cumulative, sessions: state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })) });
+  // on every one is kept until the snapshot; before it, the last two. Each also
+  // keeps, in memory only, the session each key held (for linkAbortIds).
+  const totalsNow = () => ({
+    cumulative: state.cumulative,
+    sessions: state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })),
+    held: meter.heldSessions(),
+  });
   let checkpoints = [{ index: null, startedMs: null, completedMs: Date.now(), ...totalsNow() }];
 
   let stopping = false;
@@ -421,7 +426,7 @@ async function watch(args, env = process.env) {
         abortIds = null;
       }
     }
-    if (abortIds) meter.linkAbortIds(abortIds);
+    if (abortIds) meter.linkAbortIds(abortIds, kept?.held ?? new Map());
     state.abortSessions = { markedAt, cumulative: kept?.cumulative ?? null, sessions: kept?.sessions ?? null, abortIdsRead: abortIds ? abortIds.size : null };
     state.sessions = meter.publicSessions();
     checkpoints = null;

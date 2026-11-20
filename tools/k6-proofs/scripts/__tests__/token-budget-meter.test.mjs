@@ -596,3 +596,51 @@ test('review round 3 follow-up: with no totals kept from before the mark\'s time
     await gateway.close();
   }
 });
+
+test('review round 3 follow-up: an id-less key is linked to the session it held at the reading whose totals are kept, not one from a reset after the abort', async () => {
+  // Never listed with a session id; its transcript answers with one.
+  const CHILD = 'agent:main:subagent:listed-without-id';
+  const idless = (key) => publicId(`main:key:${key}`);
+  let lists = 0;
+  let hold = null;
+  let reset = false;
+  const gateway = await startGateway({
+    'sessions.list': () => {
+      lists += 1;
+      return listing(() => [{ key: CONFIGURED, sessionId: 'cfg' }, ...(lists > 1 ? [{ key: CHILD, spawnedBy: CONFIGURED }] : [])])();
+    },
+    'sessions.usage.timeseries': async ({ key }) => {
+      if (key !== CHILD) return usageOf('cfg', 1);
+      if (hold && !hold.taken) {
+        hold.taken = true;
+        hold.entered();
+        await hold.released;
+        // Reset while the reading after the abort was in flight: a new session.
+        reset = true;
+      }
+      return reset ? usageOf('after-reset', 50) : usageOf('held-at-abort', 100);
+    },
+  });
+  const meter = await startMeter({ url: gateway.url, budget: '999999', abortMark: true, abortDoc: true });
+  let release;
+  try {
+    await meter.waitFor((state) => state.sessions.some((entry) => entry.id === publicId('main:held-at-abort')), 'the session before the abort');
+    const entered = new Promise((resolve) => {
+      hold = { taken: false, entered: resolve, released: new Promise((done) => { release = done; }) };
+    });
+    await entered;
+    await meter.writeAbortDoc({ sessions: [{ id: idless(CHILD), outcome: 'aborted' }] });
+    await pause(30);
+    await meter.markAbort(new Date().toISOString());
+    await pause(30);
+    release();
+    const later = await meter.waitFor((state) => state.abortSessions && state.sessions.some((entry) => entry.id === publicId('main:after-reset')), 'the snapshot and the reset session');
+    const byId = Object.fromEntries(later.sessions.map((entry) => [entry.id, entry]));
+    assert.equal(byId[publicId('main:held-at-abort')].abortId, idless(CHILD), 'the session the abort reached');
+    assert.equal(byId[publicId('main:after-reset')].abortId, undefined, 'a session from a reset after the abort is a new one');
+  } finally {
+    release?.();
+    await meter.cleanup();
+    await gateway.close();
+  }
+});

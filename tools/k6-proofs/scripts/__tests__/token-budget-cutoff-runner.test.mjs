@@ -168,7 +168,9 @@ test('cutoff (1): an owned disposable session and its child are both aborted, on
     assert.equal(receipt.abort.attempted, true);
     assert.equal(receipt.abort.abortCalls, 2);
     assert.equal(receipt.abort.retries, 0);
-    assert.deepEqual(receipt.abort.counts, { owned: 2, aborted: 2, noActiveRun: 0, acknowledged: 0, refused: 0, failed: 0, notAttempted: 0, skipped: 0, ambiguous: 0 });
+    assert.deepEqual(receipt.abort.counts, { owned: 2, aborted: 2, noActiveRun: 0, acknowledged: 0, partial: 0, refused: 0, failed: 0, notAttempted: 0, skipped: 0, ambiguous: 0 });
+    assert.equal(receipt.abort.phase, 'done');
+    assert.match(receipt.verdictText, /the run was stopped after its token budget tripped \((projected-exceed|budget-reached)\); the cutoff aborted 2 of 2 owned session\(s\); observed overshoot /u);
     assert.deepEqual(receipt.abort.sessions.map(({ id, role, depth, outcome }) => ({ id, role, depth, outcome })), [
       { id: publicIdOf(ROOT, 'sid-r-config-defaults-owned'), role: 'root', depth: 0, outcome: 'aborted' },
       { id: publicIdOf(CHILD, 'owned-child'), role: 'descendant', depth: 1, outcome: 'aborted' },
@@ -192,7 +194,7 @@ test('cutoff (1): an owned disposable session and its child are both aborted, on
     assertCutoffLabels(receipt);
     assertPublicSafe(fixture, [ROOT, CHILD, 'owned-child', 'sid-r-config-defaults-owned', 'r-config-defaults-owned']);
 
-    assert.match(result.stderr, /TOKEN BUDGET CUTOFF: 2 owned session\(s\): 2 aborted, 0 no-active-run, 0 refused, 0 failed, 0 not attempted, 0 skipped; 2 abort call\(s\), no retry\./u);
+    assert.match(result.stderr, /TOKEN BUDGET CUTOFF: 2 owned session\(s\): 2 aborted, 0 no-active-run, 0 partial, 0 refused, 0 failed, 0 not attempted, 0 skipped; 2 abort call\(s\), no retry\./u);
     // The stopped row's public k6 log keeps the record's place but not its contents.
     const k6Log = await readFile(path.join(fixture.runDirs['R-CONFIG-DEFAULTS'], 'k6.log'), 'utf8');
     assert.match(k6Log, /\[k6-owned-session\] <redacted-ownership-record>/u);

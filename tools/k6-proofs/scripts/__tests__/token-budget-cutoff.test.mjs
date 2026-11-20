@@ -232,7 +232,7 @@ test('each abortable owned session gets exactly one sessions.abort, in order; a 
   ]);
 });
 
-test('refusals are recorded by a fixed vocabulary and never retried; an unknown status is only acknowledged', async () => {
+test('refusals are recorded by a fixed vocabulary and never retried; an unknown status is only acknowledged; a stopped session with incomplete descendants is partial', async () => {
   const answers = {
     unauthorized: { ok: false, error: { code: 'INVALID_REQUEST', message: 'unauthorized' } },
     partial: { ok: false, error: { code: 'UNAVAILABLE', message: 'Session stopped, but descendant cancellation was incomplete: agent:main:secret' } },
@@ -252,7 +252,7 @@ test('refusals are recorded by a fixed vocabulary and never retried; an unknown 
   assert.deepEqual(calls, Object.keys(answers), 'one call each, no retry');
   assert.deepEqual(results.map(({ outcome, error, refusal, status }) => ({ outcome, error, refusal, status })), [
     { outcome: 'refused', error: 'sessions-abort:INVALID_REQUEST', refusal: 'unauthorized', status: undefined },
-    { outcome: 'refused', error: 'sessions-abort:UNAVAILABLE', refusal: 'descendants-incomplete', status: undefined },
+    { outcome: 'partial', error: 'sessions-abort:UNAVAILABLE', refusal: 'descendants-incomplete', status: undefined },
     { outcome: 'refused', error: 'sessions-abort:INVALID_REQUEST', refusal: 'not-found', status: undefined },
     { outcome: 'refused', error: 'sessions-abort:ERROR', refusal: 'other', status: undefined },
     { outcome: 'acknowledged', error: undefined, refusal: undefined, status: 'unrecognized' },
@@ -353,6 +353,7 @@ test('the observed overshoot is measured from the readings; the maximum possible
     postAbortTokens: 900,
     readingsAfterTrip: 5,
     readingsAfterAbort: 4,
+    unreadableReadingsAfterAbort: 0,
     lastGrowthAt: '2026-11-19T00:00:06.000Z',
     quietReadingsAtEnd: 2,
     sessionsGrowingAfterTrip: [{ id: 'aaaaaaaaaaaa', tokens: 1000 }, { id: 'cccccccccccc', tokens: 200 }],

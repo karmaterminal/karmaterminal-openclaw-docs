@@ -42,9 +42,18 @@ export function ownershipRecordLine(tag, payload) {
   return `${OWNERSHIP_MARKER} ${tag} ${JSON.stringify({ key, sessionId })}`;
 }
 
-// A k6 console line is `time=... level=info msg="<json string>" source=console`.
-// A bare line (another runner, a test) is taken as the message itself.
+// A k6 console line is `time=... level=info msg="<json string>" source=console`,
+// or with K6_LOG_FORMAT=json one JSON object whose msg is the message. A bare
+// line (another runner, a test) is taken as the message itself.
 function messageOf(line) {
+  if (line.trimStart().startsWith('{')) {
+    try {
+      const entry = JSON.parse(line);
+      return typeof entry?.msg === 'string' ? entry.msg : null;
+    } catch {
+      return null;
+    }
+  }
   const marker = ' msg=';
   const start = line.indexOf(marker);
   if (start < 0) return line;

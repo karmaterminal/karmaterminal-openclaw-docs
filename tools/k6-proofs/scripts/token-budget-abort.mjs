@@ -3,7 +3,7 @@
 //
 //   harvest   --log <private k6 log> --row <ROW> --ledger <file>
 //   abort     --ledger <file> --baseline <file> --out <file>
-//   overshoot --state <file> [--abort <file>] [--drain <file>]
+//   overshoot --state <file> [--abort <file>] [--drain <file>] [--cutoff-started true]
 //
 // harvest runs after every budgeted row's k6 exits. It appends to the run's
 // private ledger each ownership record that row's k6 logged when a
@@ -20,7 +20,9 @@
 // comes from OPENCLAW_GATEWAY_TOKEN and the URL from OPENCLAW_GATEWAY_WS,
 // never from an argument. The document it writes is public-safe: sessions
 // appear as 12-hex hashes, and no key, session id, token or gateway message is
-// written.
+// written. It is written at each phase (connecting, listing, aborting, done),
+// the aborting one before the first abort call with every owned session
+// pending, so a cutoff killed mid-pass still says what it had begun.
 //
 // overshoot prints the receipt's overshoot section: the observed figures and
 // the maximum possible overshoot, which this guard never bounds.
@@ -44,7 +46,7 @@ const LIST_PAGE = 500;
 const MAX_LIST_PAGES = 200;
 const USAGE = 'usage: token-budget-abort.mjs harvest --log <file> --row <ROW> --ledger <file> | '
   + 'abort --ledger <file> --baseline <file> --out <file> | '
-  + 'overshoot --state <file> [--abort <file>] [--drain <file>]';
+  + 'overshoot --state <file> [--abort <file>] [--drain <file>] [--cutoff-started true]';
 
 function parseArgs(argv) {
   const [command, ...rest] = argv;
@@ -126,11 +128,12 @@ function abortTimeoutMs(env) {
  * `connect(scopes, deadline)` opens the gateway connection (injected so the
  * decision path can be tested without one).
  */
-export async function cutoff({ ledgerFile, baselineFile, env = process.env, connect, clock = () => Date.now() }) {
+export async function cutoff({ ledgerFile, baselineFile, env = process.env, connect, save = () => {}, clock = () => Date.now() }) {
   const startedAt = new Date(clock()).toISOString();
   const doc = {
     schema: TOKEN_BUDGET_ABORT_SCHEMA,
     guard: CUTOFF_GUARD,
+    phase: 'connecting',
     attempted: false,
     reason: null,
     startedAt,
@@ -140,15 +143,21 @@ export async function cutoff({ ledgerFile, baselineFile, env = process.env, conn
     sessions: [],
     ambiguous: [],
     untouched: null,
-    counts: { owned: 0, aborted: 0, noActiveRun: 0, acknowledged: 0, refused: 0, failed: 0, notAttempted: 0, skipped: 0, ambiguous: 0 },
+    counts: { owned: 0, aborted: 0, noActiveRun: 0, acknowledged: 0, partial: 0, refused: 0, failed: 0, notAttempted: 0, skipped: 0, ambiguous: 0 },
     abortCalls: 0,
     retries: 0,
     error: null,
     note: ABORT_ACK_NOTE,
   };
   const finish = () => {
+    doc.phase = 'done';
     doc.completedAt = new Date(clock()).toISOString();
+    save(doc);
     return doc;
+  };
+  const enter = (phase) => {
+    doc.phase = phase;
+    save(doc);
   };
 
   let ledger;
@@ -177,6 +186,7 @@ export async function cutoff({ ledgerFile, baselineFile, env = process.env, conn
   }
   const deadline = clock() + timeoutMs;
 
+  enter('connecting');
   let client;
   try {
     client = await connect(ABORT_SCOPES, deadline);
@@ -189,6 +199,7 @@ export async function cutoff({ ledgerFile, baselineFile, env = process.env, conn
   try {
     const rpc = (method, params) => client.request(method, params, deadline);
     let rows;
+    enter('listing');
     try {
       rows = await listSessions(rpc);
     } catch (error) {
@@ -205,6 +216,9 @@ export async function cutoff({ ledgerFile, baselineFile, env = process.env, conn
     doc.ownership.recordedNotListed = decision.recordedNotListed;
     doc.untouched = decision.untouched;
     doc.ambiguous = decision.ambiguous.map((session) => ({ id: sessionPublicId(session.key, session.sessionId), reason: session.reason, labelled: session.labelled }));
+    doc.sessions = decision.owned.map((session) => ({ id: sessionPublicId(session.key, session.sessionId), role: session.role, depth: session.depth, outcome: 'pending' }));
+    doc.counts = { ...doc.counts, owned: doc.sessions.length, ambiguous: doc.ambiguous.length };
+    enter('aborting');
     const pass = await runAbortPass({ rpc, owned: decision.owned, deadline, clock });
     doc.abortCalls = pass.calls;
     if (pass.connectionError) doc.error = `abort-connection-lost: ${pass.connectionError}`;
@@ -227,6 +241,7 @@ export async function cutoff({ ledgerFile, baselineFile, env = process.env, conn
       aborted: tally('aborted'),
       noActiveRun: tally('no-active-run'),
       acknowledged: tally('acknowledged'),
+      partial: tally('partial'),
       refused: tally('refused'),
       failed: tally('failed'),
       notAttempted: tally('not-attempted'),
@@ -254,13 +269,13 @@ async function main() {
     const doc = await cutoff({
       ledgerFile: args.ledger,
       baselineFile: args.baseline,
+      save: (current) => writeAtomic(args.out, `${JSON.stringify(current, null, 2)}\n`),
       connect: (scopes, deadline) => {
         if (!wsUrl) return Promise.reject(new Error('gateway-url-missing'));
         if (!token) return Promise.reject(new Error('gateway-token-missing'));
         return openGatewayRpc(wsUrl, token, { deadline, scopes });
       },
     });
-    writeAtomic(args.out, `${JSON.stringify(doc, null, 2)}\n`);
     console.log(JSON.stringify({ attempted: doc.attempted, reason: doc.reason, error: doc.error, counts: doc.counts }));
     return;
   }
@@ -274,7 +289,12 @@ async function main() {
         return null;
       }
     };
-    console.log(JSON.stringify(computeOvershoot({ state: readJson(args.state), abort: optional(args.abort), drain: optional(args.drain) })));
+    console.log(JSON.stringify(computeOvershoot({
+      state: readJson(args.state),
+      abort: optional(args.abort),
+      drain: optional(args.drain),
+      cutoffStarted: args['cutoff-started'] === 'true',
+    })));
     return;
   }
   throw new Error(USAGE);

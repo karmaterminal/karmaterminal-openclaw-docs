@@ -20,8 +20,11 @@
 //   (packages/gateway-protocol/src/schema/sessions.ts:541-549); operator.write
 //   (src/gateway/methods/core-descriptors.ts:247). Success is
 //   { ok, abortedRunId, status: "aborted" | "no-active-run" }
-//   (src/gateway/server-methods/sessions-abort.ts:69-76). An unknown key is not
-//   an error: it answers no-active-run.
+//   (src/gateway/server-methods/sessions-abort.ts:69-76). A key no session holds,
+//   under a configured agent, is not an error: it answers no-active-run
+//   (src/gateway/server-methods/sessions-abort.test.ts:224-234). A key naming
+//   an unknown agent is refused
+//   (sessions-abort.ts:261-263).
 // - A key with no runId cascades (sessions-abort.ts:570): every subagent run
 //   the session controls, recursively, chosen from the in-memory subagent
 //   registry by controller session key
@@ -33,22 +36,33 @@
 //   normal spawn path spawnedBy is the same key
 //   (src/agents/subagents/spawn/subagent-spawn-request.ts:126,
 //   subagent-spawn.ts:382,550). parentSessionKey is navigation lineage, which
-//   the cascade never reads (session-utils-row.ts:504-505), and a session
-//   created with a parent gets no registry run
-//   (src/gateway/session-create-inheritance.ts:222-231). So this cutoff aborts
-//   every owned session itself, descendants included, rather than relying on
-//   the cascade.
+//   the cascade never reads (session-utils-row.ts:504-505). A session created
+//   with a parent gets spawnedBy only under a spawn-tool policy
+//   (src/gateway/session-create-inheritance.ts:222-231), and no session-create
+//   code registers a subagent run (by code reading, not by a cited line), so
+//   the cascade's reach is the registry's, not the listing's. This cutoff
+//   therefore aborts every owned session itself, descendants included, rather
+//   than relying on the cascade.
+// - An adopting sessions.create still writes the parent link onto the session
+//   it adopts (src/gateway/session-create-service.ts:888-907), while spawnedBy
+//   comes only with a new entry (:885). So any operator client can re-parent a
+//   session onto an owned key, and a descendant needs a spawnedBy or
+//   controlOwnerSessionKey link to an owned session: a link by
+//   parentSessionKey alone proves nothing.
 // - A key-only abort is a client-session stop, which cancels the session's
 //   queued inputs (src/sessions/session-controller.stop.ts:77-79,91,507). The
-//   cutoff also passes clearQueued: true ("also discard followup and lane
-//   queues", packages/gateway-protocol/src/schema/sessions.ts:545-546), the
-//   shape the product's own test proves
-//   (src/gateway/server-methods/sessions.abort-yielded.test.ts:281-288).
+//   cutoff also passes clearQueued: true, as the schema documents ("also
+//   discard followup and lane queues", packages/gateway-protocol/src/schema/
+//   sessions.ts:545-546) and the product's own test uses
+//   (src/gateway/server-methods/sessions.abort-yielded.test.ts:281-288). In
+//   the handler at ab5a it only gates the MCP runtime's retirement
+//   (sessions-abort.ts:459-465); the stop itself cancels queued input.
 // - It does not cancel a continue_work wake already scheduled: only reset or
 //   delete cleanup and /continuations cancel do
 //   (src/auto-reply/reply/session-reset-cleanup.ts:165-197,
 //   src/auto-reply/reply/commands-continuations.ts:52), and the wake's own
-//   checks never read abort state
+//   checks never read sessions.abort state; the signal they check is the
+//   reset and claim signal
 //   (src/auto-reply/continuation/work-dispatch-execution.ts:214-291). A wake
 //   can therefore start a new model turn after the abort answered.
 // - A non-admin caller may abort only a run started from its own connection,
@@ -84,11 +98,12 @@ export const AMBIGUITY_REASONS = Object.freeze([
   'unknown-parent',
   'ambiguous-parent',
   'conflicting-ancestry',
+  'lineage-only-parent',
   'ancestry-cycle',
   'selector-match-without-record',
   'unrecorded-new-session',
 ]);
-export const ABORT_OUTCOMES = Object.freeze(['aborted', 'no-active-run', 'acknowledged', 'refused', 'failed', 'not-attempted', 'skipped']);
+export const ABORT_OUTCOMES = Object.freeze(['aborted', 'no-active-run', 'acknowledged', 'partial', 'refused', 'failed', 'not-attempted', 'skipped']);
 
 const AGENT_KEY = /^agent:([^:]+):/u;
 const DISPOSABLE_LABEL_PREFIX = 'k6 ';
@@ -122,21 +137,25 @@ export function sessionPublicId(key, sessionId) {
  * - a root: its key carries a record, its listed session id equals the
  *   recorded one, and its key was not listed at the baseline; or
  * - a descendant: every session its spawnedBy, parentSessionKey and
- *   controlOwnerSessionKey name is listed and owned, transitively.
+ *   controlOwnerSessionKey name is listed and owned, transitively, and at
+ *   least one of them is a spawnedBy or controlOwnerSessionKey link (an
+ *   adopting create can write parentSessionKey for any client).
  * A session listed at the baseline (every prince session: main, heartbeat,
  * channel sessions), a configured key, or a session descending only from such
  * sessions is untouched. A session whose ownership cannot be decided is
  * ambiguous, with its reason, and is left alone too:
  * - a record that disagrees with the listing, cannot be checked, or names a
  *   pre-existing or configured session;
- * - a parent that is not listed or is itself ambiguous, or an ancestry that
- *   mixes owned and unowned parents or loops;
+ * - a parent that is not listed or is itself ambiguous, an ancestry that
+ *   mixes owned and unowned parents or loops, or owned parents named only by
+ *   parentSessionKey;
  * - a session new since the baseline with no record and no parent, including
  *   one whose "k6 " label matches the disposable-session selector: a selector
  *   is never a record.
- * An owned session is still not aborted when a listed session it controls
- * (controlOwnerSessionKey, the product's cascade rule) is not owned: its
- * abort would cascade into a session the run cannot prove is its own.
+ * An owned session is still not aborted when any listed session under it in
+ * the control tree (controlOwnerSessionKey, the product's cascade rule, at
+ * any depth) is not owned: its abort would cascade, through owned sessions
+ * if need be, into a session the run cannot prove is its own.
  */
 export function resolveOwnership({ records = [], baseline = [], rows = [], configuredKeys = [] }) {
   const baselineKeys = new Set(baseline.map((entry) => entry?.key).filter(nonEmpty));
@@ -213,6 +232,8 @@ export function resolveOwnership({ records = [], baseline = [], rows = [], confi
     if (has('unknown')) return decide(key, { status: 'ambiguous', reason: 'unknown-parent' });
     if (has('ambiguous')) return decide(key, { status: 'ambiguous', reason: 'ambiguous-parent' });
     if (verdicts.every((verdict) => verdict.status === 'owned')) {
+      const controlLinked = [row.spawnedBy, row.controlOwnerSessionKey].some((parent) => nonEmpty(parent) && parent !== key);
+      if (!controlLinked) return decide(key, { status: 'ambiguous', reason: 'lineage-only-parent' });
       return decide(key, { status: 'owned', role: 'descendant', depth: Math.max(...verdicts.map((verdict) => verdict.depth)) + 1 });
     }
     if (verdicts.every((verdict) => verdict.status === 'untouched')) return decide(key, { status: 'untouched' });
@@ -238,8 +259,29 @@ export function resolveOwnership({ records = [], baseline = [], rows = [], confi
   const descendants = order
     .filter((key) => isOwned(key) && decided.get(key).role === 'descendant')
     .sort((a, b) => decided.get(a).depth - decided.get(b).depth);
+  // The control tree, by controlOwnerSessionKey: what a key-only abort of each
+  // session would cascade into (recursively, subagent-control-kill.ts:360-363).
+  const controlled = new Map();
+  for (const row of listed.values()) {
+    const controller = nonEmpty(row.controlOwnerSessionKey);
+    if (!controller || controller === row.key) continue;
+    if (!controlled.has(controller)) controlled.set(controller, []);
+    controlled.get(controller).push(row.key);
+  }
+  const reachesUnowned = (start) => {
+    const seen = new Set([start]);
+    const stack = [...(controlled.get(start) ?? [])];
+    while (stack.length) {
+      const key = stack.pop();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      if (!isOwned(key)) return true;
+      stack.push(...(controlled.get(key) ?? []));
+    }
+    return false;
+  };
   const owned = [...roots, ...descendants].map((key) => {
-    const cascadeReachesUnowned = [...listed.values()].some((row) => row.controlOwnerSessionKey === key && !isOwned(row.key));
+    const cascadeReachesUnowned = reachesUnowned(key);
     return {
       ...entry(key),
       role: decided.get(key).role,
@@ -327,7 +369,10 @@ export async function runAbortPass({ rpc, owned, deadline, clock = () => Date.no
       if (status === 'aborted' || status === 'no-active-run') results.push({ ...base, outcome: status, status });
       else results.push({ ...base, outcome: 'acknowledged', status: 'unrecognized' });
     } else {
-      results.push({ ...base, outcome: 'refused', error: rpcFailure('sessions-abort', answer?.error), refusal: refusalKind(answer?.error) });
+      const refusal = refusalKind(answer?.error);
+      // "Session stopped, but descendant cancellation was incomplete": the
+      // session itself stopped (chat-abort-descendants.ts:288-297).
+      results.push({ ...base, outcome: refusal === 'descendants-incomplete' ? 'partial' : 'refused', error: rpcFailure('sessions-abort', answer?.error), refusal });
     }
   }
   return { results, calls, connectionError };
@@ -342,7 +387,7 @@ const timeOf = (value) => (typeof value === 'string' ? Date.parse(value) : NaN);
  * possible overshoot is never claimed: nothing here bounds work the gateway
  * keeps running, so it is MAX_POSSIBLE_UNBOUNDED with the reasons that apply.
  */
-export function computeOvershoot({ state = null, abort = null, drain = null } = {}) {
+export function computeOvershoot({ state = null, abort = null, drain = null, cutoffStarted = false } = {}) {
   const budget = Number.isSafeInteger(state?.budget) ? state.budget : null;
   const readings = (state?.readings ?? []).filter((reading) => !reading.discovery);
   const final = Number.isSafeInteger(state?.cumulative) ? state.cumulative : null;
@@ -369,13 +414,18 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
   // reading left, and after the abort, against the totals the meter kept when
   // the abort pass finished. A session first seen later counts from its
   // baseline.
-  const atTrip = state?.tripSessions ? Object.fromEntries(state.tripSessions.map(({ id, lastTokens }) => [id, lastTokens])) : null;
+  // A figure after an event is measured only if a readable reading came after
+  // it; otherwise it is null, never a measured zero.
+  const readableAfter = (time) => (Number.isFinite(time) ? readings.filter((reading) => reading.readable === true && timeOf(reading.at) > time).length : 0);
+  const readableAfterTrip = readableAfter(tripAt);
+  const readableAfterAbort = readableAfter(abortAt);
+  const atTrip = state?.tripSessions && readableAfterTrip ? Object.fromEntries(state.tripSessions.map(({ id, lastTokens }) => [id, lastTokens])) : null;
   const sessionsGrowingAfterTrip = atTrip
     ? (state?.sessions ?? [])
       .map((session) => ({ id: session.id, tokens: session.lastTokens - (Object.hasOwn(atTrip, session.id) ? atTrip[session.id] : session.baselineTokens) }))
       .filter((session) => session.tokens > 0)
-    : [];
-  const snapshot = marked ? Object.fromEntries((marked.sessions ?? []).map(({ id, lastTokens }) => [id, lastTokens])) : null;
+    : null;
+  const snapshot = marked && readableAfterAbort ? Object.fromEntries((marked.sessions ?? []).map(({ id, lastTokens }) => [id, lastTokens])) : null;
   const owned = new Map((abort?.sessions ?? []).map((session) => [session.id, session.outcome]));
   const sessionsGrowingAfterAbort = snapshot
     ? (state?.sessions ?? [])
@@ -386,18 +436,25 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
         ...(owned.has(session.id) ? { abortOutcome: owned.get(session.id) } : {}),
       }))
       .filter((session) => session.tokens > 0)
-    : [];
+    : null;
 
   const sessions = abort?.sessions ?? [];
   const unstopped = count(sessions, (session) => ['refused', 'failed', 'not-attempted'].includes(session.outcome));
+  const partial = count(sessions, (session) => session.outcome === 'partial');
   const skipped = count(sessions, (session) => session.outcome === 'skipped');
   const ambiguous = abort?.ambiguous?.length ?? 0;
   const configuredInScope = [state?.baseline?.scope, ...readings.map((reading) => reading.scope)]
     .some((scope) => (scope?.byReason?.configured ?? 0) > 0);
   const unownedInScope = readings.some((reading) => (reading.scope?.byReason?.['new-since-baseline'] ?? 0) > 0);
-  const drainRecord = drain ?? { metered: false, reason: abort ? 'drain-unrecorded' : 'no-cutoff' };
+  let drainRecord = drain ?? { metered: false, reason: abort || cutoffStarted ? 'drain-unrecorded' : 'no-cutoff' };
+  if (drainRecord.metered === true && !readableAfterAbort) drainRecord = { ...drainRecord, metered: false, reason: 'no-readable-reading-after-abort' };
+  const phase = abort?.phase ?? 'done';
   const reasons = [];
-  if (!abort) reasons.push('no abort was attempted');
+  if (!abort) reasons.push(cutoffStarted ? 'the cutoff left no record, so sessions may have been aborted' : 'no abort was attempted');
+  else if (phase === 'aborting') {
+    reasons.push('the cutoff left no complete record, so sessions may have been aborted');
+    reasons.push(ABORT_ACK_NOTE);
+  } else if (phase !== 'done') reasons.push(`the cutoff stopped while ${phase}, before any abort call`);
   else if (abort.attempted === false) reasons.push(`no abort was attempted: ${abort.reason}`);
   else {
     reasons.push(ABORT_ACK_NOTE);
@@ -405,12 +462,13 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
     if (abort.error) reasons.push(`the abort pass stopped early: ${abort.error}`);
   }
   if (unstopped) reasons.push(`${unstopped} owned session(s) were refused, failed or not attempted, and nothing is retried`);
+  if (partial) reasons.push(`${partial} owned session(s) stopped, but their descendants' cancellation was incomplete`);
   if (skipped) reasons.push(`${skipped} owned session(s) were not aborted because their cascade would reach a session the run does not own`);
   if (ambiguous) reasons.push(`${ambiguous} session(s) of ambiguous ownership were not aborted`);
   if (configuredInScope) reasons.push('configured sessions the rows use are in the meter\'s scope and are never aborted');
   if (unownedInScope) reasons.push('sessions new since the baseline that the run cannot prove it created are counted but never aborted');
-  if (sessionsGrowingAfterAbort.length) reasons.push(`usage grew after the abort in ${sessionsGrowingAfterAbort.length} session(s)`);
-  if (abort && drainRecord.metered === false) reasons.push(`the drain was not metered: ${drainRecord.reason}`);
+  if (sessionsGrowingAfterAbort?.length) reasons.push(`usage grew after the abort in ${sessionsGrowingAfterAbort.length} session(s)`);
+  if ((abort || cutoffStarted) && drainRecord.metered === false) reasons.push(`the drain was not metered: ${drainRecord.reason}`);
   reasons.push('compaction model calls and detached memory-flush runs are counted by no usage surface');
   reasons.push('a model call still streaming is invisible until it completes, and then lands whole');
 
@@ -422,10 +480,11 @@ export function computeOvershoot({ state = null, abort = null, drain = null } = 
       budget,
       finalCumulative: final,
       pastBudgetTokens: final !== null && budget !== null ? Math.max(0, final - budget) : null,
-      postTripTokens: trip && final !== null ? final - trip.cumulative : null,
-      postAbortTokens: beforeAbortCumulative !== null && final !== null ? final - beforeAbortCumulative : null,
+      postTripTokens: trip && final !== null && readableAfterTrip ? final - trip.cumulative : null,
+      postAbortTokens: beforeAbortCumulative !== null && final !== null && readableAfterAbort ? final - beforeAbortCumulative : null,
       readingsAfterTrip: afterTrip.length,
       readingsAfterAbort: afterAbort.length,
+      unreadableReadingsAfterAbort: afterAbort.filter((reading) => reading.readable !== true).length,
       lastGrowthAt: lastGrowth?.at ?? null,
       quietReadingsAtEnd,
       sessionsGrowingAfterTrip,

@@ -183,8 +183,9 @@ function sanitizeLog(logText, sanitizedRecords, orderedTokens) {
       continue;
     }
     // A budgeted run's ownership record (lib/session-ownership.mjs) carries a
-    // session key, a session id and the run's private tag.
-    if (text.startsWith(OWNERSHIP_MARKER)) {
+    // session key, a session id and the run's private tag. Any line naming the
+    // marker is dropped whole, whatever k6's log format.
+    if (line.includes(OWNERSHIP_MARKER)) {
       out.push(`${OWNERSHIP_MARKER} <redacted-ownership-record>`);
       continue;
     }

@@ -601,10 +601,16 @@ spend on the seat, check that the seat is idle before a budgeted run.
      read as review-complete;
    - every row not yet reached is `not-run (budget)`, with no run directory;
    - the **cutoff** runs once: `sessions.abort` on each session the run
-     provably owns, and on nothing else (below). A trip mid-row cuts off right
-     after that row's k6 has stopped, before its post-processing. A trip between
-     rows, or a lost meter (`meter-exited`, `meter-stale`), cuts off after the
-     loop;
+     provably owns, and on nothing else (below). It runs at the first point
+     after the trip is seen:
+     - a trip while a row's k6 runs, a lost meter (`meter-exited`,
+       `meter-stale`) included: right after that row's k6 has stopped, before
+       its post-processing;
+     - a trip during a row's post-processing: at the next step boundary (after
+       k6 exits, after the journal capture, before trace collection);
+     - a trip between rows: before the next row;
+     - a run that fails after a trip (not one stopped by a signal): on its way
+       out;
    - the meter keeps reading through a **drain window**, 120 s from the end of
      the abort pass (`OPENCLAW_PROOFS_TOKEN_BUDGET_DRAIN_SECONDS`, 0 to 1800;
      anything else is refused before any row, `drain-seconds-invalid`);
@@ -652,7 +658,13 @@ it is:
     create answer alone proves no creation. Every disposable key carries a fresh
     nonce.
 - **a descendant:** every session its `spawnedBy`, `parentSessionKey` and
-  `controlOwnerSessionKey` name is listed and owned, transitively.
+  `controlOwnerSessionKey` name is listed and owned, transitively, and at least
+  one of them is a `spawnedBy` or `controlOwnerSessionKey` link.
+  - A link by `parentSessionKey` alone proves nothing (`lineage-only-parent`):
+    an adopting `sessions.create` writes the parent link onto the session it
+    adopts (`src/gateway/session-create-service.ts:888-907`), so any operator
+    client can re-parent a session onto an owned key. `spawnedBy` comes only
+    with a new entry (`:885`).
   - `spawnedBy` is the spawner's controller key
     (`src/agents/subagents/spawn/subagent-spawn-request.ts:126`,
     `subagent-spawn.ts:382,550`).
@@ -679,15 +691,18 @@ and listed in the receipt, and the run still stops. The reasons:
   `conflicting-records`);
 - a parent that is not listed (`unknown-parent`) or is itself ambiguous
   (`ambiguous-parent`);
-- an ancestry that mixes owned and unowned parents (`conflicting-ancestry`) or
-  loops (`ancestry-cycle`);
+- an ancestry that mixes owned and unowned parents (`conflicting-ancestry`),
+  loops (`ancestry-cycle`), or reaches owned parents by `parentSessionKey` alone
+  (`lineage-only-parent`);
 - a session new since the baseline with no record and no parent
   (`unrecorded-new-session`). When its label starts `k6 `, the reason is
   `selector-match-without-record`: a selector match is never a record.
 
-An owned session is not aborted either when a listed session it controls is not
-owned (`cascade-would-reach-unowned-session`). A key-only `sessions.abort`
-cascades through every subagent run the session controls, recursively
+An owned session is not aborted either when any listed session under it in the
+control tree (`controlOwnerSessionKey`, at any depth) is not owned
+(`cascade-would-reach-unowned-session`), so neither is any owned session above
+such a session. A key-only `sessions.abort` cascades through every subagent run
+the session controls, recursively
 (`src/gateway/server-methods/sessions-abort.ts:570`;
 `src/agents/subagents/registry/subagent-registry-queries.ts:166-169`,
 `subagent-control-kill.ts:360-363`).
@@ -703,14 +718,25 @@ cascades through every subagent run the session controls, recursively
   (`src/gateway/session-create-inheritance.ts:222-231`).
 - **Nothing is retried.**
   - A refusal is recorded as `refused`, with a fixed `refusal` vocabulary
-    (`unauthorized`, `descendants-incomplete`, `not-found`, `other`); no gateway
-    message is published.
+    (`unauthorized`, `not-found`, `other`); no gateway message is published.
+    "Session stopped, but descendant cancellation was incomplete"
+    (`chat-abort-descendants.ts:288-297`) is `partial` (`descendants-incomplete`):
+    the session stopped, its descendants may not have.
   - A call with no answer is `failed`, and every later session is
     `not-attempted`: a reconnect would be a second try under another name.
   - Sessions left at the deadline (`OPENCLAW_PROOFS_TOKEN_BUDGET_ABORT_TIMEOUT_SECONDS`,
     default 60) are `not-attempted`.
 - If the ledger, the baseline file or the listing cannot be read, nothing is
   aborted.
+- The abort document is written at each phase (`connecting`, `listing`,
+  `aborting`, `done`). The `aborting` one is written before the first abort
+  call, with every owned session `pending`. A cutoff killed mid-pass therefore
+  leaves a record that says sessions may have been aborted, never one that
+  says none were.
+
+The race between the listing and the aborts is not closed. A delegate that
+registers in between is not seen, and nor is a hidden run the listing never
+shows.
 
 **What an abort does not stop, at `ab5a`:**
 
@@ -774,6 +800,8 @@ So the receipt splits the overshoot (`overshoot`):
   - `postTripTokens`: counted after the trip;
   - `postAbortTokens`: counted after the last reading that started before the
     abort pass finished;
+  - each of these is `null`, never 0, when no readable reading came after the
+    event;
   - `sessionsGrowingAfterTrip` and `sessionsGrowingAfterAbort`: the same per
     session, by hash, owned or not, with each owned session's abort outcome;
   - `lastGrowthAt` and `quietReadingsAtEnd`.
@@ -788,7 +816,9 @@ So the receipt splits the overshoot (`overshoot`):
   - an unmetered drain;
   - uncounted calls.
 - **Drain** (`overshoot.drain`):
-  - `metered`, or the `reason` it was not;
+  - `metered`, or the `reason` it was not: the meter exited or went stale
+    during the drain, the trip was found only in the last reading, the runner
+    was interrupted, or no readable reading came after the abort;
   - the window and its start and end;
   - `complete: "unproven"`, always, with the note that a quiet polling window is
     not proof that the drain has completed.
@@ -801,8 +831,13 @@ session id, token, ownership tag or gateway message, and sessions appear only as
 12-hex id hashes. It carries:
 
 - `guard: "cutoff, not a hard ceiling"`, and a `verdictText` that starts with the
-  verdict and the guard (for a budget abort it ends with the observed overshoot
-  and `maximum possible overshoot unknown / unbounded by this guard`);
+  verdict and the guard. For a budget abort it then says:
+  - what stopped the run (a trip, or a lost counter);
+  - what the cutoff actually did, from its own record: for example "aborted 0 of
+    2 owned session(s) (2 refused)", or that it left no complete record, so
+    sessions may have been aborted;
+  - the observed overshoot, ending `maximum possible overshoot unknown /
+    unbounded by this guard`;
 - the verdict, reason and exit code;
 - the budget;
 - the counted-token definition and the source;
@@ -819,9 +854,10 @@ session id, token, ownership tag or gateway message, and sessions appear only as
   - whether it was attempted, and its scopes;
   - the ownership counts: records, rejected records, harvest failures, sessions
     listed, baseline sessions, records not listed;
+  - its `phase` (`done`, or where it stopped);
   - each owned session by hash, with its role, depth and outcome (`aborted`,
-    `no-active-run`, `acknowledged`, `refused`, `failed`, `not-attempted`,
-    `skipped`);
+    `no-active-run`, `acknowledged`, `partial`, `refused`, `failed`,
+    `not-attempted`, `skipped`, or `pending` in a record left mid-pass);
   - each ambiguous session by hash, with its reason;
   - the untouched counts;
   - `abortCalls`, and `retries`, which is always 0;
@@ -848,6 +884,10 @@ The cutoff is tested in three files, all with no live gateway:
   - an active prince session matching every broad selector, untouched, then the
     same with an adopted create and a forged record naming it;
   - a refused abort, and an abort that loses its connection, neither retried;
+  - an abort step killed mid-pass, and a meter that freezes or dies during the
+    drain;
+  - a trip during a row's post-processing, and an ownership tag inherited by an
+    unbudgeted run;
   - a queued continuation that fires after an acknowledged abort;
   - delayed usage, and two concurrent requests, landing after the trip;
   - a trip between rows, a runner interrupted mid-drain, a dead meter, and a

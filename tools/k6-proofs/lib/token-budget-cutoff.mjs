@@ -80,7 +80,12 @@
 //   only if its key was also absent from the meter's baseline listing; every
 //   disposable key carries a fresh nonce.
 
-import { publicId } from './token-budget.mjs';
+import { sessionPublicId } from './token-budget.mjs';
+
+// A session's public form is the meter's own: the 12-hex hash of its agent id
+// and session id, or of its key while it has no session id
+// (lib/token-budget.mjs). Never the key or the session id itself.
+export { sessionPublicId };
 
 export const CUTOFF_GUARD = 'cutoff, not a hard ceiling';
 export const MAX_POSSIBLE_UNBOUNDED = 'unknown / unbounded by this guard';
@@ -88,6 +93,8 @@ export const DRAIN_NOTE = 'a quiet polling window is not proof that the drain ha
 export const ABORT_ACK_NOTE = 'an abort acknowledgement does not prove that future wakes or provider work have stopped';
 export const USAGE_ATTRIBUTION_NOTE =
   'usage is counted in the reading where it first becomes visible, when its model call completes and is written to the transcript, not when the request was sent';
+export const ABORT_BOUNDARY_NOTE =
+  'a reading counts after the abort when it completed at or after the cutoff ended; one begun before that straddles the abort and counts after it, so growth after the abort is never understated, though it can include usage that landed during the abort pass';
 
 export const AMBIGUITY_REASONS = Object.freeze([
   'recorded-session-present-at-baseline',
@@ -112,15 +119,6 @@ const LOCAL_ERROR = /^[a-z][a-z0-9-]{0,63}$/u;
 
 const agentIdOf = (key) => AGENT_KEY.exec(key)?.[1] ?? null;
 const nonEmpty = (value) => (typeof value === 'string' && value ? value : null);
-
-/**
- * The public form of a session: the 12-hex hash the meter publishes for the
- * same session (agent id and session id), or of its key when it has no
- * session id. Never the key or the session id itself.
- */
-export function sessionPublicId(key, sessionId) {
-  return sessionId ? publicId(`${agentIdOf(key) ?? '?'}:${sessionId}`) : publicId(`key:${key}`);
-}
 
 /**
  * Which listed sessions this run owns, and which of those it may abort.
@@ -393,16 +391,25 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
   const final = Number.isSafeInteger(state?.cumulative) ? state.cumulative : null;
   const trip = state?.trip ?? null;
   const tripAt = timeOf(trip?.at);
-  // After the abort means after the last reading that started before the
-  // abort pass finished: the meter keeps that reading's totals when the
-  // runner marks the end of the pass (state.abortSessions). Without them (the
-  // meter was gone), the readings are split by the abort's finish time.
+  // The abort is when the cutoff ended: the runner's mark, or else the abort
+  // document's finish. A reading counts on the side of it where the reading
+  // completed, so one begun before it and completed after it straddles it and
+  // counts after (ABORT_BOUNDARY_NOTE). The meter keeps the totals as they
+  // stood before the first reading that completed after the mark
+  // (state.abortSessions); without them (the meter was gone), the readings
+  // are split here the same way. A reading with no completion time (none
+  // recorded) completes at its start plus its read time.
   const marked = abort ? state?.abortSessions ?? null : null;
   const abortAt = timeOf(marked?.markedAt) || timeOf(abort?.completedAt);
-  const atOrBefore = (time) => readings.filter((reading) => reading.readable && timeOf(reading.at) <= time).at(-1) ?? null;
+  const completedAt = (reading) => {
+    const completed = timeOf(reading.completedAt);
+    return Number.isFinite(completed) ? completed : timeOf(reading.at) + (Number.isFinite(reading.readMs) ? reading.readMs : 0);
+  };
+  const afterAbort = Number.isFinite(abortAt) ? readings.filter((reading) => completedAt(reading) >= abortAt) : [];
+  const straddlingAbort = afterAbort.filter((reading) => timeOf(reading.at) < abortAt);
   const beforeAbortCumulative = Number.isSafeInteger(marked?.cumulative)
     ? marked.cumulative
-    : (Number.isFinite(abortAt) ? atOrBefore(abortAt)?.cumulative ?? null : null);
+    : (Number.isFinite(abortAt) ? readings.filter((reading) => reading.readable && completedAt(reading) < abortAt).at(-1)?.cumulative ?? null : null);
   let quietReadingsAtEnd = 0;
   for (let index = readings.length - 1; index >= 0; index -= 1) {
     if (readings[index].readable !== true || readings[index].increment !== 0) break;
@@ -411,14 +418,16 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
   const lastGrowth = readings.filter((reading) => reading.readable && reading.increment > 0).at(-1) ?? null;
 
   // Per session: growth after the trip, against the totals the tripping
-  // reading left, and after the abort, against the totals the meter kept when
-  // the abort pass finished. A session first seen later counts from its
-  // baseline.
+  // reading left, and after the abort, against the totals the meter kept
+  // before the first reading that completed after it. A session first seen
+  // later counts from its baseline.
   // A figure after an event is measured only if a readable reading came after
-  // it; otherwise it is null, never a measured zero.
-  const readableAfter = (time) => (Number.isFinite(time) ? readings.filter((reading) => reading.readable === true && timeOf(reading.at) > time).length : 0);
-  const readableAfterTrip = readableAfter(tripAt);
-  const readableAfterAbort = readableAfter(abortAt);
+  // it (for the abort, completed after it); otherwise it is null, never a
+  // measured zero. The drain is metered only by a readable reading begun
+  // after the abort.
+  const readableAfterTrip = Number.isFinite(tripAt) ? readings.filter((reading) => reading.readable === true && timeOf(reading.at) > tripAt).length : 0;
+  const readableAfterAbort = afterAbort.filter((reading) => reading.readable === true).length;
+  const readableBegunAfterAbort = afterAbort.filter((reading) => reading.readable === true && timeOf(reading.at) > abortAt).length;
   const atTrip = state?.tripSessions && readableAfterTrip ? Object.fromEntries(state.tripSessions.map(({ id, lastTokens }) => [id, lastTokens])) : null;
   const sessionsGrowingAfterTrip = atTrip
     ? (state?.sessions ?? [])
@@ -426,15 +435,26 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
       .filter((session) => session.tokens > 0)
     : null;
   const snapshot = marked && readableAfterAbort ? Object.fromEntries((marked.sessions ?? []).map(({ id, lastTokens }) => [id, lastTokens])) : null;
-  const owned = new Map((abort?.sessions ?? []).map((session) => [session.id, session.outcome]));
+  // A session the cutoff named by its key, because it had no session id then,
+  // is metered under the session id it has since: the meter links the two
+  // (abortId). A meter that could not read the cutoff's document could link
+  // none, so there a session no abort id names is of unknown ownership
+  // (null), never unowned.
+  const outcomes = new Map((abort?.sessions ?? []).map((session) => [session.id, session.outcome]));
+  const unlinked = marked?.abortIdsRead === null && outcomes.size > 0;
+  const abortIdOf = (session) => [session.id, session.abortId].find((id) => typeof id === 'string' && outcomes.has(id)) ?? null;
   const sessionsGrowingAfterAbort = snapshot
     ? (state?.sessions ?? [])
-      .map((session) => ({
-        id: session.id,
-        tokens: session.lastTokens - (Object.hasOwn(snapshot, session.id) ? snapshot[session.id] : session.baselineTokens),
-        owned: owned.has(session.id),
-        ...(owned.has(session.id) ? { abortOutcome: owned.get(session.id) } : {}),
-      }))
+      .map((session) => {
+        const abortId = abortIdOf(session);
+        return {
+          id: session.id,
+          tokens: session.lastTokens - (Object.hasOwn(snapshot, session.id) ? snapshot[session.id] : session.baselineTokens),
+          owned: abortId ? true : (unlinked ? null : false),
+          ...(abortId ? { abortOutcome: outcomes.get(abortId) } : {}),
+          ...(abortId && abortId !== session.id ? { abortId } : {}),
+        };
+      })
       .filter((session) => session.tokens > 0)
     : null;
 
@@ -447,7 +467,7 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
     .some((scope) => (scope?.byReason?.configured ?? 0) > 0);
   const unownedInScope = readings.some((reading) => (reading.scope?.byReason?.['new-since-baseline'] ?? 0) > 0);
   let drainRecord = drain ?? { metered: false, reason: abort || cutoffStarted ? 'drain-unrecorded' : 'no-cutoff' };
-  if (drainRecord.metered === true && !readableAfterAbort) drainRecord = { ...drainRecord, metered: false, reason: 'no-readable-reading-after-abort' };
+  if (drainRecord.metered === true && !readableBegunAfterAbort) drainRecord = { ...drainRecord, metered: false, reason: 'no-readable-reading-after-abort' };
   const phase = abort?.phase ?? 'done';
   const reasons = [];
   if (!abort) reasons.push(cutoffStarted ? 'the cutoff left no record, so sessions may have been aborted' : 'no abort was attempted');
@@ -475,7 +495,6 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
   reasons.push('a model call still streaming is invisible until it completes, and then lands whole');
 
   const afterTrip = Number.isFinite(tripAt) ? readings.filter((reading) => timeOf(reading.at) > tripAt) : [];
-  const afterAbort = Number.isFinite(abortAt) ? readings.filter((reading) => timeOf(reading.at) > abortAt) : [];
   return {
     guard: CUTOFF_GUARD,
     observed: {
@@ -486,12 +505,14 @@ export function computeOvershoot({ state = null, abort = null, drain = null, cut
       postAbortTokens: beforeAbortCumulative !== null && final !== null && readableAfterAbort ? final - beforeAbortCumulative : null,
       readingsAfterTrip: afterTrip.length,
       readingsAfterAbort: afterAbort.length,
+      readingsStraddlingAbort: straddlingAbort.length,
       unreadableReadingsAfterAbort: afterAbort.filter((reading) => reading.readable !== true).length,
       lastGrowthAt: lastGrowth?.at ?? null,
       quietReadingsAtEnd,
       sessionsGrowingAfterTrip,
       sessionsGrowingAfterAbort,
       attribution: USAGE_ATTRIBUTION_NOTE,
+      abortBoundary: ABORT_BOUNDARY_NOTE,
     },
     maxPossible: MAX_POSSIBLE_UNBOUNDED,
     maxPossibleReasons: reasons,

@@ -3,7 +3,7 @@
 //
 //   node scripts/token-budget-meter.mjs watch --budget <tokens> \
 //     --state <file> --trip-flag <file> [--baseline-out <file>] \
-//     [--abort-mark <file>] [--parent-pid <pid>]
+//     [--abort-mark <file>] [--abort-doc <file>] [--parent-pid <pid>]
 //
 // Reads the gateway from OPENCLAW_GATEWAY_WS with OPENCLAW_GATEWAY_TOKEN (taken
 // from the environment only, never an argument), as the row scenarios' backend
@@ -26,10 +26,17 @@
 // session the baseline listed, written before phase "armed", for the cutoff
 // (scripts/token-budget-abort.mjs), which never aborts a session that existed
 // before the run. The runner keeps it in its mode-700 budget directory.
-// --abort-mark names the file the runner writes once the cutoff's abort pass
-// has finished. At the start of the first reading after it appears, the meter
-// keeps the per-session totals (as hashes) the last reading left, so the
-// receipt can show which sessions grew after the abort.
+// --abort-mark names the file the runner writes, with the time, once the
+// cutoff has ended. The meter looks for it as each reading completes. Once it
+// appears, the meter keeps the per-session totals (as hashes) as they stood
+// before the first reading that completed at or after that time, so the
+// receipt can show which sessions grew after the abort. A reading begun before
+// it and completed after it is marked straddlesAbort and counts after it: its
+// growth may have landed during the abort pass, but post-abort growth is never
+// understated. Every reading records when it completed.
+// --abort-doc names the cutoff's public abort document, read once with the
+// mark: a session the cutoff named by its key (it had no session id then) is
+// published with that name as abortId under the session id it is metered by.
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { HARNESS_CLIENT_IDENTITY } from '../lib/gateway-client-identity.mjs';
@@ -196,7 +203,7 @@ function parseArgs(argv) {
   for (let index = 0; index < rest.length; index += 2) {
     const name = rest[index];
     const value = rest[index + 1];
-    if (!name?.startsWith('--') || value === undefined) throw new Error(`usage: token-budget-meter.mjs watch --budget <tokens> --state <file> --trip-flag <file> [--baseline-out <file>] [--abort-mark <file>] [--parent-pid <pid>]`);
+    if (!name?.startsWith('--') || value === undefined) throw new Error(`usage: token-budget-meter.mjs watch --budget <tokens> --state <file> --trip-flag <file> [--baseline-out <file>] [--abort-mark <file>] [--abort-doc <file>] [--parent-pid <pid>]`);
     args[name.slice(2)] = value;
   }
   return args;
@@ -240,8 +247,10 @@ async function watch(args, env = process.env) {
     // Per-session totals (12-hex hashes) as the tripping reading left them, so
     // the receipt can show which sessions' usage landed after the trip.
     tripSessions: null,
-    // The same, as the last reading before the cutoff's abort pass finished
-    // left them (see --abort-mark), with that reading's cumulative total.
+    // The same, as they stood before the first reading that completed at or
+    // after the cutoff ended (see --abort-mark), with the cumulative total then
+    // and how many of the abort document's session ids were read to link
+    // id-less sessions (null: the document could not be read).
     abortSessions: null,
     readings: [],
     cadence: readingCadence([], null),
@@ -316,7 +325,8 @@ async function watch(args, env = process.env) {
     const started = Date.now();
     cycleDeadline = started + timeoutMs;
     const reading = await read();
-    return { reading, readMs: Date.now() - started };
+    const completedMs = Date.now();
+    return { reading, readMs: completedMs - started, completedMs };
   };
   const closeLink = () => link?.client?.close();
 
@@ -346,6 +356,14 @@ async function watch(args, env = process.env) {
   state.sessions = meter.publicSessions();
   save();
 
+  // The totals each usage reading left, with when it began and completed, so
+  // the abort snapshot can be the totals before the first reading that
+  // completed after the abort, wherever the mark is first seen. From the trip
+  // on every one is kept until the snapshot; before it, the last two.
+  const totalsNow = () => ({ cumulative: state.cumulative, sessions: state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })) });
+  let checkpoints = [{ index: null, startedMs: null, completedMs: Date.now(), ...totalsNow() }];
+  let abortIds = null;
+
   let stopping = false;
   let wake = null;
   const stop = () => {
@@ -369,12 +387,40 @@ async function watch(args, env = process.env) {
     state.cumulative = entry.cumulative;
     state.maxIncrement = entry.maxIncrement;
     state.trip = entry.trip;
-    state.sessions = meter.publicSessions();
+    state.sessions = meter.publicSessions({ abortIds });
     if (entry.trip && !wasTripped) state.tripSessions = state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens }));
     state.cadence = readingCadence(state.readings.filter((item) => !item.discovery), state.trip);
     if (entry.trip) state.phase = 'tripped';
     save();
     if (entry.trip && !wasTripped) writeAtomic(flagPath, `${JSON.stringify(entry.trip)}\n`);
+  };
+
+  // The abort snapshot (see --abort-mark and --abort-doc), once. A mark with
+  // no readable time places the abort before every kept reading: growth after
+  // it may then be overstated, never understated.
+  const keepAbortSnapshot = () => {
+    let markedAt = null;
+    try {
+      markedAt = readFileSync(args['abort-mark'], 'utf8').trim() || null;
+    } catch { /* no time: the earliest kept totals stand */ }
+    const abortMs = Date.parse(markedAt ?? '');
+    const kept = (Number.isFinite(abortMs) ? checkpoints.filter((checkpoint) => checkpoint.completedMs < abortMs).at(-1) : null) ?? checkpoints[0];
+    for (const later of checkpoints.slice(checkpoints.indexOf(kept) + 1)) {
+      if (later.startedMs < abortMs) state.readings[later.index].straddlesAbort = true;
+    }
+    if (args['abort-doc']) {
+      try {
+        const doc = JSON.parse(readFileSync(args['abort-doc'], 'utf8'));
+        if (!Array.isArray(doc?.sessions)) throw new Error('malformed');
+        abortIds = new Set(doc.sessions.map((session) => session?.id).filter((id) => typeof id === 'string' && /^[0-9a-f]{12}$/u.test(id)));
+      } catch {
+        abortIds = null;
+      }
+    }
+    state.abortSessions = { markedAt, cumulative: kept.cumulative, sessions: kept.sessions, abortIdsRead: abortIds ? abortIds.size : null };
+    state.sessions = meter.publicSessions({ abortIds });
+    checkpoints = null;
+    save();
   };
 
   let nextAt = Date.now() + pollMs;
@@ -388,14 +434,14 @@ async function watch(args, env = process.env) {
         break;
       }
       if (Date.now() >= nextDiscoveryAt) {
-        const { reading: found, readMs } = await timed(() => meter.discover());
+        const { reading: found, readMs, completedMs } = await timed(() => meter.discover());
         nextDiscoveryAt = Date.now() + discoveryMs;
         state.discoveries += 1;
         if (found.readable) {
           // Fresh state between readings: the runner's staleness check.
           save();
         } else {
-          observe({ at: found.at, readable: false, error: `discovery: ${found.error}` }, { readMs, discovery: true });
+          observe({ at: found.at, readable: false, error: `discovery: ${found.error}` }, { readMs, completedAt: new Date(completedMs).toISOString(), discovery: true });
         }
         continue;
       }
@@ -407,25 +453,20 @@ async function watch(args, env = process.env) {
     }
     if (!parentAlive(parentPid)) stopping = true;
     const final = stopping;
-    if (args['abort-mark'] && !state.abortSessions && existsSync(args['abort-mark'])) {
-      let markedAt = null;
-      try {
-        markedAt = readFileSync(args['abort-mark'], 'utf8').trim() || null;
-      } catch { /* the time is a label; the snapshot is what counts */ }
-      state.abortSessions = {
-        markedAt,
-        cumulative: state.cumulative,
-        sessions: state.sessions.map(({ id, lastTokens }) => ({ id, lastTokens })),
-      };
-    }
     nextAt = Math.max(nextAt + pollMs, Date.now());
     nextDiscoveryAt = Date.now() + discoveryMs;
-    const { reading, readMs } = await timed(() => meter.read());
+    const { reading, readMs, completedMs } = await timed(() => meter.read());
     observe(reading, {
       readMs,
+      completedAt: new Date(completedMs).toISOString(),
       ...(reading.scope ? { scope: reading.scope } : {}),
       ...(final ? { final: true } : {}),
     });
+    if (checkpoints) {
+      checkpoints.push({ index: state.readings.length - 1, startedMs: Date.parse(reading.at), completedMs, ...totalsNow() });
+      if (!state.trip && checkpoints.length > 2) checkpoints.splice(0, checkpoints.length - 2);
+    }
+    if (args['abort-mark'] && !state.abortSessions && existsSync(args['abort-mark'])) keepAbortSnapshot();
     if (final) {
       state.phase = 'stopped';
       save();

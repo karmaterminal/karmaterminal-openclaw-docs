@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
   ABORT_ACK_NOTE,
+  ABORT_BOUNDARY_NOTE,
   AMBIGUITY_REASONS,
   CUTOFF_GUARD,
   DRAIN_NOTE,
@@ -353,6 +354,7 @@ test('the observed overshoot is measured from the readings; the maximum possible
     postAbortTokens: 900,
     readingsAfterTrip: 5,
     readingsAfterAbort: 4,
+    readingsStraddlingAbort: 0,
     unreadableReadingsAfterAbort: 0,
     lastGrowthAt: '2026-11-19T00:00:06.000Z',
     quietReadingsAtEnd: 2,
@@ -362,6 +364,7 @@ test('the observed overshoot is measured from the readings; the maximum possible
       { id: 'cccccccccccc', tokens: 200, owned: false },
     ],
     attribution: undefined,
+    abortBoundary: ABORT_BOUNDARY_NOTE,
   });
   assert.equal(overshoot.maxPossible, MAX_POSSIBLE_UNBOUNDED);
   assert.deepEqual(overshoot.drain, { metered: true, startedAt: 'x', endedAt: 'y', windowSeconds: 1, complete: 'unproven', note: DRAIN_NOTE });

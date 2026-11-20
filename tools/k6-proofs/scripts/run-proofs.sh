@@ -603,6 +603,7 @@ arm_token_budget() {
     --trip-flag "$BUDGET_TRIP_FLAG" \
     --baseline-out "$BUDGET_BASELINE_SESSIONS" \
     --abort-mark "$BUDGET_ABORT_MARK" \
+    --abort-doc "$BUDGET_ABORT_DOC" \
     --parent-pid "$$" \
     > "$BUDGET_DIR/meter.log" 2>&1 &
   METER_PID=$!
@@ -718,8 +719,10 @@ token_budget_cutoff() {
   fi
   BUDGET_CUTOFF_ENDED_MS="$(date +%s%3N)"
   BUDGET_CUTOFF_ENDED_AT="$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)"
-  # The meter keeps its per-session totals at its next reading, so the receipt
-  # can tell what grew after the abort from what grew before it.
+  # The meter keeps the per-session totals as they stood before the first
+  # reading that completed after this time (one begun before it straddles the
+  # abort and counts after it), so the receipt can tell what grew after the
+  # abort from what grew before it. It reads the abort document with the mark.
   printf '%s\n' "$BUDGET_CUTOFF_ENDED_AT" > "$BUDGET_ABORT_MARK"
   if ! jq -e 'type == "object"' "$BUDGET_ABORT_DOC" >/dev/null 2>&1; then
     rm -f "$BUDGET_ABORT_DOC"

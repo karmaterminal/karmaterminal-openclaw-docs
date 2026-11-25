@@ -1,0 +1,98 @@
+{
+  "schema": "openclaw.evalbench.run.v1",
+  "issue": "karmaterminal/openclaw#1575",
+  "offline": true,
+  "go": null,
+  "started": "2026-11-25T19:28:54+00:00",
+  "arms": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "model": "openai/gpt-6.1-sol",
+  "gatewayUrls": {
+    "A": "ws://127.0.0.1:39501",
+    "B": "ws://127.0.0.1:42587",
+    "C": "ws://127.0.0.1:37851",
+    "D": "ws://127.0.0.1:45423"
+  },
+  "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
+  "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
+  "harnessHead": "c771078fd94d85ed3a9c08e9233c3d8ef573138f",
+  "harnessDirty": false,
+  "numTrials": 5,
+  "scenarios": null,
+  "tokenBudgetPerArm": 35000000,
+  "tokenBudgetRule": "per arm, checked between trials; not a ceiling, the trial in flight can exceed it",
+  "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
+  "armsSha256": "8e9d7d988f8660094e8286da17a0c8eaac95919ee20b655cbce09111d90a6b82",
+  "ended": "2026-11-25T19:29:10+00:00",
+  "results": {
+    "A": {
+      "jobId": "bbf29792-5118-49a1-892c-295c35fcaa03",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 3,
+          "token_consumption": 129282,
+          "trajectory_matcher": 33,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3126982
+    },
+    "B": {
+      "jobId": "8fdebfbd-a636-4a75-8ee9-646c03f23e9a",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 23,
+          "token_consumption": 119030,
+          "trajectory_matcher": 51,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3254330
+    },
+    "C": {
+      "jobId": "45803c50-d5d2-4a8d-a805-bd6e5043e47a",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 48,
+          "token_consumption": 122565,
+          "trajectory_matcher": 72,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3623085
+    },
+    "D": {
+      "jobId": "d77cd53a-fb7b-4dd7-925b-df0d8c508cea",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 34,
+          "token_consumption": 121848,
+          "trajectory_matcher": 62,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3470048
+    }
+  },
+  "failures": []
+}

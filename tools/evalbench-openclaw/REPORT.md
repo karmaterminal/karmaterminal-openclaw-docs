@@ -81,13 +81,13 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 
 | what | result |
 | --- | --- |
-| adapter tests (`./run.sh test`) | @@TESTS@@ |
+| adapter tests (`./run.sh test`) | 292 passed, also from a clean checkout |
 | the new tests at `cad3a045` | 71 red there, most of them on a changed signature. The report's served-model test is red there on its own assertion |
-| mutation checks on this follow-up (one mutant at a time, on a copy) | @@MUT@@ |
+| mutation checks on this follow-up (one mutant at a time, on a copy) | 50 of 50 killed: 41 before the review, 9 for its fixes |
 | full offline run, D off | 270 trials, 3 jobs, exit 0, no session left on any fake gateway |
 | full offline run, D on | 360 trials, 4 jobs, exit 0, no session left on any fake gateway |
 | the canary's own shape, offline | 9 trials, exit 0, every comparison `not reportable` |
-| `tools/k6-proofs/tests` | @@K6@@ |
+| `tools/k6-proofs/tests` | 583 of 583 |
 
 From the first lane, at `cad3a045`, and not repeated: 35 + 20 mutants; 67 of 67 adapter frames valid against the product's own
 protocol validators at both SHAs (no frame changed since); `tools/k6-proofs/scripts` (nothing under `tools/k6-proofs` changed).

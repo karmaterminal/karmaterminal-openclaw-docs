@@ -2,7 +2,7 @@
 
 **Offline rehearsal against the fake gateway. Every number below is scripted; none is about a model.**
 
-Model `openai/gpt-5.6-sol`, 5 repetitions per prompt and arm. Rates are trials whose turn called a continuation tool, over scored trials.
+Model `openai/gpt-6.1-sol`, no fallbacks; a trial any other model served is unscored. 5 repetitions per prompt and arm. Rates are trials whose turn called a continuation tool, over scored trials.
 
 | arm | eligible: elected | rate | Wilson 95 % | control: elected | rate | Wilson 95 % | unscored |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -14,15 +14,20 @@ Model `openai/gpt-5.6-sol`, 5 repetitions per prompt and arm. Rates are trials w
 
 | comparison | difference | Newcombe 95 % | prompt bootstrap 95 % | reading |
 | --- | --- | --- | --- | --- |
-| visibility: A → B | +31.7 pp | +17.6 to +44.7 pp | +23.3 to +40.0 pp | effect |
-| wording: B → C | +38.3 pp | +20.7 to +52.7 pp | +33.3 to +43.3 pp | effect |
-| deploy: A → C (descriptive) | +70.0 pp | +55.0 to +79.8 pp | +61.7 to +78.3 pp | effect |
+| A → B: visibility (all tools direct) | +31.7 pp | +17.6 to +44.7 pp | +23.3 to +40.0 pp | effect |
+| B → C: composite: new text + direct-set narrowing | +38.3 pp | +20.7 to +52.7 pp | +33.3 to +43.3 pp | effect |
+| A → C: deploy of f9fcd3a5 (descriptive) | +70.0 pp | +55.0 to +79.8 pp | +61.7 to +78.3 pp | effect |
+
+What each comparison is:
+
+- **A → B**: same build and text. B makes every tool direct, not only the continuation tools, so this is the effect of an all-direct surface.
+- **B → C**: not the wording effect. C has the new text, and it also narrows the direct set: B makes every tool direct, while C adds only the three continuation tools to the fleet default's direct set. Arm D separates the two.
 
 ## Surface
 
-- **A**: surface: verified 89, carried 1; description text: none; runtime: openclaw 90; contradictions: 0.
-- **B**: surface: verified 89, carried 1; description text: match 270; runtime: openclaw 90; contradictions: 0.
-- **C**: surface: verified 90; description text: match 270; runtime: openclaw 90; contradictions: 0.
+- **A**: surface: verified 89, carried 1; description text: none; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 7 direct and 5 deferred 90; contradictions: 0.
+- **B**: surface: verified 89, carried 1; description text: match 270; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 9 direct and 0 deferred 90; contradictions: 0.
+- **C**: surface: verified 90; description text: match 270; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 10 direct and 2 deferred 90; contradictions: 0.
 
 ## What was elected, and how
 
@@ -63,8 +68,10 @@ Model `openai/gpt-5.6-sol`, 5 repetitions per prompt and arm. Rates are trials w
 
 ## Cost and integrity
 
-| arm | metered tokens | model calls seen | distinct system prompts | extra trials not counted | scratch path present | record problems |
-| --- | --- | --- | --- | --- | --- | --- |
-| A | 3,126,982 | 121 | 1 | 0 | 0 | 0 |
-| B | 3,254,330 | 127 | 1 | 0 | 0 | 0 |
-| C | 3,623,085 | 141 | 1 | 0 | 0 | 0 |
+| arm | metered tokens | largest trial | model calls seen | distinct system prompts | extra trials not counted | scratch path present | record problems |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| A | 3,126,982 | 78,072 | 121 | 1 | 0 | 0 | 0 |
+| B | 3,254,330 | 57,880 | 127 | 1 | 0 | 0 | 0 |
+| C | 3,623,085 | 57,880 | 141 | 1 | 0 | 0 | 0 |
+
+Metered tokens include cache reads. The spend stop (35,000,000 per arm) is checked between trials, so it is not a ceiling: the trial in flight when an arm crosses it runs to its end.

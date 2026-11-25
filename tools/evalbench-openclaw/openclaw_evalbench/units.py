@@ -110,9 +110,10 @@ class SystemdUnit:
         return shown if done.returncode == 0 and "ActiveState" in shown else None
 
     @staticmethod
-    def _cgroup_of(shown):
+    def _cgroup_of(shown, name):
+        """The unit's own cgroup, and never one above it."""
         group = (shown or {}).get("ControlGroup") or ""
-        return pathlib.Path("/sys/fs/cgroup") / group.lstrip("/") if group.startswith("/") and ".." not in group else None
+        return pathlib.Path("/sys/fs/cgroup") / group.lstrip("/") if group.endswith(f"/{name}") and ".." not in group else None
 
     def _beside(self, name):
         """Where a user unit's cgroup is when systemd does not say: beside this gateway's, in the user manager's app slice."""
@@ -137,7 +138,7 @@ class SystemdUnit:
             problems.append(f"it would restart (Restart={seen.get('Restart')})")
         if seen.get("KillMode") != "control-group":
             problems.append(f"a stop would not end its whole cgroup (KillMode={seen.get('KillMode')})")
-        self._cgroup = self._cgroup_of(seen)
+        self._cgroup = self._cgroup_of(seen, f"{self.unit}.service")
         if self._cgroup is None or pid not in self.processes():
             problems.append("its cgroup cannot be read")
         elif not self._listens():
@@ -198,14 +199,14 @@ class SystemdUnit:
     def _live(self, name):
         """Whether an owned unit still runs or is still held. None when that could not be learned."""
         shown = self.show(name)
-        cgroup = self._cgroup_of(shown) or self._beside(name)
+        cgroup = self._cgroup_of(shown, name) or self._beside(name)
         if _processes(cgroup):
             return True
         return None if shown is None else shown["ActiveState"] in _LIVE
 
     def _end(self, name):
         _kill_cgroup(self._beside(name))
-        _kill_cgroup(self._cgroup_of(self.show(name)))
+        _kill_cgroup(self._cgroup_of(self.show(name), name))
         systemctl("kill", "--signal=SIGKILL", name)
         systemctl("stop", name)
         systemctl("reset-failed", name)
@@ -268,13 +269,16 @@ class SystemdUnit:
         return {"stopped": not problems, "problems": problems, "durableUnits": swept["units"], "strayProcesses": swept["processes"],
                 "killSeconds": round(killed_after, 3), "goneSeconds": round(gone_after, 3), "seconds": round(time.monotonic() - started, 3)}
 
-    def kill(self):
-        """The first half of a stop, with nothing to wait for. Returns whether anything was running."""
+    def running(self):
+        """Whether anything of the unit runs."""
         if self._cgroup is None:
-            self._cgroup = self._beside(f"{self.unit}.service") or self._cgroup_of(self.show())
-        running = bool(self.processes())
+            self._cgroup = self._beside(f"{self.unit}.service") or self._cgroup_of(self.show(), f"{self.unit}.service")
+        return bool(self.processes())
+
+    def kill(self):
+        """The first half of a stop, with nothing to wait for."""
+        self.running()
         _kill_cgroup(self._cgroup)
-        return running
 
     def mark_stopped(self, record):
         """Leave the reason beside the gateway's state, so it is never restarted on what it was doing."""
@@ -305,8 +309,12 @@ class FakeProcess:
     def sweep(self):
         return {"clean": True, "units": [], "processes": 0}
 
+    def running(self):
+        return self.alive()
+
     def kill(self):
-        return self.alive() and _kill(self.pid)
+        if self.alive():
+            _kill(self.pid)
 
     def stop(self):
         started = time.monotonic()

@@ -53,7 +53,8 @@ PRODUCT = growing(CAPS["agents.defaults.timeoutSeconds"]) + growing(CAPS["agents
 def test_the_limits_are_the_multiples_the_packet_gives():
     assert TRIAL == pytest.approx(1.5 * 6 * 60_000 * 1.3, rel=0.01) and RUN == pytest.approx(1.5 * 1.6 * M)
     assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4.5, 12.5, 2, 4)
-    assert "at most 4.5 s from the last sample under the limit to the kill" in PACKET and "12.5 s from the last sample" in PACKET
+    flat = " ".join(PACKET.split())
+    assert "at most 4.5 s from the last sample under the limit to the kill" in flat and "12.5 s from the last sample" in flat
 
 
 def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit():
@@ -64,8 +65,9 @@ def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit():
 
 
 @pytest.mark.parametrize("value, shown", [
-    (min(PRODUCT, TRIAL) + OVER, "min(7.8 M, 0.70 M) + 0.64 M = **1.34 M**"), (TRIAL + OVER_BLIND, "0.70 M + 1.28 M = 1.98 M"),
-    (min(9 * (TRIAL + OVER), RUN + 3 * OVER), "min(9 × 1.34 M, 2.40 M + 3 × 0.64 M) = **4.32 M**"), (RUN + 3 * OVER_BLIND, "2.40 M + 3 × 1.28 M = 6.24 M"),
+    (min(PRODUCT, TRIAL) + OVER, "min(7.8 M, 0.70 M) + 0.64 M = 1.34 M |"), (TRIAL + OVER_BLIND, "0.70 M + 1.28 M = **1.98 M**"),
+    (min(9 * (TRIAL + OVER), RUN + 3 * OVER), "min(9 × 1.34 M, 2.40 M + 3 × 0.64 M) = 4.32 M |"),
+    (min(9 * (TRIAL + OVER_BLIND), RUN + 3 * OVER_BLIND), "min(9 × 1.98 M, 2.40 M + 3 × 1.28 M) = **6.24 M**"),
     (TRIAL + LANES * calls(BLIND) * 375_000, "2 × 4 × 375 k = **3.7 M**"), (RUN + 3 * LANES * calls(BLIND) * 375_000, "2.40 M + 3 × 3.0 M = **11.4 M**"),
 ])
 def test_the_packets_numbers_are_arms_jsons(value, shown):
@@ -80,8 +82,10 @@ def test_the_product_caps_alone_bound_a_trial_at_what_the_packet_says():
 
 def test_expected_and_enforced_are_separate_columns():
     header = next(line for line in PACKET.splitlines() if line.startswith("| | expected |"))
-    assert [c.strip() for c in header.strip("|").split("|")][1:5] == ["expected", "product caps alone, estimated", "the supervisor's limit", "**enforced**: limit + one polling interval"]
-    assert "**1.34 M** metered tokens for one trial, **4.32 M** for the canary" in PACKET.split("## Commands")[0]
+    assert [c.strip() for c in header.strip("|").split("|")][1:6] == [
+        "expected", "product caps alone, estimated", "the supervisor's limit", "enforced, every reading on time: limit + one polling interval", "**enforced, whatever the readings do**"]
+    top = PACKET.split("## Commands")[0]
+    assert "**1.98 M** metered tokens for one trial and **6.24 M** for the canary, whatever the readings do; **1.34 M** and **4.32 M** while every reading is on time" in top
 
 
 @pytest.mark.parametrize("shown", ["700,000 metered tokens, 480 s", "| 150,000 metered tokens |", "| active or queued runs on one gateway | 2 |",

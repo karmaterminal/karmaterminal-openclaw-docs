@@ -11,9 +11,9 @@ of the path was exercised: gRPC, WS, history, scorers, supervision, CSVs and rep
 [`artifacts/offline-rehearsal/`](artifacts/offline-rehearsal/report.md) and
 [`artifacts/offline-rehearsal-arm-d/`](artifacts/offline-rehearsal-arm-d/report.md).
 
-**The canary's spend is now bounded by something that runs: 1.34 M metered tokens for one trial and 4.32 M for the nine**, with
-its gateways answering (1.98 M and 6.24 M if they stop). [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has the arithmetic, what
-enforces each number, and what it rests on.
+**The canary's spend is now bounded by something that runs: 1.98 M metered tokens for one trial and 6.24 M for the nine, whatever
+the readings do**, and 1.34 M and 4.32 M while every reading is on time. [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has the
+arithmetic, what enforces each number, and what it rests on.
 
 | ref | value |
 | --- | --- |
@@ -33,10 +33,10 @@ enforces each number, and what it rests on.
 
 | asked for | what it is now |
 | --- | --- |
-| product caps, the same on every arm | thirteen, in `arms.json` `caps`. `overlay` writes them; each trial reads them back, authored, effective and applied, before and after. A trial whose caps didn't take is unscored and halts **every** arm. [README](README.md#spend-caps) cites each at both SHAs |
+| product caps, the same on every arm | twelve, in `arms.json` `caps`. `overlay` writes them; each trial reads them back, authored, effective and applied, before and after. A trial whose caps didn't take is unscored and halts **every** arm. [README](README.md#spend-caps) cites each at both SHAs |
 | the tightest values that still let the first election happen | `costCapTokens: 1` and `maxChainLength: 1`: the election is answered `scheduled`, and nothing follows it. One child, with none of its own. Run through the product's own code at both SHAs (below) |
-| an external supervisor that doesn't trust the product | `supervisor.py`, a process and a unit of its own: 2 s readings, a limit per trial, per run and outside a trial, its own clocks, active runs, and a gateway it can't read. `sessions.abort`, then SIGKILL of the unit, then what outlives it |
-| a durable exec can't bypass it | any stop, and the end of every trial, ends every transient unit that names the gateway or its directory. Tested with a real durable unit, beside the trap: stopping the gateway's own unit leaves it running |
+| an external supervisor that doesn't trust the product | `supervisor.py`, a process and a unit of its own: a reading a second, a limit per trial, per run and outside a trial, its own clocks, active runs, and a gateway it can't read. `sessions.abort`, then SIGKILL of the unit, then what outlives it |
+| a durable exec can't bypass it | any stop, and the end of every trial, ends every transient unit whose log, environment or binding is the gateway's. Tested with a real durable unit, beside the trap: stopping the gateway's own unit leaves it running |
 | fake gateways that loop, spawn children and ignore aborts | each a process that dies for real, or a systemd unit. Stopped within its limit; its trial's cleanup ran and is on record; the run ended in order |
 | the bound as enforced arithmetic | the packet's Spend section: expected and enforced in separate columns, what enforces each number, and how that was tested. A test recomputes it from `arms.json` |
 | CI handoff | the packet's last section |
@@ -47,8 +47,8 @@ What reading the product for this found:
   group by default, which the child cap doesn't count. They are capped, per group; a turn chooses its groups, so the supervisor's
   active-run limit stands behind that.
 - **A child has no run timeout by default** (0 is none), and its spawn's own argument outranks the configured one.
-- **The session list never shows a cron run**, so a supervisor reading only the list would not see one's spend. Automatic cron
-  runs are off, and `sessions.usage`'s total is read beside the list.
+- **The session list never shows a cron run**, so a supervisor reading only the list would not see one's spend.
+  `sessions.usage`'s total is read beside the list. Cron itself is left on: switching it off shows in what `automations` answers.
 - **The first supervised rehearsal under-counted**: 0.2 M against the harness's 10 M, because a trial against a fake gateway can
   live and go between two readings. A trial now closes on a fresh reading and on the harness's own count.
 
@@ -110,16 +110,19 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 
 | what | result |
 | --- | --- |
-| adapter tests (`./run.sh test`) | 292 passed, also from a clean checkout |
-| the new tests at `cad3a045` | 71 red there, most of them on a changed signature. The report's served-model test is red there on its own assertion |
-| mutation checks on this follow-up (one mutant at a time, on a copy) | 50 of 50 killed: 41 before the review, 9 for its fixes |
-| full offline run, D off | 270 trials, 3 jobs, exit 0, no session left on any fake gateway |
-| full offline run, D on | 360 trials, 4 jobs, exit 0, no session left on any fake gateway |
-| the canary's own shape, offline | 9 trials, exit 0, every comparison `not reportable` |
-| `tools/k6-proofs/tests` | 583 of 583 |
+| adapter tests (`./run.sh test`) | TESTS passed, none skipped; also from a clean checkout, and the supervisor's under full CPU load |
+| pre-fix control, at `52465362` | the same runaway (a 60 k call every 50 ms, deaf to abort and delete), its 600 s deadline cut to 6 s: **7.2 M** metered when the trial ended, against 0.70 M, and 2.4 M more in the 2 s after, because the abort and the delete were all there was. On this head it is dead within 0.70 M and one interval's worth (`test_a_loop_that_ignores_aborts_is_stopped_within_its_cap`) |
+| mutation checks on this follow-up (one mutant at a time, on a copy) | MUTANTS |
+| the supervisor at its real limits, on a real user unit (fakes, no model) | a two-lane loop: 745,240 metered at 30.1 s, gone within 1 ms of the kill. A frozen gateway: killed 10.01 s after its last reading. A durable exec ended with both |
+| the caps, through the product's own code at both SHAs | its config schema accepts them; `continue_work` and `continue_delegate` answer `scheduled`; the turn-end budget then says `cost-capped`, and `chain-capped` for a second hop; a second child, a child of a child and a second collector are refused; timeouts read 330 s and 120 s (defaults 48 h and none); redaction and defaults keep every cap. 49 tools: names, descriptions and parameters the same with and without the caps, and not with swarm off |
+| the supervisor's frames, through the product's own validators at both SHAs | 5 of 5 valid; the negative controls refused, 4 of 4 |
+| full offline run, D off | 270 trials, 3 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped |
+| full offline run, D on | 360 trials, 4 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped |
+| the canary's own shape and limits, offline | 9 trials, exit 0, every comparison `not reportable` |
+| `tools/k6-proofs/tests` | K6 |
 
 From the first lane, at `cad3a045`, and not repeated: 35 + 20 mutants; 67 of 67 adapter frames valid against the product's own
-protocol validators at both SHAs (no frame changed since); `tools/k6-proofs/scripts` (nothing under `tools/k6-proofs` changed).
+protocol validators at both SHAs (the trial's own frames have not changed since); `tools/k6-proofs/scripts` (nothing under `tools/k6-proofs` changed).
 
 CI path: **focused-only** (local). The docs repo has no PR checks, and nothing here touches openclaw.
 
@@ -178,7 +181,7 @@ and the documents:
 48 k per call is what the token-budget work metered on emeric at ab5a, on another model and with that seat's own workspace.
 An isolated gateway has an empty one, and arms B and D carry every tool's schema, so both ends are open. The calls per trial
 are assumptions. The canary gives the first real ones. Wall time is about 1.5–3 hours with the arms in parallel, more if
-turns run to the 600 s deadline. **Arm D's own cost** is one more arm: 90 trials, 16 M (5.4–33 M), nearer the high column
+turns run to the 300 s deadline. **Arm D's own cost** is one more arm: 90 trials, 16 M (5.4–33 M), nearer the high column
 with B, and another sign-in, gateway and state dir. It runs beside the others, so it adds little wall time.
 
 ### One trial's maximum
@@ -188,13 +191,13 @@ with B, and another sign-in, gateway and state dir. It runs beside the others, s
 | central (an eligible trial: 3.5 calls, +35 %) | 3.5 | 0.2 M |
 | high (6 calls, +30 %) | 6 | 0.47 M |
 | a loop, under the product's caps alone: 330 s at 5 s a call, 60 k growing 1 k, and one child for 120 s | 66 + 24 | 7.8 M |
-| **enforced**: the supervisor's 0.70 M, and one polling interval | | **1.34 M** |
+| **enforced**: the supervisor's 0.70 M, and the time a stop takes | | **1.98 M**; 1.34 M while every reading is on time |
 | before this change: a loop for 600 s, or that and five children | 120, 720 | 15 M, 90 M, enforced by nothing |
 
 | the 270-trial fire | three arms | with D |
 | --- | --- | --- |
 | expected (low – high) | 50 M (16 – 100 M) | 65 M (22 – 130 M) |
-| **enforced** by `--run-token-cap 75000000`, plus one polling interval per arm in flight (0.64 M) | **77 M** | a cap of its own |
+| **enforced** by `--run-token-cap 75000000`, plus the time a stop takes per arm in flight (1.28 M) | **79 M** | a cap of its own |
 | the 35 M stop per arm, checked between trials | 105 M | 140 M |
 
 5 s a call is an assumption about a model whose reasoning can't be turned off, and 160 k a call is one full-size tool result per

@@ -272,6 +272,8 @@ class FakeGateway:
 
     def _sessions_usage(self, params):
         if "key" not in params:
+            if "slowUsage" in self.overrides:
+                time.sleep(self.overrides["slowUsage"])
             if time.monotonic() - self.opened >= self.overrides.get("usageFailsAfter", float("inf")):
                 raise _Refusal("UNAVAILABLE", "busy")
             live = sum(self._tokens(s) for s in self.sessions.values())

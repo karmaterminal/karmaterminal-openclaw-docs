@@ -207,14 +207,18 @@ def test_a_stop_is_quick_for_a_gateway_that_ignores_sigterm(proof):
 
 
 @needs_manager
-def test_nothing_is_called_stopped_that_systemd_could_not_be_asked_about(proof, monkeypatch):
-    unit = proof.start().of()
-    unit.verify()
-    durable, pids = proof.durable(), unit.processes()
+@pytest.mark.parametrize("verified", [True, False])
+def test_nothing_is_called_stopped_that_systemd_could_not_be_asked_about(proof, monkeypatch, verified):
+    # Unverified is what the timer and a person have: a unit's name, and no cgroup read beforehand.
+    asked = proof.start().of()
+    asked.verify()
+    unit = asked if verified else proof.of()
+    durable, pids = proof.durable(), asked.processes()
     monkeypatch.setattr(U, "SWEEP_SECONDS", 1.0)
     monkeypatch.setattr(U, "systemctl", lambda *_args, **_kwargs: subprocess.CompletedProcess([], 124, "", "bus down"))
     result = unit.stop()
-    assert result["stopped"] is False and "systemd could not be asked whether it is stopped" in result["problems"], result
+    assert result["stopped"] is False and result["problems"] == ["systemd could not be asked whether it is stopped",
+                                                                 "something it owns is still running, or could not be asked about"], result
     # It is dead all the same, and so is the durable exec: the kernel was told, not systemd.
     assert all(U.process_start(p) is None for p in pids) and result["goneSeconds"] < 1.0
     monkeypatch.undo()
@@ -325,11 +329,13 @@ def test_the_timer_stops_the_unit_when_both_processes_are_dead(proof, live, tmp_
     supervisor = next(n for n in live if "supervisor" in n)
     U.systemctl("kill", "--signal=SIGKILL", f"{supervisor}.service")
     durable = proof.durable()
+    assert not (proof.directory / U.STOP_MARKER).exists()
     assert active(f"{proof.unit}.service")
     end = time.monotonic() + 15
     while (active(f"{proof.unit}.service") or active(durable)) and time.monotonic() < end:
         time.sleep(0.05)
     assert not active(f"{proof.unit}.service") and not active(durable), "the timer needs no one"
+    assert json.loads((proof.directory / U.STOP_MARKER).read_text()) == {"rule": "deadman"}, "and what it stopped is not started again"
     S.remove_socket(plan)
 
 
@@ -360,6 +366,25 @@ def test_a_launch_that_is_interrupted_leaves_no_timer(proof, live, tmp_path):
 
 
 @needs_manager
+def test_a_launch_that_is_cancelled_halfway_takes_back_what_it_started(proof, live, tmp_path):
+    url = live_fake(proof, {})
+    path, plan = live_plan(proof, tmp_path, url)
+
+    def launch(path, plan):
+        time.sleep(0.5)   # the cancel lands here, and the thread goes on
+        S._systemd_run(["systemd-run", "--user", "--quiet", "--collect", f"--unit={plan['deadman']}", "--on-active=60s", "/bin/true"])
+
+    async def go():
+        starting = asyncio.ensure_future(S.Supervision.start(path, plan, launch))
+        await asyncio.sleep(0.2)
+        starting.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await starting
+    asyncio.run(go())
+    assert not active(f"{plan['deadman']}.timer") and active(f"{proof.unit}.service")
+
+
+@needs_manager
 def test_a_refusal_to_arm_leaves_no_timer_behind(proof, live, tmp_path):
     url = live_fake(proof, {})
     proof.durable()
@@ -381,6 +406,11 @@ def test_stop_everything_stops_a_real_unit(proof, tmp_path):
     marker.unlink()
     assert stop_everything(plan)["C"]["stopped"] is True and not marker.exists(), "one that was already stopped is not marked"
     S.remove_socket(plan)
+
+
+@pytest.mark.parametrize("group, want", [("/", None), ("", None), ("/user.slice/x.service/..", None), ("/user.slice", None), ("/a/other.service", None), ("/a/x.service", "/sys/fs/cgroup/a/x.service")])
+def test_only_a_units_own_cgroup_is_ever_killed(group, want):
+    assert U.SystemdUnit._cgroup_of({"ControlGroup": group}, "x.service") == (want and pathlib.Path(want))
 
 
 def test_the_plan_and_the_units_environment_hold_no_token(tmp_path, monkeypatch):

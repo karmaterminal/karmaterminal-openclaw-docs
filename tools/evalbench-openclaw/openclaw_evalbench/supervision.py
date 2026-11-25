@@ -10,6 +10,7 @@ import contextlib
 import json
 import os
 import pathlib
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -22,7 +23,7 @@ from .stops import RunStop
 from .supervisor import SCHEMA, disarm_deadman, remove_socket, stop_everything, systemd_environment, write_private
 from .units import OWN_UNITS, STOP_MARKER, proof_directory
 
-ARM_SECONDS = 60.0
+ARM_SECONDS = 90.0
 ANSWER_SECONDS = 20.0
 FINISH_SECONDS = 60.0
 # How far past the run's own wall-clock limit the timer is set.
@@ -106,10 +107,12 @@ def launch_live(path, plan):
     write_private(plan["log"], "")
     environment = [f"--setenv={key}={value}" for key, value in systemd_environment().items()]
     common = ["systemd-run", "--user", "--quiet", "--collect", "--no-ask-password", "--property=Restart=no", f"--working-directory={ROOT}", *environment]
-    units = [arm["unit"]["unit"] for arm in plan["arms"].values()]
-    # The gateways themselves by systemctl alone, so that this half needs no Python; then what they own.
-    kill = "systemctl --user kill --signal=SIGKILL " + " ".join(f"{u}.service" for u in units)
-    stop = " ".join(f"'{part}'" for part in _module("stop", "--plan", str(path)))
+    units = [arm["unit"] for arm in plan["arms"].values()]
+    # The gateways themselves by the shell and systemctl alone, marked as they go, so that this half needs no Python; then
+    # what they own. If this timer is left to fire, nobody can say what they were doing.
+    mark = "; ".join(f"[ ! -d {shlex.quote(u['directory'])} ] || echo '{{\"rule\": \"deadman\"}}' > {shlex.quote(u['directory'] + '/' + STOP_MARKER)}" for u in units)
+    kill = f"{mark}; systemctl --user kill --signal=SIGKILL " + " ".join(f"{u['unit']}.service" for u in units)
+    stop = shlex.join(_module("stop", "--plan", str(path)))
     after = int(plan["limits"]["runSeconds"]) + DEADMAN_MARGIN_SECONDS
     _systemd_run([*common, f"--unit={plan['deadman']}", f"--on-active={after}s", "--timer-property=AccuracySec=1s", "/bin/sh", "-c", f"{kill}; exec {stop}"])
     try:
@@ -163,7 +166,13 @@ class Supervision:
 
     async def _open(self, launch, path):
         plan = self.plan
-        await asyncio.to_thread(launch, path, plan)
+        launching = asyncio.ensure_future(asyncio.to_thread(launch, path, plan))
+        try:
+            await asyncio.shield(launching)
+        except asyncio.CancelledError:
+            # A thread is not cancelled: what it is about to start has to exist before it can be taken back.
+            await asyncio.gather(launching, return_exceptions=True)
+            raise
         end = time.monotonic() + ARM_SECONDS
         while True:
             try:

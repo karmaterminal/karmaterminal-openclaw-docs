@@ -604,6 +604,8 @@ class StubUnit:
     def alive(self):
         return self.up
 
+    running = alive
+
     def sweep(self):
         return self.swept.pop(0) if self.swept else {"clean": True, "units": [], "processes": 0}
 
@@ -717,36 +719,53 @@ def test_what_a_trial_left_running_and_cannot_be_ended_stops_the_gateway(tmp_pat
     assert steps(tmp_path, monkeypatch, work, unit=StubUnit([{"clean": False, "units": [], "processes": 0}])) == ("sweep-failed", 1)
 
 
-@pytest.mark.parametrize("rule, in_flight, marked", [("run-finished", False, False), ("run-finished", True, True), ("run-tokens", False, True),
-                                                      ("interrupted", True, True), ("runner-gone", True, True), ("trial-tokens", True, True)])
-def test_only_a_gateway_that_had_finished_may_be_started_again(tmp_path, monkeypatch, rule, in_flight, marked):
+@pytest.mark.parametrize("rule, begun, marked", [
+    ("run-finished", "no", False), ("run-finished", "ended", False), ("run-finished", "yes", True), ("run-tokens", "no", False), ("run-tokens", "ended", True),
+    ("interrupted", "yes", True), ("runner-gone", "no", False), ("runner-gone", "yes", True), ("trial-tokens", "yes", True), ("gateway-gone", "no", True), ("idle-spend", "ended", True)])
+def test_only_a_gateway_that_had_finished_or_was_never_asked_may_be_started_again(tmp_path, monkeypatch, rule, begun, marked):
+    class Slow(StubUnit):
+        def stop(self):
+            assert bool(self.marks) is marked or not time.sleep(0.2) and bool(self.marks) is marked, "before the stop is proved"
+            return super().stop()
+
     async def work(it, arm, _fake, _sent, unit):
-        if in_flight:
+        if begun != "no":
             it._begin(arm, {"trial": 1}, 1)
-        it.end(rule, "x")
+        if begun == "ended":
+            await it._end(arm, {"charged": 0}, 2)
+        it.stop_arm(arm, rule, "x")
         await asyncio.gather(*it._stops)
         return unit.marks
-    assert steps(tmp_path, monkeypatch, work) == ([rule] if marked else [])
+    assert steps(tmp_path, monkeypatch, work, unit=Slow()) == ([rule] if marked else [])
 
 
 def test_a_reading_is_whole_within_its_limit_or_it_is_none(tmp_path, monkeypatch):
     async def work(it, arm, fake, _sent, _unit):
-        answer, before = fake._sessions_list, arm.last_reading
+        # Every answer comes within the limit. The reading they add up to does not.
+        answers, before = {m: getattr(fake, m) for m in ("_sessions_list", "_sessions_usage_timeseries")}, arm.last_reading
 
-        async def slowly(params):
-            await asyncio.sleep(0.6)
-            return answer(params)
-        fake._sessions_list = slowly
+        def slow(answer):
+            async def slowly(params):
+                await asyncio.sleep(0.2)
+                return answer(params)
+            return slowly
+        spend(fake, "t", 100)
+        for method, answer in answers.items():
+            setattr(fake, method, slow(answer))
         started = time.monotonic()
         with pytest.raises(TimeoutError):
-            await arm.read(0.2)
+            await arm.read(0.3)
         took = time.monotonic() - started
-        assert arm.last_reading == before and arm.client is None and "TimeoutError" in arm.last_error
-        fake._sessions_list = answer
+        assert arm.last_reading == before and arm.client is not None and "TimeoutError" in arm.last_error, "one late reading keeps its connection"
+        with pytest.raises(TimeoutError):
+            await arm.read(0.3)
+        assert arm.client is None, "and a second lets it go"
+        for method, answer in answers.items():
+            setattr(fake, method, answer)
         await arm.read(1.0)
-        return took, arm.last_error
-    took, error = steps(tmp_path, monkeypatch, work)
-    assert 0.2 <= took < 0.5 and error is None, "and the next one opens a connection of its own"
+        return took, arm.last_error, arm.spent
+    took, error, spent = steps(tmp_path, monkeypatch, work)
+    assert 0.3 <= took < 0.4 and error is None and spent == 100, "and the next one opens a connection of its own"
 
 
 def test_another_process_behind_the_same_port_is_never_read(tmp_path, monkeypatch):
@@ -769,6 +788,58 @@ def test_a_watch_that_crashes_stops_every_gateway(tmp_path, monkeypatch):
         await asyncio.gather(*it._stops)
         return it.done.is_set(), arm.stop["rule"], it.ended["detail"], unit.stops
     assert steps(tmp_path, monkeypatch, work) == (True, "supervisor-stopped", "internal error: RuntimeError: a bug", 1)
+
+
+def test_opening_a_connection_is_not_part_of_what_a_reading_may_take(tmp_path, monkeypatch):
+    async def work(_it, arm, fake, _sent, _unit):
+        hello = fake._hello
+
+        def slowly(scopes):
+            time.sleep(0.4)
+            return hello(scopes)
+        fake._hello = slowly
+        arm.drop()
+        await arm.read(0.25)
+        return arm.late
+    assert steps(tmp_path, monkeypatch, work) == 0
+
+
+def test_a_gateway_too_slow_to_read_is_refused_and_not_stopped(tmp_path, monkeypatch):
+    unit = StubUnit()
+
+    async def never(*_args):
+        raise AssertionError("it armed")
+
+    def slow(fake):
+        answer = fake._sessions_list
+
+        async def slowly(params):
+            await asyncio.sleep(0.5)
+            return answer(params)
+        fake._sessions_list = slowly
+    with pytest.raises(TimeoutError):
+        steps(tmp_path, monkeypatch, never, unit=unit, before=slow, readSeconds=0.2)
+    assert unit.stops == 0 and unit.marks == []
+
+
+def test_a_runner_that_leaves_while_it_arms_costs_no_gateway(tmp_path):
+    # Closing the socket as a killed runner would, while the baseline is still being read.
+    async def go():
+        (tmp_path / "x").mkdir()
+        with launch_fakes(["C"], tmp_path / "x", plans={"C": {}}, overrides={"C": {"slowUsage": 1.5}}) as fakes:
+            fake = fakes["C"]
+            path, plan = make_plan(cli._private(tmp_path / "x"), offline=True, limits=limits(), urls={"C": fake["url"]}, token_files={"C": fake["tokenFile"]},
+                                   units={"C": {"kind": "fake", "pid": fake["pid"]}})
+            launch_offline(path, plan)
+            await until(lambda: os.path.exists(plan["socket"]))
+            _, writer = await asyncio.open_unix_connection(plan["socket"])
+            await asyncio.sleep(0.5)
+            writer.transport.abort()
+            await until(lambda: os.path.exists(plan["events"]))
+            await asyncio.sleep(1.0)
+            return open(plan["events"]).read(), gone(fake)
+    events, dead = asyncio.run(go())
+    assert "the runner left while the supervisor was arming" in events and '"armed"' not in events and dead is False
 
 
 def test_told_to_stop_while_arming_it_never_arms(tmp_path, monkeypatch):

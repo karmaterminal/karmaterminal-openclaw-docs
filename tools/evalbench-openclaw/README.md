@@ -164,6 +164,9 @@ is `deadline_unreadable`: unscored, counted on its own, and the report prints th
   ends with its gateway. A durable one (`exec` with `durable: true`) runs in its own `openclaw-proc-*` unit and outlives the
   gateway too (`docs/gateway/background-process.md:131-133`); the supervisor ends it with its trial. `CANARY-PACKET.md` has the
   command that finds and stops one by hand.
+- **Automations outlive their trial.** The harness has no right to remove one (`cron.remove` needs operator.admin). It can fire
+  inside a later trial of its arm, in a session of its own: it never enters that trial's turn, and it counts toward the
+  supervisor's limits. `report.json` counts the calls (`otherTools`).
 - **Served model.** It is read from the assistant rows. A turn of calls with no reply can leave none, and that is how a
   turn that only elected looks, so the session's own selection stands in (the arm has no fallbacks) and the record says so.
 - **Nothing was recorded live.** The fixture turns are written from product source. `REPORT.md` lists what only a live
@@ -223,8 +226,9 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
 - **`costCapTokens: 1` is the one that matters.** A continuation tool answers `scheduled` without looking at the budget; the
   budget is read when the turn ends, and by then the turn's own output is over the cap. So the election happens, and is
   answered, recorded and scored, and its wake or delegate never runs. `maxChainLength: 1` is behind it, for a turn whose usage
-  the provider did not report. A delegate with a delay is checked when it fires (`agent-runner-continuation-schedule.ts:73`):
-  its session is deleted by then, or the one-child cap holds it.
+  the provider did not report. A delegate with a delay escapes it: it is checked when it fires, on chain state that nothing
+  was charged to (`agent-runner-continuation-schedule.ts:73`). The least delay is 5 s, and a trial's reads can take longer than
+  that, so one may run; the child caps and the supervisor hold it.
 - **Swarm collectors are a second way to have children**, which `maxChildrenPerAgent` does not count (`spawn-plan.ts:307-316`).
   An agent's own `tools.swarm` limits outrank the global ones (`swarm-config.ts:29`), so `overlay` clears those three keys from
   `agents.entries.main` and preflight refuses them. The agent's `enabled` switch is the seat's surface and is left alone.
@@ -303,8 +307,8 @@ The budget charges the turn, any later turn of its session, and every session sp
 reports no usage for is charged 150,000, so the budget never runs on zeros.
 
 **The 35 M stop is checked between trials. It is not a hard ceiling**: one trial is in flight per arm, and an arm can end past
-the stop by that trial's spend. What bounds that trial is the supervisor: 0.70 M, and 0.64 M for one polling interval
-([the packet](CANARY-PACKET.md#spend)).
+the stop by that trial's spend. What bounds that trial is the supervisor: 0.70 M and the time a stop takes, 1.98 M whatever its
+readings do ([the packet](CANARY-PACKET.md#spend)).
 
 Every trial ends by stopping the sessions it started: its session is archived and deleted first (`sessions.delete` ends the
 session's continuations and its subagents), then every session linked under it, until a listing shows none.
@@ -433,8 +437,8 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
 ### Cost of one full fire
 
 270 trials. **Expected**: 50 M metered tokens, range 16–100 M, most of it cache reads, and roughly 1.5–3 hours with the three
-arms running together. **Enforced**: 75 M and 4 h for the run (`--run-token-cap`, `--run-seconds`), plus one polling interval of
-the three arms in flight (3 × 0.64 M), and 0.70 M a trial. The 35 M stop per arm is checked between trials. **Arm D adds 90
+arms running together. **Enforced**: 75 M and 4 h for the run (`--run-token-cap`, `--run-seconds`), plus the time a stop takes on
+the three arms in flight (3 × 1.28 M at most), and 0.70 M a trial. The 35 M stop per arm is checked between trials. **Arm D adds 90
 trials and about 16 M (5.4–33 M)**, for 65 M (22–130 M) in all, and needs a higher cap. It carries every tool's schema as B does,
 so expect both above A and C. The caps stop the later turns the estimate allows for (its +35 %), so it is high if anything. The
 arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).

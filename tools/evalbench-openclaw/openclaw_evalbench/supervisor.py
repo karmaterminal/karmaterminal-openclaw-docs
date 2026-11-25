@@ -32,6 +32,10 @@ CONNECT_SECONDS = 30.0
 # Arming may take its time: nothing has been sent yet.
 ARM_READ_SECONDS = 10.0
 AGGREGATE_CALL_SECONDS = 10.0
+# Readings in a row that were late before the connection itself is let go.
+LATE_READINGS = 2
+# Stops that are about the run. One of these finds most gateways doing nothing, or not yet asked to do anything.
+RUN_RULES = ("run-tokens", "run-wall-clock", "run-finished", "runner-gone", "interrupted", "supervisor-stopped")
 _UNKNOWN = object()
 
 
@@ -70,6 +74,7 @@ class ArmWatch:
         self.lock = asyncio.Lock()
         self.last_reading = None
         self.last_error = None
+        self.late = 0
         self.readings = 0
         self.aggregates = 0
         self.aggregate_failures = 0
@@ -105,24 +110,25 @@ class ArmWatch:
             await self._closing
 
     async def read(self, limit):
-        """One whole reading within the limit, or an exception. A lost connection, or one that hung, is opened again."""
+        """One whole reading within the limit, or an exception. A lost connection, or one late twice, is opened again."""
         async with self.lock:
             try:
-                await asyncio.wait_for(self._read(limit), limit)
+                if self.client is None:
+                    # On its own time: what a reading may take is for reading, and the blind clock runs beside this.
+                    await self.connect(2 * limit)
+                await asyncio.wait_for(self.meter.read(self.client, limit), limit)
             except Exception as error:
                 self.last_error = f"{type(error).__name__}: {error}"[:200]
-                self.drop()
+                self.late = self.late + 1 if isinstance(error, TimeoutError) else LATE_READINGS
+                if self.late >= LATE_READINGS:
+                    self.late = 0
+                    self.drop()
                 raise
-            now = time.monotonic()
+            now, self.late = time.monotonic(), 0
             if self.last_reading is not None:
                 self.longest_gap = max(self.longest_gap, now - self.last_reading)
             self.last_reading, self.last_error = now, None
             self.readings += 1
-
-    async def _read(self, limit):
-        if self.client is None:
-            await self.connect(limit)
-        await self.meter.read(self.client, limit)
 
 
 class Supervisor:
@@ -132,7 +138,7 @@ class Supervisor:
         self.armed_at = None
         self.done = asyncio.Event()
         self.ended = None
-        self._writer = None
+        self._reader = self._writer = None
         self._tasks = []
         self._stops = set()
         self._events = pathlib.Path(plan["events"])
@@ -176,18 +182,25 @@ class Supervisor:
         for name, spec in self.plan["arms"].items():
             token = pathlib.Path(spec["tokenFile"]).expanduser().read_text().strip()
             self.arms[name] = ArmWatch(name, spec, from_spec(spec["unit"], self.offline), token)
-        for arm in self.arms.values():
-            arm.identity = await asyncio.to_thread(arm.unit.verify)
-            await arm.connect(ARM_READ_SECONDS)
-            await arm.meter.baseline(arm.client, ARM_READ_SECONDS)
-            # The first reading at the run's own pace, so that a gateway too slow for it is refused and not stopped.
-            await arm.read(self.limits["readSeconds"])
+        await asyncio.gather(*(self._arm_one(arm) for arm in self.arms.values()))
         if self.done.is_set():
             raise UnitRefused("the supervisor was told to stop while it was arming")
+        if self._runner_left():
+            raise UnitRefused("the runner left while the supervisor was arming")
         self.armed_at = time.monotonic()
         for arm in self.arms.values():
             arm.last_reading = self.armed_at
         self.event("armed", arms={n: a.identity for n, a in self.arms.items()}, limits=self.limits)
+
+    async def _arm_one(self, arm):
+        arm.identity = await asyncio.to_thread(arm.unit.verify)
+        await arm.connect(ARM_READ_SECONDS)
+        await arm.meter.baseline(arm.client, ARM_READ_SECONDS)
+        # The first reading at the run's own pace, so that a gateway too slow for it is refused and not stopped.
+        await arm.read(self.limits["readSeconds"])
+
+    def _runner_left(self):
+        return self._reader is not None and self._reader.at_eof()
 
     # --- the rules ----------------------------------------------------------------------------------------------
 
@@ -290,6 +303,8 @@ class Supervisor:
             except Exception as error:
                 stop["aborts"] = f"{type(error).__name__}: {error}"[:200]
         stop["abortSeconds"] = round(time.monotonic() - started, 3)
+        # Marked beside the kill and not after it: whoever else has to finish this stop finds nothing running to mark.
+        marking = asyncio.ensure_future(asyncio.to_thread(self._mark, arm))
         while True:
             try:
                 stop["result"] = await asyncio.to_thread(arm.unit.stop)
@@ -301,15 +316,23 @@ class Supervisor:
             self.send({"event": "stop-failed", "arm": arm.name, "problems": stop["result"]["problems"]})
             await asyncio.sleep(1.0)
         stop["seconds"] = round(time.monotonic() - started, 3)
-        if stop["rule"] != "run-finished" or stop["trial"] is not None:
-            # It was in the middle of something, or stopped for a reason. Started again, it could go on with it.
-            problem = await asyncio.to_thread(arm.unit.mark_stopped, {k: stop[k] for k in ("at", "rule", "detail", "tokens", "trial")})
-            if problem:
-                self.event("marker-failed", arm=arm.name, problem=problem)
+        await marking
         await arm.disconnect()
         self.event("stopped", arm=arm.name, seconds=stop["seconds"], result=stop["result"])
         self.send({"event": "stopped", "arm": arm.name, "rule": stop["rule"], "detail": stop["detail"]})
         self.save()
+
+    def _mark(self, arm):
+        """Leave the reason beside the state of a gateway that could go on with something if it were started again."""
+        stop = arm.stop
+        begun = stop["trial"] is not None or (bool(arm.trials) and stop["rule"] != "run-finished")
+        if begun or stop["rule"] not in RUN_RULES:
+            try:
+                problem = arm.unit.mark_stopped({k: stop[k] for k in ("at", "rule", "detail", "tokens", "trial")})
+            except Exception as error:
+                problem = f"{type(error).__name__}: {error}"
+            if problem:
+                self.event("marker-failed", arm=arm.name, problem=problem)
 
     async def _abort(self, arm):
         """sessions.abort for what the last reading listed, within the time limit. The answers are only recorded."""
@@ -434,11 +457,11 @@ class Supervisor:
             connected.set_result((reader, writer))
             await self.done.wait()
 
-        path = pathlib.Path(self.plan["socket"])
-        server = await asyncio.start_unix_server(accept, path=str(path), limit=1 << 20)
+        server = None
         try:
+            server = await asyncio.start_unix_server(accept, path=self.plan["socket"], limit=1 << 20)
             try:
-                reader, self._writer = await asyncio.wait_for(connected, CONNECT_SECONDS)
+                self._reader, self._writer = await asyncio.wait_for(connected, CONNECT_SECONDS)
             except TimeoutError:
                 self.event("refused", reason="no runner connected")
                 return 3
@@ -452,12 +475,12 @@ class Supervisor:
                     await self._writer.drain()
                 return 2
             self.send({"event": "armed", "pid": os.getpid(), "limits": self.limits, "arms": {n: a.identity for n, a in self.arms.items()}})
-            self._tasks = [asyncio.ensure_future(t) for t in (*(watch(a) for a in self.arms.values() for watch in (self._poll, self._aggregate)), self._tick(), self._serve(reader))]
+            self._tasks = [asyncio.ensure_future(t) for t in (*(watch(a) for a in self.arms.values() for watch in (self._poll, self._aggregate)), self._tick(), self._serve(self._reader))]
             for task in self._tasks:
                 task.add_done_callback(self._task_ended)
             await self.done.wait()
         finally:
-            await self._wind_down(server, path)
+            await self._wind_down(server)
         return 0
 
     def _task_ended(self, task):
@@ -465,7 +488,7 @@ class Supervisor:
         if not task.cancelled() and task.exception() is not None and not self.done.is_set():
             self.end("supervisor-stopped", f"internal error: {type(task.exception()).__name__}: {task.exception()}"[:300])
 
-    async def _wind_down(self, server, path):
+    async def _wind_down(self, server):
         while pending := [t for t in self._stops if not t.done()]:
             await asyncio.wait(pending, timeout=1.0)
             self.send({"event": "pulse", "tokens": self.run_tokens()})
@@ -484,7 +507,8 @@ class Supervisor:
             with contextlib.suppress(ConnectionError, TimeoutError):
                 await asyncio.wait_for(self._writer.drain(), 2.0)
             self._writer.close()
-        server.close()
+        if server is not None:
+            server.close()
         remove_socket(self.plan)
 
 
@@ -510,21 +534,23 @@ def _peer_uid(writer):
 def stop_everything(plan, by="a stop with no supervisor"):
     """Stop every unit of a plan, with no supervisor: the runner's, the deadman timer's and a person's. Returns {arm: result}.
 
-    All of them are killed before any is proved stopped, so one that is slow to prove holds up no other.
+    All of them are killed before any is proved stopped, so one that is slow to prove holds up no other. One that was
+    running is marked first: nobody here knows what it was doing.
     """
-    units, running, out = {}, {}, {}
+    units, out = {}, {}
     for name, spec in plan["arms"].items():
         try:
-            units[name] = from_spec(spec["unit"], plan["offline"])
-            running[name] = units[name].kill()
+            unit = units[name] = from_spec(spec["unit"], plan["offline"])
+            if unit.running():
+                with contextlib.suppress(Exception):
+                    unit.mark_stopped({"at": now_utc(), "rule": "stopped-without-supervisor", "detail": by})
+            unit.kill()
         except Exception as error:
             out[name] = {"stopped": False, "problems": [f"{type(error).__name__}: {error}"[:200]]}
 
     def prove(name):
         try:
             out[name] = units[name].stop()
-            if running.get(name):
-                units[name].mark_stopped({"at": now_utc(), "rule": "stopped-without-supervisor", "detail": by})
         except Exception as error:
             out[name] = {"stopped": False, "problems": [f"{type(error).__name__}: {error}"[:200]]}
     with concurrent.futures.ThreadPoolExecutor(max(1, len(units))) as pool:

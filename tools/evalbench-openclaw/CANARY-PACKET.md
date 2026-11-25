@@ -20,7 +20,7 @@ karmaterminal/openclaw#1575 · docs PR #631 · design and statistics in [`README
 | builds | A and B: `ab5a30ea79b776f149e24b1fccab9e79b0a5d299`. C: `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` |
 | what it proves | that the live gateways answer the way the harness reads them: surface, runtime, served model, an election, cleanup, and real token and call counts |
 | what it does not | **no rate.** One trial per prompt says nothing about propensity. Every comparison must print `not reportable` |
-| enforced spend | **1.34 M** metered tokens for one trial, **4.32 M** for the canary, with the gateways answering; see [Spend](#spend) for what those rest on, and the numbers when one stops answering |
+| enforced spend | **1.98 M** metered tokens for one trial and **6.24 M** for the canary, whatever the readings do; **1.34 M** and **4.32 M** while every reading is on time. See [Spend](#spend) for what they rest on |
 | supervision | a process of its own polls every gateway, and kills its unit at a limit. It is launched by `run`, and `run` sends nothing until it is armed |
 
 Arm D (f9fcd3a5 under B's overlay) is **off**. Turning it on makes this 12 trials on four gateways, and needs 🌻 to say so.
@@ -283,11 +283,11 @@ session list.
 
 Metered tokens, cache reads included. **Expected is an estimate. Enforced is where something stops it.**
 
-| | expected | product caps alone, estimated | the supervisor's limit | **enforced**: limit + one polling interval | if its gateway also stops answering |
+| | expected | product caps alone, estimated | the supervisor's limit | enforced, every reading on time: limit + one polling interval | **enforced, whatever the readings do** |
 | --- | --- | --- | --- | --- | --- |
-| one trial | 0.2 M; 0.47 M for the dearest expected | 7.8 M | **0.70 M** | min(7.8 M, 0.70 M) + 0.64 M = **1.34 M** | 0.70 M + 1.28 M = 1.98 M |
-| the canary (9 trials) | 1.6 M | 70 M | **2.40 M** | min(9 × 1.34 M, 2.40 M + 3 × 0.64 M) = **4.32 M** | 2.40 M + 3 × 1.28 M = 6.24 M |
-| the canary, at `52465362` | 1.6 M | none | none | none: 51 M, or 276 M with children, was arithmetic | |
+| one trial | 0.2 M; 0.47 M for the dearest expected | 7.8 M | **0.70 M** | min(7.8 M, 0.70 M) + 0.64 M = 1.34 M | 0.70 M + 1.28 M = **1.98 M** |
+| the canary (9 trials) | 1.6 M | 70 M | **2.40 M** | min(9 × 1.34 M, 2.40 M + 3 × 0.64 M) = 4.32 M | min(9 × 1.98 M, 2.40 M + 3 × 1.28 M) = **6.24 M** |
+| the canary, at `52465362` | 1.6 M | none | none | none: 51 M, or 276 M with children, was arithmetic | none |
 | time | 5–15 min | 330 s a turn, 120 s a child | 480 s a trial, 1800 s the canary | 480 s and 1800 s, + 1 s | the same |
 
 How the numbers are made:
@@ -297,11 +297,12 @@ How the numbers are made:
   it starts no further trial and is not a ceiling.
 - **Two lanes**: the turn and one child. The caps allow one child, and the supervisor stops a gateway on which a third session
   has an active or queued run.
-- **One polling interval** is at most 4.5 s from the last sample under the limit to the kill, each part enforced: 1.5 s for that
-  reading, 1 s to the next, 1.5 s for it, 0.5 s for the aborts. A reading that takes longer than 1.5 s is no reading. At 5 s a
-  call that is one call finishing and one in flight per lane: 2 × 2 × 160 k = 0.64 M.
-- **A gateway that stops answering** is killed after 10 s without a whole reading, 12.5 s from the last sample: three calls
-  finishing and one in flight per lane, 2 × 4 × 160 k = 1.28 M.
+- **One polling interval** is at most 4.5 s from the last sample under the limit to the kill: 1.5 s for that reading, 1 s to the
+  next, 1.5 s for it, 0.5 s for the aborts. At 5 s a call that is one call finishing and one in flight per lane:
+  2 × 2 × 160 k = 0.64 M. It holds while every reading is on time. A reading that takes longer than 1.5 s is no reading, and the
+  next one is made.
+- **Whatever the readings do**: late, lost or never, a gateway is killed after 10 s without a whole one, 12.5 s from the last
+  sample. Three calls finishing and one in flight per lane: 2 × 4 × 160 k = 1.28 M.
 - **160 k a call**: 60 k at the start, growing by one full-size tool result a call (64,000 characters, about 16 k tokens), is
   156 k when the trial reaches 0.70 M. A call that was in flight when its gateway was killed is counted here in full.
 - **Product caps alone**: 330 s at 5 s is 66 calls, 60 k each and growing 1 k, 6.1 M; a child's 120 s is 24 calls, 1.7 M. It is an
@@ -329,14 +330,15 @@ included, proved ended 0.47 s after that. A gateway that stopped answering was k
 
 - **5 s a call and 160 k a call are assumptions.** If every call in the interval carried the most context the product allows
   before it compacts (75 % of a 500,000-token window, 375 k), one trial is 0.70 M + 2 × 4 × 375 k = **3.7 M** and the canary
-  2.40 M + 3 × 3.0 M = **11.4 M**, gateways not answering included. That is the most two lanes can spend at 5 s a call.
+  2.40 M + 3 × 3.0 M = **11.4 M**, whatever the readings do. That is the most two lanes can spend at 5 s a call.
 - **The meter is the product's** (`sessions.usage.timeseries`), read again and again from a process the product doesn't run. It
   is current to the last finished call. A call in flight, a compaction, and a title call (the first 1,000 characters) are not in
   it; the interval allowance and the clocks are what bound them.
 - **Automations are left on.** Switching cron off shows in what the `automations` tool answers, and that is the tool an eligible
-  turn may take instead of electing. An automation that fires inside a trial, or is run by the turn, spends in a lane of its own
-  (the product has eight), seen in its row or, up to a minute late, in the total. One that would fire later finds its gateway
-  stopped.
+  turn may take instead of electing. One that fires, or is run by the turn, spends in a lane of its own (the product has eight),
+  seen in its row or, up to a minute late, in the total. **It outlives its trial**: nothing here may remove it (`cron.remove` needs
+  operator.admin), so it can fire inside a later trial of its arm, count toward that trial's limit or the idle one, and stop the
+  canary. That is a stop for a real spend, with its trial unscored; every automation ends with its gateway.
 - **A turn can start many swarm groups in one response.** The caps are per group, and the group's name is the turn's own choice.
   The supervisor stops that at the next reading, with at most the first call of each in flight.
 - **It is not a sandbox.** A turn runs shell commands as the seat's user. One that set out to stop the supervisor, its timer and
@@ -351,7 +353,7 @@ both SHAs.
 | cap | value | product default | what it bounds |
 | --- | --- | --- | --- |
 | `continuation.maxChainLength` | 1 | 10 | the chain |
-| `continuation.costCapTokens` | 1 | 500,000 | **every follow-up**: the election is answered `scheduled` and recorded, and at the turn's end the chain is over its cap, so no wake and no delegate runs. A delegate with a delay is checked when it fires; by then its session is gone, or the one-child cap holds it |
+| `continuation.costCapTokens` | 1 | 500,000 | **every follow-up but a delayed delegate**: the election is answered `scheduled` and recorded, and at the turn's end the chain is over its cap, so no wake and no delegate runs. A delegate with a delay (5 s at least) is checked when it fires, on a chain nothing has been charged to yet: unless its trial has been cleaned up by then, it runs, as the one child |
 | `continuation.maxDelegatesPerTurn` | 1 | 5 | delegate fan-out |
 | `subagents.maxChildrenPerAgent`, `maxConcurrent`, `maxSpawnDepth` | 1, 1, 1 | 5, 8, 5 | directly spawned children: one, with none of its own |
 | `subagents.runTimeoutSeconds` | 120 | none | a child's run (a turn may ask for longer; the supervisor's clock doesn't) |

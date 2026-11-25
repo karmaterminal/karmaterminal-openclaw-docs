@@ -114,7 +114,9 @@ def test_a_gateway_without_the_caps_is_sent_no_turn(arms):
     assert [m for m, _ in fake.calls if m != "config.get"] == [] and record["metered"] is None
 
 
-@pytest.mark.parametrize("change", [{"config": {"cron": {"enabled": True}}}, {"appliedConfigHash": "another"}])
+@pytest.mark.parametrize("change", [{"config": {"cron": {"enabled": True}}}, {"appliedConfigHash": "another"},
+                                    # The caps still stand, and something else about the gateway does not.
+                                    {"configRevisionHash": "another", "appliedConfigHash": "another"}])
 def test_caps_a_turn_changed_leave_its_trial_unscored(arms, change):
     # A turn may hold the tool that edits its own gateway's configuration.
     async def go():

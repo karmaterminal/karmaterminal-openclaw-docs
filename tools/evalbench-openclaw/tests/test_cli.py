@@ -39,6 +39,16 @@ def test_run_refuses_a_live_or_remote_gateway(tokens, url):
     assert not (tokens / "out").exists()
 
 
+def test_run_refuses_a_gateway_a_supervisor_stopped(tokens, monkeypatch):
+    monkeypatch.setenv("HOME", str(tokens))
+    stopped = tokens / "proof-gw/comp-706a2c56"
+    stopped.mkdir(parents=True)
+    (stopped / "supervisor-stop.json").write_text("{}")
+    with pytest.raises(SystemExit, match=f"a supervisor stopped {stopped} before; shred it"):
+        cli.main(["run", "--go", "1573086211386384495", "--out", str(tokens / "out")])
+    assert not (tokens / "out").exists()
+
+
 def test_run_refuses_a_missing_token_file(tokens, monkeypatch):
     monkeypatch.delenv("OPENCLAW_EVAL_TOKEN_FILE_B")
     with pytest.raises(SystemExit, match="OPENCLAW_EVAL_TOKEN_FILE_B"):

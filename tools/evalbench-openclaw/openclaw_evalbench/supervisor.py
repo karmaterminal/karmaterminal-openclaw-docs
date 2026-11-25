@@ -282,7 +282,7 @@ class Supervisor:
 
         async def one(index, key):
             try:
-                answer = await arm.client.call("sessions.abort", {"key": key, "clearQueued": True}, timeout=self.limits["abortSeconds"])
+                answer = await arm.client.call("sessions.abort", {"key": key, "clearQueued": True})
                 answers[index] = str(answer.get("status") or "answered")
             except Exception as error:
                 answers[index] = f"{type(error).__name__}: {error}"[:120]

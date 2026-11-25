@@ -161,17 +161,19 @@ def test_a_stop_ends_the_cgroup_and_the_durable_exec_that_outlives_it(proof, tmp
     pids = unit.processes()
     durable = [proof.durable(), proof.durable()]
     bystander = proof.durable(tmp_path / "proof-gw/comp-00000000")
-    # A command a turn moved out of the cgroup, still carrying the gateway's own state directory.
-    stray = f"openclaw-evaltest-{secrets.token_hex(4)}.service"
-    proof.started.append(stray)
+    # Commands a turn moved out of the cgroup: one that names the gateway's directory, one that names its unit, a scope that
+    # does (as process.childScope makes them, without the binding that would end it), and a process in no unit of its own.
+    stray, named, scope = (f"openclaw-evaltest-{secrets.token_hex(4)}.{kind}" for kind in ("service", "service", "scope"))
+    proof.started += [stray, named, scope]
     run_unit(stray, "sleep", "3600", setenv=proof.environment)
-    scope = f"openclaw-evaltest-{secrets.token_hex(4)}.scope"
-    proof.started.append(scope)
-    subprocess.Popen(["systemd-run", "--user", "--quiet", "--scope", f"--unit={scope}", f"--property=BindsTo={proof.unit}.service", "--", "sleep", "3600"])
+    run_unit(named, "sleep", "3600", setenv={"OPENCLAW_SYSTEMD_UNIT": f"{proof.unit}.service"})
+    subprocess.Popen(["systemd-run", "--user", "--quiet", "--scope", f"--unit={scope}", f"--property=After={proof.unit}.service", "--", "sleep", "3600"])
+    loose = subprocess.Popen(["sleep", "3600"], env={**os.environ, **{k: str(v) for k, v in proof.environment.items()}})
+    other = subprocess.Popen(["sleep", "3600"], env={**os.environ, "OPENCLAW_STATE_DIR": f"{proof.environment['OPENCLAW_STATE_DIR']}-2"})
     end = time.monotonic() + 5
     while not active(scope) and time.monotonic() < end:
         time.sleep(0.02)
-    assert len(pids) >= 2 and all(active(n) for n in (*durable, bystander, stray, scope))
+    assert len(pids) >= 2 and all(active(n) for n in (*durable, bystander, stray, named, scope))
     # The trap: stopping the gateway's own unit leaves the durable exec running.
     U.systemctl("kill", "--signal=SIGKILL", f"{proof.unit}.service")
     end = time.monotonic() + 5
@@ -180,8 +182,11 @@ def test_a_stop_ends_the_cgroup_and_the_durable_exec_that_outlives_it(proof, tmp
     assert not active(f"{proof.unit}.service") and all(active(n) for n in durable)
     result = unit.stop()
     assert result["stopped"] is True and result["problems"] == [] and set(durable) <= set(result["durableUnits"]), result
-    assert not any(active(n) for n in (*durable, stray, scope)) and all(U.process_start(p) is None for p in pids)
-    assert active(bystander), "another gateway's durable exec is not touched"
+    assert not any(active(n) for n in (*durable, stray, named, scope)) and all(U.process_start(p) is None for p in pids)
+    assert loose.wait(5) == -9 and result["strayProcesses"] >= 1
+    assert active(bystander) and other.poll() is None, "another gateway's durable exec, and process, are not touched"
+    other.kill()
+    other.wait()
 
 
 @needs_manager

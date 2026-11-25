@@ -6,15 +6,19 @@ firing steps are in [`README.md`](README.md).
 ## Result
 
 The harness is built on EvalBench at the pin. EvalBench was workable, so the k6 fallback was not built. Two complete
-offline rehearsals ran against fake gateways: 270 trials with arm D off, and 360 with it on. Every stage of the path was
-exercised: gRPC, WS, history, scorers, CSVs and report. The CSVs are in
+offline rehearsals ran against fake gateways, under the supervisor: 270 trials with arm D off, and 360 with it on. Every stage
+of the path was exercised: gRPC, WS, history, scorers, supervision, CSVs and report. The CSVs are in
 [`artifacts/offline-rehearsal/`](artifacts/offline-rehearsal/report.md) and
 [`artifacts/offline-rehearsal-arm-d/`](artifacts/offline-rehearsal-arm-d/report.md).
+
+**The canary's spend is now bounded by something that runs: 1.34 M metered tokens for one trial and 4.32 M for the nine**, with
+its gateways answering (1.98 M and 6.24 M if they stop). [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has the arithmetic, what
+enforces each number, and what it rests on.
 
 | ref | value |
 | --- | --- |
 | docs base | `main` at `07f70cb98eec70a341952f11eff02d71d19ff08d` (local = tracking = server) |
-| reviewed head this follows up | `cad3a0456f2426907b89caa1964d575bf047e42a` (docs PR #631; 🌿's review, 🌻's three conditions) |
+| reviewed heads this follows up | `52465362d18b761e5b0eab61026dbf8f39776413` (🌻's read of the packet, room 19:34Z, message 1575233154115969149); before it `cad3a0456f2426907b89caa1964d575bf047e42a` (🌿's review, 🌻's three conditions) |
 | lane branch | `codeagent/cont-propensity-evalbench` (final SHA in the PR) |
 | product, arms A and B | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` (server: `frond/1321-sovereign-loader-ab5a` and others) |
 | product, arms C and D | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` (server: `gloss/1575-continuation-surface`) |
@@ -23,15 +27,40 @@ exercised: gRPC, WS, history, scorers, CSVs and report. The CSVs are in
 | openclaw-bootstrap workflow read | `main` at `51546ce6ac213d9e2f62c58a318248652a45e7e7` |
 | CI / presentation | N/A / N/A |
 
-## What changed for the canary's conditions
+## What changed for 🌻's spend condition
+
+🌻's point at `52465362`: the expected 1.6 M is not a bound, and the 51 M and 276 M beside it were enforced by nothing.
+
+| asked for | what it is now |
+| --- | --- |
+| product caps, the same on every arm | thirteen, in `arms.json` `caps`. `overlay` writes them; each trial reads them back, authored, effective and applied, before and after. A trial whose caps didn't take is unscored and halts **every** arm. [README](README.md#spend-caps) cites each at both SHAs |
+| the tightest values that still let the first election happen | `costCapTokens: 1` and `maxChainLength: 1`: the election is answered `scheduled`, and nothing follows it. One child, with none of its own. Run through the product's own code at both SHAs (below) |
+| an external supervisor that doesn't trust the product | `supervisor.py`, a process and a unit of its own: 2 s readings, a limit per trial, per run and outside a trial, its own clocks, active runs, and a gateway it can't read. `sessions.abort`, then SIGKILL of the unit, then what outlives it |
+| a durable exec can't bypass it | any stop, and the end of every trial, ends every transient unit that names the gateway or its directory. Tested with a real durable unit, beside the trap: stopping the gateway's own unit leaves it running |
+| fake gateways that loop, spawn children and ignore aborts | each a process that dies for real, or a systemd unit. Stopped within its limit; its trial's cleanup ran and is on record; the run ended in order |
+| the bound as enforced arithmetic | the packet's Spend section: expected and enforced in separate columns, what enforces each number, and how that was tested. A test recomputes it from `arms.json` |
+| CI handoff | the packet's last section |
+
+What reading the product for this found:
+
+- **The packet's outer case was not the outer case.** Swarm collectors are a second way to have children: 32 at once and 50 per
+  group by default, which the child cap doesn't count. They are capped, per group; a turn chooses its groups, so the supervisor's
+  active-run limit stands behind that.
+- **A child has no run timeout by default** (0 is none), and its spawn's own argument outranks the configured one.
+- **The session list never shows a cron run**, so a supervisor reading only the list would not see one's spend. Automatic cron
+  runs are off, and `sessions.usage`'s total is read beside the list.
+- **The first supervised rehearsal under-counted**: 0.2 M against the harness's 10 M, because a trial against a fake gateway can
+  live and go between two readings. A trial now closes on a fresh reading and on the harness's own count.
+
+## What changed for the conditions before it
 
 | condition | what it is now |
 | --- | --- |
 | the firing model | one value, `arms.json` `model` = `openai/gpt-6.1-sol` (elliott's live model). Launch, overlay, preflight, arm configs, scoring and report all read it. A test refuses a model named anywhere else in code, configs, fixtures or tests, and the model it replaced is named nowhere |
 | "any other served model is unscored" | it already was, trial by trial. The **report** took each record's word for it, so an old run read again after a model change would have printed under the new model's name. It now checks, with a test that fails at `cad3a045` |
 | temperature | `openai/gpt-6.1-sol` takes none, at both SHAs. What it does accept is in [`README.md`](README.md#the-firing-model) |
-| spend wording | the stop is checked between trials, and not a ceiling: said in README, here, the packet, `--token-budget`'s help, the halt reason, the manifest and the report itself. A test refuses a document that states it without its rule |
-| worst-case overshoot | [one trial's maximum](#one-trials-maximum) |
+| spend wording | the per-arm stop is checked between trials, and not a ceiling: said in README, here, the packet, `--token-budget`'s help, the halt reason, the manifest and the report itself. A test refuses a document that states it without its rule |
+| worst-case overshoot | now the supervisor's, above |
 | contrast honesty | A → B "visibility (all tools direct)"; B → C "composite: new text + direct-set narrowing". The report prints what each comparison is, and each arm's direct and deferred tool counts |
 | arm D | f9fcd3a5 under B's overlay, off by default. B → D and D → C split the composite |
 | the packet | [`CANARY-PACKET.md`](CANARY-PACKET.md) |
@@ -154,29 +183,23 @@ with B, and another sign-in, gateway and state dir. It runs beside the others, s
 
 ### One trial's maximum
 
-The default stop is 35 M per arm, **checked between trials**. It is not a ceiling. Per arm one trial is in flight, and what
-limits it is its 600 s deadline, not its tokens, so the overshoot is one trial's spend:
-
 | one trial | calls | metered tokens |
 | --- | --- | --- |
 | central (an eligible trial: 3.5 calls, +35 %) | 3.5 | 0.2 M |
-| high (6 calls, +30 %) | 6 | 0.5 M |
-| **worst case worth planning for**: its turn loops for all 600 s, 5 s a call, from 60 k a call and growing 1 k each | 120 | 120 × 60 k + 1 k × (120 × 119 / 2) = 14.3 M, **≈ 15 M** |
-| outer case: five children loop beside it as long | 720 | 6 × 14.3 M = 86 M, **≈ 90 M** |
+| high (6 calls, +30 %) | 6 | 0.47 M |
+| a loop, under the product's caps alone: 330 s at 5 s a call, 60 k growing 1 k, and one child for 120 s | 66 + 24 | 7.8 M |
+| **enforced**: the supervisor's 0.70 M, and one polling interval | | **1.34 M** |
+| before this change: a loop for 600 s, or that and five children | 120, 720 | 15 M, 90 M, enforced by nothing |
 
-| at the 35 M stop, checked between trials | per arm | three arms | with D |
-| --- | --- | --- | --- |
-| the stop, checked between trials | 35 M | 105 M | 140 M |
-| **with the worst-case overshoot, one 15 M trial per arm** | **50 M** | **150 M** | **200 M** |
-| with the outer case, one 90 M trial per arm | 125 M | 375 M | 500 M |
+| the 270-trial fire | three arms | with D |
+| --- | --- | --- |
+| expected (low – high) | 50 M (16 – 100 M) | 65 M (22 – 130 M) |
+| **enforced** by `--run-token-cap 75000000`, plus one polling interval per arm in flight (0.64 M) | **77 M** | a cap of its own |
+| the 35 M stop per arm, checked between trials | 105 M | 140 M |
 
-Nothing enforces the last two lines. 5 s a call is an assumption about a model whose reasoning can't be turned off. The
-product blocks a loop only when its calls repeat without progress (20 times, or 10 for `wait`;
-`src/agents/tool-loop-detection.ts:590-594,619,649`), its run timeout is 48 h (`src/agents/timeout.ts:13`), and a continuation chain's
-500,000-token cap (`src/auto-reply/continuation/config.ts:19`) stops the chain's next hop, not a running turn. Five is the
-default for children per agent (`src/config/agent-limits.ts:21`) and for delegates per turn (`config.ts:20`); a seat's
-config can raise both (step 0 of the packet prints them), and children of children are not counted, and neither is work that is still draining while cleanup runs (90 s per call, 3 attempts). The meter reads what the gateway recorded before cleanup: a call that was cut off, compaction, and
-title or utility calls are not in it. The report prints each arm's largest trial, so the canary replaces this with a number.
+5 s a call is an assumption about a model whose reasoning can't be turned off, and 160 k a call is one full-size tool result per
+call; the packet says what the numbers are if every call carries the most the product allows. The report prints each arm's
+largest trial and the supervisor's readings, so the canary replaces this with numbers.
 
 ## Not settled without a live canary
 
@@ -184,6 +207,9 @@ title or utility calls are not in it. The report prints each arm's largest trial
 - Whether `chat.history` of a turn stopped at the deadline shows its calls on the Codex harness.
 - Whether `sessions.usage` returns the prompt report soon after a turn on the firing seat (it is read up to 6 times).
 - Whether archive and delete of a busy session finish within 90 s; if not, that arm halts with `cleanup failed`.
+- The supervisor's readings of a live gateway: how long one takes, whether a first turn stalls it near 10 s, and whether
+  `sessions.usage`'s total agrees with the sum of the sessions. A stall past 10 s fails the canary for nothing spent.
+- Whether `hasActiveRun` counts a run the caps allow twice. The limit is two.
 - The launcher keys its state dir and unit on its first argument, so arm B gets a label there (README, step 2).
   `identity.json` will record that label as `pure_candidate_P`. A `VARIANT` option in frond-scribe's launcher would be
   cleaner; that repository is out of this lane's scope.
@@ -199,7 +225,7 @@ cd tools/evalbench-openclaw
 ./bootstrap.sh && ./run.sh test
 ./run.sh offline --out /tmp/evalprop-offline
 ./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D
-./run.sh offline --out /tmp/evalprop-offline-canary --num-trials 1 --token-budget 2000000 \
+./run.sh offline --out /tmp/evalprop-offline-canary --num-trials 1 --token-budget 800000 --run-token-cap 2400000 --run-seconds 1800 \
   --scenarios c1-arithmetic,w1-file-appears,d1-second-pair-of-eyes
 ./run.sh report --job A=artifacts/offline-rehearsal/A --job B=artifacts/offline-rehearsal/B --job C=artifacts/offline-rehearsal/C
 node --test ../k6-proofs/tests/*.test.mjs

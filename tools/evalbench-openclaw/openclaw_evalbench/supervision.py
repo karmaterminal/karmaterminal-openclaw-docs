@@ -185,7 +185,6 @@ class Supervision:
         answer = await self._ask({"type": "begin", "arm": arm, "trial": trial})
         if answer.get("event") != "ok":
             reason = answer.get("reason") or "refused"
-            signal.set(reason)
             self.run_stop.halt(f"supervisor, arm {arm}: {reason}")
             raise SupervisorStopped(reason)
 

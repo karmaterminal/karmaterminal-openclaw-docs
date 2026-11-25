@@ -191,7 +191,7 @@ class FakeGateway:
                   "tools": {}, "plugins": {"entries": {"codex": {"config": {"codexDynamicToolsLoading": "searchable"}}}}}
         source = apply_overlay(self.arm, self.model, self.caps, source, "/fake/state/gateway.log")
         source.update(self.overrides.get("config", {}))
-        return {"valid": True, "sourceConfig": source, "config": source, "configRevisionHash": "fake",
+        return {"valid": True, "sourceConfig": source, "config": source, "configRevisionHash": self.overrides.get("configRevisionHash", "fake"),
                 "appliedConfigHash": self.overrides.get("appliedConfigHash", "fake")}
 
     def _new_session(self, **fields):

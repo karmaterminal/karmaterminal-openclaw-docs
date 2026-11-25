@@ -4,6 +4,10 @@ Pure functions over the rows a gateway returns. The tool-call and tool-result ru
 (tools/k6-proofs/lib/tool-call-identity.mjs): under Tool Search a call is stored as `dispatch_action` (`tool_call` on
 older builds) with arguments {id, args}, and its result is a { tool, result } envelope. tests/test_k6_parity.py runs
 both implementations over the same rows.
+
+Two shapes the k6 rows never needed are read here too. Under Code Mode the assistant row says only `exec {code}`, and
+the call it made is a `role: "custom"` nested-tool row. And chat.history drops a commentary-phase assistant row that
+has no text, with its tool calls, but keeps their results (chat-display-projection.sanitize.ts:692-710).
 """
 
 import json
@@ -16,6 +20,9 @@ DISPATCHERS = ("dispatch_action", "tool_call")
 DISCOVERY_TOOLS = ("tool_search", "tool_describe")
 _CATALOG_ID = re.compile(r"^(?:openclaw|mcp|client):[^:]+:(.+)$")
 _CALL_TYPES = ("toolcall", "tooluse")
+# One call made inside another tool (Code Mode's exec, or Tool Search's dispatcher), as chat.history projects it:
+# content [toolCall, toolResult] (src/sessions/nested-tool-activity.ts:77-90, chat-display-projection.core.ts:572-590).
+NESTED_TOOL_ROW = "openclaw.nested-tool.v1"
 # The bracket form (src/agents/system-prompt-continuation.ts): the end of the reply. Never counted as an election.
 _TOKEN_WORK = re.compile(r"(?:^|\n)\s*CONTINUE_WORK(?::\d+)?\s*$")
 _TOKEN_DELEGATE = re.compile(r"\[\[\s*CONTINUE_DELEGATE:")
@@ -202,8 +209,8 @@ def read_turn(rows, prompt, run_id=None):
     """Everything the eval records about one turn. Raises TranscriptError when the rows can't show it."""
     turn = turn_rows(rows, prompt, run_id)
     assistants = [r for r in turn if role_of(r) == "assistant"]
-    if not assistants:
-        raise TranscriptError("no assistant row in the turn")
+    if not any(role_of(r) in ("assistant", "toolresult") or _is_nested(r) for r in turn):
+        raise TranscriptError("no assistant row or tool result in the turn")
     if any((r.get("__openclaw") or {}).get("reason") == "oversized" for r in assistants):
         raise TranscriptError("an assistant row was omitted as oversized: its tool calls are unknown")
     results = {}
@@ -213,21 +220,34 @@ def read_turn(rows, prompt, run_id=None):
 
     calls, reply, usage, models = [], "", {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}, []
     model_calls = 0
-    for row in assistants:
+    by_id = {}
+
+    def add(call_id, name, args, via, result):
+        tool = continuation_tool(name)
+        answer = unwrap_result(result, tool) if tool and result is not None else None
+        call = {"id": call_id, "name": tool or name, "via": via, "args": args, "answered": result is not None,
+                "isError": bool(result and result.get("isError") is True),
+                "status": answer.get("status") if answer and isinstance(answer.get("status"), str) else None}
+        calls.append(call)
+        if call_id:
+            by_id[call_id] = call
+
+    for row in turn:
+        nested = _nested_call(row)
+        if nested is not None:
+            parent = by_id.get(nested["parent"])
+            # Tool Search writes a nested row for the call its dispatcher row already is: one call, not two.
+            if not (parent and parent["via"] == "dispatcher"):
+                add(nested["id"], nested["name"], nested["args"], "nested", nested["result"])
+            continue
+        if role_of(row) != "assistant":
+            continue
         content = row.get("content")
         for part in content if isinstance(content, list) else []:
             target = call_target(part)
-            if target is None:
-                continue
-            call_id = part.get("id") if isinstance(part.get("id"), str) else None
-            result = results.get(call_id)
-            tool = continuation_tool(target["name"])
-            answer = unwrap_result(result, tool) if tool and result is not None else None
-            calls.append({
-                "id": call_id, "name": tool or target["name"], "dispatched": target["dispatched"], "args": target["args"],
-                "answered": result is not None, "isError": bool(result and result.get("isError") is True),
-                "status": answer.get("status") if answer and isinstance(answer.get("status"), str) else None,
-            })
+            if target is not None:
+                call_id = part.get("id") if isinstance(part.get("id"), str) else None
+                add(call_id, target["name"], target["args"], "dispatcher" if target["dispatched"] else "direct", results.get(call_id))
         text = text_of(row)
         if text.strip():
             reply = text
@@ -239,6 +259,12 @@ def read_turn(rows, prompt, run_id=None):
         model = served_model(row)
         if model and model not in models:
             models.append(model)
+    # A result whose call row was dropped is still a call.
+    for call_id, row in results.items():
+        if call_id not in by_id:
+            name, via = _result_tool(row)
+            if name:
+                add(call_id, name, {}, via, row)
 
     elections = [c for c in calls if c["name"] in CONTINUATION_TOOLS]
     first_election = next((i for i, c in enumerate(calls) if c["name"] in CONTINUATION_TOOLS), None)
@@ -246,7 +272,7 @@ def read_turn(rows, prompt, run_id=None):
     return {
         "reply": reply,
         "calls": calls,
-        "elections": [{"tool": c["name"], "dispatched": c["dispatched"], "status": c["status"],
+        "elections": [{"tool": c["name"], "via": c["via"], "status": c["status"],
                        "answered": c["answered"], "isError": c["isError"]} for c in elections],
         "elected": bool(elections),
         "discovery": {
@@ -261,6 +287,34 @@ def read_turn(rows, prompt, run_id=None):
         "modelCalls": model_calls,
         "servedModels": models,
     }
+
+
+def _is_nested(row):
+    return role_of(row) == "custom" and row.get("customType") == NESTED_TOOL_ROW
+
+
+def _nested_call(row):
+    """{id, parent, name, args, result} of one nested-tool row, or None."""
+    if not _is_nested(row):
+        return None
+    content = row.get("content")
+    parts = content if isinstance(content, list) else []
+    call = next((p for p in parts if isinstance(p, dict) and p.get("type") == "toolCall"), None)
+    result = next((p for p in parts if isinstance(p, dict) and p.get("type") == "toolResult"), None)
+    if call is None or not isinstance(call.get("name"), str):
+        raise TranscriptError("a nested tool row names no call")
+    return {"id": call.get("id"), "parent": call.get("parentToolCallId"), "name": call["name"], "args": _raw_arguments(call),
+            "result": {**result, "role": "toolResult", "toolName": call["name"]} if result else None}
+
+
+def _result_tool(row):
+    """(tool, via) of a toolResult row read on its own: its own name, or the tool its dispatcher envelope names."""
+    name = row.get("toolName")
+    if not is_dispatcher(name):
+        return (name if isinstance(name, str) else None), "direct"
+    outer = _structured(row)
+    tool = outer["tool"].get("name") if _is_envelope(outer) else None
+    return (tool if isinstance(tool, str) and unwrap_result(row, tool) is not None else None), "dispatcher"
 
 
 def _queries(args):

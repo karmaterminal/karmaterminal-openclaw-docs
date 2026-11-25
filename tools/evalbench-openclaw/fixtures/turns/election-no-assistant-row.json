@@ -1,0 +1,21 @@
+{
+  "id": "election-no-assistant-row",
+  "describe": "A turn of one call and no reply: only the call's result is left in history.",
+  "rows": [
+    {
+      "role": "toolResult",
+      "toolCallId": "c1",
+      "toolName": "continue_work",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"scheduled\",\n  \"delaySeconds\": 900\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

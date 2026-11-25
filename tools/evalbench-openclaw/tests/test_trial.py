@@ -5,7 +5,8 @@ import json
 import pytest
 from conftest import PROMPT, fake_gateway
 
-from openclaw_evalbench.stops import MAX_CONSECUTIVE_INFRA_ERRORS, ArmGuard
+from openclaw_evalbench.arms import load_arms
+from openclaw_evalbench.stops import ASSUMED_TRIAL_TOKENS, MAX_CONSECUTIVE_INFRA_ERRORS, ArmGuard, charge
 from openclaw_evalbench.trial import run_trial
 
 W, C = "w1-file-appears", "c1-arithmetic"
@@ -15,16 +16,31 @@ async def no_sleep(_seconds):
     return None
 
 
-def trial(arms, arm_name, turn, *, prompt_id=W, kind="eligible", deadline=5.0, token=None, url=None, prompt=None, model=None, **gateway):
+def trial(arms, arm_name, turn, *, prompt_id=W, kind="eligible", deadline=5.0, token=None, url=None, prompt=None, model=None, verified=None, **gateway):
     async def go():
         async with fake_gateway(arms, arm_name, {prompt_id: [turn]}, **gateway) as fake:
             record = await run_trial(
                 arm_name=arm_name, arm=arms["arms"][arm_name], model=model or arms["model"],
                 descriptions=arms["descriptions"][arms["arms"][arm_name]["descriptions"]]["tools"], url=url or fake.url,
                 token=fake.token if token is None else token, prompt=prompt or PROMPT[prompt_id], prompt_id=prompt_id, kind=kind,
-                deadline_seconds=deadline, sleep=no_sleep)
+                verified=verified(record_gateway(fake)) if verified else None, deadline_seconds=deadline, sleep=no_sleep)
             return record, fake
     return asyncio.run(go())
+
+
+def record_gateway(fake):
+    """The gateway receipt a trial on this fake records."""
+    server = fake._hello([])["server"]
+    return {"arm": next(n for n, a in A_ARMS.items() if a == fake.arm), "identity": {k: server.get(k) for k in ("commit", "buildId", "version", "bootId")},
+            "configRevisionHash": "fake"}
+
+
+A_ARMS = load_arms()["arms"]
+SURFACE = {"placement": {"continue_work": "direct"}, "toolSearchDirect": False, "systemPromptHash": "h", "descriptionText": {}}
+
+
+def carried(gateway):
+    return {"gateway": gateway, "surface": SURFACE}
 
 
 def test_an_election(arms):
@@ -37,7 +53,7 @@ def test_an_election(arms):
 
 def test_tool_search_then_election(arms):
     record, _ = trial(arms, "A", "search-then-work")
-    assert (record["status"], record["elected"], record["elections"][0]["dispatched"]) == ("ok", True, True)
+    assert (record["status"], record["elected"], record["elections"][0]["via"]) == ("ok", True, "dispatcher")
     assert record["discovery"]["searchBeforeElection"] is True and record["discovery"]["observable"] is True
 
 
@@ -88,11 +104,82 @@ def test_only_this_trials_sessions_are_touched(arms):
 
 
 def test_a_turn_at_the_deadline_is_stopped_and_scored_by_its_history(arms):
-    record, fake = trial(arms, "C", "deadline-no-election", deadline=0.5)
+    record, fake = trial(arms, "C", "deadline-no-election", deadline=0.5, verified=carried)
     assert (record["status"], record["elected"]) == ("deadline", False)
+    # A turn stopped by an abort stores no prompt report; the arm's verified surface stands in.
+    assert record["surface"]["verdict"] == "carried" and record["surface"]["placement"] == SURFACE["placement"]
     methods = [m for m, _ in fake.calls]
     assert methods.index("sessions.abort") < methods.index("chat.history"), "the turn is stopped before it is read"
     assert fake.sessions == {}
+
+
+def test_a_stopped_turn_with_an_election_is_scored_as_one(arms):
+    record, _ = trial(arms, "C", "deadline-after-election", deadline=0.5, verified=carried)
+    assert (record["status"], record["elected"]) == ("deadline", True)
+
+
+@pytest.mark.parametrize("verified", [None, lambda g: carried({**g, "configRevisionHash": "another"}),
+                                      lambda g: carried({**g, "identity": {**g["identity"], "bootId": "another"}})])
+def test_a_surface_is_carried_only_from_the_same_gateway_process_and_config(arms, verified):
+    record, _ = trial(arms, "C", "deadline-no-election", deadline=0.5, verified=verified)
+    assert (record["status"], record["elected"]) == ("deadline_unreadable", None)
+
+
+def test_only_a_stopped_turn_may_carry_a_surface(arms):
+    record, _ = trial(arms, "C", "election-work", verified=carried, overrides={"noReport": True})
+    assert record["status"] == "infra_error" and "no prompt report" in record["reason"]
+
+
+def test_a_stopped_turn_with_no_rows_is_unscored_on_its_own_status(arms):
+    record, _ = trial(arms, "C", "deadline-no-rows", deadline=0.5, verified=carried)
+    assert (record["status"], record["elected"]) == ("deadline_unreadable", None)
+
+
+def test_a_code_mode_election_is_seen(arms):
+    record, _ = trial(arms, "A", "code-mode-work")
+    assert record["status"] == "ok" and record["elections"] == [
+        {"tool": "continue_work", "via": "nested", "status": "scheduled", "answered": True, "isError": False}]
+
+
+def test_a_turn_that_only_elected_and_left_no_reply_is_scored(arms):
+    record, _ = trial(arms, "C", "election-no-assistant-row")
+    assert (record["status"], record["elected"]) == ("ok", True)
+    assert record["servedModels"] == ["openai/gpt-5.6-sol"] and record["servedModelSource"] == "selection"
+
+
+def test_a_description_that_is_not_the_arms_text_contradicts_the_arm(arms):
+    wrong = json.loads(json.dumps(arms))
+    wrong["descriptions"]["f9fcd3a5"]["tools"]["continue_work"]["sha256"] = "1" * 64
+
+    async def go():
+        async with fake_gateway(arms, "C", {W: ["election-work"]}) as fake:
+            return await run_trial(arm_name="C", arm=arms["arms"]["C"], model=arms["model"], url=fake.url, token=fake.token,
+                                   descriptions=wrong["descriptions"]["f9fcd3a5"]["tools"], prompt=PROMPT[W], prompt_id=W, kind="eligible")
+    record = asyncio.run(go())
+    assert record["status"] == "arm_mismatch" and "continue_work's description is not the arm's text" in record["reason"]
+
+
+@pytest.mark.parametrize("link", ["spawnedBy", "parentSessionKey", "controlOwnerSessionKey"])
+def test_a_child_is_found_by_any_link_to_the_trial(arms, link):
+    from openclaw_evalbench.fake_gateway import load_turns
+    turns = load_turns()
+    turns["spawn-no-election"]["children"][0]["link"] = link
+    record, fake = trial(arms, "C", "spawn-no-election", turns=turns)
+    assert record["cleanup"]["ok"] is True and fake.sessions == {} and record["metered"]["childSessions"] == 1
+
+
+def test_children_and_later_turns_are_metered(arms):
+    record, _ = trial(arms, "C", "spawn-no-election")
+    assert record["metered"] == {"session": 50_880, "children": 7_000, "childSessions": 1, "unreadableChildren": 0}
+    assert charge(record) == 57_880
+    woke, _ = trial(arms, "C", "woke-before-read")
+    assert woke["usage"]["total"] < woke["metered"]["session"] == charge(woke), "the wake's turn is spent too"
+
+
+def test_a_turn_with_no_reported_usage_is_charged_an_assumed_amount():
+    sent = {"metered": {"session": None, "children": 0}, "usage": {"total": 0}}
+    assert charge(sent) == ASSUMED_TRIAL_TOKENS and charge({**sent, "usage": None}) == ASSUMED_TRIAL_TOKENS
+    assert charge({"metered": None, "usage": None}) == 0, "nothing was sent"
 
 
 def test_paged_history_is_read_to_its_first_row(arms):
@@ -128,6 +215,11 @@ def test_a_failed_turn_never_leaves_an_election_behind(arms):
     # The surface contradicts the arm *after* the history showed an election: still no claim.
     record, _ = trial(arms, "A", "election-work", overrides={"surface": "direct"})
     assert record["status"] == "arm_mismatch" and record["elected"] is None and record["usage"]["total"] > 0
+
+
+def test_a_refused_abort_does_not_stop_the_cleanup(arms):
+    record, fake = trial(arms, "C", "spawn-no-election", overrides={"refuse": {"sessions.abort": ["FORBIDDEN", "not your run"]}})
+    assert record["status"] == "ok" and record["cleanup"]["ok"] is True and fake.sessions == {}
 
 
 def test_a_failed_cleanup_is_reported(arms):
@@ -197,8 +289,8 @@ def test_a_provider_refusal_stops_the_arm_at_once(text):
 
 
 def test_the_token_budget_is_checked_between_trials():
-    spent = {"status": "ok", "usage": {"total": 600}}
+    spent = {"status": "ok", "usage": {"total": 600}, "metered": {"session": 600, "children": 0}}
     assert guard_after(spent, budget=1000) is None
     assert "token budget reached: 1200 of 1000" in guard_after(spent, spent, budget=1000)
     # A trial that failed after spending still counts.
-    assert guard_after({"status": "infra_error", "reason": "x", "usage": {"total": 1000}}, budget=1000)
+    assert guard_after({"status": "infra_error", "reason": "x", "usage": {"total": 1000}, "metered": {"session": None, "children": 0}}, budget=1000)

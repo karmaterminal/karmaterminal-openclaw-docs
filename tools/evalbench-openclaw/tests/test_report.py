@@ -22,14 +22,16 @@ def trial(prompt, index, elected, *, status="ok", kind=None, tool="continue_work
     return {"eval_id": f"{prompt}_trial_{index}", "prompt_id": prompt, "meta": {
         "promptId": prompt, "kind": kind or ("control" if prompt in CONTROL else "eligible"), "status": status,
         "reason": None if scored else "why", "elected": elected if scored else None,
-        "elections": [{"tool": tool, "dispatched": False, "status": "scheduled"}] if elected else [],
-        "usage": {"total": 100}, "modelCalls": 1, "runtime": "openclaw", "servedModels": ["openai/gpt-5.6-sol"], "otherTools": [],
-        "surface": {"verdict": surface, "systemPromptHash": "h"}, "tokenForm": {"continue_work": False, "continue_delegate": False},
+        "elections": [{"tool": tool, "via": "direct", "status": "scheduled"}] if elected else [],
+        "usage": {"total": 100}, "metered": {"session": 100, "children": 0}, "modelCalls": 1, "runtime": "openclaw", "servedModels": ["openai/gpt-5.6-sol"], "otherTools": [],
+        "surface": {"verdict": surface, "systemPromptHash": "h", "descriptionText": {"continue_work": "match"}}, "scratchPresent": False, "tokenForm": {"continue_work": False, "continue_delegate": False},
         "discovery": {"observable": False, "searches": 0, "searchBeforeElection": False, "queries": []}}}
 
 
-def job(path, trials, *, scorer=lambda t: t["meta"].get("elected")):
+def job(path, trials, *, scorer=lambda t: t["meta"].get("elected"), arm=None):
     path.mkdir(parents=True)
+    arm = arm or path.name[0].upper()
+    trials = [{**t, "meta": {**t["meta"], "arm": arm} if t["meta"] else {}} for t in trials]
     with (path / "evals.csv").open("w", newline="") as handle:
         out = csv.DictWriter(handle, ["eval_id", "prompt_id", "stdout", "generated_error"])
         out.writeheader()
@@ -99,6 +101,48 @@ def test_a_top_up_job_completes_the_declared_repetitions(tmp_path):
     assert report["arms"]["A"]["promptsBelowRepetitions"] == [] and report["comparisons"][0]["reading"] != "not reportable"
 
 
+def test_a_top_up_adds_no_weight_to_a_prompt_that_already_has_its_repetitions(tmp_path):
+    jobs = {"A": [job(tmp_path / "a", arm_trials({})), job(tmp_path / "a2", [trial("e1", i, True) for i in range(5)])], "B": [job(tmp_path / "b", arm_trials({}))]}
+    a = build_report(jobs, arms=arms(), scenarios=SCENARIOS)["arms"]["A"]
+    assert (a["eligible"]["elected"], a["eligible"]["scored"], a["extraTrials"]) == (0, 15, 5)
+
+
+def test_the_same_job_twice_is_refused(tmp_path):
+    a, b = job(tmp_path / "a", arm_trials({})), job(tmp_path / "b", arm_trials({}))
+    for jobs in ({"A": [a, a], "B": [b]}, {"A": [a], "B": [a]}, {"A": [a, tmp_path / "x" / ".." / "a"], "B": [b]}):
+        with pytest.raises(ValueError, match="given twice"):
+            build_report(jobs, arms=arms(), scenarios=SCENARIOS)
+
+
+def test_another_arms_job_is_a_problem(tmp_path):
+    report = build_report({"A": [job(tmp_path / "a", arm_trials({}), arm="B")], "B": [job(tmp_path / "b", arm_trials({}))]}, arms=arms(), scenarios=SCENARIOS)
+    assert len(report["arms"]["A"]["problems"]) == 20 and "is arm B's, not A's" in report["arms"]["A"]["problems"][0]
+    assert report["comparisons"][0]["reading"] == "not reportable"
+
+
+def test_arms_on_different_runtimes_are_not_compared(tmp_path):
+    a = arm_trials({})
+    for t in a:
+        t["meta"]["runtime"] = "codex"
+    report = report_for(tmp_path, a, arm_trials({"e1": 5, "e2": 5, "e3": 5}))
+    assert report["comparisons"][0]["reading"] == "not reportable" and "different runtimes" in report["comparisons"][0]["blockers"][0]
+
+
+def test_one_arm_on_two_runtimes_is_not_compared(tmp_path):
+    a = arm_trials({})
+    a[0]["meta"]["runtime"] = "codex"
+    assert "more than one runtime" in report_for(tmp_path, a, arm_trials({}))["comparisons"][0]["blockers"][0]
+
+
+def test_an_unreadable_deadline_is_unscored_and_bounded(tmp_path):
+    a = arm_trials({"e1": 5, "e2": 5, "e3": 5})
+    a[0] = trial("e1", 0, False, status="deadline_unreadable")
+    out = report_for(tmp_path, a, arm_trials({}))["arms"]["A"]
+    assert (out["eligible"]["elected"], out["eligible"]["scored"], out["unscored"]) == (14, 14, {"deadline_unreadable": 1})
+    bound = out["eligibleIfUnreadableDeadlinesDidNotElect"]
+    assert (bound["elected"], bound["scored"]) == (14, 15)
+
+
 def test_missing_trials_are_noticed(tmp_path):
     # EvalBench swallows an exception in one scenario and drops the ones after it.
     report = report_for(tmp_path, arm_trials({})[:-5], arm_trials({}))
@@ -117,7 +161,7 @@ def test_a_scorer_that_disagrees_or_did_not_run_blocks_the_comparison(tmp_path):
                             arms=arms(), scenarios=SCENARIOS)
     assert len(disagree["arms"]["A"]["problems"]) == 5 and disagree["comparisons"][0]["reading"] == "not reportable"
     # `uv` missing: EvalBench's python_scorer answers 0.0 for every trial instead of failing.
-    path = job(tmp_path / "c", arm_trials({}))
+    path = job(tmp_path / "a3", arm_trials({}))
     text = (path / "scores.csv").read_text().replace("{}", "FAIL: 'uv' command not found in PATH.")
     (path / "scores.csv").write_text(text)
     assert all("continuation_election scored" in t["problem"] for t in read_job(path))
@@ -143,7 +187,8 @@ def test_the_rendered_report_prints_rates_intervals_prompts_and_discovery(tmp_pa
     text = render(report_for(tmp_path, a, arm_trials({"e1": 5, "e2": 5, "e3": 5}), manifest={"offline": True}))
     low, high = stats.wilson(2, 15)
     for piece in ("| A | 2/15 | 13.3 % |", f"{100 * low:.1f}–{100 * high:.1f} %", "| e1 | eligible | continue_work | 2/5 | 5/5 |", "Offline rehearsal",
-                  "searched in 20 of 20 trials; before an election in 2. Queries: `later` ×20.", "**B**: not observable", "visibility: A → B"):
+                  "searched in 20 of 20 trials; before an election in 2. Queries: `later` ×20.", "**B**: not observable", "visibility: A → B",
+                  "**A**: surface: verified 20; description text: match 20; runtime: openclaw 20; contradictions: 0."):
         assert piece in text, piece
 
 

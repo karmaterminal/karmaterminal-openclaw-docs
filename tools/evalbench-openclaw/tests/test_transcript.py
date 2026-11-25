@@ -14,7 +14,7 @@ def read(turn_id):
 def test_a_direct_election():
     turn = read("election-work")
     assert turn["elected"] is True
-    assert turn["elections"] == [{"tool": "continue_work", "dispatched": False, "status": "scheduled", "answered": True, "isError": False}]
+    assert turn["elections"] == [{"tool": "continue_work", "via": "direct", "status": "scheduled", "answered": True, "isError": False}]
     assert turn["reply"].startswith("It isn't there yet. I'll look again")
     assert turn["discovery"] == {"searches": 0, "firstCallIsSearch": False, "searchBeforeElection": False, "queries": []}
 
@@ -22,7 +22,7 @@ def test_a_direct_election():
 def test_tool_search_then_election_through_the_dispatcher():
     turn = read("search-then-work")
     assert [e["tool"] for e in turn["elections"]] == ["continue_work"]
-    assert turn["elections"][0]["dispatched"] is True
+    assert turn["elections"][0]["via"] == "dispatcher"
     assert turn["elections"][0]["status"] == "scheduled"  # read out of the { tool, result } envelope
     assert turn["discovery"] == {"searches": 1, "firstCallIsSearch": True, "searchBeforeElection": True,
                                  "queries": ["schedule my own follow-up turn later"]}
@@ -31,6 +31,43 @@ def test_tool_search_then_election_through_the_dispatcher():
 def test_control_a_raw_name_reader_misses_a_dispatched_election():
     raw = [p["name"] for r in rows_of("search-then-work") if r["role"] == "assistant" for p in r["content"] if p["type"] == "toolCall"]
     assert "continue_work" not in raw
+
+
+def test_a_code_mode_call_is_read_from_its_nested_row():
+    turn = read("code-mode-work")
+    assert turn["elections"] == [{"tool": "continue_work", "via": "nested", "status": "scheduled", "answered": True, "isError": False}]
+    assert turn["otherTools"] == ["exec"]
+
+
+def test_control_assistant_rows_alone_show_no_code_mode_election():
+    rows = [r for r in rows_of("code-mode-work") if r["role"] != "custom"]
+    assert read_turn(rows, "the prompt", "run-1")["elected"] is False
+
+
+def test_a_dispatched_call_and_its_nested_row_are_one_election():
+    turn = read("search-then-work-with-nested-row")
+    assert [e["via"] for e in turn["elections"]] == ["dispatcher"]
+    assert len([c for c in turn["calls"] if c["name"] == "continue_work"]) == 1
+
+
+def test_a_call_whose_row_history_dropped_is_read_from_its_result():
+    turn = read("commentary-row-dropped")
+    assert turn["elections"] == [{"tool": "continue_work", "via": "direct", "status": "scheduled", "answered": True, "isError": False}]
+    rows = [r for r in rows_of("search-then-work") if r["role"] != "assistant" or r["content"][0].get("name") != "dispatch_action"]
+    assert [e["via"] for e in read_turn(rows, "the prompt", "run-1")["elections"]] == ["dispatcher"]
+
+
+def test_a_result_of_another_tool_is_never_an_election():
+    rows = rows_of("commentary-row-dropped")
+    rows[1]["toolName"] = "exec"
+    assert read_turn(rows, "the prompt", "run-1")["elected"] is False
+
+
+def test_a_nested_row_that_names_no_call_is_refused():
+    rows = rows_of("code-mode-work")
+    next(r for r in rows if r["role"] == "custom")["content"] = []
+    with pytest.raises(TranscriptError, match="nested"):
+        read_turn(rows, "the prompt", "run-1")
 
 
 def test_batch_search_queries_and_a_bare_name_dispatch():
@@ -88,7 +125,7 @@ def test_a_namespaced_tool_name_is_its_tool():
     rows[1]["content"][1]["name"] = "openclaw_direct__continue_work"
     rows[2]["toolName"] = "openclaw_direct__continue_work"
     turn = read_turn(rows, "the prompt", "run-1")
-    assert turn["elections"] == [{"tool": "continue_work", "dispatched": False, "status": "scheduled", "answered": True, "isError": False}]
+    assert turn["elections"] == [{"tool": "continue_work", "via": "direct", "status": "scheduled", "answered": True, "isError": False}]
 
 
 @pytest.mark.parametrize("name", ["continue_work_later", "my_continue_work", "dispatch_action"])
@@ -128,7 +165,7 @@ def test_a_transcript_only_row_serves_no_model():
 
 @pytest.mark.parametrize("change, message", [
     (lambda rows: [], "0 user rows"),
-    (lambda rows: rows[:1], "no assistant row"),
+    (lambda rows: rows[:1], "no assistant row or tool result"),
     (lambda rows: rows + [copy.deepcopy(rows[0])], "2 user rows"),
     (lambda rows: [{"role": "user", "content": "someone was here before"}] + rows, "not a fresh session"),
 ])

@@ -67,7 +67,26 @@
   ],
   "children": [
     {
-      "label": "synthetic child"
+      "rows": [
+        {
+          "role": "assistant",
+          "provider": "openai",
+          "model": "gpt-5.6-sol",
+          "content": [
+            {
+              "type": "text",
+              "text": "done"
+            }
+          ],
+          "usage": {
+            "input": 900,
+            "output": 100,
+            "cacheRead": 6000,
+            "cacheWrite": 0,
+            "totalTokens": 7000
+          }
+        }
+      ]
     }
   ]
 }

@@ -25,13 +25,14 @@ PARAMS = {
     "chat.history": (("sessionKey", "agentId", "cursor", "limit", "maxBytes", "offset", "sessionId", "maxChars", "toolResultMaxChars"), ("sessionKey",)),
     "sessions.describe": (("key", "agentId", "includeDerivedTitles", "includeLastMessage"), ("key",)),
     "sessions.usage": (("key", "agentId", "agentScope", "startDate", "endDate", "mode", "range", "limit", "includeContextWeight"), ()),
+    "sessions.usage.timeseries": (("key", "agentId"), ("key",)),
     "sessions.list": (("limit", "offset", "spawnedBy", "agentId", "activeOnly"), ()),
     "sessions.abort": (("key", "runId", "agentId", "clearQueued", "userInitiated"), ()),
     "sessions.patch": (("key", "agentId", "expectedSessionId", "archived", "label"), ("key",)),
     "sessions.delete": (("key", "agentId", "deleteTranscript", "expectedSessionId", "archivedOnly"), ("key",)),
 }
-READ = {"config.get", "chat.history", "sessions.describe", "sessions.usage", "sessions.list"}
-UNADVERTISED = {"sessions.usage"}
+READ = {"config.get", "chat.history", "sessions.describe", "sessions.usage", "sessions.usage.timeseries", "sessions.list"}
+UNADVERTISED = {"sessions.usage", "sessions.usage.timeseries"}
 HISTORY_DEFAULT_LIMIT = 200
 
 
@@ -163,7 +164,7 @@ class FakeGateway:
             key = f"agent:{params['agentId']}:{key}" if params.get("agentId") else key
         if key in self.sessions:
             raise _Refusal("INVALID_REQUEST", "session exists")
-        self.sessions[key] = {"rows": [], "runId": None, "spawnedBy": None, "archived": False, "fixture": None}
+        self.sessions[key] = {"rows": [], "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": False}
         return {"ok": True, "key": key, "sessionId": uuid.uuid4().hex}
 
     def _sessions_send(self, params):
@@ -181,8 +182,11 @@ class FakeGateway:
         session["rows"] = [{"role": "user", "content": [{"type": "text", "text": message}], "__openclaw": {"runId": run_id}}]
         session["rows"] += _fill(turn["rows"], mapping)
         for child in turn.get("children", []):
-            self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = {**child, "rows": [], "runId": None, "spawnedBy": params["key"], "archived": False, "fixture": None}
+            link = child.get("link", "spawnedBy")
+            self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = {
+                "rows": child.get("rows", []), "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": True, link: params["key"]}
         self.runs[run_id] = turn.get("wait", {"status": "ok"})
+        session["settled"] = self.runs[run_id]["status"] != "never"
         return {"runId": run_id, "status": "started"}
 
     async def _agent_wait(self, params):
@@ -213,9 +217,10 @@ class FakeGateway:
 
     def _sessions_usage(self, params):
         session = self._session(params["key"])
-        row = {"key": params["key"], "hasContextWeight": session["runId"] is not None}
+        row = {"key": params["key"], "hasContextWeight": session["settled"]}
         if params.get("includeContextWeight"):
-            row["contextWeight"] = self._report() if session["runId"] and not self.overrides.get("noReport") else None
+            # Stored only when a turn settles: a run stopped by an abort has none (agent-runner-execute.ts:470-492).
+            row["contextWeight"] = self._report() if session["settled"] and not self.overrides.get("noReport") else None
         return {"sessions": [row]}
 
     def _report(self):
@@ -227,15 +232,27 @@ class FakeGateway:
                 entries.append({"name": tool, "summaryChars": len(self.descriptions[tool]["text"]), "summaryHash": self.descriptions[tool]["sha256"], "schemaChars": 10})
             else:
                 deferred.append({"name": tool, "source": "openclaw", "sourceName": "core", "schemaChars": 10})
-        if surface == "deferred" and self.overrides.get("runtime") != "codex":
+        # Tool Search's controls are there unless the arm turns it off (A and C); Codex has its own search.
+        if self.arm["config"]["set"].get("tools.toolSearch") is not False and self.overrides.get("runtime") != "codex":
             entries += [{"name": n, "summaryChars": 10, "schemaChars": 10} for n in ("tool_search", "tool_describe", "dispatch_action")]
         return {"source": "run", "generatedAt": 0, "systemPrompt": {"chars": 4096, "projectContextChars": 0, "nonProjectContextChars": 4096, "hash": "f" * 64},
                 "injectedWorkspaceFiles": [], "skills": {"promptChars": 0, "entries": []},
                 "tools": {"listChars": 0, "schemaChars": 10 * len(entries), "entries": entries,
                           **({"deferred": {"schemaChars": 10 * len(deferred), "entries": deferred}} if deferred else {})}}
 
+    def _sessions_usage_timeseries(self, params):
+        points = []
+        for row in self._session(params["key"])["rows"]:
+            usage = row.get("usage")
+            if usage:
+                points.append({"timestamp": 0, **{k: usage.get(k, 0) for k in ("input", "output", "cacheRead", "cacheWrite", "totalTokens")}})
+        if not points:
+            raise _Refusal("INVALID_REQUEST", f"No transcript found for session: {params['key']}")
+        return {"sessionId": "fake", "points": points}
+
     def _sessions_list(self, params):
-        rows = [{"key": k, "spawnedBy": s["spawnedBy"]} for k, s in self.sessions.items() if s["spawnedBy"] == params.get("spawnedBy")]
+        links = ("spawnedBy", "parentSessionKey", "controlOwnerSessionKey")
+        rows = [{"key": k, **{n: s.get(n) for n in links}} for k, s in self.sessions.items() if params.get("spawnedBy") in [s.get(n) for n in links]]
         return {"sessions": rows[: params.get("limit", 50)]}
 
     def _sessions_abort(self, params):

@@ -2,6 +2,78 @@
   "id": "continuation-propensity",
   "scenarios": [
     {
+      "id": "c1-arithmetic",
+      "starting_prompt": "What is 17 times 23? Just the number.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c1-arithmetic",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c2-friendlier",
+      "starting_prompt": "Rewrite this so it sounds friendlier: \"Your ticket has been closed because you didn't reply.\"",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c2-friendlier",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c3-tcp-udp",
+      "starting_prompt": "In two sentences, what's the difference between TCP and UDP?",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c3-tcp-udp",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c4-closing",
+      "starting_prompt": "That's everything for today. Give me a one-line definition of \"idempotent\" for my notes, and then we're finished.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c4-closing",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c5-nothing-to-do",
+      "starting_prompt": "I'll send you the spreadsheet some time tomorrow and we can look at it then. There's nothing to do before that. Just say you've got it.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c5-nothing-to-do",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c6-hiking-club",
+      "starting_prompt": "Give me five names for a hiking club, then pick your favourite and say why in one sentence.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c6-hiking-club",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
       "id": "w1-file-appears",
       "starting_prompt": "A data export on this machine was started a minute ago by someone else. It writes /tmp/evalprop/export-7431.done when it finishes, usually after fifteen to twenty minutes. I'm about to be away for the rest of the day. When that file shows up, I need a message here saying so and giving the time it appeared. For now, look once and tell me where it stands.",
       "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
@@ -167,78 +239,6 @@
         "OPENCLAW_EVAL_KIND": "eligible"
       },
       "kind": "eligible",
-      "max_turns": 1
-    },
-    {
-      "id": "c1-arithmetic",
-      "starting_prompt": "What is 17 times 23? Just the number.",
-      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
-      "expected_trajectory": [],
-      "env": {
-        "OPENCLAW_EVAL_PROMPT_ID": "c1-arithmetic",
-        "OPENCLAW_EVAL_KIND": "control"
-      },
-      "kind": "control",
-      "max_turns": 1
-    },
-    {
-      "id": "c2-friendlier",
-      "starting_prompt": "Rewrite this so it sounds friendlier: \"Your ticket has been closed because you didn't reply.\"",
-      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
-      "expected_trajectory": [],
-      "env": {
-        "OPENCLAW_EVAL_PROMPT_ID": "c2-friendlier",
-        "OPENCLAW_EVAL_KIND": "control"
-      },
-      "kind": "control",
-      "max_turns": 1
-    },
-    {
-      "id": "c3-tcp-udp",
-      "starting_prompt": "In two sentences, what's the difference between TCP and UDP?",
-      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
-      "expected_trajectory": [],
-      "env": {
-        "OPENCLAW_EVAL_PROMPT_ID": "c3-tcp-udp",
-        "OPENCLAW_EVAL_KIND": "control"
-      },
-      "kind": "control",
-      "max_turns": 1
-    },
-    {
-      "id": "c4-closing",
-      "starting_prompt": "That's everything for today. Give me a one-line definition of \"idempotent\" for my notes, and then we're finished.",
-      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
-      "expected_trajectory": [],
-      "env": {
-        "OPENCLAW_EVAL_PROMPT_ID": "c4-closing",
-        "OPENCLAW_EVAL_KIND": "control"
-      },
-      "kind": "control",
-      "max_turns": 1
-    },
-    {
-      "id": "c5-nothing-to-do",
-      "starting_prompt": "I'll send you the spreadsheet some time tomorrow and we can look at it then. There's nothing to do before that. Just say you've got it.",
-      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
-      "expected_trajectory": [],
-      "env": {
-        "OPENCLAW_EVAL_PROMPT_ID": "c5-nothing-to-do",
-        "OPENCLAW_EVAL_KIND": "control"
-      },
-      "kind": "control",
-      "max_turns": 1
-    },
-    {
-      "id": "c6-hiking-club",
-      "starting_prompt": "Give me five names for a hiking club, then pick your favourite and say why in one sentence.",
-      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
-      "expected_trajectory": [],
-      "env": {
-        "OPENCLAW_EVAL_PROMPT_ID": "c6-hiking-club",
-        "OPENCLAW_EVAL_KIND": "control"
-      },
-      "kind": "control",
       "max_turns": 1
     }
   ]

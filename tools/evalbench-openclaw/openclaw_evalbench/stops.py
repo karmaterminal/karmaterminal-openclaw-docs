@@ -3,10 +3,22 @@
 import re
 
 MAX_CONSECUTIVE_INFRA_ERRORS = 3
+# Charged when a turn was sent and the gateway reported no usage for it (a Codex turn with no final text stores none:
+# event-projector-result.ts:333-341). The budget must never run on zeros.
+ASSUMED_TRIAL_TOKENS = 150_000
 # The provider refused the account or the rate, so every further turn would spend or fail the same way.
 _PROVIDER_STOP = re.compile(
     r"\b(401|403|429)\b|rate.?limit|quota|usage limit|insufficient|billing|unauthorized|authentication|"
     r"token (?:has )?expired|invalid.{0,12}(?:api key|token)", re.I)
+
+
+def charge(record):
+    """The metered tokens one trial counts against the budget: its turn, any later turn of its session, its children."""
+    metered = record.get("metered")
+    if not metered:
+        return 0  # no turn was sent
+    own = max(int((record.get("usage") or {}).get("total") or 0), int(metered.get("session") or 0))
+    return (own or ASSUMED_TRIAL_TOKENS) + int(metered.get("children") or 0)
 
 
 class ArmGuard:
@@ -27,11 +39,11 @@ class ArmGuard:
         return self.halted
 
     def after_trial(self, record):
-        self.tokens += int(((record.get("usage") or {}).get("total")) or 0)
+        self.tokens += charge(record)
         status, reason = record["status"], record.get("reason") or ""
         if status == "arm_mismatch":
             self.halt(f"arm mismatch: {reason}")
-        elif status == "infra_error":
+        elif status in ("infra_error", "deadline_unreadable"):
             self.consecutive_errors += 1
             if _PROVIDER_STOP.search(reason):
                 self.halt(f"provider refused: {reason}")

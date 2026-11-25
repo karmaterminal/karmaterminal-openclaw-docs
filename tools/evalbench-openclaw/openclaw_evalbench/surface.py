@@ -45,6 +45,7 @@ def surface_verdict(surface, expected):
     # request_compaction registers only where the runtime supplies its callbacks, so its absence contradicts no arm.
     wrong = [f"{tool} is {place}" for tool, place in surface["placement"].items()
              if place != expected and not (tool == "request_compaction" and place == "absent")]
+    wrong += [f"{tool}'s description is not the arm's text" for tool, text in surface["descriptionText"].items() if text == "differs"]
     if wrong:
-        return "mismatch", f"expected every continuation tool {expected}: " + ", ".join(wrong)
+        return "mismatch", f"expected every continuation tool {expected}, with the arm's own text: " + ", ".join(wrong)
     return "verified", None

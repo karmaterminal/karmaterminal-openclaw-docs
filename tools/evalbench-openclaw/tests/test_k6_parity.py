@@ -25,12 +25,13 @@ def k6(rows):
 
 def ours(rows):
     return [{"targets": [call_target(p) for p in r["content"]] if isinstance(r.get("content"), list) else [],
-             "results": [unwrap_result(r, t) for t in CONTINUATION_TOOLS], "served": served_model(r)} for r in rows]
+             "results": [unwrap_result(r, t) for t in CONTINUATION_TOOLS], "served": served_model(r)} for r in rows if r["role"] != "custom"]
 
 
 @pytest.mark.parametrize("turn_id", sorted(load_turns()))
 def test_fixture_turns_read_the_same(turn_id):
-    rows = rows_of(turn_id)
+    # The k6 rows never had nested-tool rows; transcript.py reads those on its own.
+    rows = [r for r in rows_of(turn_id) if r["role"] != "custom"]
     assert ours(rows) == k6(rows)
 
 

@@ -92,6 +92,7 @@ class ArmJob:
         self._stub = eval_service_pb2_grpc.EvalServiceStub(channel)
         self.session_id = f"evalprop-{arm_name}-{uuid.uuid4().hex}"
         self.trials = 0
+        self.verified = None  # the arm's last verified surface, for a turn stopped before it stored its own
 
     async def run(self):
         """Run the job to its end. Returns {jobId, summary}."""
@@ -132,7 +133,7 @@ class ArmJob:
         halted = self.guard.before_trial()
         base = {"schema": "openclaw.evalbench.trial.v1", "arm": self.arm_name,
                 "promptId": request.env.get("OPENCLAW_EVAL_PROMPT_ID") or "", "kind": request.env.get("OPENCLAW_EVAL_KIND") or "",
-                "elected": None, "usage": None, "reply": "", "calls": [], "cleanup": {"ok": None, "reason": None}}
+                "elected": None, "usage": None, "metered": None, "reply": "", "calls": [], "cleanup": {"ok": None, "reason": None}}
         if halted:
             record = {**base, "status": "halted", "reason": halted}
         else:
@@ -143,6 +144,9 @@ class ArmJob:
                 record = {**base, "status": "infra_error", "reason": f"adapter bug: {type(error).__name__}: {error}"[:300]}
                 self.guard.halt(record["reason"])
             self.guard.after_trial(record)
+            if (record.get("surface") or {}).get("verdict") == "verified":
+                kept = {k: v for k, v in record["surface"].items() if k not in ("verdict", "reason")}
+                self.verified = {"gateway": record["gateway"], "surface": kept}
         self.trials += 1
         record = scrub(record, self._token)
         with self.trial_log.open("a") as out:
@@ -164,4 +168,4 @@ class ArmJob:
             arm_name=self.arm_name, arm=self.arm, model=self.arms["model"],
             descriptions=self.arms["descriptions"][self.arm["descriptions"]]["tools"],
             url=env.get("OPENCLAW_EVAL_GATEWAY_URL"), token=self._token, prompt=request.prompt, prompt_id=prompt_id,
-            kind=kind, deadline_seconds=min(self.deadline_seconds, max(1.0, request.timeout_seconds - ANSWER_MARGIN_SECONDS)))
+            kind=kind, verified=self.verified, deadline_seconds=min(self.deadline_seconds, max(1.0, request.timeout_seconds - ANSWER_MARGIN_SECONDS)))

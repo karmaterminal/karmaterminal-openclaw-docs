@@ -60,7 +60,7 @@ def check_identity(arm, hello):
         raise ArmMismatch(f"gateway commit {commit[:12]} is not the arm's {sha[:12]}")
     if not (by_commit or by_build):
         raise ArmMismatch(f"gateway does not identify itself as {sha[:12]}")
-    return {"commit": commit, "buildId": build_id, "version": server.get("version")}
+    return {"commit": commit, "buildId": build_id, "version": server.get("version"), "bootId": server.get("bootId")}
 
 
 def read_path(config, dotted):

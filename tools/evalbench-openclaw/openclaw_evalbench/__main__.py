@@ -17,8 +17,9 @@ import yaml
 
 from . import arms as arms_module
 from .arms import ROOT, load_arms, load_scenarios
+from .trial import SCRATCH_PATH
 
-DEFAULT_TOKEN_BUDGET = 30_000_000
+DEFAULT_TOKEN_BUDGET = 35_000_000
 OFFLINE_DEADLINE_SECONDS = 1.0
 # EvalBench drops a session three hours after it starts and ends the job without a result (util/sessionmgr.py ttl).
 SESSION_TTL_SECONDS = 48 * 3600
@@ -217,6 +218,8 @@ def cmd_run(args):
             arms_module.check_url(url)
         except arms_module.ArmMismatch as error:
             raise SystemExit(f"refusing {url}: {error}") from None
+    if SCRATCH_PATH.exists():
+        raise SystemExit(f"refusing: {SCRATCH_PATH} exists; the prompts need it absent")
     tokens, out = _token_files(args.arms), _new_out(args.out)
     manifest = _manifest(args, args.arms, urls, offline=False)
     with _logging_to(out / "evalbench.log"):
@@ -260,7 +263,10 @@ def cmd_report(args):
     for item in args.job:
         name, _, path = item.partition("=")
         jobs.setdefault(name, []).append(pathlib.Path(path))
-    report = build_report({n: jobs[n] for n in sorted(jobs)})
+    try:
+        report = build_report({n: jobs[n] for n in sorted(jobs)})
+    except (ValueError, OSError) as error:
+        raise SystemExit(f"report: {error}") from None
     print(json.dumps(report, indent=2) if args.json else render(report))
     return 0
 

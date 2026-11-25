@@ -23,9 +23,9 @@ CONFIG = {"env": {"OPENCLAW_EVAL_ARM": "A"}, "timeout_seconds": 0.05}
 
 def record(**changes):
     base = {"schema": "openclaw.evalbench.trial.v1", "arm": "A", "promptId": "p", "kind": "eligible", "status": "ok", "reason": None,
-            "elected": True, "elections": [{"tool": "continue_work", "dispatched": True, "status": "scheduled", "answered": True, "isError": False}],
-            "calls": [{"id": "c1", "name": "exec", "dispatched": False, "args": {"command": "true"}, "answered": True, "isError": False, "status": None},
-                      {"id": "c2", "name": "continue_work", "dispatched": True, "args": {"reason": "r"}, "answered": True, "isError": False, "status": "scheduled"}],
+            "elected": True, "elections": [{"tool": "continue_work", "via": "dispatcher", "status": "scheduled", "answered": True, "isError": False}],
+            "calls": [{"id": "c1", "name": "exec", "via": "direct", "args": {"command": "true"}, "answered": True, "isError": False, "status": None},
+                      {"id": "c2", "name": "continue_work", "via": "dispatcher", "args": {"reason": "r"}, "answered": True, "isError": False, "status": "scheduled"}],
             "reply": "done", "usage": {"input": 100, "output": 20, "cacheRead": 900, "cacheWrite": 0, "total": 1020},
             "servedModels": ["openai/gpt-5.6-sol"]}
     return {**base, **changes}
@@ -205,9 +205,9 @@ def test_three_arms_end_to_end(tmp_path):
     assert list(arms) == ["A", "B", "C"]
     assert [(arms[n]["eligible"]["elected"], arms[n]["eligible"]["scored"]) for n in "ABC"] == [(2, 4), (3, 4), (4, 4)]
     assert [(arms[n]["control"]["elected"], arms[n]["control"]["scored"]) for n in "ABC"] == [(0, 2), (0, 2), (1, 2)]
-    assert arms["A"]["electedDispatched"] == 2 and arms["A"]["electedDirect"] == 0
+    assert arms["A"]["electedVia"] == {"dispatcher": 2}
     # B: one fitting continue_work, one refused continue_delegate, one continue_work on a continue_delegate prompt.
-    assert arms["B"]["electedDispatched"] == 0 and arms["B"]["electedAccepted"] == 2 and arms["B"]["electedExpectedTool"] == 2
+    assert arms["B"]["electedVia"] == {"direct": 3} and arms["B"]["electedAccepted"] == 2 and arms["B"]["electedExpectedTool"] == 2
     assert arms["A"]["discovery"]["searchBeforeElection"] == 2 and arms["A"]["discovery"]["observableTrials"] == 6
     assert arms["C"]["deadline"] == 1 and all(a["problems"] == [] for a in arms.values())
     # EvalBench's own CSVs say the same, and hold no credential.
@@ -290,6 +290,18 @@ def test_a_record_is_scrubbed_of_tokens_and_session_keys():
     from openclaw_evalbench.adapter import scrub
     dirty = {"reply": "my key is agent:main:evalprop-a-1 and the token is s3cret", "calls": [{"args": {"targetSessionKey": "agent:main:other"}}], "n": 1, "x": None}
     assert scrub(dirty, "s3cret") == {"reply": "my key is agent:<key> and the token is <token>", "calls": [{"args": {"targetSessionKey": "agent:<key>"}}], "n": 1, "x": None}
+
+
+def test_a_deadline_before_any_verified_surface_is_unscored_and_after_one_is_scored(tmp_path):
+    c = "c5-nothing-to-do"
+    _, left, _, report, _ = run_offline(tmp_path, {"A": {c: ["deadline-no-election", "control-clean", "deadline-no-election"]}}, num_trials=3, scenarios=[c], deadline=0.3)
+    assert left == {"A": 0} and report["arms"]["A"]["unscored"] == {"deadline_unreadable": 1}
+    assert report["arms"]["A"]["control"]["scored"] == 2 and report["arms"]["A"]["surfaces"] == {"verified": 1, "carried": 1}
+
+
+def test_the_controls_run_first_so_every_arm_verifies_its_surface_early():
+    kinds = [s["kind"] for s in load_scenarios()]
+    assert kinds == sorted(kinds), "controls first"
 
 
 def test_the_session_outlives_evalbenchs_three_hour_default():

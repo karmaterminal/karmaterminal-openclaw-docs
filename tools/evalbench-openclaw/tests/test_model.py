@@ -58,6 +58,8 @@ def test_every_arms_config_carries_it_into_configs_csv(tmp_path):
         recorded = {r["config"]: r["value"] for r in rows(tmp_path / "results" / results[name]["jobId"] / "configs.csv")}
         assert MODEL in "".join(v for k, v in recorded.items() if k.endswith("OPENCLAW_EVAL_MODEL")), name
         assert report["arms"][name]["servedModels"] == {MODEL: 1}
+    shapes = {n: report["arms"][n]["surfaceShapes"] for n in "ABCD"}
+    assert shapes == {"A": {"7 direct and 5 deferred": 1}, "B": {"9 direct and 0 deferred": 1}, "C": {"10 direct and 2 deferred": 1}, "D": {"9 direct and 0 deferred": 1}}
 
 
 def test_changing_the_parameter_alone_moves_the_whole_run(tmp_path):
@@ -111,8 +113,9 @@ def test_the_manifest_records_the_model_and_the_stops_rule(arms):
 
 
 def test_the_documents_never_state_the_stop_without_its_rule():
+    stated = re.compile(r"--token-budget|(?=.*\bstop)(?=.*\b(35|2) M\b)", re.S)
     for name in ("README.md", "REPORT.md", "CANARY-PACKET.md"):
         blocks = re.split(r"\n\s*\n|\n(?=\|)|\n(?=- )|\n(?=\d+\. )", (ROOT / name).read_text())
-        stops = [b for b in blocks if re.search(r"\b35(,000,000| M\b)|--token-budget", b) and "```" not in b]
+        stops = [b for b in blocks if stated.search(b) and "```" not in b and not b.startswith("./run.sh")]
         assert stops, name
         assert [b for b in stops if "between trials" not in b] == [], name

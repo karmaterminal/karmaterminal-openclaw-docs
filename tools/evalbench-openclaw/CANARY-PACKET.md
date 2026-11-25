@@ -30,41 +30,48 @@ The ports are 120 apart and clear of 18789–18899, which the live gateway's der
 
 ## Commands
 
-All on elliott, as the seat's user, by 🌻. Nothing is run from another seat. After the cut the live seat may itself run
-f9fcd3a5; the arms still run from their own stages, never from the live install.
+All on elliott, as the seat's user, by 🌻, in **one shell** (later steps use earlier variables). Nothing is run from another
+seat. After the cut the live seat may itself run f9fcd3a5; the arms still run from their own stages, never from the live
+install.
 
-### 0. Look first (reads only)
+### 0. Look first
+
+Reads only, apart from the harness checkout, the EvalBench install and a record directory.
 
 ```bash
+HARNESS=                      # the 40-hex head of #631 that 🌻 read
+[[ $HARNESS =~ ^[0-9a-f]{40}$ ]] && echo harness sha ok
 BOOT=karmaterminal/openclaw-bootstrap
 AB5A=ab5a30ea79b776f149e24b1fccab9e79b0a5d299; F9FC=f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306
 BLABEL=$(printf 'openclaw#1575 arm B of %s' "$AB5A" | sha1sum | cut -c1-40)      # 706a2c56…
-L=~/flesh_beast_best_beast/frond-scribe/scripts/proof-gw/composite-launcher.sh
-LIVE=~/flesh_beast_tmp/openclaw; STAGE=~/flesh_beast_tmp/.openclaw-path-b/stage-only
-# The harness at the exact #631 head 🌻 read:
-HARNESS=<40-hex head of #631>; W=~/flesh_beast_best_beast/source/WORKTREES/docs-evalprop-canary
-git -C ~/flesh_beast_best_beast/source/karmaterminal-openclaw-docs fetch -q origin codeagent/cont-propensity-evalbench
-git -C ~/flesh_beast_best_beast/source/karmaterminal-openclaw-docs worktree add --detach $W $HARNESS
-cd $W/tools/evalbench-openclaw && ./bootstrap.sh && ./run.sh test        # no model, no gateway
+FS=~/flesh_beast_best_beast/frond-scribe; L=$FS/scripts/proof-gw/composite-launcher.sh
+LIVE=~/flesh_beast_tmp/openclaw; PB=~/flesh_beast_tmp/.openclaw-path-b; STAGE=$PB/stage-only; DONOR=~/flesh_beast_tmp/.openclaw-path-b-builds
+DOCS=~/flesh_beast_best_beast/source/karmaterminal-openclaw-docs; W=~/flesh_beast_best_beast/source/WORKTREES/docs-evalprop-canary
+git -C $DOCS fetch -q origin codeagent/cont-propensity-evalbench && git -C $DOCS worktree add --detach $W "$HARNESS"
+cd $W/tools/evalbench-openclaw && ./bootstrap.sh && ./run.sh test        # needs uv on PATH, or UV set
 
-# The "before" record. Keep it; step 6 compares against it.
-mkdir -p ~/proof-runs/evalprop-before && cd ~/proof-runs/evalprop-before
-systemctl --user show openclaw-gateway -p MainPID -p ActiveEnterTimestamp > live-unit.txt
-jq -r .commit $LIVE/dist/build-info.json | tee live-build.txt
-sha256sum ~/.openclaw/openclaw.json > live-config.sha256
-systemctl --user list-timers --all --no-legend | awk '{print $NF}' | sort > timers.txt; crontab -l > crontab.txt 2>/dev/null || true
-cd $W/tools/evalbench-openclaw
+# The "before" record. Step 6 compares against it and puts the receipts beside it.
+REC=~/proof-runs/evalprop-canary-record-$(date -u +%Y%m%dT%H%M%SZ); mkdir -p $REC; chmod 700 $REC
+systemctl --user show openclaw-gateway -p MainPID -p ActiveEnterTimestamp > $REC/live-unit.txt
+jq -r .commit $LIVE/dist/build-info.json | tee $REC/live-build.txt
+sha256sum ~/.openclaw/openclaw.json > $REC/live-config.sha256
+systemctl --user list-timers --all --no-legend | awk '{print $NF}' | sort > $REC/timers.txt; crontab -l > $REC/crontab.txt 2>/dev/null || true
+{ ls -1d $PB/* $STAGE/* $DONOR/* 2>/dev/null || true; } | sort > $REC/builds.txt
 
-# Each must hold, or stop here:
+# Each must print as shown. Anything else, stop here: nothing has been changed.
 [ "$(gh api user --jq .login)" = elliott-dandelion-cult ] && echo actor ok
+git -C $FS log -1 --format=%H -- scripts/proof-gw/composite-launcher.sh      # 67370bd94f19f9a0f89493d4f2b6360d5928183f, the one this was written against
 [ "$(jq -r .agents.defaults.model.primary ~/.openclaw/openclaw.json)" = "$(./run.sh model)" ] && echo "live primary is the firing model"
 for p in 20846 20966 21086; do ss -ltnH "sport = :$p" | grep -q . && echo "port $p BUSY"; done; echo ports checked
-for d in comp-ab5a30ea comp-706a2c56 comp-f9fcd3a5; do [ ! -e ~/proof-gw/$d ] || echo "$d EXISTS"; done; echo state dirs checked
+for d in comp-ab5a30ea comp-706a2c56 comp-f9fcd3a5; do [ ! -e ~/proof-gw/$d ] || echo "$d EXISTS: STOP, step 6 removes these"; done; echo state dirs checked
 [ ! -e /tmp/evalprop ] && echo scratch path absent
-for s in $AB5A $F9FC; do [ ! -e $STAGE/$s ] || echo "stage $s already exists: check it, don't restage"; done
 free -g | sed -n 2p; df -h --output=avail ~/flesh_beast_tmp | tail -1
-# A provider key written in models.providers would be copied into the isolated configs (mode 600) until shred. Above 0, look first:
-jq '[.models.providers[]? | select(.apiKey | type == "string")] | length' ~/.openclaw/openclaw.json
+# What the isolated configs will copy and bounds what a trial may start (null: the product default, 5 / 8 / 5 / 48 h):
+jq -c '.agents.defaults | [.subagents.maxChildrenPerAgent, .subagents.maxConcurrent, .continuation.maxDelegatesPerTurn, .timeoutSeconds]' ~/.openclaw/openclaw.json
+# Paths only, never values: strings under credential-like names in the part setup copies. A reference ({source, provider, id})
+# is fine. A literal would sit in an isolated config (mode 600) until shred; 🌻 decides.
+jq -c '[{agents: {defaults: .agents.defaults, main: .agents.entries.main}, models, tools, commands, messages, diagnostics, plugins: (.plugins.entries | {openai, codex, "diagnostics-otel"})}
+  | paths(type == "string") | map(tostring) | select(any(.[]; test("key|token|secret|password|auth|header|cookie"; "i"))) | join(".")]' ~/.openclaw/openclaw.json
 ```
 
 If the live primary is no longer `openai/gpt-6.1-sol`, the canary waits: the model is one value in `arms.json`, changed by a
@@ -72,19 +79,23 @@ commit, so the packet and the rehearsal change with it.
 
 ### 1. Stage both builds (no stop, no cutover)
 
+Skip a build whose stage is already in `builds.txt`: check it with the last block and use it. Otherwise, one at a time (the
+second only after the first has finished; GitHub keeps one waiting run per seat and would drop the other):
+
 ```bash
 INSTALLED=$(jq -r .commit $LIVE/dist/build-info.json)
-R=~/flesh_beast_best_beast/source/openclaw; git -C $R fetch -q origin $AB5A; git -C $R fetch -q origin $F9FC; git -C $R fetch -q origin $INSTALLED
+R=~/flesh_beast_best_beast/source/openclaw; for s in $AB5A $F9FC $INSTALLED; do git -C $R fetch -q origin $s; done
 for s in $AB5A $F9FC; do git -C $R merge-base --is-ancestor $INSTALLED $s && echo "${s:0:8} forward" || echo "${s:0:8} NOT forward: add the flag"; done
 gh workflow run deploy-gateway.yml --repo $BOOT -f target_prince=elliott -f approved_ref=$AB5A -f approved_base=$AB5A \
   -f stage_only=true -f reason="stage-only for the openclaw#1575 propensity canary, docs#631; installed $INSTALLED"
+gh run list --repo $BOOT --workflow deploy-gateway.yml --limit 3         # wait for it; never cancel it
 gh workflow run deploy-gateway.yml --repo $BOOT -f target_prince=elliott -f approved_ref=$F9FC -f approved_base=$AB5A \
   -f stage_only=true -f reason="stage-only for the openclaw#1575 propensity canary, docs#631; installed $INSTALLED"
 ```
 
 After the cut, ab5a30ea is behind the installed build. The workflow then refuses it unless
 `-f allow_non_forward_cutover=true` is added to that dispatch. Despite its name, nothing is cut over with `stage_only=true`.
-Leave `path_b_mode` at its default, so elliott builds its own stage. The two runs queue; don't cancel either. Then:
+Leave `path_b_mode` at its default, so elliott builds its own stage. Then:
 
 ```bash
 for s in $AB5A $F9FC; do
@@ -131,22 +142,30 @@ argument.
 export OPENCLAW_EVAL_TOKEN_FILE_A=~/proof-gw/comp-ab5a30ea/gateway.token
 export OPENCLAW_EVAL_TOKEN_FILE_B=~/proof-gw/comp-706a2c56/gateway.token
 export OPENCLAW_EVAL_TOKEN_FILE_C=~/proof-gw/comp-f9fcd3a5/gateway.token
-./run.sh preflight        # three times "ok": true, each with "model": "openai/gpt-6.1-sol"; anything else: stop
+for p in 20846 20966 21086; do timeout 120 bash -c "until ss -ltnH 'sport = :$p' | grep -q .; do sleep 2; done" || echo "port $p not up"; done
+./run.sh preflight        # three times "ok": true, each with "model": "openai/gpt-6.1-sol"
 ```
+
+It only reads, so one retry is fine (a gateway can still be starting). Anything else twice: stop.
 
 ### 5. The nine trials
 
 ```bash
+GO=                           # 🌻's message id
 OUT=~/proof-runs/evalprop-canary-$(date -u +%Y%m%dT%H%M%SZ)
-./run.sh run --go <🌻's message id> --out $OUT --num-trials 1 --token-budget 2000000 \
+./run.sh run --go "$GO" --out $OUT --num-trials 1 --token-budget 2000000 \
   --scenarios c1-arithmetic,w1-file-appears,d1-second-pair-of-eyes
 echo "exit $?"
 ```
 
-**To stop everything at once**, kill the gateways first. That ends the turns, their children and any command they started:
+**To stop everything at once**, from any shell on the seat: kill the gateways, then stop what can outlive them.
 
 ```bash
 systemctl --user kill --signal=SIGKILL openclaw-proof-comp-ab5a30ea openclaw-proof-comp-706a2c56 openclaw-proof-comp-f9fcd3a5
+systemctl --user stop openclaw-proof-comp-{ab5a30ea,706a2c56,f9fcd3a5}-login 2>/dev/null
+# A durable exec runs in its own unit, outside the gateway's. Its log is under the state dir of the gateway that started it:
+grep -lE "append:$HOME/proof-gw/comp-(ab5a30ea|706a2c56|f9fcd3a5)/" /run/user/$(id -u)/systemd/transient/openclaw-proc-*.service 2>/dev/null \
+  | xargs -r -n1 basename | xargs -r systemctl --user stop
 ```
 
 Then interrupt `run.sh`. Interrupting it alone leaves the current turns running. A plain `stop` is not the emergency brake:
@@ -154,31 +173,37 @@ the gateway may drain its running turns first, for up to 330 s. Their state is d
 
 ### 6. Afterwards, whatever happened
 
+Run the three commands of the emergency stop first (they are harmless when nothing is left). Then:
+
 ```bash
-cp -a ~/proof-gw/comp-ab5a30ea/receipts $OUT/receipts-A; cp -a ~/proof-gw/comp-706a2c56/receipts $OUT/receipts-B; cp -a ~/proof-gw/comp-f9fcd3a5/receipts $OUT/receipts-C
-rm -f $OUT/receipts-?/login.log                                      # it held a device code
-PORT=20846 bash $L stop $AB5A   $AB5A && bash $L shred $AB5A   $AB5A
-PORT=20966 bash $L stop $BLABEL $AB5A && bash $L shred $BLABEL $AB5A
-PORT=21086 bash $L stop $F9FC   $F9FC && bash $L shred $F9FC   $F9FC
-rm -rf ~/proof-gw/comp-ab5a30ea ~/proof-gw/comp-706a2c56 ~/proof-gw/comp-f9fcd3a5        # the empty workspaces and receipts shred keeps
+finish() {  # <arm> <port> <launcher arg 1> <launcher arg 2>; removes a gateway only after its state is shredded
+  local d=~/proof-gw/comp-${3:0:8}; [ -n "${3:-}" ] && [ -d "$d" ] || { echo "$1: no gateway"; return 0; }
+  cp -a "$d/receipts" "$REC/receipts-$1"; rm -f "$REC/receipts-$1/login.log"      # the log held a device code
+  PORT=$2 bash $L stop $3 $4 && PORT=$2 bash $L shred $3 $4 && rm -rf "$d" && echo "$1: removed" || echo "$1: NOT removed, look at $d"
+}
+finish A 20846 $AB5A $AB5A; finish B 20966 $BLABEL $AB5A; finish C 21086 $F9FC $F9FC
+
 # The live seat is as it was:
-systemctl --user show openclaw-gateway -p MainPID -p ActiveEnterTimestamp | diff - ~/proof-runs/evalprop-before/live-unit.txt && echo live unit unchanged
-jq -r .commit $LIVE/dist/build-info.json | diff - ~/proof-runs/evalprop-before/live-build.txt && echo live build unchanged
-sha256sum -c ~/proof-runs/evalprop-before/live-config.sha256
-systemctl --user list-timers --all --no-legend | awk '{print $NF}' | sort | diff - ~/proof-runs/evalprop-before/timers.txt && echo timers unchanged
-crontab -l 2>/dev/null | diff - ~/proof-runs/evalprop-before/crontab.txt && echo crontab unchanged
+systemctl --user show openclaw-gateway -p MainPID -p ActiveEnterTimestamp | diff - $REC/live-unit.txt && echo live unit unchanged
+jq -r .commit $LIVE/dist/build-info.json | diff - $REC/live-build.txt && echo live build unchanged
+sha256sum -c $REC/live-config.sha256
+systemctl --user list-timers --all --no-legend | awk '{print $NF}' | sort | diff - $REC/timers.txt && echo timers unchanged
+crontab -l 2>/dev/null | diff - $REC/crontab.txt && echo crontab unchanged
 systemctl --user list-units --all 'openclaw-proof-comp-*' --no-legend; ls -d ~/proof-gw/comp-* /tmp/evalprop 2>/dev/null     # expect nothing from this run
+grep -l 'proof-gw/comp-' /run/user/$(id -u)/systemd/transient/openclaw-proc-*.service 2>/dev/null                              # expect nothing
 ```
 
-If the full fire is expected soon, the stages can stay, and only the gateways go. When they are no longer wanted:
+If the full fire is expected soon, the stages can stay. When they are no longer wanted, remove **only what this run made**:
 
 ```bash
-for s in $AB5A $F9FC; do
-  git -C $LIVE worktree remove --force $STAGE/$s                                              # the receipt's own remove_command
-  git -C $LIVE worktree remove --force ~/flesh_beast_tmp/.openclaw-path-b-builds/artifact-$s  # the build it came from
-done
-git -C ~/flesh_beast_best_beast/source/karmaterminal-openclaw-docs worktree remove --force $W; rm -rf ~/.cache/openclaw-evalbench
+for s in $AB5A $F9FC; do grep -qxF "$STAGE/$s" $REC/builds.txt || git -C $LIVE worktree remove --force $STAGE/$s; done      # the receipt's own remove_command
+{ ls -1d $PB/* $STAGE/* $DONOR/* 2>/dev/null || true; } | sort | comm -13 $REC/builds.txt -      # what else appeared; nothing reaps it
+git -C $DOCS worktree remove --force $W; rm -rf ~/.cache/openclaw-evalbench
 ```
+
+In that list, `payload-<sha>-*`, `generated-outputs-<sha>-*.list` and `rollback-config-probe.*.log` for these two SHAs can be
+removed by name. **Leave `artifact-<sha>`**: elliott is the donor for silas, emeric and rune, and another seat's deploy may be
+using it. The pnpm stores and receipts stay too.
 
 Shredding removes the isolated sign-ins from disk. It does not revoke them at the provider; 🌻 can, from the account's own
 session list.
@@ -189,36 +214,42 @@ session list.
 
 | piece | where | removed by |
 | --- | --- | --- |
-| two staged builds, and the builds behind them | `.openclaw-path-b/stage-only/<sha>`, `.openclaw-path-b-builds/artifact-<sha>`, a receipt in `.openclaw-path-b/receipts`, and their worktree entries and fetched refs in the live checkout's `.git` | step 6, second block (refs and receipts stay, inert) |
-| three gateways: config, token, state, sign-in, workspace, log | `~/proof-gw/comp-*` (mode 700) | `stop`, `shred`, `rm -rf` |
-| three transient units, and a login unit each | `openclaw-proof-comp-*` in the user manager | `stop`. They are never enabled and don't restart |
+| two staged builds | `.openclaw-path-b/stage-only/<sha>`, and their worktree entries and fetched refs in the live checkout's `.git` | step 6, second block (the refs stay) |
+| what staging leaves beside them | `payload-<sha>-*`, `generated-outputs-*`, a probe log, receipts and a pnpm store in `.openclaw-path-b`; `artifact-<sha>` and a pnpm store in `.openclaw-path-b-builds` | by hand, from step 6's list. `artifact-<sha>`, the stores and the receipts stay |
+| three gateways: config, token, state, sign-in, workspace, log | `~/proof-gw/comp-*` (mode 700) | `finish`: `stop`, `shred`, then `rm -rf` |
+| three transient units, and a login unit each | `openclaw-proof-comp-*` in the user manager | the emergency stop and `finish`. They are never enabled and don't restart |
 | one session per trial, its children and continuations | inside the isolated state | the harness archives and deletes them after every trial; a failed cleanup halts the arm |
-| anything a turn started: a command, an automation | the gateway's own cgroup and state | `stop` (or the kill) ends the cgroup; `shred` takes the state |
+| commands a turn started, background ones included | the gateway's own cgroup | `stop` (or the kill) |
+| a **durable** command a turn started | its own unit, `openclaw-proc-<hash>`, which outlives the gateway | the emergency stop, by its log path; step 6 checks |
+| automations a turn created | the isolated state | `shred` |
 | the run's results, with replies and tool arguments | `$OUT` (mode 700; `private/` holds the full trial records) | kept. Read `evals.csv` before publishing anything |
+| the before/after record and receipts | `$REC` | kept |
 | harness checkout and the EvalBench install | `$W`, `~/.cache/openclaw-evalbench` | step 6, second block |
-| traces and metrics | the frond's collector, under `elliott-proof-comp-*` service names, with the seat's own content-capture setting | not removed |
+| journal lines, traces and metrics | the user journal; the frond's collector, under `elliott-proof-comp-*` service names, with the seat's own content-capture setting | not removed |
 
 ### What it never touches
 
 | | held by |
 | --- | --- |
 | the live gateway process, its unit and port 18789 | the adapter refuses that port and any URL that isn't loopback; no step here stops, starts or deploys the live unit; step 6 compares pid and start time |
-| `~/.openclaw/openclaw.json` | read once by `setup` (`jq`), and by the checks in step 0. `overlay` refuses any path under `~/.openclaw`. Step 6 compares its sha256 |
+| the contents of `~/.openclaw/openclaw.json` | it is read by each `setup` (`jq`), by each stage's two `config validate` runs, and by step 0. `overlay` refuses any path under `~/.openclaw`. Step 6 compares its sha256 |
 | live state, sessions and credential stores | each gateway has its own `OPENCLAW_STATE_DIR` and its own sign-in; the launcher never opens the live stores |
 | the live workspace | each gateway's `agents.defaults.workspace` is its own empty directory |
 | any channel | the isolated config has none, and preflight refuses a gateway that has one |
-| the live gateway's log | the overlay gives each gateway its own log file, and preflight refuses a gateway without one |
 
 ### What is not isolated
 
 - **It is not a sandbox.** A turn's `exec` runs as the seat's user, with the seat's own `tools` policy, which `setup` copies.
-  The three prompts ask for arithmetic, for a look at a file in `/tmp/evalprop`, and for a second opinion on four numbers.
+  So the table above is about this harness and the gateways, not about what a model could type. The three prompts ask for
+  arithmetic, for a look at a file in `/tmp/evalprop`, and for a second opinion on three numbers and their total.
 - **The provider quota is shared.** It is 🌻's account. A rate limit here is a rate limit for the live seat too; the first 429
   halts its arm.
-- **`setup`'s one boot** runs before the overlay, so those start-up lines go to the live gateway's rolling log in
-  `/tmp/openclaw`, and that boot may prune rolled logs there that are over 24 hours old. The directory is also the temp root
-  for every gateway on the host.
-- **`models` and `tools` are copied** from the live config. Step 0 counts literal provider keys in it.
+- **The live gateway's log, once.** `setup` boots each gateway before the overlay gives it a log of its own. Those start-up
+  lines go to the live gateway's rolling log in `/tmp/openclaw`, and that boot may prune rolled logs there that are over 24
+  hours old. Preflight refuses a gateway that still has no log of its own. The directory stays the temp root for every
+  gateway on the host.
+- **Much of the live config is copied**: `agents.defaults`, `agents.entries.main`, `models`, `tools`, `commands`, `messages`,
+  `diagnostics` and three plugin entries, with any credential written into them. Step 0 lists where one could be.
 - **The three arms share the host.** `/tmp/evalprop` must stay absent; `run` refuses to start if it exists, and every trial
   records whether it does.
 - Three Node processes at once, each allowed a 16 GB heap.
@@ -239,7 +270,8 @@ read before the second and the third. The trial in flight is limited only by its
 
 Nothing enforces the last two rows. They are arithmetic ([`REPORT.md`](REPORT.md#one-trials-maximum)), and the kill in
 step 5 is the only thing that ends a trial early. The meter can't see a call that was cut off mid-flight, title or utility
-model calls, or compaction. Time: 5–15 minutes expected, 45 at most.
+model calls, or compaction. Five children is the product default; step 0 prints the seat's own limits, and the last row scales
+with them. Time: 5–15 minutes expected; past 45, stop it by hand.
 
 ## Pass and stop rules
 
@@ -253,7 +285,7 @@ model calls, or compaction. Time: 5–15 minutes expected, 45 at most.
 5. `served: openai/gpt-6.1-sol 3` in every arm.
 6. `tools:` shows 0 deferred and no Code Mode for B, and some deferred for A and C. That is what the contrast names claim.
 7. No record problems, scratch path present 0, and every trial's cleanup ok.
-8. Every arm under its 2 M stop, and no single trial above 1 M. Above that, the estimates are wrong, and the fire is re-estimated first.
+8. Every arm under its 2 M stop (checked between trials), and no single trial above 1 M. Above that, the estimates are wrong, and the fire is re-estimated first.
 9. Every comparison reads `not reportable`.
 10. Step 6's live-seat checks all pass.
 
@@ -276,7 +308,7 @@ question, not something to configure around on the spot.
 | `results/<job>/configs.csv` | `OPENCLAW_EVAL_MODEL` and the arm, as EvalBench recorded them |
 | `results/<job>/evals.csv`, `scores.csv` | each election, against `continuation_election`'s row for it |
 | `private/trials-{A,B,C}.jsonl` (🌻 only) | the whole record: tool calls, reply, surface, runtime, cleanup, seconds |
-| `receipts-{A,B,C}/identity.json`, `config-shape.json` | runtime SHA, unit, port, model, no channel |
+| `$REC/receipts-{A,B,C}/identity.json`, `config-shape.json` | runtime SHA, unit, port; model and no channel, as `setup` derived them (preflight's output has them after the overlay) |
 
 ```bash
 for a in A B C; do jq -c '{arm, promptId, status, elected, tools: [.elections[]?.tool], served: .servedModels, source: .servedModelSource,

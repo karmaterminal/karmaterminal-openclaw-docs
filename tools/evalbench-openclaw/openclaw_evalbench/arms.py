@@ -2,6 +2,7 @@
 
 import ipaddress
 import json
+import os
 import pathlib
 from urllib.parse import urlsplit
 
@@ -93,6 +94,14 @@ def read_path(config, path):
     return node
 
 
+def _private_log(path):
+    """Whether a logging.file is the isolated gateway's own: absolute, and outside the shared log directory and the live state."""
+    if not isinstance(path, str) or not path.startswith("/"):
+        return False
+    parents = pathlib.Path(os.path.normpath(path)).parents
+    return not any(pathlib.Path(p).expanduser() in parents for p in (SHARED_LOG_DIR, "~/.openclaw"))
+
+
 def check_config(arm, model, payload):
     """Check config.get's authored (sourceConfig) and effective (config) settings for the arm and the firing model."""
     source, effective = (payload or {}).get("sourceConfig"), (payload or {}).get("config")
@@ -118,8 +127,7 @@ def check_config(arm, model, payload):
     for path in outranking_paths(model):
         if read_path(source, path) is not _MISSING:
             problems.append(f"{'.'.join(path)} must be unset: it outranks the arm's setting")
-    log_file = read_path(source, "logging.file")
-    if not isinstance(log_file, str) or not log_file or log_file.startswith(SHARED_LOG_DIR + "/"):
+    if not _private_log(read_path(source, "logging.file")):
         problems.append(f"logging.file must name a private file: without it the gateway shares the live gateway's log in {SHARED_LOG_DIR}")
     # An isolated proof gateway has no channel. A live one does, and must never be evaluated.
     for config in (source, effective):

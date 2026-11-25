@@ -40,7 +40,7 @@ direct on every runtime a seat can use:
 | runtime | what defers the tools | makes them direct |
 | --- | --- | --- |
 | embedded, Tool Search | `tools.toolSearch` unset means on (`src/agents/tool-search-config.ts:8-12`) | `tools.toolSearch: false` |
-| embedded, Code Mode | `tools.codeMode` unset means `"auto"` (`src/agents/code-mode-runtime.ts:72-78`), which engages for a model whose catalog entry says `codeMode: "preferred"` (`:128-140`). `openai/gpt-6.1-sol` says so (`extensions/openai/openclaw.plugin.json:119-144`). Code Mode wins over Tool Search (`src/agents/tool-surface-plan.ts:100-104`). | `tools.codeMode: false` |
+| embedded, Code Mode | `tools.codeMode` unset means `"auto"` (`src/agents/code-mode-runtime.ts:72-78`), which engages for a model whose catalog entry says `codeMode: "preferred"` (`:128-140`). `openai/gpt-6.1-sol` says so (`extensions/openai/openclaw.plugin.json:119-144`). Code Mode wins over Tool Search (`src/agents/tool-surface-plan.ts:91-94`). | `tools.codeMode: false` |
 | Codex harness | `codexDynamicToolsLoading`, default `"searchable"`: every tool not always-direct and not `direct-only` is sent with `deferLoading: true` (`extensions/codex/src/app-server/dynamic-tool-catalog.ts:80-97`). `tools.toolSearch` is not read there. | `plugins.entries.codex.config.codexDynamicToolsLoading: "direct"` |
 
 So the direct-tools overlay (B and D) sets all three keys. Whichever runtime a seat takes, every tool is direct, and the
@@ -115,7 +115,7 @@ What the product's catalog says it accepts, at **both** SHAs (`extensions/openai
   (`packages/ai/src/providers/openai-responses-shared.ts:105`, `openai-chatgpt-responses-request.ts:71`,
   `packages/ai/src/transports/openai-responses-params-internal.ts:169`). A temperature in the seat's config has no effect.
 - **Reasoning effort `low`, `medium`, `high`, `xhigh` or `max`; it cannot be turned off** (`off` maps to nothing,
-  `minimal` to `low`). Unset means `medium` (`extensions/openai/thinking-policy.ts:120`). The harness sets none: every
+  `minimal` to `low`). OpenClaw's own `ultra` is offered on top of `max` (`thinking-policy.ts:114-126`). Unset means `medium` (`extensions/openai/thinking-policy.ts:120`). The harness sets none: every
   arm gets the seat's own `agents.defaults`, which the launcher copies.
 - Text and images in; 128,000 output tokens; a 1,050,000-token window, used to 272,000 by default, or to 500,000 on a
   ChatGPT sign-in under the embedded runtime (`extensions/openai/model-route-contract.ts:2`).
@@ -160,6 +160,9 @@ is `deadline_unreadable`: unscored, counted on its own, and the report prints th
   nothing creates; `run` refuses to start if it exists, and every trial records whether it does. Each arm's workspace
   and any automation a model creates outlive the trial's session. The report prints how many distinct system prompts
   an arm saw.
+- **Commands can outlive a trial.** A trial ends its sessions, not the host commands a turn left running. A background one
+  ends with its gateway. A durable one (`exec` with `durable: true`) runs in its own `openclaw-proc-*` unit and outlives the
+  gateway too (`docs/gateway/background-process.md:131-133`). `CANARY-PACKET.md` has the command that finds and stops it.
 - **Served model.** It is read from the assistant rows. A turn of calls with no reply can leave none, and that is how a
   turn that only elected looks, so the session's own selection stands in (the arm has no fallbacks) and the record says so.
 - **Nothing was recorded live.** The fixture turns are written from product source. `REPORT.md` lists what only a live
@@ -216,7 +219,7 @@ four). Each child session that loops beside it adds up to as much again, and the
 ≈ 90 M. The arithmetic is in [`REPORT.md`](REPORT.md#one-trials-maximum). The meter reads what the gateway recorded before
 cleanup, so a call that was cut off is not in it.
 
-Every trial ends by stopping what it started: its session is archived and deleted first (`sessions.delete` ends the
+Every trial ends by stopping the sessions it started: its session is archived and deleted first (`sessions.delete` ends the
 session's continuations and its subagents), then every session linked under it, until a listing shows none.
 
 ## How it fits EvalBench
@@ -291,9 +294,10 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
    PORT=21206 bash $L setup $DLABEL $F9FC      # only for arm D
    ```
 
-3. **Apply each arm's config**, then sign in. `login-finish` restarts the gateway on the edited file.
+3. **Stop each gateway, apply each arm's config**, then sign in. `login` starts it again on the edited file.
 
    ```bash
+   PORT=20846 bash $L stop $AB5A $AB5A; PORT=20966 bash $L stop $BLABEL $AB5A; PORT=21086 bash $L stop $F9FC $F9FC   # and D
    ./run.sh overlay A ~/proof-gw/comp-${AB5A:0:8}/openclaw.json
    ./run.sh overlay B ~/proof-gw/comp-${BLABEL:0:8}/openclaw.json
    ./run.sh overlay C ~/proof-gw/comp-${F9FC:0:8}/openclaw.json
@@ -327,7 +331,7 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
    ./run.sh run --go <owner-message-id> --out ~/proof-runs/evalprop-$(date -u +%Y%m%dT%H%M%SZ)
    ```
 
-7. **Afterwards**: copy the CSVs and `report.md`, then `composite-launcher.sh stop` and `shred` for each gateway.
+7. **Afterwards**: copy the CSVs and `report.md`, then the packet's emergency stop and its `finish` for each gateway.
    Read `evals.csv` before publishing it. It holds the models' replies and shell commands.
 
 `--go` takes the message id of the owner's go, and it is written into the run's manifest. Without it, `run` refuses.

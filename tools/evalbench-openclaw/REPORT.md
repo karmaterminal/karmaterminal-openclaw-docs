@@ -28,7 +28,7 @@ exercised: gRPC, WS, history, scorers, CSVs and report. The CSVs are in
 | condition | what it is now |
 | --- | --- |
 | the firing model | one value, `arms.json` `model` = `openai/gpt-6.1-sol` (elliott's live model). Launch, overlay, preflight, arm configs, scoring and report all read it. A test refuses a model named anywhere else in code, configs, fixtures or tests, and the model it replaced is named nowhere |
-| "any other served model is unscored" | it already was, trial by trial. The **report** didn't check: it counted trials that another model had served, and would have printed an old run under a new model's name. Fixed, with a test that fails at `cad3a045` |
+| "any other served model is unscored" | it already was, trial by trial. The **report** took each record's word for it, so an old run read again after a model change would have printed under the new model's name. It now checks, with a test that fails at `cad3a045` |
 | temperature | `openai/gpt-6.1-sol` takes none, at both SHAs. What it does accept is in [`README.md`](README.md#the-firing-model) |
 | spend wording | the stop is checked between trials, and not a ceiling: said in README, here, the packet, `--token-budget`'s help, the halt reason, the manifest and the report itself. A test refuses a document that states it without its rule |
 | worst-case overshoot | [one trial's maximum](#one-trials-maximum) |
@@ -61,7 +61,7 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 | An exception in one scenario silently drops the scenarios after it. | The report refuses a comparison with fewer scored trials than declared. |
 | `python_scorer` answers 0.0 for every trial when `uv` is missing. | `run.sh` puts `uv` on `PATH`; the report checks each score row against the trial record. |
 | The checked-in protobuf stubs are older than the `.proto` files. EvalBench's own gRPC integration test **fails** on a fresh checkout (3 of 3). | `bootstrap.sh` regenerates them, as upstream CI does. After that, 59 of 59 upstream tests for this path pass. |
-| `agent_runners` has no effect on an agent evalset: its scenarios are one work item. | Trials run one at a time per arm. The arms run in parallel as three jobs. |
+| `agent_runners` has no effect on an agent evalset: its scenarios are one work item. | Trials run one at a time per arm. The arms run in parallel, one job each. |
 
 ## What the source says about the arms
 
@@ -112,6 +112,26 @@ fixed, each with a test that fails when only that fix is undone, or are disclose
 | Cleanup saw only `spawnedBy` links | fixed: every link the list filter matches |
 | `chat.history` drops some assistant rows with their calls | fixed: a result without its call row is still a call |
 
+### This follow-up
+
+Another reader reviewed `cad3a045..57885fc3` against the product, the launcher and the deploy workflow, and proved its
+findings. It found no defect in the harness code and killed 19 of 19 mutants of its own. Its findings were in the packet
+and the documents:
+
+| finding | disposition |
+| --- | --- |
+| **blocker:** a durable `exec` runs in its own unit, so neither `stop` nor the kill ended it, and step 6 reported clean | fixed: the emergency stop finds those units by their log path, step 6 checks, README discloses it |
+| **blocker:** step 6 removed builds and state dirs the run may not have made; elliott is a donor for other seats | fixed: recorded first, only what was absent is removed, `artifact-<sha>` is never removed |
+| staging leaves payload dirs, lists, a log and stores behind | listed, with what may be removed by name |
+| "live config read once" and "never touches the live log" were not true | corrected: who reads the config, and the one boot that writes to the log |
+| a pending login unit outlived `stop` | fixed: stopped first |
+| the copied-config disclosure and its key check were too narrow | fixed: the whole copied part, paths only |
+| step 6 could fail, or destroy receipts, after an early stop | fixed: `finish` copies first and removes only after a shred that succeeded |
+| loop thresholds misstated; child limits are the seat's, not the product's | corrected; step 0 prints the seat's |
+| preflight could race `login-finish` | fixed: waits for the ports, one retry allowed |
+| `logging.file` preflight accepted two shared paths | fixed, with tests |
+| a wrong citation, `ultra`, a queue race, a missing rule beside one stop, unlisted leftovers | fixed |
+
 ## Cost of one full fire
 
 270 trials: 3 arms × 18 prompts × 5. Per arm, 60 eligible and 30 control. With arm D, 360.
@@ -151,11 +171,11 @@ limits it is its 600 s deadline, not its tokens, so the overshoot is one trial's
 | with the outer case, one 90 M trial per arm | 125 M | 375 M | 500 M |
 
 Nothing enforces the last two lines. 5 s a call is an assumption about a model whose reasoning can't be turned off. The
-product blocks a loop only when its calls repeat without progress (20 for a poll, 30 otherwise,
-`src/agents/tool-loop-detection.ts:58-59`), its run timeout is 48 h (`src/agents/timeout.ts:13`), and a continuation chain's
+product blocks a loop only when its calls repeat without progress (20 times, or 10 for `wait`;
+`src/agents/tool-loop-detection.ts:590-594,619,649`), its run timeout is 48 h (`src/agents/timeout.ts:13`), and a continuation chain's
 500,000-token cap (`src/auto-reply/continuation/config.ts:19`) stops the chain's next hop, not a running turn. Five is the
-default for children per agent (`src/config/agent-limits.ts:21`) and for delegates per turn (`config.ts:20`); children of
-children are not counted, and neither is work that is still draining while cleanup runs (90 s per call, 3 attempts). The meter reads what the gateway recorded before cleanup: a call that was cut off, compaction, and
+default for children per agent (`src/config/agent-limits.ts:21`) and for delegates per turn (`config.ts:20`); a seat's
+config can raise both (step 0 of the packet prints them), and children of children are not counted, and neither is work that is still draining while cleanup runs (90 s per call, 3 attempts). The meter reads what the gateway recorded before cleanup: a call that was cut off, compaction, and
 title or utility calls are not in it. The report prints each arm's largest trial, so the canary replaces this with a number.
 
 ## Not settled without a live canary

@@ -2,6 +2,7 @@
 import copy
 import hashlib
 import json
+import pathlib
 
 import pytest
 from conftest import MODEL, OTHER_MODEL
@@ -160,7 +161,8 @@ def test_another_models_own_entry_is_left_alone(arms):
     assert A.apply_overlay(arms["arms"]["A"], MODEL, payload["sourceConfig"], LOG) == payload["sourceConfig"]
 
 
-@pytest.mark.parametrize("log_file", [None, "", "/tmp/openclaw/openclaw-2026-11-25.log"])
+@pytest.mark.parametrize("log_file", [None, "", "gateway.log", "~/proof-gw/x.log", "/tmp/openclaw/openclaw-2026-11-25.log", "/tmp//openclaw/x.log",
+                                      "/tmp/x/../openclaw/x.log", str(pathlib.Path("~/.openclaw/logs/x.log").expanduser())])
 def test_a_gateway_that_would_share_the_live_gateways_log_is_refused(arms, log_file):
     payload = config_for(arms["arms"]["A"], logging={} if log_file is None else {"file": log_file})
     with pytest.raises(A.ArmMismatch, match="logging.file"):

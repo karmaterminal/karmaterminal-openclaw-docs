@@ -227,13 +227,20 @@ class FakeGateway:
         surface = self.overrides.get("surface", self.arm["surface"])
         entries = [{"name": n, "summaryChars": 10, "summaryHash": "0" * 64, "schemaChars": 10} for n in ("read", "exec", "message", "sessions_yield")]
         deferred = []
+        # The rest of the tool list: direct under the direct-tools overlay, behind a search otherwise.
+        every_tool_direct = self.arm["config"]["set"].get("tools.toolSearch") is False
+        for tool in ("sessions_spawn", "automations"):
+            if every_tool_direct:
+                entries.append({"name": tool, "summaryChars": 10, "summaryHash": "0" * 64, "schemaChars": 10})
+            else:
+                deferred.append({"name": tool, "source": "openclaw", "sourceName": "core", "schemaChars": 10})
         for tool in CONTINUATION_TOOLS:
             if surface == "direct":
                 entries.append({"name": tool, "summaryChars": len(self.descriptions[tool]["text"]), "summaryHash": self.descriptions[tool]["sha256"], "schemaChars": 10})
             else:
                 deferred.append({"name": tool, "source": "openclaw", "sourceName": "core", "schemaChars": 10})
         # Tool Search's controls are there unless the arm turns it off (A and C); Codex has its own search.
-        if self.arm["config"]["set"].get("tools.toolSearch") is not False and self.overrides.get("runtime") != "codex":
+        if not every_tool_direct and self.overrides.get("runtime") != "codex":
             entries += [{"name": n, "summaryChars": 10, "schemaChars": 10} for n in ("tool_search", "tool_describe", "dispatch_action")]
         return {"source": "run", "generatedAt": 0, "systemPrompt": {"chars": 4096, "projectContextChars": 0, "nonProjectContextChars": 4096, "hash": "f" * 64},
                 "injectedWorkspaceFiles": [], "skills": {"promptChars": 0, "entries": []},

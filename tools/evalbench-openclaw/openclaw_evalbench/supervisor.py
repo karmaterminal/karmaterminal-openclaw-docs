@@ -43,8 +43,11 @@ def systemd_environment():
 
 
 def write_private(path, text):
-    with open(os.open(path, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600), "w") as handle:
+    """Whole or not at all: a receipt is read while its writer may be killed."""
+    temporary = f"{path}.new"
+    with open(os.open(temporary, os.O_CREAT | os.O_WRONLY | os.O_TRUNC, 0o600), "w") as handle:
         handle.write(text)
+    os.replace(temporary, path)
 
 
 class ArmWatch:
@@ -60,6 +63,7 @@ class ArmWatch:
         self.last_reading = None
         self.last_error = None
         self.readings = 0
+        self.aggregates = 0
         self.longest_gap = 0.0
         self.trial = None
         self.trials = []
@@ -127,10 +131,11 @@ class Supervisor:
         started = self.armed_at
         return {"schema": SCHEMA, "run": self.plan["run"], "offline": self.offline, "limits": self.limits, "ended": self.ended,
                 "seconds": None if started is None else round(time.monotonic() - started, 3), "tokens": self.run_tokens(),
-                "arms": {name: {"identity": arm.identity, "tokens": arm.spent, "sessions": arm.meter.sessions, "readings": arm.readings,
+                "arms": {name: {"identity": arm.identity, "tokens": arm.spent, "sessions": arm.meter.sessions, "readings": arm.readings, "aggregateReadings": arm.aggregates,
                                 "longestGapSeconds": round(arm.longest_gap, 3), "trials": len(arm.trials),
                                 "largestTrialTokens": max((t["tokens"] for t in arm.trials), default=0),
                                 "longestTrialSeconds": max((t["seconds"] for t in arm.trials), default=0),
+                                "sweptUnits": sum(len(t["sweptUnits"]) for t in arm.trials),
                                 "stop": arm.stop} for name, arm in self.arms.items()}}
 
     def save(self):
@@ -193,6 +198,7 @@ class Supervisor:
                     aggregate_at = time.monotonic() + AGGREGATE_SECONDS
                     async with arm.lock:
                         await arm.meter.read_aggregate(arm.client, self.limits["readSeconds"])
+                        arm.aggregates += 1
             self.judge()
             await self._pause(self.limits["pollSeconds"])
 
@@ -345,10 +351,15 @@ class Supervisor:
 
     async def _end(self, arm, message, number):
         """Close a trial on a fresh reading, and end what a durable exec left running, so the next trial starts clean."""
-        swept = {"clean": True, "units": [], "processes": 0}
-        if arm.stop is None:
+        swept, fresh = {"clean": True, "units": [], "processes": 0}, False
+        # Until it succeeds: the clocks stop the arm if it cannot. Nothing may be credited on an old reading.
+        while arm.stop is None and not fresh:
             with contextlib.suppress(Exception):
                 await asyncio.wait_for(arm.read(self.limits["readSeconds"]), self.limits["readSeconds"])
+                fresh = True
+            if not fresh:
+                await self._pause(TICK_SECONDS)
+        if arm.stop is None:
             swept = await asyncio.to_thread(arm.unit.sweep)
         if arm.trial is not None:
             arm.meter.credit(int(message.get("charged") or 0) - (arm.spent - arm.trial["base"]))
@@ -428,7 +439,15 @@ class Supervisor:
                 await asyncio.wait_for(self._writer.drain(), 2.0)
             self._writer.close()
         server.close()
+        remove_socket(self.plan)
+
+
+def remove_socket(plan):
+    """The socket and the directory make_plan made for it. Either side may be the last one left to do it."""
+    path = pathlib.Path(plan["socket"])
+    with contextlib.suppress(OSError):
         path.unlink(missing_ok=True)
+        path.parent.rmdir()
 
 
 def disarm_deadman(plan):

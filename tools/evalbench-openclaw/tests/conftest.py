@@ -21,6 +21,16 @@ def arms():
     return load_arms()
 
 
+@pytest.fixture(autouse=True)
+def no_live_launch(monkeypatch):
+    """No test starts a unit for a run's real gateways. test_units.py says so when it means to, with names of its own."""
+    from openclaw_evalbench import supervision
+
+    def never(argv):
+        raise AssertionError(f"a test tried to start {argv[-1]}")
+    monkeypatch.setattr(supervision, "_systemd_run", never)
+
+
 def rows_of(turn_id, prompt="the prompt", run_id="run-1", provider=PROVIDER, model=MODEL_ID):
     """A fixture turn as chat.history rows, after the user row that started it."""
     from openclaw_evalbench.fake_gateway import _fill

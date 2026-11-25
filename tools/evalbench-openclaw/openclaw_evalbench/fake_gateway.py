@@ -23,6 +23,7 @@ from websockets.asyncio.server import serve
 
 from .arms import AGENT_ID, CONTINUATION_TOOLS, ROOT, apply_overlay, load_arms, load_scenarios
 from .gateway import REQUIRED_METHODS
+from .meter import timeseries_tokens
 
 # Closed parameter schemas, packages/gateway-protocol/src/schema at ab5a30ea79: (allowed, required). Only the
 # parameters a client here could plausibly send are listed; an unlisted one is refused, as closedObject refuses it.
@@ -98,7 +99,7 @@ class FakeGateway:
         self.overrides = overrides or {}
         self.port, self.token, self.url = port, f"fake-{uuid.uuid4().hex}", None
         self.sessions, self.runs, self.sends, self.deleted, self.archive = {}, {}, {}, [], {}
-        self.frozen_at = None
+        self.frozen_at, self.thaws_at = None, float("inf")
         self.calls, self._server = [], None
 
     async def __aenter__(self):
@@ -137,7 +138,8 @@ class FakeGateway:
                 continue
             self.calls.append((method, params))
             if self.frozen_at is not None and time.monotonic() >= self.frozen_at:
-                continue  # it still holds the socket open, and answers nothing
+                # It still holds the socket open, and answers nothing until it thaws, if it does.
+                await asyncio.sleep(max(0.0, self.thaws_at - time.monotonic()))
             try:
                 payload = self._dispatch(method, params, scopes)
                 if asyncio.iscoroutine(payload):
@@ -235,6 +237,7 @@ class FakeGateway:
             self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = self._new_session(settled=True, burn=_Burn({**spec, **spec.get("child", {})}), **link)
         if "freezeSeconds" in spec:
             self.frozen_at = time.monotonic() + spec["freezeSeconds"]
+            self.thaws_at = self.frozen_at + spec.get("frozenSeconds", 1e6)
 
     def _stubborn(self, session, what):
         runaway = (session["fixture"] or {}).get("runaway") or next(
@@ -313,7 +316,7 @@ class FakeGateway:
         return points
 
     def _tokens(self, session):
-        return sum(p["totalTokens"] for p in self._points(session))
+        return timeseries_tokens({"points": self._points(session)})
 
     def _sessions_usage_timeseries(self, params):
         key = params["key"]
@@ -412,9 +415,13 @@ async def _serve_one(spec):
                            caps=arms["caps"], overrides=spec["overrides"] or {}) as fake:
         with open(os.open(spec["tokenFile"], os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600), "w") as handle:
             handle.write(fake.token)
-        print(json.dumps({"url": fake.url, "pid": os.getpid()}), flush=True)
+        answer = json.dumps({"url": fake.url, "pid": os.getpid()})
+        if "answerFile" in spec:  # a unit's, with no standard input to end it
+            pathlib.Path(spec["answerFile"]).write_text(answer)
+            await asyncio.Event().wait()
+        print(answer, flush=True)
         await asyncio.get_running_loop().run_in_executor(None, sys.stdin.read)
 
 
 if __name__ == "__main__":
-    asyncio.run(_serve_one(json.loads(sys.stdin.readline())))
+    asyncio.run(_serve_one(json.loads(pathlib.Path(sys.argv[1]).read_text() if len(sys.argv) > 1 else sys.stdin.readline())))

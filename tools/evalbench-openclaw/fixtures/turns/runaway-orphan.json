@@ -1,0 +1,39 @@
+{
+  "id": "runaway-orphan",
+  "describe": "A clean turn whose unlinked child starts looping after the trial's own cleanup has passed.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "It isn't there yet. I'll keep an eye on it and let you know."
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 35,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25235
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "wait": {
+    "status": "ok"
+  },
+  "runaway": {
+    "children": 1,
+    "orphans": true,
+    "child": {
+      "callTokens": 30000,
+      "callSeconds": 0.1,
+      "delaySeconds": 1.5
+    }
+  }
+}

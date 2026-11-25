@@ -88,10 +88,12 @@ class GatewayMeter:
         for identity, (key, _) in listed.items():
             self._note(identity, await self._tokens(client, key, timeout))
         for identity in [i for i in self._open if i not in listed]:
-            key, session_id = self._open.pop(identity)
+            key, session_id = self._open[identity]
             if session_id:
                 # A deleted or reset session's archive (openclaw ab5a30ea usage-session-selection.ts:72-95).
                 self._note(identity, await self._tokens(client, f"agent:{_agent_of(key)}:{session_id}", timeout))
+            # Only now: a reading that failed here is made again.
+            del self._open[identity]
         self._open.update(listed)
         self.keys = [key for key, _ in listed.values()]
         self.active = sum(1 for row in rows if row.get("hasActiveRun") is True)

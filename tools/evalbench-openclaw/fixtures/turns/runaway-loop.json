@@ -1,0 +1,42 @@
+{
+  "id": "runaway-loop",
+  "describe": "A turn that loops, a call every 50 ms, and ignores every abort and delete.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "e1",
+          "name": "exec",
+          "arguments": {
+            "command": "sleep 900; ls /tmp/evalprop"
+          }
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 40,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25240
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "wait": {
+    "status": "never"
+  },
+  "runaway": {
+    "callTokens": 60000,
+    "callSeconds": 0.05,
+    "ignores": [
+      "abort",
+      "delete"
+    ]
+  }
+}

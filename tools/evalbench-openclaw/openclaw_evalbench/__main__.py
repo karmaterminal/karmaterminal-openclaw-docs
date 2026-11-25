@@ -333,7 +333,8 @@ def cmd_supervise(args):
 def cmd_stop(args):
     """Stop every gateway of a plan now, with no supervisor and no runner. The deadman timer runs this too."""
     from .supervisor import stop_everything
-    results = stop_everything(json.loads(pathlib.Path(args.plan).read_text()))
+    plan = json.loads(pathlib.Path(args.plan).read_text())
+    results = stop_everything(plan)
     print(json.dumps(results, indent=2))
     return 0 if all(r["stopped"] for r in results.values()) else 1
 

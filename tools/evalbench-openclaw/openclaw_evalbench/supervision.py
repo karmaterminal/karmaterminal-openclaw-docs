@@ -19,7 +19,7 @@ from urllib.parse import urlsplit
 
 from .arms import ROOT
 from .stops import RunStop
-from .supervisor import SCHEMA, disarm_deadman, stop_everything, systemd_environment, write_private
+from .supervisor import SCHEMA, disarm_deadman, remove_socket, stop_everything, systemd_environment, write_private
 from .units import OWN_UNITS, STOP_MARKER, proof_directory
 
 ARM_SECONDS = 60.0
@@ -159,6 +159,7 @@ class Supervision:
             except (FileNotFoundError, ConnectionRefusedError):
                 if time.monotonic() >= end:
                     await asyncio.to_thread(disarm_deadman, plan)
+                    remove_socket(plan)
                     raise SupervisorError("the supervisor did not open its socket") from None
                 await asyncio.sleep(0.05)
         self._tasks = [asyncio.ensure_future(self._listen())]
@@ -293,8 +294,7 @@ class Supervision:
                 task.cancel()
         await asyncio.gather(*self._tasks, return_exceptions=True)
         self._writer.close()
-        with contextlib.suppress(OSError):
-            pathlib.Path(self.plan["socket"]).parent.rmdir()
+        remove_socket(self.plan)
 
     def summary(self):
         """For the manifest. The supervisor's own receipt, and this side's stops when it had to make them."""

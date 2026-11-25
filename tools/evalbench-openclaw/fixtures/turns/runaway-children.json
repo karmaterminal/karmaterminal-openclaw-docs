@@ -1,0 +1,41 @@
+{
+  "id": "runaway-children",
+  "describe": "A turn that ends at once and leaves two children looping, deaf to aborts and deletes.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "It isn't there yet. I'll keep an eye on it and let you know."
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 35,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25235
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "wait": {
+    "status": "ok"
+  },
+  "runaway": {
+    "children": 2,
+    "child": {
+      "callTokens": 60000,
+      "callSeconds": 0.1
+    },
+    "ignores": [
+      "abort",
+      "delete"
+    ]
+  }
+}

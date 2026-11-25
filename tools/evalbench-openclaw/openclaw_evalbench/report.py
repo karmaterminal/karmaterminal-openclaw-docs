@@ -25,10 +25,11 @@ def _rows(path):
         return list(csv.DictReader(handle))
 
 
-def read_job(job_dir, arm_name=None, model=None):
+def read_job(job_dir, arm_name=None, model=None, caps=None):
     """The trials of one EvalBench job, in the order they ran. Every evals.csv row becomes one trial; none is dropped.
 
-    With `model`, a trial that was fired for, or served by, any other model is unscored.
+    With `model`, a trial that was fired for, or served by, any other model is unscored. With `caps`, so is one whose
+    gateway was not read back with exactly those spend caps in force.
     """
     job_dir = pathlib.Path(job_dir)
     scores = {}
@@ -50,6 +51,9 @@ def read_job(job_dir, arm_name=None, model=None):
         if scored and model is not None and (meta.get("model") != model or served != {model}):
             scored, status = False, "other_model"
             reason = f"fired for {meta.get('model')}, served by {', '.join(sorted(served)) or 'no named model'}; the firing model is {model}"
+        read_back = (meta.get("gateway") or {}).get("caps") or {}
+        if scored and caps is not None and (read_back.get("verdict") != "verified" or read_back.get("values") != caps["set"]):
+            scored, status, reason = False, "caps_unverified", "its gateway was not read back with this run's spend caps in force"
         problem = None
         if meta and meta.get("promptId") != prompt_id:
             problem = f"{row['eval_id']}: the trial record is for prompt {meta.get('promptId')}"
@@ -93,7 +97,7 @@ def _arm(trials, scenarios, repetitions):
     expected_tool = searched = searched_first = observable = deadline = unreadable_eligible = extra = scratch = 0
     via, surfaces, text, shapes = Counter(), Counter(), Counter(), Counter()
     queries, runtimes, others, served, prompts_hash = Counter(), Counter(), Counter(), Counter(), set()
-    tokens, largest, calls, accepted, problems, mismatches = 0, 0, 0, 0, [], 0
+    tokens, largest, calls, accepted, problems, mismatches, capped, wakes = 0, 0, 0, 0, [], 0, 0, 0
     for trial in trials:
         meta, prompt = trial["meta"], trial["promptId"]
         if trial["problem"]:
@@ -105,6 +109,7 @@ def _arm(trials, scenarios, repetitions):
         tokens, largest = tokens + charged, max(largest, charged)
         scratch += bool(meta.get("scratchPresent"))
         calls += meta.get("modelCalls") or 0
+        wakes += meta.get("continuationWakes") or 0
         if (meta.get("surface") or {}).get("verdict") == "mismatch":
             mismatches += 1
         if not trial["scored"]:
@@ -120,6 +125,7 @@ def _arm(trials, scenarios, repetitions):
         entry = per_prompt[prompt]
         entry["scored"] += 1
         totals[kind][1] += 1
+        capped += ((meta.get("gateway") or {}).get("caps") or {}).get("verdict") == "verified"
         deadline += meta["status"] == "deadline"
         runtimes[str(meta.get("runtime"))] += 1
         served.update(meta.get("servedModels") or [])
@@ -157,7 +163,7 @@ def _arm(trials, scenarios, repetitions):
         "electedTool": dict(tools), "electedExpectedTool": expected_tool, "electedAccepted": accepted,
         "electedVia": dict(via), "extraTrials": extra, "surfaces": dict(surfaces), "descriptionText": dict(text),
         "surfaceShapes": dict(shapes),
-        "scratchPresent": scratch,
+        "scratchPresent": scratch, "capsVerified": capped, "continuationWakes": wakes,
         # Turns stopped at the deadline whose history could not be read: the eligible rate if none of them elected.
         "eligibleIfUnreadableDeadlinesDidNotElect": _rate(totals["eligible"][0], totals["eligible"][1] + unreadable_eligible),
         "discovery": {"observableTrials": observable, "searched": searched, "searchBeforeElection": searched_first,
@@ -204,7 +210,7 @@ def build_report(jobs, *, arms=None, scenarios=None, manifest=None):
             if path in used:
                 raise ValueError(f"job {path.name} was given twice (arm {used[path]} and arm {name})")
             used[path] = name
-        trials = [t for d in dirs for t in read_job(d, name, arms["model"])]
+        trials = [t for d in dirs for t in read_job(d, name, arms["model"], arms.get("caps"))]
         out[name] = _arm(_first_repetitions(trials, arms["repetitions"]), scenarios, arms["repetitions"])
     comparisons = [_compare(out, c) for c in arms["comparisons"] if c["from"] in out and c["to"] in out]
     return {"schema": REPORT_SCHEMA, "repetitions": arms["repetitions"], "model": arms["model"],
@@ -223,6 +229,27 @@ def _interval(ci, points=False):
 
 def _counts(counter):
     return ", ".join(f"{k} {v}" for k, v in counter.items()) or "none"
+
+
+def _supervision(summary):
+    """What the supervisor saw and did, from its own receipt."""
+    if not summary:
+        return []
+    limits, receipt = summary["limits"], summary["receipt"] or {"arms": {}, "tokens": 0, "seconds": None, "ended": None}
+    lines = ["", "## Supervision", "",
+             f"Limits: {limits['trialTokens']:,} metered tokens and {limits['trialSeconds']} s per trial, {limits['idleTokens']:,} tokens outside a trial, "
+             f"{limits['runTokens']:,} tokens and {limits['runSeconds']} s for the run, {limits['maxActiveRuns']} active runs per gateway, "
+             f"{limits['blindSeconds']} s without a reading, a reading every {limits['pollSeconds']} s.", "",
+             f"Run: {receipt['tokens']:,} metered tokens in {receipt['seconds']} s; ended by {(receipt['ended'] or {}).get('rule')}; "
+             f"halted: {summary['halted'] or 'no'}; supervisor lost: {summary['lost'] or 'no'}.", "",
+             "| arm | metered tokens | trials | largest trial | longest trial | readings | longest gap | stopped by | proved stopped | durable units ended |",
+             "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    for name, arm in receipt["arms"].items():
+        stop = arm["stop"] or {"rule": "nothing", "result": None}
+        result = stop["result"] or {"stopped": False, "durableUnits": []}
+        lines.append(f"| {name} | {arm['tokens']:,} | {arm['trials']} | {arm['largestTrialTokens']:,} | {arm['longestTrialSeconds']} s | {arm['readings']} | "
+                     f"{arm['longestGapSeconds']} s | {stop['rule']} | {'yes' if result['stopped'] else 'NO'} | {len(result['durableUnits']) + arm['sweptUnits']} |")
+    return lines
 
 
 def render(report):
@@ -255,7 +282,8 @@ def render(report):
     for name, arm in report["arms"].items():
         lines.append(f"- **{name}**: surface: {_counts(arm['surfaces'])}; description text: {_counts(arm['descriptionText'])}; "
                      f"runtime: {_counts(arm['runtimes'])}; served: {_counts(arm['servedModels'])}; "
-                     f"tools: {_counts(arm['surfaceShapes'])}; contradictions: {arm['surfaceMismatches']}.")
+                     f"tools: {_counts(arm['surfaceShapes'])}; contradictions: {arm['surfaceMismatches']}; "
+                     f"caps verified: {arm['capsVerified']}; continuation wakes: {arm['continuationWakes']}.")
     lines += ["", "## What was elected, and how", "",
               "| arm | tools elected (trials) | fitting tool | accepted | how it was called | bracket form (not counted) | deadline | eligible rate if unreadable deadlines did not elect |",
               "| --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -285,7 +313,8 @@ def render(report):
         lines.append(f"| {name} | {arm['meteredTokens']:,} | {arm['largestTrialTokens']:,} | {arm['modelCalls']} | {arm['distinctSystemPrompts']} | {arm['extraTrials']} | {arm['scratchPresent']} | {len(arm['problems'])} |")
     budget = manifest.get("tokenBudgetPerArm")
     lines += ["", f"Metered tokens include cache reads. The spend stop{f' ({budget:,} per arm)' if budget else ''} is checked between trials, "
-              "so it is not a ceiling: the trial in flight when an arm crosses it runs to its end."]
+              "so it is not a ceiling: what ends a trial that is running is the supervisor."]
+    lines += _supervision(manifest.get("supervision"))
     problems = [f"- {name}: {p}" for name, arm in report["arms"].items() for p in arm["problems"]]
     if problems:
         lines += [""] + problems

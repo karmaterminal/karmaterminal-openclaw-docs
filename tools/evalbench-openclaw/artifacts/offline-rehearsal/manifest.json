@@ -1,0 +1,78 @@
+{
+  "schema": "openclaw.evalbench.run.v1",
+  "issue": "karmaterminal/openclaw#1575",
+  "offline": true,
+  "go": null,
+  "started": "2026-11-25T18:34:39+00:00",
+  "arms": [
+    "A",
+    "B",
+    "C"
+  ],
+  "gatewayUrls": {
+    "A": "ws://127.0.0.1:37477",
+    "B": "ws://127.0.0.1:42251",
+    "C": "ws://127.0.0.1:40589"
+  },
+  "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
+  "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
+  "harnessHead": "44b9730bd4be76c7adc89e39b9f6fac51b394032",
+  "harnessDirty": false,
+  "numTrials": 5,
+  "scenarios": null,
+  "tokenBudgetPerArm": 35000000,
+  "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
+  "armsSha256": "6efa6d808de118909b001f3bdd0a7c88d8d6622010693f6ccf1a996efbeee963",
+  "ended": "2026-11-25T18:34:56+00:00",
+  "results": {
+    "A": {
+      "jobId": "32c9643e-d629-47c7-b643-b2c9ed8c9399",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 3,
+          "token_consumption": 129282,
+          "trajectory_matcher": 33,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3126982
+    },
+    "B": {
+      "jobId": "5a426ebf-43c1-4de0-91e8-bd3ae9d3a200",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 23,
+          "token_consumption": 119030,
+          "trajectory_matcher": 51,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3254330
+    },
+    "C": {
+      "jobId": "e66ae578-e9da-4963-8ed1-dd71ce91b3a1",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 48,
+          "token_consumption": 122565,
+          "trajectory_matcher": 72,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3623085
+    }
+  },
+  "failures": []
+}

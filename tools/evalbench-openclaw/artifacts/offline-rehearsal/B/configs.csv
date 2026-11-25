@@ -1,0 +1,20 @@
+job_id,run_time,config,value
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,db_configs,[]
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.dataset_config,datasets/continuation-propensity.evalset.json
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.dataset_format,agent-format
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.experiment_name,openclaw-continuation-propensity-B
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.model_config,/tmp/evalprop-offline/config/model_arm_b.yaml
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.num_trials,5
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.orchestrator,agent
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.reporting.csv.output_directory,/tmp/evalprop-offline/results
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.scorers.continuation_election.script_path,scorers/continuation_election.py
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.scorers.continuation_election.type,python_scorer
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.simulated_user_model_config,configs/simulated_user_noop.yaml
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.session_id,evalprop-B-4c904a59e3e44f22af54c7cfd6166d02
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,experiment_config.agent_out_queue,<queue.Queue object at 0xe7abbc6a3e00>
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,model_config.generator,agent_grpc_proxy
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,model_config.generator_class,openclaw_evalbench.generator:OpenClawProxyGenerator
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,model_config.timeout_seconds,900.0
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,model_config.env.OPENCLAW_EVAL_ARM,B
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,model_config.env.OPENCLAW_EVAL_GATEWAY_URL,ws://127.0.0.1:42251
+5a426ebf-43c1-4de0-91e8-bd3ae9d3a200,2026-11-25 10:34:51.566331,model_config.agent_version,openclaw-arm-B

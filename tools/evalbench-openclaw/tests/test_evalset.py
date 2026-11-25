@@ -6,6 +6,7 @@ import re
 from conftest import ROOT
 
 from openclaw_evalbench.arms import CANONICAL_SERVER, CONTINUATION_TOOLS, load_arms, load_scenarios
+from openclaw_evalbench.fake_gateway import load_plan, load_turns
 
 # The prompts must not name the tools or hint at them by word.
 BANNED = re.compile(r"continu|delegat|compact|\bwake|\bwoke|spawn|sub-?agent|tool_?search|\byield|next turn", re.I)
@@ -62,6 +63,14 @@ def test_no_prompt_shares_a_four_word_run_with_either_arms_descriptions():
 def test_no_prompt_holds_an_evalbench_placeholder():
     # EvalBench expands ${VAR} anywhere in the evalset and fails the run on an unset one.
     assert "${" not in (ROOT / "datasets/continuation-propensity.evalset.json").read_text()
+
+
+def test_the_offline_plan_scripts_every_arm_and_prompt():
+    plan, turns = load_plan()["arms"], load_turns()
+    assert list(plan) == list(load_arms()["arms"])
+    for prompts in plan.values():
+        assert set(prompts) == {s["id"] for s in load_scenarios()}
+        assert all(len(outcomes) == load_arms()["repetitions"] and set(outcomes) <= set(turns) for outcomes in prompts.values())
 
 
 def test_evalbench_loads_the_evalset():

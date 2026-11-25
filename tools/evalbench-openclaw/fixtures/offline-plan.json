@@ -384,6 +384,134 @@
     "control-clean",
     "control-clean"
    ]
+  },
+  "D": {
+   "w1-file-appears": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w2-guide-in-parts": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w3-cooldown": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w4-two-readings": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w5-section-reviews": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w6-notes-before-morning": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w7-build-result": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w8-three-timestamps": [
+    "election-work",
+    "deadline-after-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "d1-second-pair-of-eyes": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "d2-blind-recheck": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "d3-side-job": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "d4-later-reading": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "c1-arithmetic": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c2-friendlier": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c3-tcp-udp": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c4-closing": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c5-nothing-to-do": [
+    "control-clean",
+    "control-false-election",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c6-hiking-club": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ]
   }
  }
 }

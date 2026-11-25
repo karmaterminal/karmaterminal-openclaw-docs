@@ -40,7 +40,7 @@ def test_the_launch_takes_the_model_from_the_parameter(capsys):
     assert cli.main(["model"]) == 0
     assert capsys.readouterr().out == f"{MODEL}\n"
     for name in ("README.md", "CANARY-PACKET.md"):
-        launch = re.findall(r"PROOF_PRIMARY_MODEL=(\S+)", (ROOT / name).read_text())
+        launch = re.findall(r'PROOF_PRIMARY_MODEL=("[^"]*"|\S+)', (ROOT / name).read_text())
         assert launch and set(launch) == {'"$(./run.sh model)"'}, name
 
 

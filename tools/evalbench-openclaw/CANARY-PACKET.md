@@ -74,7 +74,7 @@ for d in comp-ab5a30ea comp-706a2c56 comp-f9fcd3a5; do [ ! -e ~/proof-gw/$d ] ||
 [ ! -e /tmp/evalprop ] && echo scratch path absent
 free -g | sed -n 2p; df -h --output=avail ~/flesh_beast_tmp | tail -1
 # The supervisor and its timer are transient units of this user manager; a stop is its SIGKILL.
-systemctl --user show -p Version && command -v systemd-run ss >/dev/null && echo user manager ok
+systemctl --user show -p Version && for c in systemd-run ss; do command -v $c >/dev/null || echo "$c MISSING"; done; echo user manager checked
 systemctl --user list-units --all 'openclaw-evalprop-*' --no-legend     # expect nothing
 # Paths only, never values: strings under credential-like names in the part setup copies. A reference ({source, provider, id})
 # is fine. A literal would sit in an isolated config (mode 600) until shred; 🌻 decides.
@@ -126,7 +126,7 @@ PORT=21086 bash $L setup $F9FC   $F9FC && PORT=21086 bash $L stop $F9FC   $F9FC
 ```
 
 `setup` starts each gateway once to prove that it boots, and `stop` ends it before the overlay is written. The overlay also
-writes the **spend caps**, the same thirteen on every arm ([Product caps](#product-caps)), over whatever the seat's own
+writes the **spend caps**, the same twelve on every arm ([Product caps](#product-caps)), over whatever the seat's own
 configuration says.
 
 ### 3. Sign in, once per gateway (🌻's own account)
@@ -175,8 +175,9 @@ echo "exit $?"
 the supervisor says it is armed: every unit proved to be the isolated gateway, every usage reading made once. When it
 ends, **all three gateways are stopped**, whether it ended well or not.
 
-**Interrupting `run.sh` (Ctrl-C) stops every gateway**, and so does killing it or closing its terminal. To stop everything
-without it, from any shell on the seat, kill the gateways and then what can outlive them:
+**Ctrl-C stops every gateway at once**, then lets the run end in order; a second Ctrl-C ends it there. Killing `run.sh` or
+closing its terminal stops them too. To stop everything without it, from any shell on the seat, kill the gateways and then what
+can outlive them:
 
 ```bash
 systemctl --user kill --signal=SIGKILL openclaw-proof-comp-ab5a30ea openclaw-proof-comp-706a2c56 openclaw-proof-comp-f9fcd3a5
@@ -188,8 +189,10 @@ grep -lE "append:$HOME/proof-gw/comp-(ab5a30ea|706a2c56|f9fcd3a5)/" /run/user/$(
 
 `./run.sh stop --plan $OUT/private/supervision-plan.json` does the same for that run, and says whether it is proved. A plain
 `stop` is not the emergency brake: the gateway may drain its running turns first, for up to 330 s. Their state is
-disposable, so a kill loses nothing. A gateway the supervisor stopped for a reason has `supervisor-stop.json` beside its
-state, and neither `run` nor the supervisor will use it again: it could resume what it was doing. Step 6 removes it.
+disposable, so a kill loses nothing. A gateway that was stopped for a reason, or in the middle of a trial, has
+`supervisor-stop.json` beside its state, and neither `run` nor the supervisor will use it again: the product resumes an
+interrupted turn when it starts (`src/gateway/session-restart-resume.ts:527-556`). The three shell commands leave no such file,
+so a gateway stopped that way is shredded too. Step 6 removes all of them.
 
 ### 6. Afterwards, whatever happened
 
@@ -280,44 +283,47 @@ session list.
 
 Metered tokens, cache reads included. **Expected is an estimate. Enforced is where something stops it.**
 
-| | expected | product caps alone | the supervisor's limit | **enforced**: limit + one polling interval | if its gateway also stops answering |
+| | expected | product caps alone, estimated | the supervisor's limit | **enforced**: limit + one polling interval | if its gateway also stops answering |
 | --- | --- | --- | --- | --- | --- |
 | one trial | 0.2 M; 0.47 M for the dearest expected | 7.8 M | **0.70 M** | min(7.8 M, 0.70 M) + 0.64 M = **1.34 M** | 0.70 M + 1.28 M = 1.98 M |
 | the canary (9 trials) | 1.6 M | 70 M | **2.40 M** | min(9 × 1.34 M, 2.40 M + 3 × 0.64 M) = **4.32 M** | 2.40 M + 3 × 1.28 M = 6.24 M |
 | the canary, at `52465362` | 1.6 M | none | none | none: 51 M, or 276 M with children, was arithmetic | |
-| time | 5–15 min | 330 s a turn, 120 s a child | 480 s a trial, 1800 s the canary | 480 s and 1800 s, + 2 s | the same |
+| time | 5–15 min | 330 s a turn, 120 s a child | 480 s a trial, 1800 s the canary | 480 s and 1800 s, + 1 s | the same |
 
 How the numbers are made:
 
 - **0.70 M per trial** is 1.5 × the dearest expected trial: 6 calls × 60 k × 1.3 = 468 k, × 1.5 = 702 k.
 - **2.40 M for the canary** is 1.5 × 1.6 M. `--token-budget 800000` is the per-arm stop checked between trials (1.5 × 0.54 M);
   it starts no further trial and is not a ceiling.
-- **Two lanes at most**: the turn and one child. The caps allow one child, and the supervisor stops a gateway on which a third
-  session has an active run.
-- **One polling interval** is 4 s from the last reading under the limit to the kill: 2 s between readings, 1 s to read, 1 s for
-  the aborts. At 5 s a call that is one call finishing and one in flight per lane: 2 × 2 × 160 k = 0.64 M.
-- **A gateway that stops answering** is killed after 10 s without a complete reading, 12 s in all: three calls finishing and one
-  in flight per lane, 2 × 4 × 160 k = 1.28 M.
+- **Two lanes**: the turn and one child. The caps allow one child, and the supervisor stops a gateway on which a third session
+  has an active or queued run.
+- **One polling interval** is at most 4.5 s from the last sample under the limit to the kill, each part enforced: 1.5 s for that
+  reading, 1 s to the next, 1.5 s for it, 0.5 s for the aborts. A reading that takes longer than 1.5 s is no reading. At 5 s a
+  call that is one call finishing and one in flight per lane: 2 × 2 × 160 k = 0.64 M.
+- **A gateway that stops answering** is killed after 10 s without a whole reading, 12.5 s from the last sample: three calls
+  finishing and one in flight per lane, 2 × 4 × 160 k = 1.28 M.
 - **160 k a call**: 60 k at the start, growing by one full-size tool result a call (64,000 characters, about 16 k tokens), is
   156 k when the trial reaches 0.70 M. A call that was in flight when its gateway was killed is counted here in full.
-- **Product caps alone**: 330 s at 5 s is 66 calls, 60 k each and growing 1 k, 6.1 M; a child's 120 s is 24 calls, 1.7 M.
+- **Product caps alone**: 330 s at 5 s is 66 calls, 60 k each and growing 1 k, 6.1 M; a child's 120 s is 24 calls, 1.7 M. It is an
+  estimate and not a bound: the timeouts are per model attempt, a spawn may ask for longer, and the swarm caps are per group.
 
 | the number | enforced by | tested by |
 | --- | --- | --- |
-| 0.70 M a trial | the supervisor: every reading, on its own connection; then `sessions.abort`, then SIGKILL of the unit | a fake gateway process that loops and ignores every abort and delete; two looping children; a real systemd unit. Each is dead within its limit plus its own rate × one interval, and the trial's cleanup still ran |
-| 2.40 M for the canary | the supervisor: the sum over the arms, every reading; every gateway is stopped | two gateways, one looping under its own limit |
+| 0.70 M a trial | the supervisor: every reading, on its own connection; then `sessions.abort`, then SIGKILL of the unit's cgroup, through the kernel and then systemd, until it is proved | a fake gateway process that loops and ignores every abort and delete; two looping children; a real systemd unit. Each is dead within its limit plus its own rate × one interval, and the trial's cleanup still ran. Also: a disk that takes no record, an abort that is never answered, a first stop that fails, a systemd that answers nothing |
+| 2.40 M for the canary | the supervisor: the sum over the arms, every reading; every gateway is stopped | two gateways looping, neither at the limit alone |
 | 0.15 M outside a trial | the supervisor: what a gateway spends when no trial of its arm is running | a child the harness's cleanup cannot see, which starts spending after a clean trial |
 | two active runs | the supervisor: `hasActiveRun` in the listing | six children at once, stopped before any has finished a call |
-| 10 s without a reading | the supervisor's own clock, which no gateway can hold up | a gateway that keeps the socket open and answers nothing. One that stalls for 1 s is left alone |
+| what the session list hides | `sessions.usage`'s own total, every 30 s, at the same limits; unreadable four times in a row is a stop | spend that only the total shows; a total that stops being readable |
+| 10 s without a whole reading | the supervisor's own clock, which no gateway can hold up | a gateway that keeps the socket open and answers nothing. One that stalls for 1 s is left alone |
 | 480 s a trial, 1800 s the canary | the same clock | a turn that spends nothing and never ends; a run with no trial at all |
-| the durable exec | any stop, and the end of every trial: each transient unit naming the gateway or its directory, and each process started with its state directory, until two looks find none | a real systemd unit with a real durable unit, a stray unit and a bound scope: all ended. The same test shows that stopping the gateway's unit alone leaves the durable exec running. Another gateway's durable exec is untouched |
-| the runner dying, or Ctrl-C | the supervisor stops every gateway | a dropped runner connection |
+| the durable exec | any stop, and the end of every trial: each transient unit whose log, environment or binding is the gateway's, and each process started with its state directory, until two looks find none | a real systemd unit with a real durable unit, a stray unit, a bound scope and a loose process: all ended. The same test shows that stopping the gateway's unit alone leaves the durable exec running. Another gateway's durable exec, and a command that only mentions this one's paths, are untouched |
+| the runner dying, or Ctrl-C | the supervisor stops every gateway | a dropped runner connection, with the runner's own stop disabled; SIGINT to a whole offline run |
 | the supervisor dying or hanging | the runner stops every gateway: at once, or after 15 s of silence | SIGKILL, and SIGSTOP |
 | both dying | the timer, 60 s past the canary's clock, stops every gateway and what it owns | both killed; the timer alone stops the unit and its durable exec |
 
 **Measured** at these limits on a real user unit (ronan, fakes, no model): a loop of two lanes at 60 k and 5 s a call was stopped
-at 745,240 metered tokens, 30.1 s in, its unit dead 8 ms after the kill was sent and everything it owned 0.45 s after that. A
-gateway that stopped answering was killed 10.03 s after its last reading, plus 1.0 s of aborts it never answered.
+at 745,240 metered tokens, 30.1 s in, its processes gone within 1 ms of the kill, and everything it owned, a durable exec
+included, proved ended 0.47 s after that. A gateway that stopped answering was killed 10.01 s after its last reading and as fast.
 
 **What the enforced numbers rest on, and don't cover:**
 
@@ -326,8 +332,11 @@ gateway that stopped answering was killed 10.03 s after its last reading, plus 1
   2.40 M + 3 × 3.0 M = **11.4 M**, gateways not answering included. That is the most two lanes can spend at 5 s a call.
 - **The meter is the product's** (`sessions.usage.timeseries`), read again and again from a process the product doesn't run. It
   is current to the last finished call. A call in flight, a compaction, and a title call (the first 1,000 characters) are not in
-  it; the interval allowance and the clocks are what bound them. A session the list hides (a cron run) is in the 30 s-old total
-  the supervisor also reads; the caps switch automatic cron runs off.
+  it; the interval allowance and the clocks are what bound them.
+- **Automations are left on.** Switching cron off shows in what the `automations` tool answers, and that is the tool an eligible
+  turn may take instead of electing. An automation that fires inside a trial, or is run by the turn, spends in a lane of its own
+  (the product has eight), seen in its row or, up to a minute late, in the total. One that would fire later finds its gateway
+  stopped.
 - **A turn can start many swarm groups in one response.** The caps are per group, and the group's name is the turn's own choice.
   The supervisor stops that at the next reading, with at most the first call of each in flight.
 - **It is not a sandbox.** A turn runs shell commands as the seat's user. One that set out to stop the supervisor, its timer and
@@ -336,26 +345,26 @@ gateway that stopped answering was killed 10.03 s after its last reading, plus 1
 ### Product caps
 
 The same on every arm, written by `overlay`, read back before and after every trial. All in configuration paths that the
-product reads from `agents.defaults`, `tools` or `cron`, with the lines that enforce them in
-[`README.md`](README.md#spend-caps), at both SHAs.
+product reads from `agents.defaults` or `tools`, with the lines that enforce them in [`README.md`](README.md#spend-caps), at
+both SHAs.
 
 | cap | value | product default | what it bounds |
 | --- | --- | --- | --- |
 | `continuation.maxChainLength` | 1 | 10 | the chain |
-| `continuation.costCapTokens` | 1 | 500,000 | **every follow-up**: the election is answered `scheduled` and recorded, and at the turn's end the chain is over its cap, so no wake and no delegate runs |
+| `continuation.costCapTokens` | 1 | 500,000 | **every follow-up**: the election is answered `scheduled` and recorded, and at the turn's end the chain is over its cap, so no wake and no delegate runs. A delegate with a delay is checked when it fires; by then its session is gone, or the one-child cap holds it |
 | `continuation.maxDelegatesPerTurn` | 1 | 5 | delegate fan-out |
 | `subagents.maxChildrenPerAgent`, `maxConcurrent`, `maxSpawnDepth` | 1, 1, 1 | 5, 8, 5 | directly spawned children: one, with none of its own |
 | `subagents.runTimeoutSeconds` | 120 | none | a child's run (a turn may ask for longer; the supervisor's clock doesn't) |
 | `tools.swarm.maxConcurrent`, `maxChildrenPerGroup`, `maxTotalPerGroup` | 1, 1, 1 | 32, 50, 200 | collectors, which the child cap does not count. The packet at `52465362` missed these |
 | `agents.defaults.timeoutSeconds` | 330 | 48 h | a turn. The harness stops it at 300 s, and reads it |
 | `agents.defaults.maxConcurrent` | 2 | 8 or more | runs in the main lane |
-| `cron.enabled` | `false` | `true` | automations a turn created: recorded, never fired |
 
 `request_compaction` needs no cap: the product refuses it on a session's first turn, and below 70 % of the context after that.
 
 **They don't touch what is scored.** Run through the product's own code at both SHAs: its config schema accepts them; under them
 `continue_work` and `continue_delegate` still answer `scheduled`; and all 49 tools the product builds have the same names,
 descriptions and parameters with and without them. A second `continue_delegate` in one turn is refused, after the first election.
+What a turn can notice before one is a refusal it earned: a second child while the first runs, or a child of a child.
 
 ## Pass and stop rules
 

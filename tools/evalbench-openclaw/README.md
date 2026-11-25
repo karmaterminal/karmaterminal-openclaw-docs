@@ -219,24 +219,26 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
 | `tools.swarm.maxConcurrent`, `.maxChildrenPerGroup`, `.maxTotalPerGroup` | 1, 1, 1 | 32, 50, 200 (`src/agents/subagents/swarm/swarm-config.ts:6-8`); `child-admission.ts:91,97`. Per group, and the group id is the caller's |
 | `agents.defaults.timeoutSeconds` | 330 | 48 h (`src/agents/timeout.ts:13,25`), per model attempt |
 | `agents.defaults.maxConcurrent` | 2 | 8 or 4 per CPU (`agent-limits.ts:5-6,35`); `server-lanes.ts:33,75` |
-| `cron.enabled` | `false` | `true` (`src/gateway/server-cron.ts:117`); 8 runs at once otherwise (`src/config/cron-limits.ts:3`) |
 
 - **`costCapTokens: 1` is the one that matters.** A continuation tool answers `scheduled` without looking at the budget; the
   budget is read when the turn ends, and by then the turn's own output is over the cap. So the election happens, and is
   answered, recorded and scored, and its wake or delegate never runs. `maxChainLength: 1` is behind it, for a turn whose usage
-  the provider did not report.
+  the provider did not report. A delegate with a delay is checked when it fires (`agent-runner-continuation-schedule.ts:73`):
+  its session is deleted by then, or the one-child cap holds it.
 - **Swarm collectors are a second way to have children**, which `maxChildrenPerAgent` does not count (`spawn-plan.ts:307-316`).
   An agent's own `tools.swarm` limits outrank the global ones (`swarm-config.ts:29`), so `overlay` clears those three keys from
   `agents.entries.main` and preflight refuses them. The agent's `enabled` switch is the seat's surface and is left alone.
 - **`request_compaction` needs none**: 70 % of the context (`src/agents/tools/request-compaction-tool.ts:26`), once in 5 minutes
   (`:29`), and refused as `context_unmeasured` on a session's first turn (`:220`).
-- **Loop detection is left as it is.** Its thresholds are constants (`src/agents/tool-loop-detection.ts:594`), and its warnings
-  are text the model reads, before it may elect.
+- **Loop detection and cron are left as they are.** Loop thresholds are constants (`src/agents/tool-loop-thresholds.ts:1`, used at
+  `tool-loop-detection.ts:590-594`), and its warnings are text the model reads, before it may elect. `cron.enabled: false` would
+  show in what `automations` answers (`src/cron/service/ops-read.ts:49-55`), the tool a turn might take instead.
 
 They are tight on purpose and must not move the **first** election, which is all that is scored. Run through the product's own
 code at both SHAs: the config schema accepts them; `continue_work` and `continue_delegate` answer `scheduled` under them; and the
 49 tools the product builds have the same names, descriptions and parameters with and without them (with swarm switched off
-instead, they differ). What a turn can notice is a refusal after it has already spawned or delegated once.
+instead, they differ). What a turn can notice before its first election is a refusal it earned: a second child while the first
+runs, or a child of a child.
 
 ### 2. The supervisor
 
@@ -248,25 +250,30 @@ gateway's usage on its own connection, keeps its own clock, and enforces `superv
 | one trial | 700,000 metered tokens, 480 s | `trial-tokens`, `trial-wall-clock` |
 | outside a trial | 150,000 metered tokens | `idle-spend` |
 | the run, all arms | `--run-token-cap`, `--run-seconds`: 2,400,000 and 1800 s unless told otherwise (the canary's) | `run-tokens`, `run-wall-clock`: **every** gateway |
-| active runs on one gateway | 2 | `active-runs` |
-| no complete reading | 10 s (it reads every 2 s) | `meter-blind` |
+| active or queued runs on one gateway | 2 | `active-runs` |
+| no whole reading | 10 s (it reads every 1 s, and a reading has 1.5 s) | `meter-blind` |
+| the usage total unreadable | 4 times in a row, 30 s apart | `aggregate-blind` |
+| what a trial left outside its gateway cannot be ended | at once | `sweep-failed` |
 | the gateway's process ended or changed | at once | `gateway-gone` |
-| the process that runs the trials ended, or the supervisor was told to | at once | `runner-gone`, `supervisor-stopped`: **every** gateway |
+| the process that runs the trials ended, or somebody interrupted it, or the supervisor was told to | at once | `runner-gone`, `interrupted`, `supervisor-stopped`: **every** gateway |
 
-A stop is: record why; `sessions.abort` for what is listed, for at most 1 s (a caller that didn't start a run may be refused,
-`chat-abort-authorization.ts:222-227`; the runner aborts its own turn at the same time); **SIGKILL of the unit's cgroup**; then
-the same for whatever outlives it, until two looks find nothing. A durable exec is the known one: it runs in its own
-`openclaw-proc-<hash>` unit (`src/agents/bash-process-systemd.ts:70-162`). The supervisor finds it by the gateway's directory in
-its unit file, at any stop and at the end of every trial. A stopped gateway is marked, and neither `run` nor the supervisor uses
-it again.
+A stop is: record why (and go on if that fails); `sessions.abort` for what is listed, for at most 0.5 s (a caller that didn't
+start a run may be refused, `chat-abort-authorization.ts:222-227`; the runner aborts its own turn at the same time); **SIGKILL of
+the unit's cgroup**, through the kernel and then systemd; then the same for whatever outlives it, until two looks find nothing.
+It is tried again until it is proved, and nothing is called stopped that systemd could not be asked about. A durable exec is the
+known survivor: it runs in its own `openclaw-proc-<hash>` unit (`src/agents/bash-process-systemd.ts:70-162`). The supervisor
+finds it by its log's place under the gateway's directory, at any stop and at the end of every trial; a unit that only mentions
+the gateway is somebody else's. A gateway stopped for a reason, or in the middle of a trial, is marked, and neither `run` nor the
+supervisor uses it again: the product resumes an interrupted turn when it starts (`src/gateway/session-restart-resume.ts:527-556`).
 
 The trial in flight is `supervisor_stopped`: unscored, with its cleanup tried and recorded. **Every arm starts no further trial**,
 and the run ends in order, with its CSVs, report and manifest. When a run ends, well or not, every gateway is stopped.
 
 Usage is `sessions.usage.timeseries` for every listed session, counted from a baseline and never going down; a session that left
 the listing is read once more from its archive; `sessions.usage`'s own total is read every 30 s for what the list hides (a cron
-run, `src/gateway/session-list-filters.ts:465-471`); and at a trial's end the harness's own count stands in for a session that
-came and went between two readings. A reading that failed is never a zero.
+run, `src/gateway/session-list-filters.ts:465-471`), and a total the product calls partial is never counted from; and at a
+trial's end the harness's own count stands in for a session that came and went between two readings. A reading that failed is
+never a zero.
 
 ### 3. If the supervisor is lost
 
@@ -434,8 +441,8 @@ arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).
 
 ### Top-ups and re-reports
 
-A run leaves its gateways stopped. `login-finish` starts one again on the sign-in it already has, unless a supervisor stopped it
-for a reason: that one is shredded and set up again.
+A run leaves its gateways stopped. `login-finish` starts one again on the sign-in it already has, unless it was stopped for a
+reason or in the middle of a trial: that one is shredded and set up again.
 
 ```bash
 ./run.sh run --go <id> --out <new-dir> --num-trials 1 --scenarios <prompts below 5 scored trials> --arms <arm>

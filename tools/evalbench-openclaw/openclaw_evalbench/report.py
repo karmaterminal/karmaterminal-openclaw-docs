@@ -239,7 +239,7 @@ def _supervision(summary):
     lines = ["", "## Supervision", "",
              f"Limits: {limits['trialTokens']:,} metered tokens and {limits['trialSeconds']} s per trial, {limits['idleTokens']:,} tokens outside a trial, "
              f"{limits['runTokens']:,} tokens and {limits['runSeconds']} s for the run, {limits['maxActiveRuns']} active runs per gateway, "
-             f"{limits['blindSeconds']} s without a reading, a reading every {limits['pollSeconds']} s.", "",
+             f"{limits['blindSeconds']} s without a whole reading, a reading every {limits['pollSeconds']} s.", "",
              f"Run: {receipt['tokens']:,} metered tokens in {receipt['seconds']} s; ended by {(receipt['ended'] or {}).get('rule')}; "
              f"halted: {summary['halted'] or 'no'}; supervisor lost: {summary['lost'] or 'no'}.", "",
              "| arm | metered tokens | trials | largest trial | longest trial | readings | longest gap | stopped by | proved stopped | durable units ended |",

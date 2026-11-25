@@ -41,8 +41,9 @@ def growing(seconds, each=1_000, start=60_000):
     return n * start + each * n * (n - 1) // 2
 
 
-POLL = S["pollSeconds"] + 1 + S["abortSeconds"]            # 1 s to read
-BLIND = S["blindSeconds"] + S["abortSeconds"] + 1          # 1 s for the tick and the kill
+# From the last sample under the limit to the kill: the rest of that reading, the pause, the whole next reading, the aborts.
+POLL = 2 * S["readSeconds"] + S["pollSeconds"] + S["abortSeconds"]
+BLIND = S["readSeconds"] + S["blindSeconds"] + S["abortSeconds"] + 0.5     # 0.5 s for the tick and the kill
 LANES = S["maxActiveRuns"]
 OVER, OVER_BLIND = LANES * calls(POLL) * CALL, LANES * calls(BLIND) * CALL
 TRIAL, RUN = S["trialTokens"], S["canary"]["tokens"]
@@ -51,7 +52,8 @@ PRODUCT = growing(CAPS["agents.defaults.timeoutSeconds"]) + growing(CAPS["agents
 
 def test_the_limits_are_the_multiples_the_packet_gives():
     assert TRIAL == pytest.approx(1.5 * 6 * 60_000 * 1.3, rel=0.01) and RUN == pytest.approx(1.5 * 1.6 * M)
-    assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4, 12, 2, 4)
+    assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4.5, 12.5, 2, 4)
+    assert "at most 4.5 s from the last sample under the limit to the kill" in PACKET and "12.5 s from the last sample" in PACKET
 
 
 def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit():
@@ -78,16 +80,16 @@ def test_the_product_caps_alone_bound_a_trial_at_what_the_packet_says():
 
 def test_expected_and_enforced_are_separate_columns():
     header = next(line for line in PACKET.splitlines() if line.startswith("| | expected |"))
-    assert [c.strip() for c in header.strip("|").split("|")][1:5] == ["expected", "product caps alone", "the supervisor's limit", "**enforced**: limit + one polling interval"]
+    assert [c.strip() for c in header.strip("|").split("|")][1:5] == ["expected", "product caps alone, estimated", "the supervisor's limit", "**enforced**: limit + one polling interval"]
     assert "**1.34 M** metered tokens for one trial, **4.32 M** for the canary" in PACKET.split("## Commands")[0]
 
 
-@pytest.mark.parametrize("shown", ["700,000 metered tokens, 480 s", "| 150,000 metered tokens |", "| active runs on one gateway | 2 |",
-                                   "| 10 s (it reads every 2 s) |", "2,400,000 and 1800 s unless told otherwise"])
+@pytest.mark.parametrize("shown", ["700,000 metered tokens, 480 s", "| 150,000 metered tokens |", "| active or queued runs on one gateway | 2 |",
+                                   "| 10 s (it reads every 1 s, and a reading has 1.5 s) |", "4 times in a row, 30 s apart", "2,400,000 and 1800 s unless told otherwise"])
 def test_the_readmes_limits_are_arms_jsons(shown):
     assert shown in README
-    numbers = {int(n.replace(",", "")) for n in re.findall(r"\d[\d,]*", shown)}
-    assert numbers <= {S["trialTokens"], S["trialSeconds"], S["idleTokens"], S["maxActiveRuns"], S["blindSeconds"], S["pollSeconds"], *S["canary"].values()}
+    numbers = {float(n.replace(",", "")) for n in re.findall(r"\d[\d,]*(?:\.\d+)?", shown)}
+    assert numbers <= {float(v) for v in (*(S[k] for k in S if k != "canary"), *S["canary"].values())}
 
 
 def test_every_cap_is_in_both_documents_with_its_value():

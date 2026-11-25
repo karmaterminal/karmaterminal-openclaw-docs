@@ -27,7 +27,9 @@ ANSWER_SECONDS = 20.0
 FINISH_SECONDS = 60.0
 # How far past the run's own wall-clock limit the timer is set.
 DEADMAN_MARGIN_SECONDS = 60
-LIMIT_KEYS = ("pollSeconds", "readSeconds", "blindSeconds", "abortSeconds", "silentSeconds", "trialTokens", "trialSeconds", "idleTokens", "maxActiveRuns")
+LIMIT_KEYS = ("pollSeconds", "readSeconds", "blindSeconds", "abortSeconds", "silentSeconds", "aggregateSeconds", "aggregateFailures", "trialTokens", "trialSeconds", "idleTokens", "maxActiveRuns")
+# One turn of this process's loop. A loop that was blocked has the supervisor's pulses still to read.
+CATCH_UP_SECONDS = 0.5
 
 
 class SupervisorError(Exception):
@@ -150,6 +152,17 @@ class Supervision:
         """Launch, connect and arm. Raises SupervisorError when the supervisor refuses, and then no trial may start."""
         self = cls(plan, **kwargs)
         self._answered, self._finished = asyncio.get_running_loop().create_future(), asyncio.Event()
+        try:
+            await self._open(launch, path)
+        except BaseException:
+            # Nothing was sent, so nothing needs stopping; but the timer may be set.
+            disarm_deadman(plan)
+            remove_socket(plan)
+            raise
+        return self
+
+    async def _open(self, launch, path):
+        plan = self.plan
         await asyncio.to_thread(launch, path, plan)
         end = time.monotonic() + ARM_SECONDS
         while True:
@@ -158,8 +171,6 @@ class Supervision:
                 break
             except (FileNotFoundError, ConnectionRefusedError):
                 if time.monotonic() >= end:
-                    await asyncio.to_thread(disarm_deadman, plan)
-                    remove_socket(plan)
                     raise SupervisorError("the supervisor did not open its socket") from None
                 await asyncio.sleep(0.05)
         self._tasks = [asyncio.ensure_future(self._listen())]
@@ -169,12 +180,10 @@ class Supervision:
             answer = {"event": "refused", "reason": "the supervisor did not arm in time"}
         if answer["event"] != "armed":
             await self._close()
-            await asyncio.to_thread(disarm_deadman, plan)
             raise SupervisorError(answer["reason"])
         self.armed = answer
         self._heard = time.monotonic()
         self._tasks.append(asyncio.ensure_future(self._watch()))
-        return self
 
     # --- trials ---------------------------------------------------------------------------------------------------
 
@@ -247,10 +256,12 @@ class Supervision:
         """A supervisor that has gone quiet watches nothing."""
         limit = self.plan["limits"]["silentSeconds"]
         while not self._finished.is_set() and self.lost is None:
-            quiet = time.monotonic() - self._heard
-            if quiet >= limit:
-                await self._lose(f"nothing heard from the supervisor for {quiet:.1f} s")
-                return
+            if time.monotonic() - self._heard >= limit:
+                await asyncio.sleep(CATCH_UP_SECONDS)
+                quiet = time.monotonic() - self._heard
+                if quiet >= limit:
+                    await self._lose(f"nothing heard from the supervisor for {quiet:.1f} s")
+                    return
             with contextlib.suppress(TimeoutError):
                 await asyncio.wait_for(self._finished.wait(), min(1.0, limit / 4))
 
@@ -263,7 +274,7 @@ class Supervision:
         for signal in self.signals.values():
             signal.set(f"supervisor lost: {reason}")
         self._settle_waiting(reason)
-        self.runner_stops = await asyncio.to_thread(self._stop_units, self.plan)
+        self.runner_stops = await asyncio.to_thread(self._stop_units, self.plan, f"the runner: {reason}")
 
     def _settle_waiting(self, reason):
         for future in self._waiting.values():
@@ -271,6 +282,13 @@ class Supervision:
                 future.set_result({"event": "refused", "reason": reason})
 
     # --- the end ------------------------------------------------------------------------------------------------------
+
+    def interrupt(self, reason):
+        """Have every gateway stopped now. The run then ends in order: what is in flight is cut off, and nothing else starts."""
+        self.run_stop.halt(f"interrupted: {reason}")
+        if self.lost is None and not self._finished.is_set():
+            with contextlib.suppress(Exception):
+                self._writer.write((json.dumps({"type": "stop", "reason": reason}) + "\n").encode())
 
     async def finish(self):
         """Have every gateway stopped, and return the supervisor's receipt. A gateway is never left running."""

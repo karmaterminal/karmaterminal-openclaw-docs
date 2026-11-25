@@ -99,8 +99,8 @@ class FakeGateway:
         self.overrides = overrides or {}
         self.port, self.token, self.url = port, f"fake-{uuid.uuid4().hex}", None
         self.sessions, self.runs, self.sends, self.deleted, self.archive = {}, {}, {}, [], {}
-        self.frozen_at, self.thaws_at = None, float("inf")
-        self.calls, self._server = [], None
+        self.frozen_at, self.thaws_at, self.opened = None, float("inf"), time.monotonic()
+        self.calls, self._server, self.boot = [], None, uuid.uuid4().hex
 
     async def __aenter__(self):
         self._server = await serve(self._connection, "127.0.0.1", self.port, max_size=32 * 1024 * 1024)
@@ -157,7 +157,7 @@ class FakeGateway:
 
     def _hello(self, scopes):
         sha = self.arm["productSha"]
-        server = {"version": "2026.11.0", "connId": uuid.uuid4().hex, "commit": sha[:12], "buildId": f"2026.11.0+{sha[:12]}"}
+        server = {"version": "2026.11.0", "connId": uuid.uuid4().hex, "commit": sha[:12], "buildId": f"2026.11.0+{sha[:12]}", "bootId": self.boot}
         methods = [m for m in PARAMS if m not in UNADVERTISED]
         assert not set(REQUIRED_METHODS) - set(methods)
         return {"type": "hello-ok", "protocol": 4, "server": {**server, **self.overrides.get("server", {})},
@@ -272,8 +272,11 @@ class FakeGateway:
 
     def _sessions_usage(self, params):
         if "key" not in params:
+            if time.monotonic() - self.opened >= self.overrides.get("usageFailsAfter", float("inf")):
+                raise _Refusal("UNAVAILABLE", "busy")
             live = sum(self._tokens(s) for s in self.sessions.values())
-            return {"sessions": [], "totals": {"totalTokens": live + sum(self.archive.values()) + self.overrides.get("unlistedTokens", 0)}}
+            hidden = self.overrides.get("unlistedTokens", 0) + int(self.overrides.get("unlistedPerSecond", 0) * (time.monotonic() - self.opened))
+            return {"sessions": [], "totals": {"totalTokens": live + sum(self.archive.values()) + hidden}, "cacheStatus": {"status": "fresh"}, **self.overrides.get("usage", {})}
         session = self._session(params["key"])
         row = {"key": params["key"], "hasContextWeight": session["settled"]}
         if params.get("includeContextWeight"):

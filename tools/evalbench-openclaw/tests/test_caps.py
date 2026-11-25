@@ -36,7 +36,9 @@ def test_the_caps_bound_every_way_a_trial_can_go_on():
     assert SET["agents.defaults.continuation.maxDelegatesPerTurn"] == 1
     assert {SET[f"agents.defaults.subagents.{k}"] for k in ("maxSpawnDepth", "maxChildrenPerAgent", "maxConcurrent")} == {1}
     assert {SET[f"tools.swarm.{k}"] for k in ("maxConcurrent", "maxChildrenPerGroup", "maxTotalPerGroup")} == {1}
-    assert SET["cron.enabled"] is False and SET["agents.defaults.timeoutSeconds"] < 600
+    assert SET["agents.defaults.timeoutSeconds"] < 600
+    # Automations are the tool an eligible turn might take instead, and switching cron off shows in what it answers.
+    assert not [key for key in SET if key.startswith("cron")]
 
 
 def test_every_arm_gets_the_same_caps_and_no_arm_sets_one_of_its_own(arms):
@@ -114,7 +116,7 @@ def test_a_gateway_without_the_caps_is_sent_no_turn(arms):
     assert [m for m, _ in fake.calls if m != "config.get"] == [] and record["metered"] is None
 
 
-@pytest.mark.parametrize("change", [{"config": {"cron": {"enabled": True}}}, {"appliedConfigHash": "another"},
+@pytest.mark.parametrize("change", [{"config": {"agents": {"defaults": {}}}}, {"appliedConfigHash": "another"},
                                     # The caps still stand, and something else about the gateway does not.
                                     {"configRevisionHash": "another", "appliedConfigHash": "another"}])
 def test_caps_a_turn_changed_leave_its_trial_unscored(arms, change):

@@ -22,7 +22,7 @@ from openclaw_evalbench.units import process_start
 W, C = "w1-file-appears", "c1-arithmetic"
 CALL = 60_000  # tokens of one call of the runaway fixtures
 # Fast enough for a test, in the same proportions as arms.json.
-QUICK = {"pollSeconds": 0.1, "readSeconds": 1.0, "blindSeconds": 2.0, "abortSeconds": 0.3, "silentSeconds": 3.0, "trialSeconds": 30}
+QUICK = {"pollSeconds": 0.1, "readSeconds": 1.0, "blindSeconds": 2.0, "abortSeconds": 0.3, "silentSeconds": 3.0, "trialSeconds": 30, "aggregateSeconds": 0.3}
 
 
 def limits(**changes):
@@ -30,12 +30,12 @@ def limits(**changes):
 
 
 @contextlib.asynccontextmanager
-async def supervised(tmp_path, turns, launch=launch_offline, stop_units=None, **changes):
+async def supervised(tmp_path, turns, launch=launch_offline, stop_units=None, overrides=None, **changes):
     """Fake gateway processes and an armed supervisor process over them. `turns` is {arm: {prompt: [fixture, ...]}}."""
     private = cli._private(tmp_path)
     secrets = tmp_path / "secrets"
     secrets.mkdir()
-    with launch_fakes(turns, secrets, plans=turns) as fakes:
+    with launch_fakes(turns, secrets, plans=turns, overrides=overrides) as fakes:
         path, plan = make_plan(private, offline=True, limits=limits(**changes), urls={n: f["url"] for n, f in fakes.items()},
                                token_files={n: f["tokenFile"] for n, f in fakes.items()}, units={n: {"kind": "fake", "pid": f["pid"]} for n, f in fakes.items()})
         supervision = await Supervision.start(path, plan, launch, **({"stop_units": stop_units} if stop_units else {}))
@@ -199,17 +199,18 @@ def test_what_only_the_harness_could_meter_is_counted(tmp_path):
 
 # --- the run's own limits, and the two processes -------------------------------------------------------------------------
 
-def test_the_runs_total_stops_every_gateway(tmp_path):
+def test_the_runs_total_is_the_sum_of_the_arms_and_stops_every_gateway(tmp_path):
     async def go():
         arms = load_arms()
-        async with supervised(tmp_path, {"A": {C: ["control-clean"]}, "C": {W: ["runaway-loop"]}}, trialTokens=10_000_000, runTokens=800_000) as (supervision, fakes):
-            record = await trial(job(arms, "C", supervision, fakes), fakes)
+        async with supervised(tmp_path, {"A": {W: ["runaway-loop"]}, "B": {}, "C": {W: ["runaway-loop"]}}, trialTokens=10_000_000, runTokens=1_600_000) as (supervision, fakes):
+            records = await asyncio.gather(*(trial(job(arms, n, supervision, fakes), fakes) for n in "AC"))
             await until(lambda: supervision.receipt is not None)
-        return record, supervision, fakes
-    record, supervision, fakes = asyncio.run(go())
-    assert record["status"] == "supervisor_stopped" and supervision.receipt["ended"]["rule"] == "run-tokens"
-    assert {n: stop_of(supervision, n)["rule"] for n in "AC"} == {"A": "run-tokens", "C": "run-tokens"} and all(gone(f) for f in fakes.values())
-    assert supervision.receipt["tokens"] <= 800_000 + CALL / 0.05 * (QUICK["pollSeconds"] + 0.5)
+        return records, supervision, fakes
+    records, supervision, fakes = asyncio.run(go())
+    assert [r["status"] for r in records] == ["supervisor_stopped"] * 2 and supervision.receipt["ended"]["rule"] == "run-tokens"
+    assert {n: stop_of(supervision, n)["rule"] for n in "ABC"} == dict.fromkeys("ABC", "run-tokens") and all(gone(f) for f in fakes.values())
+    assert 1_600_000 <= supervision.receipt["tokens"] <= 1_600_000 + 2 * CALL / 0.05 * (QUICK["pollSeconds"] + 0.5)
+    assert max(a["tokens"] for a in supervision.receipt["arms"].values()) < 1_600_000, "no arm reached it alone"
 
 
 def test_the_runs_clock_stops_every_gateway_even_with_nothing_running(tmp_path):
@@ -234,7 +235,8 @@ def test_a_clean_run_ends_with_every_gateway_stopped(tmp_path):
 def test_losing_the_runner_stops_every_gateway(tmp_path):
     async def go():
         arms = load_arms()
-        async with supervised(tmp_path, {"A": {C: ["control-clean"]}, "C": {W: ["runaway-slow"]}}) as (supervision, fakes):
+        # This side's own second stop does nothing here: only the supervisor can have done it.
+        async with supervised(tmp_path, {"A": {C: ["control-clean"]}, "C": {W: ["runaway-slow"]}}, stop_units=lambda *_: {}) as (supervision, fakes):
             running = asyncio.ensure_future(trial(job(arms, "C", supervision, fakes), fakes))
             await asyncio.sleep(0.5)
             supervision._writer.transport.abort()  # what a killed runner's socket does
@@ -270,6 +272,73 @@ def test_losing_the_supervisor_makes_the_runner_stop_every_gateway(tmp_path, sig
     summary = supervision.summary()
     assert summary["lost"] and all(r["stopped"] for r in summary["runnerStops"].values())
     assert any("run halted" in f for f in cli._supervision_failures(summary))
+
+
+def test_a_runner_whose_loop_was_blocked_does_not_take_the_supervisor_for_dead(tmp_path):
+    async def go():
+        async with supervised(tmp_path, {"C": {}}) as (supervision, fakes):
+            time.sleep(QUICK["silentSeconds"] + 0.5)
+            await asyncio.sleep(1.5)
+            return supervision.lost, gone(fakes["C"])
+    assert asyncio.run(go()) == (None, False)
+
+
+def test_a_record_that_cannot_be_written_stops_no_stop(tmp_path):
+    from openclaw_evalbench.supervisor import write_private
+
+    def launch(path, plan):
+        plan.update(events="/dev/full", receipt="/dev/full/nowhere")
+        write_private(path, json.dumps(plan))
+        launch_offline(path, {**plan, "log": str(tmp_path / "log")})
+
+    async def go():
+        arms = load_arms()
+        async with supervised(tmp_path, {"C": {W: ["runaway-loop"]}}, launch=launch) as (supervision, fakes):
+            it = job(arms, "C", supervision, fakes)
+            it.trial_log = tmp_path / "trials.jsonl"
+            return await trial(it, fakes), supervision, fakes
+    record, supervision, fakes = asyncio.run(go())
+    assert record["status"] == "supervisor_stopped" and gone(fakes["C"]) and stop_of(supervision)["rule"] == "trial-tokens"
+    assert supervision.receipt["unwrittenRecords"] > 0, "and it says so"
+
+
+def test_an_interrupt_stops_every_gateway_at_once_and_the_run_ends_in_order(tmp_path):
+    import subprocess
+    import sys
+    out = tmp_path / "out"
+    process = subprocess.Popen([sys.executable, "-m", "openclaw_evalbench", "offline", "--out", str(out), "--num-trials", "60", "--scenarios", "c5-nothing-to-do"],
+                               cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    events = out / "private/supervisor-events.jsonl"
+    end = time.monotonic() + 30
+    while (not events.exists() or '"begin"' not in events.read_text()) and time.monotonic() < end:
+        time.sleep(0.02)
+    process.send_signal(signal.SIGINT)
+    _, err = process.communicate(timeout=60)
+    stops = [json.loads(line) for line in events.read_text().splitlines() if '"stopped"' in line]
+    assert process.returncode == 1 and "stopping every gateway" in err
+    assert sorted(s["arm"] for s in stops) == ["A", "B", "C"] and all(s["result"]["stopped"] for s in stops)
+    manifest = json.loads((out / "manifest.json").read_text())
+    assert manifest["supervision"]["halted"].startswith("interrupted: SIGINT") and manifest["supervision"]["receipt"]["ended"]["rule"] == "interrupted"
+    assert any("interrupted" in f for f in manifest["failures"]) and (out / "report.md").exists()
+
+
+def test_spend_only_the_aggregate_sees_is_stopped_at_the_same_limits(tmp_path):
+    # A cron run: the session list never shows one, and its spend is only in the gateway's own total.
+    async def go():
+        arms = load_arms()
+        async with supervised(tmp_path, {"C": {W: ["runaway-slow"]}}, overrides={"C": {"unlistedPerSecond": 400_000}}) as (supervision, fakes):
+            return await trial(job(arms, "C", supervision, fakes), fakes), supervision, fakes
+    record, supervision, fakes = asyncio.run(go())
+    assert record["status"] == "supervisor_stopped" and stop_of(supervision)["rule"] == "trial-tokens" and gone(fakes["C"])
+    assert stop_of(supervision)["tokens"] <= 700_000 + 400_000 * (QUICK["aggregateSeconds"] + 0.7)
+
+
+def test_a_total_that_cannot_be_read_any_more_stops_the_gateway(tmp_path):
+    async def go():
+        async with supervised(tmp_path, {"C": {}}, overrides={"C": {"usageFailsAfter": 1.5}}) as (supervision, fakes):
+            await until(lambda: gone(fakes["C"]))
+            return supervision
+    assert stop_of(asyncio.run(go()))["rule"] == "aggregate-blind"
 
 
 def test_a_supervisor_told_to_stop_takes_the_gateways_with_it(tmp_path):
@@ -318,6 +387,28 @@ def test_the_stop_command_needs_neither_process(tmp_path):
             return code, all(gone(f) for f in fakes.values()), stop_everything(supervision.plan)
     code, dead, again = asyncio.run(go())
     assert code == 0 and dead and all(r["stopped"] for r in again.values()), "and stopping twice is harmless"
+
+
+def test_a_stop_of_everything_kills_every_gateway_before_it_proves_any(tmp_path, monkeypatch):
+    from openclaw_evalbench.supervisor import stop_everything
+    from openclaw_evalbench.units import FakeProcess
+    prove = FakeProcess.stop
+
+    def slowly(self):
+        time.sleep(1.5)
+        return prove(self)
+    monkeypatch.setattr(FakeProcess, "stop", slowly)
+    with launch_fakes(["A", "B", "C"], tmp_path, plans=dict.fromkeys("ABC", {})) as fakes:
+        plan = {"offline": True, "arms": {n: {"unit": {"kind": "fake", "pid": f["pid"]}} for n, f in fakes.items()}}
+        started = time.monotonic()
+        import threading
+        stopping = threading.Thread(target=stop_everything, args=(plan,))
+        stopping.start()
+        while not all(gone(f) for f in fakes.values()) and time.monotonic() < started + 5:
+            time.sleep(0.01)
+        took = time.monotonic() - started
+        stopping.join()
+    assert took < 1.0 and time.monotonic() - started < 3.5
 
 
 # --- whole jobs, through EvalBench ---------------------------------------------------------------------------------------
@@ -459,6 +550,37 @@ def test_an_answer_that_is_not_a_reading_is_never_a_zero(method, answer):
         asyncio.run(GatewayMeter().baseline(Client(), 1))
 
 
+def test_an_archive_that_could_not_be_read_is_read_again():
+    async def work(fake, client, it):
+        spend(fake, "t", 100)
+        await it.read(client, 2)
+        spend(fake, "t", 900)
+        delete(fake, "t")
+        fake.overrides["refuse"] = {"sessions.usage.timeseries": ["UNAVAILABLE", "busy"]}
+        with pytest.raises(GatewayError):
+            await it.read(client, 2)
+        fake.overrides["refuse"] = {}
+        await it.read(client, 2)
+        assert it.tokens == 1000
+    meter({}, work)
+
+
+@pytest.mark.parametrize("usage", [{"partial": {"reason": "summarizing"}}, {"cacheStatus": {"status": "refreshing"}}])
+def test_a_total_that_is_only_a_lower_bound_is_never_counted_from(monkeypatch, usage):
+    from openclaw_evalbench import meter as module
+    monkeypatch.setattr(module, "BASELINE_ATTEMPTS", 2)
+
+    async def work(fake, client, it):
+        with pytest.raises(MeterError, match="partial total"):
+            await it.baseline(client, 2)
+        fake.overrides.update(usage={}, unlistedTokens=500)
+        await it.baseline(client, 2)
+        fake.overrides.update(usage=usage, unlistedTokens=800)
+        await it.read_aggregate(client, 2)
+        assert it.tokens == 300, "once there is one, it can still raise the count"
+    meter({}, work, overrides={"usage": usage, "unlistedTokens": 400})
+
+
 @pytest.mark.parametrize("method", ["sessions.list", "sessions.usage.timeseries", "sessions.usage"])
 def test_a_refused_reading_is_never_a_zero(method):
     async def work(fake, client, it):
@@ -474,7 +596,7 @@ class StubUnit:
     """A unit that is verified, alive, and stopped when told; `swept` is what its sweeps answer, in order."""
 
     def __init__(self, swept=()):
-        self.swept, self.stops, self.up = list(swept), 0, True
+        self.swept, self.stops, self.up, self.marks = list(swept), 0, True, []
 
     def verify(self):
         return {"unit": "stub"}
@@ -489,8 +611,8 @@ class StubUnit:
         self.stops, self.up = self.stops + 1, False
         return {"stopped": True, "problems": [], "durableUnits": [], "strayProcesses": 0, "seconds": 0}
 
-    def mark_stopped(self, _record):
-        return None
+    def mark_stopped(self, record):
+        self.marks.append(record["rule"])
 
 
 def steps(tmp_path, monkeypatch, work, unit=None, before=None, **changes):
@@ -595,6 +717,81 @@ def test_what_a_trial_left_running_and_cannot_be_ended_stops_the_gateway(tmp_pat
     assert steps(tmp_path, monkeypatch, work, unit=StubUnit([{"clean": False, "units": [], "processes": 0}])) == ("sweep-failed", 1)
 
 
+@pytest.mark.parametrize("rule, in_flight, marked", [("run-finished", False, False), ("run-finished", True, True), ("run-tokens", False, True),
+                                                      ("interrupted", True, True), ("runner-gone", True, True), ("trial-tokens", True, True)])
+def test_only_a_gateway_that_had_finished_may_be_started_again(tmp_path, monkeypatch, rule, in_flight, marked):
+    async def work(it, arm, _fake, _sent, unit):
+        if in_flight:
+            it._begin(arm, {"trial": 1}, 1)
+        it.end(rule, "x")
+        await asyncio.gather(*it._stops)
+        return unit.marks
+    assert steps(tmp_path, monkeypatch, work) == ([rule] if marked else [])
+
+
+def test_a_reading_is_whole_within_its_limit_or_it_is_none(tmp_path, monkeypatch):
+    async def work(it, arm, fake, _sent, _unit):
+        answer, before = fake._sessions_list, arm.last_reading
+
+        async def slowly(params):
+            await asyncio.sleep(0.6)
+            return answer(params)
+        fake._sessions_list = slowly
+        started = time.monotonic()
+        with pytest.raises(TimeoutError):
+            await arm.read(0.2)
+        took = time.monotonic() - started
+        assert arm.last_reading == before and arm.client is None and "TimeoutError" in arm.last_error
+        fake._sessions_list = answer
+        await arm.read(1.0)
+        return took, arm.last_error
+    took, error = steps(tmp_path, monkeypatch, work)
+    assert 0.2 <= took < 0.5 and error is None, "and the next one opens a connection of its own"
+
+
+def test_another_process_behind_the_same_port_is_never_read(tmp_path, monkeypatch):
+    async def work(_it, arm, fake, _sent, _unit):
+        arm.drop()
+        fake.overrides["server"] = {"bootId": "another"}
+        with pytest.raises(Exception, match="another process than at arming"):
+            await arm.read(1)
+        return arm.client
+    assert steps(tmp_path, monkeypatch, work) is None
+
+
+def test_a_watch_that_crashes_stops_every_gateway(tmp_path, monkeypatch):
+    async def work(it, arm, _fake, _sent, unit):
+        async def crash():
+            raise RuntimeError("a bug")
+        task = asyncio.ensure_future(crash())
+        await asyncio.wait({task})
+        it._task_ended(task)
+        await asyncio.gather(*it._stops)
+        return it.done.is_set(), arm.stop["rule"], it.ended["detail"], unit.stops
+    assert steps(tmp_path, monkeypatch, work) == (True, "supervisor-stopped", "internal error: RuntimeError: a bug", 1)
+
+
+def test_told_to_stop_while_arming_it_never_arms(tmp_path, monkeypatch):
+    class Told(StubUnit):
+        def verify(self):
+            self.it.end("supervisor-stopped", "the supervisor was sent SIGTERM")
+            return {}
+    unit = Told()
+    from openclaw_evalbench import supervisor as module
+    made = module.Supervisor.__init__
+
+    def init(self, plan):
+        made(self, plan)
+        unit.it = self
+    monkeypatch.setattr(module.Supervisor, "__init__", init)
+
+    async def never(*_args):
+        raise AssertionError("it armed")
+    with pytest.raises(module.UnitRefused, match="told to stop while it was arming"):
+        steps(tmp_path, monkeypatch, never, unit=unit)
+    assert unit.stops == 0, "nothing had been sent"
+
+
 def test_a_stopped_arm_begins_nothing(tmp_path, monkeypatch):
     async def work(it, arm, _fake, sent, _unit):
         it.stop_arm(arm, "active-runs", "because")
@@ -618,7 +815,7 @@ def test_an_abort_that_is_never_answered_holds_up_nothing(tmp_path, monkeypatch)
     async def work(it, arm, fake, _sent, unit):
         spend(fake, "t", 5_000)
         await arm.read(1)
-        fake._sessions_abort = lambda _params: asyncio.sleep(60)
+        fake._sessions_abort = lambda _params: asyncio.sleep(3)
         started = time.monotonic()
         it.stop_arm(arm, "trial-tokens", "x")
         await asyncio.gather(*it._stops)

@@ -93,16 +93,17 @@
       "agents.defaults.subagents.runTimeoutSeconds": 120,
       "tools.swarm.maxConcurrent": 1,
       "tools.swarm.maxChildrenPerGroup": 1,
-      "tools.swarm.maxTotalPerGroup": 1,
-      "cron.enabled": false
+      "tools.swarm.maxTotalPerGroup": 1
     }
   },
   "supervision": {
-    "pollSeconds": 2,
-    "readSeconds": 5,
+    "pollSeconds": 1,
+    "readSeconds": 1.5,
     "blindSeconds": 10,
-    "abortSeconds": 1,
+    "abortSeconds": 0.5,
     "silentSeconds": 15,
+    "aggregateSeconds": 30,
+    "aggregateFailures": 4,
     "trialTokens": 700000,
     "trialSeconds": 480,
     "idleTokens": 150000,

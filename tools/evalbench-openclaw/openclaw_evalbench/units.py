@@ -3,11 +3,13 @@
 A stop here never asks the product to cooperate. A gateway that is told to stop may drain its turns for minutes, and a
 durable exec runs in its own openclaw-proc-<hash> user unit, outside the gateway's cgroup, and outlives it (openclaw
 ab5a30ea src/agents/bash-process-systemd.ts:70-162). process.childScope can move other commands into scopes of their own
-(src/process/child-memory-scope.ts). So a stop is SIGKILL for the gateway's whole cgroup, then the same for every
-transient unit that names the gateway or its directory and every process started with its state directory, until none
-is left.
+(src/process/child-memory-scope.ts). So a stop kills the gateway's whole cgroup, then the same for every transient unit
+that belongs to it and every process started with its state directory, until none is left. The cgroup is killed through
+the kernel first (cgroup.kill), so that no stop waits on systemd; and nothing is called stopped that systemd could not
+be asked about.
 """
 
+import contextlib
 import json
 import os
 import pathlib
@@ -17,9 +19,9 @@ import subprocess
 import time
 
 UNIT = re.compile(r"openclaw-proof-comp-[0-9a-f]{8}")
-COMMAND_SECONDS = 10.0
+COMMAND_SECONDS = 5.0
 GONE_SECONDS = 5.0
-SWEEPS = 25
+SWEEP_SECONDS = 8.0
 SWEEP_PAUSE_SECONDS = 0.2
 # This harness's own transient units.
 OWN_UNITS = "openclaw-evalprop-"
@@ -62,6 +64,27 @@ def _kill(pid):
         return False
 
 
+def _processes(cgroup):
+    """Every process of a cgroup and the cgroups below it."""
+    out = []
+    for path in sorted(cgroup.rglob("cgroup.procs")) if cgroup else []:
+        try:
+            out += [int(p) for p in path.read_text().split()]
+        except OSError:
+            continue
+    return out
+
+
+def _kill_cgroup(cgroup):
+    """SIGKILL for everything in a cgroup at once, by the kernel (cgroup v2), and one by one where it cannot."""
+    if cgroup is None:
+        return
+    with contextlib.suppress(OSError):
+        (cgroup / "cgroup.kill").write_text("1")
+    for pid in _processes(cgroup):
+        _kill(pid)
+
+
 class SystemdUnit:
     """One proof gateway's transient user unit."""
 
@@ -81,17 +104,28 @@ class SystemdUnit:
         return self.directory / "state"
 
     def show(self, name=None):
+        """What systemd says of a unit, or None when it could not be asked. An unknown unit is an answer (not-found)."""
         done = systemctl("show", name or f"{self.unit}.service", "-p", "LoadState,ActiveState,MainPID,ControlGroup,Restart,KillMode,Environment")
-        return dict(line.split("=", 1) for line in done.stdout.splitlines() if "=" in line)
+        shown = dict(line.split("=", 1) for line in done.stdout.splitlines() if "=" in line)
+        return shown if done.returncode == 0 and "ActiveState" in shown else None
 
     @staticmethod
     def _cgroup_of(shown):
-        group = shown.get("ControlGroup") or ""
+        group = (shown or {}).get("ControlGroup") or ""
         return pathlib.Path("/sys/fs/cgroup") / group.lstrip("/") if group.startswith("/") and ".." not in group else None
+
+    def _beside(self, name):
+        """Where a user unit's cgroup is when systemd does not say: beside this gateway's, in the user manager's app slice."""
+        uid = os.getuid()
+        slice_ = self._cgroup.parent if self._cgroup else pathlib.Path(f"/sys/fs/cgroup/user.slice/user-{uid}.slice/user@{uid}.service/app.slice")
+        path = slice_ / name
+        return path if path.is_dir() else None
 
     def verify(self):
         """That this unit is the isolated gateway, and that killing it ends it. Returns the receipt."""
         seen, problems = self.show(), []
+        if seen is None:
+            raise UnitRefused(f"{self.unit}: systemd could not be asked about it")
         pid = int(seen.get("MainPID") or 0)
         if seen.get("ActiveState") != "active" or pid <= 0:
             raise UnitRefused(f"{self.unit} is not running")
@@ -108,7 +142,7 @@ class SystemdUnit:
             problems.append("its cgroup cannot be read")
         elif not self._listens():
             problems.append(f"no process of it listens on {self.port}")
-        owned = [name for name in self._owned_units() if self._is_live(name)]
+        owned = [name for name in self._owned_units() if self._live(name) is not False]
         if owned:
             problems.append(f"it already owns {', '.join(owned)}")
         if (self.directory / STOP_MARKER).exists():
@@ -123,14 +157,7 @@ class SystemdUnit:
         return self._identity is not None and process_start(self._identity[0]) == self._identity[1]
 
     def processes(self):
-        """Every process of the unit's cgroup and the cgroups below it."""
-        out = []
-        for path in sorted(self._cgroup.rglob("cgroup.procs")) if self._cgroup else []:
-            try:
-                out += [int(p) for p in path.read_text().split()]
-            except OSError:
-                continue
-        return out
+        return _processes(self._cgroup)
 
     def _listens(self):
         try:
@@ -143,7 +170,11 @@ class SystemdUnit:
         return pathlib.Path(os.environ.get("XDG_RUNTIME_DIR") or f"/run/user/{os.getuid()}") / "systemd/transient"
 
     def _owned_units(self):
-        """Other transient user units that name this gateway or its directory: a durable exec's log is under its state."""
+        """The transient user units that are this gateway's: a durable exec's log is under its state directory.
+
+        Only the properties that say so count. A command line can name any path, this gateway's among them, and a unit that
+        merely mentions it belongs to whoever started it.
+        """
         out = []
         for path in sorted(p for p in self._transient().glob("*") if p.suffix in (".service", ".scope")):
             if path.name == f"{self.unit}.service" or path.name.startswith(OWN_UNITS):
@@ -152,12 +183,32 @@ class SystemdUnit:
                 text = path.read_text(errors="replace")
             except OSError:
                 continue
-            if f"{self.directory}/" in text or f"{self.unit}.service" in text:
+            if any(self._owns(*line.split("=", 1)) for line in text.splitlines() if "=" in line):
                 out.append(path.name)
         return out
 
-    def _is_live(self, name):
-        return self.show(name).get("ActiveState") in _LIVE
+    def _owns(self, key, value):
+        if key in ("StandardOutput", "StandardError"):
+            return value.partition(":")[2].startswith(f"{self.directory}/")
+        if key == "Environment":
+            words = re.split(r'["\s]+', value)
+            return f"OPENCLAW_STATE_DIR={self.state}" in words or f"OPENCLAW_SYSTEMD_UNIT={self.unit}.service" in words
+        return key in ("BindsTo", "PartOf", "StopPropagatedFrom") and f"{self.unit}.service" in value.split()
+
+    def _live(self, name):
+        """Whether an owned unit still runs or is still held. None when that could not be learned."""
+        shown = self.show(name)
+        cgroup = self._cgroup_of(shown) or self._beside(name)
+        if _processes(cgroup):
+            return True
+        return None if shown is None else shown["ActiveState"] in _LIVE
+
+    def _end(self, name):
+        _kill_cgroup(self._beside(name))
+        _kill_cgroup(self._cgroup_of(self.show(name)))
+        systemctl("kill", "--signal=SIGKILL", name)
+        systemctl("stop", name)
+        systemctl("reset-failed", name)
 
     def _owned_processes(self):
         """Processes started with this gateway's state directory, outside its cgroup and wherever else they run."""
@@ -174,9 +225,9 @@ class SystemdUnit:
 
     def sweep(self):
         """End what outlives the gateway. Safe while the gateway runs: its own cgroup is left alone."""
-        units, processes, clean = [], 0, 0
-        for _ in range(SWEEPS):
-            live = [name for name in self._owned_units() if self._is_live(name)]
+        units, processes, clean, end = [], 0, 0, time.monotonic() + SWEEP_SECONDS
+        while time.monotonic() < end:
+            live = [name for name in self._owned_units() if self._live(name) is not False]
             pids = self._owned_processes()
             if not live and not pids:
                 clean += 1
@@ -186,9 +237,7 @@ class SystemdUnit:
             else:
                 clean = 0
             for name in live:
-                systemctl("kill", "--signal=SIGKILL", name)
-                systemctl("stop", name)
-                systemctl("reset-failed", name)
+                self._end(name)
                 if name not in units:
                     units.append(name)
             processes += sum(_kill(pid) for pid in pids)
@@ -196,30 +245,36 @@ class SystemdUnit:
         return {"clean": False, "units": units, "processes": processes}
 
     def stop(self):
-        """SIGKILL the unit's whole cgroup, then end everything it owns elsewhere. Returns what was proved."""
+        """Kill the unit's whole cgroup, then end everything it owns elsewhere. Returns what was proved."""
         started, problems = time.monotonic(), []
-        if self._cgroup is None:
-            self._cgroup = self._cgroup_of(self.show())
-        killed = systemctl("kill", "--signal=SIGKILL", f"{self.unit}.service")
-        for pid in self.processes():
-            _kill(pid)
-        systemctl("stop", "--no-block", f"{self.unit}.service")
+        self.kill()
         killed_after = time.monotonic() - started
-        deadline = started + GONE_SECONDS
-        while (left := self.processes()) and time.monotonic() < deadline:
-            for pid in left:
-                _kill(pid)
-            time.sleep(0.05)
+        while (left := self.processes()) and time.monotonic() < started + GONE_SECONDS:
+            _kill_cgroup(self._cgroup)
+            time.sleep(0.02)
         gone_after = time.monotonic() - started
+        systemctl("kill", "--signal=SIGKILL", f"{self.unit}.service")
+        systemctl("stop", "--no-block", f"{self.unit}.service")
         if left:
             problems.append(f"{len(left)} process(es) of the cgroup survived SIGKILL")
-        if self.show().get("ActiveState") in ("active", "activating", "reloading"):
-            problems.append(f"{self.unit} is still active (systemctl kill: {killed.returncode} {killed.stderr.strip()[:200]})")
+        shown = self.show()
+        if shown is None:
+            problems.append("systemd could not be asked whether it is stopped")
+        elif shown["ActiveState"] in ("active", "activating", "reloading"):
+            problems.append(f"{self.unit} is still {shown['ActiveState']}")
         swept = self.sweep()
         if not swept["clean"]:
-            problems.append("something that names its state directory is still running")
+            problems.append("something it owns is still running, or could not be asked about")
         return {"stopped": not problems, "problems": problems, "durableUnits": swept["units"], "strayProcesses": swept["processes"],
                 "killSeconds": round(killed_after, 3), "goneSeconds": round(gone_after, 3), "seconds": round(time.monotonic() - started, 3)}
+
+    def kill(self):
+        """The first half of a stop, with nothing to wait for. Returns whether anything was running."""
+        if self._cgroup is None:
+            self._cgroup = self._beside(f"{self.unit}.service") or self._cgroup_of(self.show())
+        running = bool(self.processes())
+        _kill_cgroup(self._cgroup)
+        return running
 
     def mark_stopped(self, record):
         """Leave the reason beside the gateway's state, so it is never restarted on what it was doing."""
@@ -249,6 +304,9 @@ class FakeProcess:
 
     def sweep(self):
         return {"clean": True, "units": [], "processes": 0}
+
+    def kill(self):
+        return self.alive() and _kill(self.pid)
 
     def stop(self):
         started = time.monotonic()

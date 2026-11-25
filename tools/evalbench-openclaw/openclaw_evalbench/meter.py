@@ -5,9 +5,11 @@ the product lines). It is current to the last completed model call. It never sho
 cut off, a compaction, or a title or utility call: the supervisor's wall clock bounds those, and nothing here counts them.
 """
 
+import asyncio
 import re
 
 LIST_PAGE = 500
+BASELINE_ATTEMPTS = 20
 LIST_MAX_PAGES = 20
 # The product's answer for a session with no transcript yet (openclaw ab5a30ea src/gateway/server-methods/usage.ts:695-701).
 _NO_TRANSCRIPT = re.compile(r"^No transcript found for session: ")
@@ -71,9 +73,14 @@ class GatewayMeter:
         return len(self._highest)
 
     async def baseline(self, client, timeout):
+        """What was already spent. Refused when it is only known to be more than something."""
         await self.read(client, timeout)
         self._base = dict(self._highest)
-        await self.read_aggregate(client, timeout)
+        for attempt in range(BASELINE_ATTEMPTS):
+            if await self.read_aggregate(client, timeout):
+                return
+            await asyncio.sleep(0.5)
+        raise MeterError("sessions.usage would only give a partial total, so there is no baseline to count from")
 
     async def read(self, client, timeout):
         """One complete reading. Raises when any part of it could not be read."""
@@ -85,28 +92,40 @@ class GatewayMeter:
                 raise MeterError("sessions.list answered a row without a key")
             session_id = row.get("sessionId") if isinstance(row.get("sessionId"), str) else None
             listed[f"{_agent_of(key)}:{session_id or 'key:' + key}"] = (key, session_id)
-        for identity, (key, _) in listed.items():
-            self._note(identity, await self._tokens(client, key, timeout))
-        for identity in [i for i in self._open if i not in listed]:
+        wanted = {identity: key for identity, (key, _) in listed.items()}
+        gone = [i for i in self._open if i not in listed]
+        for identity in gone:
             key, session_id = self._open[identity]
             if session_id:
                 # A deleted or reset session's archive (openclaw ab5a30ea usage-session-selection.ts:72-95).
-                self._note(identity, await self._tokens(client, f"agent:{_agent_of(key)}:{session_id}", timeout))
-            # Only now: a reading that failed here is made again.
+                wanted[identity] = f"agent:{_agent_of(key)}:{session_id}"
+        counts = await asyncio.gather(*(self._tokens(client, key, timeout) for key in wanted.values()))
+        # Only now is anything noted or let go: a reading that failed anywhere is made again whole.
+        for identity, tokens in zip(wanted, counts):
+            self._note(identity, tokens)
+        for identity in gone:
             del self._open[identity]
         self._open.update(listed)
         self.keys = [key for key, _ in listed.values()]
         self.active = sum(1 for row in rows if row.get("hasActiveRun") is True)
 
     async def read_aggregate(self, client, timeout):
-        """sessions.usage's own total: cached for 30 s, but it also sees sessions the list leaves out (a cron run)."""
-        payload = await client.call("sessions.usage", {"limit": 1}, timeout=timeout)
+        """sessions.usage's own total: cached for 30 s, but it also sees sessions the list leaves out (a cron run).
+
+        Returns whether it was whole. The product says when a total is a lower bound (openclaw ab5a30ea
+        src/gateway/server-methods/usage.ts:328-335): good enough to raise the count, never to count from.
+        """
+        payload = await client.call("sessions.usage", {"limit": 1, "agentScope": "all"}, timeout=timeout)
         total = (payload.get("totals") or {}).get("totalTokens")
         if not isinstance(total, (int, float)) or isinstance(total, bool):
             raise MeterError("sessions.usage answered without totals")
+        whole = not payload.get("partial") and ((payload.get("cacheStatus") or {}).get("status") or "fresh") == "fresh"
         if self._other_base is None:
+            if not whole:
+                return False
             self._other_base = total
         self._other = max(self._other, int(total - self._other_base))
+        return whole
 
     def _note(self, identity, tokens):
         self._highest[identity] = max(self._highest.get(identity, 0), tokens)

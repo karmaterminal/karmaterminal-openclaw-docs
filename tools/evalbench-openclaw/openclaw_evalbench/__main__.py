@@ -10,6 +10,7 @@ import logging
 import os
 import pathlib
 import re
+import signal
 import subprocess
 import sys
 import tempfile
@@ -27,6 +28,7 @@ OFFLINE_DEADLINE_SECONDS = 1.0
 # The totals of a full fire (README.md, Cost); arms.json has the canary's, which `run` takes unless told otherwise.
 FULL_RUN_TOKENS, FULL_RUN_SECONDS = 75_000_000, 4 * 3600
 OFFLINE_POLL_SECONDS = 0.2
+INTERRUPTS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)
 # EvalBench drops a session three hours after it starts and ends the job without a result (util/sessionmgr.py ttl).
 SESSION_TTL_SECONDS = 48 * 3600
 CSV_FILES = ("configs.csv", "evals.csv", "scores.csv", "summary.csv")
@@ -249,11 +251,21 @@ async def _supervised(path, plan, launch, work):
     """Arm the supervisor, do the work, and have every gateway stopped, whatever the work did. Returns (work, summary)."""
     from .supervision import Supervision
     supervision = await Supervision.start(path, plan, launch)
-    done = None
+    loop, done = asyncio.get_running_loop(), None
+
+    def interrupted(name):
+        print(f"{name}: stopping every gateway; the run ends in order", file=sys.stderr, flush=True)
+        supervision.interrupt(name)
+        for sig in INTERRUPTS:  # a second one is the default again
+            loop.remove_signal_handler(sig)
+    for sig in INTERRUPTS:
+        loop.add_signal_handler(sig, interrupted, sig.name)
     try:
         done = await work(supervision)
     finally:
         summary = await supervision.finish()
+        for sig in INTERRUPTS:
+            loop.remove_signal_handler(sig)
     return done, summary
 
 
@@ -334,7 +346,7 @@ def cmd_stop(args):
     """Stop every gateway of a plan now, with no supervisor and no runner. The deadman timer runs this too."""
     from .supervisor import stop_everything
     plan = json.loads(pathlib.Path(args.plan).read_text())
-    results = stop_everything(plan)
+    results = stop_everything(plan, by="run.sh stop")
     print(json.dumps(results, indent=2))
     return 0 if all(r["stopped"] for r in results.values()) else 1
 

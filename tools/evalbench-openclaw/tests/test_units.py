@@ -74,13 +74,13 @@ class Proof:
             time.sleep(0.02)
         return self
 
-    def durable(self, directory=None):
+    def durable(self, directory=None, *command):
         """A durable exec as the product launches one (openclaw ab5a30ea src/agents/bash-process-systemd.ts:119-152)."""
         name = f"openclaw-proc-{hashlib.sha256(os.urandom(16)).hexdigest()}.service"
         self.started.append(name)
         log = (directory or self.directory) / "state/processes" / f"{secrets.token_hex(4)}.log"
         log.parent.mkdir(parents=True, exist_ok=True)
-        run_unit(name, "sleep", "3600", properties=("Type=exec", "ExitType=cgroup", "RemainAfterExit=yes", "KillMode=control-group", "TimeoutStopSec=10s",
+        run_unit(name, *(command or ("sleep", "3600")), properties=("Type=exec", "ExitType=cgroup", "RemainAfterExit=yes", "KillMode=control-group", "TimeoutStopSec=10s",
                                                     "StandardInput=null", f"StandardOutput=append:{log}", "StandardError=inherit"))
         return name
 
@@ -167,13 +167,19 @@ def test_a_stop_ends_the_cgroup_and_the_durable_exec_that_outlives_it(proof, tmp
     proof.started += [stray, named, scope]
     run_unit(stray, "sleep", "3600", setenv=proof.environment)
     run_unit(named, "sleep", "3600", setenv={"OPENCLAW_SYSTEMD_UNIT": f"{proof.unit}.service"})
-    subprocess.Popen(["systemd-run", "--user", "--quiet", "--scope", f"--unit={scope}", f"--property=After={proof.unit}.service", "--", "sleep", "3600"])
+    subprocess.Popen(["systemd-run", "--user", "--quiet", "--scope", f"--unit={scope}", f"--property=BindsTo={proof.unit}.service", "--", "sleep", "3600"])
+    # And two that only mention it: another gateway's durable exec reading this one's log, and somebody's own command.
+    reader = proof.durable(tmp_path / "proof-gw/comp-00000001", "tail", "-F", str(proof.directory / "state/gateway.log"))
+    mention = f"openclaw-evaltest-{secrets.token_hex(4)}.service"
+    proof.started.append(mention)
+    run_unit(mention, "sh", "-c", f"cd {proof.directory}/state; sleep 3600; echo {proof.unit}.service")
     loose = subprocess.Popen(["sleep", "3600"], env={**os.environ, **{k: str(v) for k, v in proof.environment.items()}})
     other = subprocess.Popen(["sleep", "3600"], env={**os.environ, "OPENCLAW_STATE_DIR": f"{proof.environment['OPENCLAW_STATE_DIR']}-2"})
     end = time.monotonic() + 5
     while not active(scope) and time.monotonic() < end:
         time.sleep(0.02)
-    assert len(pids) >= 2 and all(active(n) for n in (*durable, bystander, stray, named, scope))
+    assert len(pids) >= 2 and all(active(n) for n in (*durable, bystander, stray, named, scope, reader, mention))
+    assert set(unit._owned_units()) == {*durable, stray, named, scope}
     # The trap: stopping the gateway's own unit leaves the durable exec running.
     U.systemctl("kill", "--signal=SIGKILL", f"{proof.unit}.service")
     end = time.monotonic() + 5
@@ -184,7 +190,7 @@ def test_a_stop_ends_the_cgroup_and_the_durable_exec_that_outlives_it(proof, tmp
     assert result["stopped"] is True and result["problems"] == [] and set(durable) <= set(result["durableUnits"]), result
     assert not any(active(n) for n in (*durable, stray, named, scope)) and all(U.process_start(p) is None for p in pids)
     assert loose.wait(5) == -9 and result["strayProcesses"] >= 1
-    assert active(bystander) and other.poll() is None, "another gateway's durable exec, and process, are not touched"
+    assert all(active(n) for n in (bystander, reader, mention)) and other.poll() is None, "what is not this gateway's is not touched"
     other.kill()
     other.wait()
 
@@ -198,6 +204,30 @@ def test_a_stop_is_quick_for_a_gateway_that_ignores_sigterm(proof):
     assert result["stopped"] and result["killSeconds"] < 1.0 and result["goneSeconds"] < 2.0 and time.monotonic() - started < 6.0, result
     assert not active(f"{proof.unit}.service") and not active(durable) and not unit.alive()
     assert unit.stop()["stopped"] is True, "stopping twice is harmless"
+
+
+@needs_manager
+def test_nothing_is_called_stopped_that_systemd_could_not_be_asked_about(proof, monkeypatch):
+    unit = proof.start().of()
+    unit.verify()
+    durable, pids = proof.durable(), unit.processes()
+    monkeypatch.setattr(U, "SWEEP_SECONDS", 1.0)
+    monkeypatch.setattr(U, "systemctl", lambda *_args, **_kwargs: subprocess.CompletedProcess([], 124, "", "bus down"))
+    result = unit.stop()
+    assert result["stopped"] is False and "systemd could not be asked whether it is stopped" in result["problems"], result
+    # It is dead all the same, and so is the durable exec: the kernel was told, not systemd.
+    assert all(U.process_start(p) is None for p in pids) and result["goneSeconds"] < 1.0
+    monkeypatch.undo()
+    assert not active(f"{proof.unit}.service") and not U._processes(unit._beside(durable))
+    assert unit.stop()["stopped"] is True, "and proved as soon as it can be"
+
+
+@needs_manager
+def test_a_unit_systemd_cannot_be_asked_about_is_never_verified(proof, monkeypatch):
+    proof.start()
+    monkeypatch.setattr(U, "systemctl", lambda *_args, **_kwargs: subprocess.CompletedProcess([], 124, "", "bus down"))
+    with pytest.raises(U.UnitRefused, match="systemd could not be asked"):
+        proof.of().verify()
 
 
 @needs_manager
@@ -304,6 +334,32 @@ def test_the_timer_stops_the_unit_when_both_processes_are_dead(proof, live, tmp_
 
 
 @needs_manager
+def test_a_supervisor_no_one_connects_to_takes_the_timer_with_it(proof, live, tmp_path, monkeypatch):
+    # What a runner killed between launching and connecting leaves: its gateways up, and nothing that would stop them later.
+    from openclaw_evalbench import supervisor as module
+    monkeypatch.setattr(module, "CONNECT_SECONDS", 0.2)
+    url = live_fake(proof, {})
+    path, plan = live_plan(proof, tmp_path, url)
+    S._systemd_run(["systemd-run", "--user", "--quiet", "--collect", f"--unit={plan['deadman']}", "--on-active=60s", "/bin/true"])
+    assert active(f"{plan['deadman']}.timer")
+    assert module.main(path) == 3
+    assert not active(f"{plan['deadman']}.timer") and active(f"{proof.unit}.service") and not pathlib.Path(plan["socket"]).exists()
+
+
+@needs_manager
+def test_a_launch_that_is_interrupted_leaves_no_timer(proof, live, tmp_path):
+    url = live_fake(proof, {})
+    path, plan = live_plan(proof, tmp_path, url)
+
+    def launch(path, plan):
+        S._systemd_run(["systemd-run", "--user", "--quiet", "--collect", f"--unit={plan['deadman']}", "--on-active=60s", "/bin/true"])
+        raise KeyboardInterrupt
+    with pytest.raises(KeyboardInterrupt):
+        asyncio.run(S.Supervision.start(path, plan, launch))
+    assert not active(f"{plan['deadman']}.timer") and not pathlib.Path(plan["socket"]).parent.exists()
+
+
+@needs_manager
 def test_a_refusal_to_arm_leaves_no_timer_behind(proof, live, tmp_path):
     url = live_fake(proof, {})
     proof.durable()
@@ -320,6 +376,10 @@ def test_stop_everything_stops_a_real_unit(proof, tmp_path):
     _, plan = live_plan(proof, tmp_path, url)
     assert stop_everything(plan)["C"]["stopped"] is True
     assert not active(f"{proof.unit}.service") and not active(durable)
+    marker = proof.directory / U.STOP_MARKER
+    assert json.loads(marker.read_text())["rule"] == "stopped-without-supervisor"
+    marker.unlink()
+    assert stop_everything(plan)["C"]["stopped"] is True and not marker.exists(), "one that was already stopped is not marked"
     S.remove_socket(plan)
 
 

@@ -80,7 +80,7 @@ def test_overlay_writes_one_arm_into_an_isolated_config(tmp_path, capsys):
     assert cli.main(["overlay", "B", str(path)]) == 0
     written = json.loads(path.read_text())
     assert written["tools"] == {"toolSearch": False, "codeMode": False, "swarm": {"maxConcurrent": 1, "maxChildrenPerGroup": 1, "maxTotalPerGroup": 1}}
-    assert written["gateway"] == {"auth": {"token": "t"}} and written["cron"] == {"enabled": False}
+    assert written["gateway"] == {"auth": {"token": "t"}}
     assert written["agents"]["defaults"]["model"] == {"primary": MODEL, "fallbacks": []}
     assert written["logging"] == {"file": str(tmp_path / "state/gateway.log")}, "where the launcher's shred finds it"
     assert path.stat().st_mode & 0o777 == 0o600 and [p.name for p in tmp_path.iterdir()] == ["openclaw.json"]

@@ -147,6 +147,11 @@ def test_a_turn_that_only_elected_and_left_no_reply_is_scored(arms):
     assert record["servedModels"] == ["openai/gpt-5.6-sol"] and record["servedModelSource"] == "selection"
 
 
+def test_a_turn_no_row_names_a_model_for_needs_the_sessions_own_selection(arms):
+    record, _ = trial(arms, "C", "election-no-assistant-row", overrides={"selectedModel": "openai/gpt-5.6-terra"})
+    assert (record["status"], record["elected"]) == ("infra_error", None) and "openai/gpt-5.6-terra" in record["reason"]
+
+
 def test_a_description_that_is_not_the_arms_text_contradicts_the_arm(arms):
     wrong = json.loads(json.dumps(arms))
     wrong["descriptions"]["f9fcd3a5"]["tools"]["continue_work"]["sha256"] = "1" * 64

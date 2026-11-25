@@ -3,7 +3,7 @@
  "arms": {
   "A": {
    "w1-file-appears": [
-    "search-then-work",
+    "search-then-work-with-nested-row",
     "exec-no-election",
     "no-election",
     "search-no-election",
@@ -181,7 +181,7 @@
    ],
    "w8-three-timestamps": [
     "election-work",
-    "no-election",
+    "deadline-after-election",
     "election-work",
     "exec-no-election",
     "no-election"
@@ -303,7 +303,7 @@
    "w7-build-result": [
     "election-work",
     "election-work",
-    "no-election",
+    "commentary-row-dropped",
     "election-work",
     "election-work"
    ],

@@ -211,7 +211,7 @@ class FakeGateway:
 
     def _sessions_describe(self, params):
         session = self._session(params["key"])
-        provider, model = self.model.split("/")
+        provider, model = self.overrides.get("selectedModel", self.model).split("/")
         return {"session": {"key": params["key"], "modelProvider": provider, "model": model, "spawnedBy": session["spawnedBy"],
                             "agentRuntime": {"id": self.overrides.get("runtime", "openclaw"), "source": "implicit"}}}
 

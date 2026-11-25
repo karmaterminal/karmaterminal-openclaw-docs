@@ -43,7 +43,8 @@ install.
 
 ### 0. Look first
 
-Reads only, apart from the harness checkout, the EvalBench install and a record directory.
+Reads only, apart from the harness checkout, the EvalBench install, a record directory, and what the tests start: processes and
+transient user units under random names of their own, no OpenClaw among them, which they end and check are gone.
 
 ```bash
 HARNESS=                      # the 40-hex head of #631 that 🌻 read

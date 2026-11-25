@@ -281,7 +281,7 @@ with them. Time: 5–15 minutes expected; past 45, stop it by hand.
 2. 9 of 9 trials scored, `unscored: none`. One trial that hit its deadline may be scored (`carried`); none may be `deadline_unreadable`.
 3. **Surface** section, each arm: `surface: verified 3` (or `verified 2, carried 1`) and `contradictions: 0`. Description text:
    `none` for A, `match` for B and C (9 each, or 6 if `request_compaction` isn't registered).
-4. `runtime: openclaw 3` in **every** arm. elliott is embedded, and only there does C carry the whole change.
+4. `runtime: openclaw 3` in **every** arm. elliott is embedded, and only on that runtime does C carry the whole change.
 5. `served: openai/gpt-6.1-sol 3` in every arm.
 6. `tools:` shows 0 deferred and no Code Mode for B, and some deferred for A and C. That is what the contrast names claim.
 7. No record problems, scratch path present 0, and every trial's cleanup ok.

@@ -3,7 +3,7 @@
   "issue": "karmaterminal/openclaw#1575",
   "offline": true,
   "go": null,
-  "started": "2026-11-25T19:28:38+00:00",
+  "started": "2026-11-25T21:51:21+00:00",
   "arms": [
     "A",
     "B",
@@ -11,24 +11,196 @@
   ],
   "model": "openai/gpt-6.1-sol",
   "gatewayUrls": {
-    "A": "ws://127.0.0.1:42075",
-    "B": "ws://127.0.0.1:38485",
-    "C": "ws://127.0.0.1:35069"
+    "A": "ws://127.0.0.1:40057",
+    "B": "ws://127.0.0.1:46601",
+    "C": "ws://127.0.0.1:35887"
   },
   "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
   "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
-  "harnessHead": "c771078fd94d85ed3a9c08e9233c3d8ef573138f",
+  "harnessHead": "ca274e26394f9a94e54bf460a1cd4e4fd52aa396",
   "harnessDirty": false,
   "numTrials": 5,
   "scenarios": null,
   "tokenBudgetPerArm": 35000000,
   "tokenBudgetRule": "per arm, checked between trials; not a ceiling, the trial in flight can exceed it",
+  "caps": {
+    "agents.defaults.timeoutSeconds": 330,
+    "agents.defaults.maxConcurrent": 2,
+    "agents.defaults.continuation.maxChainLength": 1,
+    "agents.defaults.continuation.costCapTokens": 1,
+    "agents.defaults.continuation.maxDelegatesPerTurn": 1,
+    "agents.defaults.subagents.maxSpawnDepth": 1,
+    "agents.defaults.subagents.maxChildrenPerAgent": 1,
+    "agents.defaults.subagents.maxConcurrent": 1,
+    "agents.defaults.subagents.runTimeoutSeconds": 120,
+    "tools.swarm.maxConcurrent": 1,
+    "tools.swarm.maxChildrenPerGroup": 1,
+    "tools.swarm.maxTotalPerGroup": 1
+  },
   "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
-  "armsSha256": "8e9d7d988f8660094e8286da17a0c8eaac95919ee20b655cbce09111d90a6b82",
-  "ended": "2026-11-25T19:28:54+00:00",
+  "armsSha256": "847ce9e4a4be85b5332693528be9ccc2383030850a2f9eac4c2b10be841bb3c5",
+  "supervision": {
+    "limits": {
+      "pollSeconds": 0.2,
+      "readSeconds": 1.5,
+      "blindSeconds": 10,
+      "abortSeconds": 0.5,
+      "silentSeconds": 15,
+      "aggregateSeconds": 30,
+      "aggregateFailures": 4,
+      "trialTokens": 700000,
+      "trialSeconds": 480,
+      "idleTokens": 150000,
+      "maxActiveRuns": 2,
+      "runTokens": 75000000,
+      "runSeconds": 14400
+    },
+    "halted": null,
+    "lost": null,
+    "receipt": {
+      "schema": "openclaw.evalbench.supervision.v1",
+      "run": "dafb1af4289f",
+      "offline": true,
+      "limits": {
+        "pollSeconds": 0.2,
+        "readSeconds": 1.5,
+        "blindSeconds": 10,
+        "abortSeconds": 0.5,
+        "silentSeconds": 15,
+        "aggregateSeconds": 30,
+        "aggregateFailures": 4,
+        "trialTokens": 700000,
+        "trialSeconds": 480,
+        "idleTokens": 150000,
+        "maxActiveRuns": 2,
+        "runTokens": 75000000,
+        "runSeconds": 14400
+      },
+      "ended": {
+        "at": "2026-11-25T21:51:38.351+00:00",
+        "rule": "run-finished",
+        "detail": "the runner finished"
+      },
+      "seconds": 16.715,
+      "tokens": 9979112,
+      "unwrittenRecords": 0,
+      "arms": {
+        "A": {
+          "identity": {
+            "pid": 1550302,
+            "fake": true
+          },
+          "tokens": 3126982,
+          "sessions": 5,
+          "readings": 174,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.205,
+          "trials": 90,
+          "largestTrialTokens": 78072,
+          "longestTrialSeconds": 1.012,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-25T21:51:38.351+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3126982,
+            "trial": null,
+            "secondsSinceReading": 0.162,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.011,
+              "goneSeconds": 0.011,
+              "seconds": 0.011
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.011
+          }
+        },
+        "B": {
+          "identity": {
+            "pid": 1550361,
+            "fake": true
+          },
+          "tokens": 3254330,
+          "sessions": 4,
+          "readings": 174,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.204,
+          "trials": 90,
+          "largestTrialTokens": 57880,
+          "longestTrialSeconds": 1.011,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-25T21:51:38.351+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3254330,
+            "trial": null,
+            "secondsSinceReading": 0.163,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.011,
+              "goneSeconds": 0.011,
+              "seconds": 0.011
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.012
+          }
+        },
+        "C": {
+          "identity": {
+            "pid": 1550370,
+            "fake": true
+          },
+          "tokens": 3597800,
+          "sessions": 0,
+          "readings": 174,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.209,
+          "trials": 90,
+          "largestTrialTokens": 57880,
+          "longestTrialSeconds": 0.016,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-25T21:51:38.351+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3597800,
+            "trial": null,
+            "secondsSinceReading": 0.162,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.011,
+              "goneSeconds": 0.011,
+              "seconds": 0.011
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.012
+          }
+        }
+      }
+    },
+    "runnerStops": null
+  },
+  "ended": "2026-11-25T21:51:38+00:00",
   "results": {
     "A": {
-      "jobId": "20f61f72-f959-48aa-855b-a8500644e6a7",
+      "jobId": "9f7422c4-5973-491f-ae32-b211953677b0",
       "summary": {
         "total": 90,
         "scores": {
@@ -44,7 +216,7 @@
       "meteredTokens": 3126982
     },
     "B": {
-      "jobId": "747fb0ff-0ed8-492a-b4ab-c4c92815ae3f",
+      "jobId": "91266935-01ea-40e9-b86e-65f84f95ba44",
       "summary": {
         "total": 90,
         "scores": {
@@ -60,12 +232,12 @@
       "meteredTokens": 3254330
     },
     "C": {
-      "jobId": "1bdff011-e1b2-4b85-b72f-c1ca581f245a",
+      "jobId": "51547eae-c622-473d-9c1e-daabefbb4f59",
       "summary": {
         "total": 90,
         "scores": {
           "continuation_election": 48,
-          "token_consumption": 122565,
+          "token_consumption": 122400,
           "trajectory_matcher": 72,
           "executable": 90
         }
@@ -73,7 +245,7 @@
       "error": null,
       "trials": 90,
       "halted": null,
-      "meteredTokens": 3623085
+      "meteredTokens": 3597800
     }
   },
   "failures": []

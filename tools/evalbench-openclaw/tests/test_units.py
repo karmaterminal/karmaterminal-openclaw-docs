@@ -22,7 +22,9 @@ from openclaw_evalbench import units as U
 from openclaw_evalbench.arms import load_arms
 from openclaw_evalbench.supervisor import stop_everything
 
-MANAGER = U.systemctl("show", "--property=Version").returncode == 0
+# Tests patch U.systemctl. What cleans up after them never goes through it: a unit a test leaves behind is the seat's.
+SYSTEMCTL = U.systemctl
+MANAGER = SYSTEMCTL("show", "--property=Version").returncode == 0
 needs_manager = pytest.mark.skipif(not MANAGER, reason="no systemd user manager")
 
 
@@ -40,7 +42,7 @@ def run_unit(name, *argv, setenv=None, properties=(), scope=False):
 
 
 def active(name):
-    return U.systemctl("is-active", "--quiet", name).returncode == 0
+    return SYSTEMCTL("is-active", "--quiet", name).returncode == 0
 
 
 # A gateway's shape: it listens, ignores SIGTERM, and has a child that tried to get away from it.
@@ -88,10 +90,14 @@ class Proof:
         return U.SystemdUnit(self.unit, self.port, self.directory)
 
     def close(self):
-        for name in self.started:
-            U.systemctl("kill", "--signal=SIGKILL", name)
-            U.systemctl("stop", name)
-            U.systemctl("reset-failed", name)
+        left, end = list(self.started), time.monotonic() + 10
+        while left and time.monotonic() < end:
+            for name in left:
+                SYSTEMCTL("kill", "--signal=SIGKILL", name)
+                SYSTEMCTL("stop", name)
+                SYSTEMCTL("reset-failed", name)
+            left = [name for name in left if SYSTEMCTL("show", name, "-p", "LoadState", "--value").stdout.strip() != "not-found"]
+        assert left == [], "a test leaves nothing on its host, running or failed"
 
 
 @pytest.fixture
@@ -290,7 +296,7 @@ def live(proof, monkeypatch):
     monkeypatch.setattr(S, "_systemd_run", systemd_run)
     yield started
     for name in started:
-        U.systemctl("stop", f"{name}.timer", f"{name}.service")
+        SYSTEMCTL("stop", f"{name}.timer", f"{name}.service")
 
 
 @needs_manager

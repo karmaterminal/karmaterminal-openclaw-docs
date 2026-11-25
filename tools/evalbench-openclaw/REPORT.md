@@ -110,16 +110,16 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 
 | what | result |
 | --- | --- |
-| adapter tests (`./run.sh test`) | TESTS passed, none skipped; also from a clean checkout, and the supervisor's under full CPU load |
+| adapter tests (`./run.sh test`) | 490 passed, none skipped (on ronan, with a systemd user manager); also from a clean checkout. The supervisor's and the units' under full CPU load, at an earlier head of this lane. They leave no unit, process or directory behind |
 | pre-fix control, at `52465362` | the same runaway (a 60 k call every 50 ms, deaf to abort and delete), its 600 s deadline cut to 6 s: **7.2 M** metered when the trial ended, against 0.70 M, and 2.4 M more in the 2 s after, because the abort and the delete were all there was. On this head it is dead within 0.70 M and one interval's worth (`test_a_loop_that_ignores_aborts_is_stopped_within_its_cap`) |
-| mutation checks on this follow-up (one mutant at a time, on a copy) | MUTANTS |
-| the supervisor at its real limits, on a real user unit (fakes, no model) | a two-lane loop: 745,240 metered at 30.1 s, gone within 1 ms of the kill. A frozen gateway: killed 10.01 s after its last reading. A durable exec ended with both |
+| mutation checks on this follow-up (one mutant at a time, on a copy) | 121 of 122 killed. The one left removes the first of three ways a stop kills the same cgroup |
+| the supervisor at its real limits, on a real user unit (fakes, no model) | a two-lane loop: 745,240 metered at 30.1 s, gone within 2 ms of the kill. A frozen gateway: killed 10.01 s after its last reading. A durable exec ended with both, all of it proved in 0.5 s |
 | the caps, through the product's own code at both SHAs | its config schema accepts them; `continue_work` and `continue_delegate` answer `scheduled`; the turn-end budget then says `cost-capped`, and `chain-capped` for a second hop; a second child, a child of a child and a second collector are refused; timeouts read 330 s and 120 s (defaults 48 h and none); redaction and defaults keep every cap. 49 tools: names, descriptions and parameters the same with and without the caps, and not with swarm off |
 | the supervisor's frames, through the product's own validators at both SHAs | 5 of 5 valid; the negative controls refused, 4 of 4 |
 | full offline run, D off | 270 trials, 3 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped |
 | full offline run, D on | 360 trials, 4 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped |
 | the canary's own shape and limits, offline | 9 trials, exit 0, every comparison `not reportable` |
-| `tools/k6-proofs/tests` | K6 |
+| `tools/k6-proofs/tests` | 583 of 583 |
 
 From the first lane, at `cad3a045`, and not repeated: 35 + 20 mutants; 67 of 67 adapter frames valid against the product's own
 protocol validators at both SHAs (the trial's own frames have not changed since); `tools/k6-proofs/scripts` (nothing under `tools/k6-proofs` changed).
@@ -144,7 +144,27 @@ fixed, each with a test that fails when only that fix is undone, or are disclose
 | Cleanup saw only `spawnedBy` links | fixed: every link the list filter matches |
 | `chat.history` drops some assistant rows with their calls | fixed: a result without its call row is still a call |
 
-### This follow-up
+### The spend bound (this follow-up)
+
+Another reader, who had not seen the design, reviewed `52465362..50e75d40` and then the fixes to it at `09beb28f`, against the
+product, the launcher and systemd, and proved its findings with scripts and mutants of its own.
+
+| finding | disposition |
+| --- | --- |
+| **blocker:** a stop wrote its log line first, outside its own error handling. With a full disk the stop died, nothing tried again, and the gateway was alive at 30 M | fixed: no stop depends on a record; the kill is in a loop that ends only when it is proved |
+| the sweep matched any unit whose text mentions the gateway's directory, another gateway's durable exec included | fixed: only a unit's log, environment or binding count |
+| a run-level stop, the runner's own stop and the timer left no marker, and the product resumes an interrupted turn | fixed: marked beside the kill, the timer's shell half included; one never asked to do anything is not marked |
+| with systemd unreachable, a stop read as proved | fixed: the kernel is told first (`cgroup.kill`); what systemd could not be asked about is not stopped, and is tried again |
+| "one polling interval" rested on an unenforced 1 s reading, and one late reading breaks it | fixed: a whole reading has 1.5 s, and the bound that holds whatever the readings do (10 s) is the one in bold |
+| `cron.enabled: false` shows in what `automations` answers, and a forced run ignores it | cap dropped; automations, and that they outlive their trial, are disclosed |
+| ten mutants of the stop path survived the tests | tests for each; below |
+| SIGTERM while arming was swallowed; a runner that left while arming cost every gateway; a timer could outlive a launch | fixed |
+| `stop` without a supervisor went one gateway at a time; Ctrl-C waited for every trial's cleanup (81 s) | fixed: all are killed first; Ctrl-C stops them in 0.1 s and the run ends in order |
+| the usage total's failures were silent, a partial total was counted from, and it covered one agent | fixed: four failures stop the arm, a partial baseline is refused, all agents |
+| recovering from one slow reading was harder than being slow throughout | fixed: a late reading keeps its connection, and opening one has its own time |
+| a delayed delegate escapes the cost cap; "product caps alone" was called a bound | disclosed; called an estimate |
+
+### The canary packet
 
 Another reader reviewed `cad3a045..57885fc3` against the product, the launcher and the deploy workflow, and proved its
 findings. It found no defect in the harness code and killed 19 of 19 mutants of its own. Its findings were in the packet

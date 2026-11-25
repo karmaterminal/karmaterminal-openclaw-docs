@@ -323,8 +323,8 @@ How the numbers are made:
 | both dying | the timer, 60 s past the canary's clock, stops every gateway and what it owns | both killed; the timer alone stops the unit and its durable exec |
 
 **Measured** at these limits on a real user unit (ronan, fakes, no model): a loop of two lanes at 60 k and 5 s a call was stopped
-at 745,240 metered tokens, 30.1 s in, its processes gone within 1 ms of the kill, and everything it owned, a durable exec
-included, proved ended 0.47 s after that. A gateway that stopped answering was killed 10.01 s after its last reading and as fast.
+at 745,240 metered tokens, 30.1 s in, its processes gone within 2 ms of the kill, and everything it owned, a durable exec
+included, proved ended within 0.5 s. A gateway that stopped answering was killed 10.01 s after its last reading and as fast.
 
 **What the enforced numbers rest on, and don't cover:**
 

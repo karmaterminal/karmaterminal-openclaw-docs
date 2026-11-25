@@ -20,7 +20,7 @@ def trial(arms, arm_name, turn, *, prompt_id=W, kind="eligible", deadline=5.0, t
     async def go():
         async with fake_gateway(arms, arm_name, {prompt_id: [turn]}, **gateway) as fake:
             record = await run_trial(
-                arm_name=arm_name, arm=arms["arms"][arm_name], model=model or arms["model"],
+                arm_name=arm_name, arm=arms["arms"][arm_name], model=model or arms["model"], caps=arms["caps"],
                 descriptions=arms["descriptions"][arms["arms"][arm_name]["descriptions"]]["tools"], url=url or fake.url,
                 token=fake.token if token is None else token, prompt=prompt or PROMPT[prompt_id], prompt_id=prompt_id, kind=kind,
                 verified=verified(record_gateway(fake)) if verified else None, deadline_seconds=deadline, sleep=no_sleep)
@@ -32,10 +32,11 @@ def record_gateway(fake):
     """The gateway receipt a trial on this fake records."""
     server = fake._hello([])["server"]
     return {"arm": next(n for n, a in A_ARMS.items() if a == fake.arm), "model": fake.model, "identity": {k: server.get(k) for k in ("commit", "buildId", "version", "bootId")},
-            "configRevisionHash": "fake"}
+            "configRevisionHash": "fake", "caps": {"verdict": "verified", "configRevisionHash": "fake", "values": CAPS}}
 
 
 A_ARMS = load_arms()["arms"]
+CAPS = load_arms()["caps"]["set"]
 SURFACE = {"placement": {"continue_work": "direct"}, "toolSearchDirect": False, "systemPromptHash": "h", "descriptionText": {}}
 
 
@@ -97,7 +98,7 @@ def test_only_this_trials_sessions_are_touched(arms):
             bystander = {"rows": [], "runId": None, "spawnedBy": "agent:main:main", "archived": False, "fixture": None}
             fake.sessions["agent:main:main"] = dict(bystander, spawnedBy=None)
             fake.sessions["agent:main:other"] = bystander
-            await run_trial(arm_name="C", arm=arms["arms"]["C"], model=arms["model"], url=fake.url, token=fake.token,
+            await run_trial(arm_name="C", arm=arms["arms"]["C"], model=arms["model"], caps=arms["caps"], url=fake.url, token=fake.token,
                             descriptions=arms["descriptions"]["f9fcd3a5"]["tools"], prompt=PROMPT[C], prompt_id=C, kind="control")
             return fake
     assert set(asyncio.run(go()).sessions) == {"agent:main:main", "agent:main:other"}
@@ -158,7 +159,7 @@ def test_a_description_that_is_not_the_arms_text_contradicts_the_arm(arms):
 
     async def go():
         async with fake_gateway(arms, "C", {W: ["election-work"]}) as fake:
-            return await run_trial(arm_name="C", arm=arms["arms"]["C"], model=arms["model"], url=fake.url, token=fake.token,
+            return await run_trial(arm_name="C", arm=arms["arms"]["C"], model=arms["model"], caps=arms["caps"], url=fake.url, token=fake.token,
                                    descriptions=wrong["descriptions"]["f9fcd3a5"]["tools"], prompt=PROMPT[W], prompt_id=W, kind="eligible")
     record = asyncio.run(go())
     assert record["status"] == "arm_mismatch" and "continue_work's description is not the arm's text" in record["reason"]

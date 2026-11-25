@@ -20,7 +20,8 @@ from evalproto import (
 
 from .arms import canonical_tool_name
 from .generator import META_TOOL, UNSCORED
-from .stops import ArmGuard
+from .stops import ArmGuard, charge
+from .supervision import SupervisorStopped
 from .trial import SCORED, TURN_DEADLINE_SECONDS, run_trial
 
 log = logging.getLogger("openclaw_evalbench")
@@ -84,11 +85,12 @@ class ArmJob:
     """One arm's EvalBench job over one AgentInteract stream."""
 
     def __init__(self, *, channel, arms, arm_name, run_config, token, trial_log, token_budget,
-                 deadline_seconds=TURN_DEADLINE_SECONDS, runner=run_trial):
+                 supervision=None, deadline_seconds=TURN_DEADLINE_SECONDS, runner=run_trial):
         self.arm_name, self.arm, self.arms = arm_name, arms["arms"][arm_name], arms
         self.run_config, self._token, self.trial_log = run_config, token, trial_log
         self.deadline_seconds, self._runner = deadline_seconds, runner
-        self.guard = ArmGuard(arm_name, token_budget)
+        self.supervision = supervision
+        self.guard = ArmGuard(arm_name, token_budget, supervision.run_stop if supervision else None)
         self._stub = eval_service_pb2_grpc.EvalServiceStub(channel)
         self.session_id = f"evalprop-{arm_name}-{uuid.uuid4().hex}"
         self.trials = 0
@@ -167,8 +169,27 @@ class ArmJob:
             return {**base, "status": "infra_error", "reason": "a resumed turn was requested; every trial is one fresh turn"}
         if not prompt_id or kind not in ("eligible", "control"):
             return {**base, "status": "infra_error", "reason": "the scenario's env names no prompt id or kind"}
+        if self.supervision is None:
+            return await self._run(request, prompt_id, kind, None)
+        try:
+            await self.supervision.begin(self.arm_name, self.trials + 1)
+        except SupervisorStopped as error:
+            return {**base, "status": "supervisor_stopped", "reason": str(error)}
+        signal = self.supervision.signals[self.arm_name]
+        record = None
+        try:
+            record = await self._run(request, prompt_id, kind, signal)
+        finally:
+            counted = await self.supervision.end(self.arm_name, charge(record) if record else None)
+        if signal.reason and record["status"] in SCORED:
+            # The limit was only crossed on the reading that closed the trial.
+            record = {**record, "status": "supervisor_stopped", "reason": signal.reason, "elected": None}
+        return {**record, "supervised": counted}
+
+    async def _run(self, request, prompt_id, kind, stop):
         return await self._runner(
-            arm_name=self.arm_name, arm=self.arm, model=self.arms["model"],
+            arm_name=self.arm_name, arm=self.arm, model=self.arms["model"], caps=self.arms["caps"],
             descriptions=self.arms["descriptions"][self.arm["descriptions"]]["tools"],
-            url=env.get("OPENCLAW_EVAL_GATEWAY_URL"), token=self._token, prompt=request.prompt, prompt_id=prompt_id,
-            kind=kind, verified=self.verified, deadline_seconds=min(self.deadline_seconds, max(1.0, request.timeout_seconds - ANSWER_MARGIN_SECONDS)))
+            url=request.env.get("OPENCLAW_EVAL_GATEWAY_URL"), token=self._token, prompt=request.prompt, prompt_id=prompt_id,
+            kind=kind, verified=self.verified, stop=stop,
+            deadline_seconds=min(self.deadline_seconds, max(1.0, request.timeout_seconds - ANSWER_MARGIN_SECONDS)))

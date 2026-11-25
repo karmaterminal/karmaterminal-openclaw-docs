@@ -1,4 +1,4 @@
-"""model | preflight | run | offline | report | overlay. See README.md."""
+"""model | preflight | run | offline | report | overlay | supervise | stop. See README.md."""
 
 import argparse
 import asyncio
@@ -12,6 +12,7 @@ import pathlib
 import re
 import subprocess
 import sys
+import tempfile
 
 import yaml
 
@@ -23,6 +24,9 @@ from .trial import SCRATCH_PATH
 DEFAULT_TOKEN_BUDGET = 35_000_000
 TOKEN_BUDGET_RULE = "per arm, checked between trials; not a ceiling, the trial in flight can exceed it"
 OFFLINE_DEADLINE_SECONDS = 1.0
+# The totals of a full fire (README.md, Cost); arms.json has the canary's, which `run` takes unless told otherwise.
+FULL_RUN_TOKENS, FULL_RUN_SECONDS = 75_000_000, 4 * 3600
+OFFLINE_POLL_SECONDS = 0.2
 # EvalBench drops a session three hours after it starts and ends the job without a result (util/sessionmgr.py ttl).
 SESSION_TTL_SECONDS = 48 * 3600
 CSV_FILES = ("configs.csv", "evals.csv", "scores.csv", "summary.csv")
@@ -102,7 +106,13 @@ def _logging_to(path):
         handler.close()
 
 
-async def run_jobs(out, run_configs, *, arms, tokens, token_budget, deadline_seconds=None):
+def _private(out):
+    private = out / "private"
+    private.mkdir(mode=0o700, exist_ok=True)
+    return private
+
+
+async def run_jobs(out, run_configs, *, arms, tokens, token_budget, supervision=None, deadline_seconds=None):
     """Host EvalBench's EvalService on loopback and run one job per arm, all at once. Returns {arm: result}."""
     import grpc
     from eval_service import EvalServicer, SessionManagerInterceptor
@@ -112,8 +122,7 @@ async def run_jobs(out, run_configs, *, arms, tokens, token_budget, deadline_sec
     from .adapter import ArmJob
 
     get_SessionManager().set_ttl(SESSION_TTL_SECONDS)
-    private = out / "private"
-    private.mkdir(mode=0o700)
+    private = _private(out)
     server = grpc.aio.server(interceptors=[SessionManagerInterceptor("openclaw")])
     eval_service_pb2_grpc.add_EvalServiceServicer_to_server(EvalServicer(), server)
     port = server.add_insecure_port("127.0.0.1:0")
@@ -127,7 +136,7 @@ async def run_jobs(out, run_configs, *, arms, tokens, token_budget, deadline_sec
                 trial_log = private / f"trials-{name}.jsonl"
                 os.close(os.open(trial_log, os.O_CREAT | os.O_WRONLY, 0o600))
                 job = ArmJob(channel=channel, arms=arms, arm_name=name, run_config=run_configs[name], token=tokens[name],
-                             trial_log=trial_log, token_budget=token_budget, **extra)
+                             trial_log=trial_log, token_budget=token_budget, supervision=supervision, **extra)
                 try:
                     results[name] = {**await job.run(), "error": None}
                 except Exception as error:
@@ -138,6 +147,24 @@ async def run_jobs(out, run_configs, *, arms, tokens, token_budget, deadline_sec
     finally:
         await server.stop(grace=0)
     return results
+
+
+def _supervision_failures(summary):
+    """What the supervisor had to do, or could not do. A clean run has none: every gateway stopped, for no other reason."""
+    failures = []
+    if summary["halted"]:
+        failures.append(f"run halted: {summary['halted']}")
+    receipt = summary["receipt"]
+    if receipt is None:
+        failures.append("the supervisor left no receipt")
+    stops = {n: a["stop"] for n, a in receipt["arms"].items()} if receipt else {}
+    for name, stop in stops.items():
+        if not stop or not (stop["result"] or {}).get("stopped"):
+            failures.append(f"arm {name}'s gateway was not proved stopped")
+    for name, result in (summary["runnerStops"] or {}).items():
+        if not result["stopped"]:
+            failures.append(f"arm {name}'s gateway was not proved stopped by the runner: {'; '.join(result['problems'])}")
+    return failures
 
 
 def _finish(out, results, manifest, arms):
@@ -153,6 +180,8 @@ def _finish(out, results, manifest, arms):
         jobs[name] = [job_dir]
         if result["halted"]:
             failures.append(f"arm {name} halted: {result['halted']}")
+    if manifest.get("supervision"):
+        failures += _supervision_failures(manifest["supervision"])
     manifest.update(ended=_now(), results=results, failures=failures)
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     if jobs:
@@ -173,6 +202,7 @@ def _manifest(args, arms, urls, offline):
         "evalbenchPin": pin, "evalbenchHead": _git("rev-parse", "HEAD", cwd=os.environ.get("OPENCLAW_EVALBENCH_SRC", ".")),
         "harnessHead": _git("rev-parse", "HEAD"), "harnessDirty": bool(_git("status", "--porcelain", "--", ".")),
         "numTrials": args.num_trials, "scenarios": args.scenarios, "tokenBudgetPerArm": args.token_budget, "tokenBudgetRule": TOKEN_BUDGET_RULE,
+        "caps": arms["caps"]["set"],
         "evalsetSha256": _sha256(ROOT / "datasets/continuation-propensity.evalset.json"), "armsSha256": _sha256(ROOT / "arms.json"),
     }
 
@@ -203,7 +233,7 @@ def cmd_preflight(args):
     async def check(name):
         try:
             async with GatewayClient(arms_module.check_url(urls[name]), tokens[name]) as client:
-                return {"ok": True, **await preflight(name, arms["arms"][name], arms["model"], client)}
+                return {"ok": True, **await preflight(name, arms["arms"][name], arms["model"], arms["caps"], client)}
         except Exception as error:
             return {"ok": False, "arm": name, "reason": f"{type(error).__name__}: {error}"}
 
@@ -215,7 +245,20 @@ def cmd_preflight(args):
     return 0 if all(r["ok"] for r in receipts) else 1
 
 
+async def _supervised(path, plan, launch, work):
+    """Arm the supervisor, do the work, and have every gateway stopped, whatever the work did. Returns (work, summary)."""
+    from .supervision import Supervision
+    supervision = await Supervision.start(path, plan, launch)
+    done = None
+    try:
+        done = await work(supervision)
+    finally:
+        summary = await supervision.finish()
+    return done, summary
+
+
 def cmd_run(args):
+    from .supervision import SupervisorError, launch_live, limits_for, make_plan, stopped_before, systemd_units
     if not re.fullmatch(r"\d{17,20}", args.go or ""):
         raise SystemExit("refusing: --go needs the message id of the seat owner's go (README.md, Firing it)")
     arms, urls = load_arms(), gateway_urls(args.arms, args.gateway_url)
@@ -226,40 +269,73 @@ def cmd_run(args):
             raise SystemExit(f"refusing {url}: {error}") from None
     if SCRATCH_PATH.exists():
         raise SystemExit(f"refusing: {SCRATCH_PATH} exists; the prompts need it absent")
+    units = systemd_units(arms, urls)
+    if before := stopped_before(units):
+        raise SystemExit(f"refusing: a supervisor stopped {', '.join(before)} before; shred it and set it up again")
     tokens, out = _token_files(args.arms), _new_out(args.out)
     manifest = _manifest(args, arms, urls, offline=False)
     with _logging_to(out / "evalbench.log"):
         run_configs = build_configs(out, args.arms, model=arms["model"], gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
-        results = asyncio.run(run_jobs(out, run_configs, arms=arms, tokens=tokens, token_budget=args.token_budget))
+        path, plan = make_plan(_private(out), offline=False, urls=urls, units=units,
+                               limits=limits_for(arms, run_tokens=args.run_token_cap, run_seconds=args.run_seconds),
+                               token_files={n: pathlib.Path(os.environ[f"OPENCLAW_EVAL_TOKEN_FILE_{n}"]).expanduser().resolve() for n in args.arms})
+        try:
+            results, manifest["supervision"] = asyncio.run(_supervised(path, plan, launch_live, lambda supervision: run_jobs(
+                out, run_configs, arms=arms, tokens=tokens, token_budget=args.token_budget, supervision=supervision)))
+        except SupervisorError as error:
+            raise SystemExit(f"refusing: the supervisor is not armed, so nothing was sent: {error}") from None
     return _finish(out, results, manifest, arms)
 
 
 def cmd_offline(args):
-    from .fake_gateway import FakeGateway, load_plan
-    arms, plan, out = load_arms(), load_plan()["arms"], _new_out(args.out)
-
-    async def everything():
-        async with contextlib.AsyncExitStack() as stack:
-            fakes = {}
-            for name in args.arms:
-                arm = arms["arms"][name]
-                fakes[name] = await stack.enter_async_context(FakeGateway(
-                    arm, model=arms["model"], descriptions=arms["descriptions"][arm["descriptions"]]["tools"], plan=plan[name]))
-            urls = {n: f.url for n, f in fakes.items()}
-            run_configs = build_configs(out, args.arms, model=arms["model"], gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
-            results = await run_jobs(out, run_configs, arms=arms, tokens={n: f.token for n, f in fakes.items()},
-                                     token_budget=args.token_budget, deadline_seconds=OFFLINE_DEADLINE_SECONDS)
-            leftovers = {n: len(f.sessions) for n, f in fakes.items() if f.sessions}
-            return urls, results, leftovers
-
+    from .fake_gateway import launch_fakes
+    from .gateway import GatewayClient
+    from .supervision import launch_offline, limits_for, make_plan
+    arms, out = load_arms(), _new_out(args.out)
     manifest = _manifest(args, arms, None, offline=True)
-    with _logging_to(out / "evalbench.log"):
-        manifest["gatewayUrls"], results, leftovers = asyncio.run(everything())
+
+    async def everything(secrets):
+        with launch_fakes(args.arms, secrets) as fakes:
+            urls = {n: f["url"] for n, f in fakes.items()}
+            manifest["gatewayUrls"] = urls
+            run_configs = build_configs(out, args.arms, model=arms["model"], gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
+            path, plan = make_plan(_private(out), offline=True, urls=urls, token_files={n: f["tokenFile"] for n, f in fakes.items()},
+                                   units={n: {"kind": "fake", "pid": f["pid"]} for n, f in fakes.items()},
+                                   limits=limits_for(arms, run_tokens=args.run_token_cap, run_seconds=args.run_seconds, pollSeconds=OFFLINE_POLL_SECONDS))
+            leftovers = {}
+
+            async def work(supervision):
+                results = await run_jobs(out, run_configs, arms=arms, tokens={n: pathlib.Path(f["tokenFile"]).read_text() for n, f in fakes.items()},
+                                         token_budget=args.token_budget, supervision=supervision, deadline_seconds=OFFLINE_DEADLINE_SECONDS)
+                for name, fake in fakes.items():
+                    with contextlib.suppress(Exception):  # a fake the supervisor stopped has nothing left to ask
+                        async with GatewayClient(fake["url"], pathlib.Path(fake["tokenFile"]).read_text()) as client:
+                            left = len((await client.call("sessions.list", {"limit": 100}))["sessions"])
+                            leftovers.update({name: left} if left else {})
+                return results
+            results, summary = await _supervised(path, plan, launch_offline, work)
+            return results, summary, leftovers
+
+    with _logging_to(out / "evalbench.log"), tempfile.TemporaryDirectory(prefix="evalprop-fakes-") as secrets:
+        results, manifest["supervision"], leftovers = asyncio.run(everything(pathlib.Path(secrets)))
     code = _finish(out, results, manifest, arms)
     if leftovers:
         print(f"FAILED: sessions left on the fake gateways: {leftovers}", file=sys.stderr)
         return 1
     return code
+
+
+def cmd_supervise(args):
+    from .supervisor import main as supervise
+    return supervise(args.plan)
+
+
+def cmd_stop(args):
+    """Stop every gateway of a plan now, with no supervisor and no runner. The deadman timer runs this too."""
+    from .supervisor import stop_everything
+    results = stop_everything(json.loads(pathlib.Path(args.plan).read_text()))
+    print(json.dumps(results, indent=2))
+    return 0 if all(r["stopped"] for r in results.values()) else 1
 
 
 def cmd_report(args):
@@ -295,7 +371,7 @@ def cmd_overlay(args):
     arms = load_arms()
     # Under state/, so the launcher's shred takes it.
     log_file = str(path.parent / "state" / "gateway.log")
-    text = json.dumps(arms_module.apply_overlay(arms["arms"][args.arm], arms["model"], config, log_file), indent=2) + "\n"
+    text = json.dumps(arms_module.apply_overlay(arms["arms"][args.arm], arms["model"], arms["caps"], config, log_file), indent=2) + "\n"
     temporary = path.with_name(path.name + ".evalprop")
     descriptor = os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     with os.fdopen(descriptor, "w") as handle:
@@ -344,6 +420,11 @@ def main(argv=None):
             command.add_argument("--num-trials", type=_positive, default=load_arms()["repetitions"])
             command.add_argument("--scenarios", type=_scenario_list)
             command.add_argument("--token-budget", type=_positive, default=DEFAULT_TOKEN_BUDGET, help=f"metered tokens, cache reads included: {TOKEN_BUDGET_RULE}")
+            totals = load_arms()["supervision"]["canary"] if live else {"tokens": FULL_RUN_TOKENS, "seconds": FULL_RUN_SECONDS}
+            command.add_argument("--run-token-cap", type=_positive, default=totals["tokens"],
+                                 help="metered tokens on every arm together; the supervisor stops every gateway there (default: %(default)s)")
+            command.add_argument("--run-seconds", type=_positive, default=totals["seconds"],
+                                 help="wall clock of the whole run; the supervisor stops every gateway there (default: %(default)s)")
         if name == "run":
             command.add_argument("--go", help="message id of the seat owner's go")
     command = commands.add_parser("report")
@@ -355,6 +436,10 @@ def main(argv=None):
     command.set_defaults(handler=cmd_overlay)
     command.add_argument("arm", choices=list(load_arms()["arms"]))
     command.add_argument("config")
+    for name, handler in (("supervise", cmd_supervise), ("stop", cmd_stop)):
+        command = commands.add_parser(name)
+        command.set_defaults(handler=handler)
+        command.add_argument("--plan", required=True, help="a run's private/supervision-plan.json")
     args = parser.parse_args(argv)
     return args.handler(args)
 

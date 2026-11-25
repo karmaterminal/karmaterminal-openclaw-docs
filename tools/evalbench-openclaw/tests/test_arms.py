@@ -12,12 +12,13 @@ from openclaw_evalbench.surface import read_surface, surface_verdict
 
 
 LOG = "/home/x/proof-gw/comp-1/state/gateway.log"
+CAPS = A.load_arms()["caps"]
 
 
 def config_for(arm, **changes):
     source = {"agents": {"defaults": {"model": {"primary": MODEL, "fallbacks": []}, "continuation": {"enabled": True}}},
               "tools": {}, "plugins": {"entries": {"codex": {"config": {"codexDynamicToolsLoading": "searchable"}}}}}
-    source = A.apply_overlay(arm, MODEL, source, LOG)
+    source = A.apply_overlay(arm, MODEL, CAPS, source, LOG)
     source.update(changes)
     return {"valid": True, "sourceConfig": source, "config": copy.deepcopy(source), "configRevisionHash": "h"}
 
@@ -149,7 +150,7 @@ def test_a_setting_that_outranks_the_arm_is_refused_and_the_overlay_clears_it(ar
     node["kept"] = 1
     with pytest.raises(A.ArmMismatch, match="outranks"):
         A.check_config(arms["arms"]["B"], MODEL, payload)
-    payload["sourceConfig"] = A.apply_overlay(arms["arms"]["B"], MODEL, payload["sourceConfig"], LOG)
+    payload["sourceConfig"] = A.apply_overlay(arms["arms"]["B"], MODEL, CAPS, payload["sourceConfig"], LOG)
     A.check_config(arms["arms"]["B"], MODEL, payload)
     assert A.read_path(payload["sourceConfig"], (*path[:-1], "kept")) == 1, "and nothing beside it"
 
@@ -158,7 +159,7 @@ def test_another_models_own_entry_is_left_alone(arms):
     payload = config_for(arms["arms"]["A"])
     payload["sourceConfig"]["agents"]["defaults"]["models"] = {OTHER_MODEL: {"codeMode": True}}
     A.check_config(arms["arms"]["A"], MODEL, payload)
-    assert A.apply_overlay(arms["arms"]["A"], MODEL, payload["sourceConfig"], LOG) == payload["sourceConfig"]
+    assert A.apply_overlay(arms["arms"]["A"], MODEL, CAPS, payload["sourceConfig"], LOG) == payload["sourceConfig"]
 
 
 @pytest.mark.parametrize("log_file", [None, "", "gateway.log", "~/proof-gw/x.log", "/tmp/openclaw/openclaw-2026-11-25.log", "/tmp//openclaw/x.log",
@@ -177,11 +178,11 @@ def test_an_unreadable_config_is_refused(arms):
 
 def test_the_overlay_sets_and_clears_only_the_arms_keys(arms):
     before = {"tools": {"toolSearch": True, "codeMode": "auto", "exec": {"x": 1}}, "gateway": {"auth": {"token": "t"}}}
-    after = A.apply_overlay(arms["arms"]["A"], MODEL, before, LOG)
+    after = A.apply_overlay(arms["arms"]["A"], MODEL, {"set": {}}, before, LOG)
     assert after == {"tools": {"exec": {"x": 1}}, "gateway": {"auth": {"token": "t"}}, "logging": {"file": LOG},
                      "agents": {"defaults": {"model": {"primary": MODEL, "fallbacks": []}, "skipBootstrap": True}}}
     assert before["tools"]["toolSearch"] is True
-    b = A.apply_overlay(arms["arms"]["B"], MODEL, before, LOG)
+    b = A.apply_overlay(arms["arms"]["B"], MODEL, {"set": {}}, before, LOG)
     assert b["tools"] == {"toolSearch": False, "codeMode": False, "exec": {"x": 1}}
     assert b["plugins"]["entries"]["codex"]["config"] == {"codexDynamicToolsLoading": "direct"}
 

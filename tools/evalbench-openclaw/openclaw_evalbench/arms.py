@@ -23,6 +23,10 @@ class ArmMismatch(Exception):
     """The gateway is not the arm: its identity, configuration or tool surface contradicts arms.json."""
 
 
+class CapsMismatch(ArmMismatch):
+    """The product's spend caps are not in force on this gateway. It halts the whole run, not only its arm."""
+
+
 def load_arms(path=None):
     return json.loads(pathlib.Path(path or ROOT / "arms.json").read_text())
 
@@ -84,6 +88,15 @@ def outranking_paths(model):
             ("agents", "defaults", "models", model, "codeMode"))
 
 
+def outranking_cap_paths():
+    """The agent's own swarm settings, which outrank tools.swarm (openclaw ab5a30ea src/agents/subagents/swarm/swarm-config.ts:24-29).
+
+    Only the caps' own keys: an agent's `enabled` is the seat's surface, and is left alone. No other cap has an
+    agent-level form: continuation, subagents.max*, timeoutSeconds and maxConcurrent are read from agents.defaults only.
+    """
+    return tuple(("agents", "entries", AGENT_ID, "tools", "swarm", leaf) for leaf in ("maxConcurrent", "maxChildrenPerGroup", "maxTotalPerGroup"))
+
+
 def read_path(config, path):
     """The value at a dotted path, or at a tuple of keys (a model id has dots in it)."""
     node = config
@@ -140,13 +153,50 @@ def check_config(arm, model, payload):
     return {"configRevisionHash": payload.get("configRevisionHash")}
 
 
-def apply_overlay(arm, model, config, log_file):
-    """The firing model, a private log file and the arm's settings, written into a proof gateway's config.
+def _same(got, want):
+    """Equality that keeps 1 and true apart."""
+    return got is not _MISSING and type(got) is type(want) and got == want
+
+
+def check_caps(caps, payload):
+    """Check that the run's spend caps are authored, effective and applied by the running gateway. Returns the receipt.
+
+    config.get answers with the file as authored (sourceConfig), with the product's defaults filled in (config), and with
+    the revision the running gateway has applied (openclaw ab5a30ea src/gateway/config-get-response.ts:27-38). A file
+    that was edited and not loaded has two different revisions.
+    """
+    payload = payload or {}
+    source, effective = payload.get("sourceConfig"), payload.get("config")
+    if payload.get("valid") is not True or not isinstance(source, dict) or not isinstance(effective, dict):
+        raise CapsMismatch("config.get returned no valid configuration")
+    problems = []
+    for key, want in caps["set"].items():
+        for name, config in (("authored", source), ("effective", effective)):
+            got = read_path(config, key)
+            if not _same(got, want):
+                problems.append(f"{name} {key} is {'unset' if got is _MISSING else json.dumps(got)}, not {json.dumps(want)}")
+    for path in outranking_cap_paths():
+        if read_path(source, path) is not _MISSING:
+            problems.append(f"{'.'.join(path)} must be unset: it outranks the caps")
+    authored, applied = payload.get("configRevisionHash"), payload.get("appliedConfigHash")
+    if not authored or applied != authored:
+        problems.append("the running gateway has not applied this configuration")
+    if problems:
+        raise CapsMismatch("caps not in force: " + "; ".join(problems))
+    return {"verdict": "verified", "configRevisionHash": authored, "values": dict(caps["set"])}
+
+
+def apply_overlay(arm, model, caps, config, log_file):
+    """The firing model, a private log file, the run's spend caps and the arm's settings, written into a proof gateway's config.
 
     Returns a new dict; the input is not changed.
     """
     out = json.loads(json.dumps(config))
-    settings = {"agents.defaults.model": {"primary": model, "fallbacks": []}, "logging.file": log_file, **arm["config"].get("set", {})}
+    swarm = read_path(out, "tools.swarm")
+    if isinstance(swarm, bool):
+        # The product takes a bare switch here as well as an object; the caps need the object.
+        out["tools"]["swarm"] = {"enabled": swarm}
+    settings = {"agents.defaults.model": {"primary": model, "fallbacks": []}, "logging.file": log_file, **caps["set"], **arm["config"].get("set", {})}
     for key, value in settings.items():
         node = out
         *parents, leaf = key.split(".")
@@ -155,7 +205,7 @@ def apply_overlay(arm, model, config, log_file):
             if not isinstance(node, dict):
                 raise ArmMismatch(f"{key}: {part} is not an object in this config")
         node[leaf] = value
-    for path in [*(key.split(".") for key in arm["config"].get("absent", [])), *outranking_paths(model)]:
+    for path in [*(key.split(".") for key in arm["config"].get("absent", [])), *outranking_paths(model), *outranking_cap_paths()]:
         node = out
         *parents, leaf = path
         for part in parents:

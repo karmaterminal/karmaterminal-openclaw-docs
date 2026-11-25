@@ -72,7 +72,7 @@ def test_changing_the_parameter_alone_moves_the_whole_run(tmp_path):
 
 def settle(arms, env):
     job = object.__new__(ArmJob)
-    job.arm_name, job.arm, job.arms, job.verified, job._token, job.deadline_seconds = "A", arms["arms"]["A"], arms, None, "t", 1.0
+    job.arm_name, job.arm, job.arms, job.verified, job._token, job.deadline_seconds, job.supervision = "A", arms["arms"]["A"], arms, None, "t", 1.0, None
 
     async def runner(**_kwargs):
         return {"status": "ran"}

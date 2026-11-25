@@ -8,12 +8,14 @@ import time
 import uuid
 
 from . import arms as arms_module
-from .arms import AGENT_ID, ArmMismatch
+from .arms import AGENT_ID, ArmMismatch, CapsMismatch
 from .gateway import GatewayClient, GatewayError
+from .meter import MeterError, timeseries_tokens
 from .surface import read_surface, surface_verdict
-from .transcript import TranscriptError, read_turn
+from .transcript import TranscriptError, continuation_wakes, read_turn
 
-TURN_DEADLINE_SECONDS = 600.0
+# Below the product's own turn timeout (arms.json, caps), so a turn that runs long is stopped here, and read.
+TURN_DEADLINE_SECONDS = 300.0
 WAIT_SLICE_MS = 15_000
 HISTORY_PAGE = 200
 HISTORY_MAX_PAGES = 20
@@ -22,6 +24,7 @@ CLEANUP_ATTEMPTS = 3
 CLEANUP_ROUNDS = 3
 # Archive and delete wait for a session's work to drain.
 CLEANUP_CALL_SECONDS = 90.0
+STOP_ABORT_SECONDS = 2.0
 # The prompts name files here that nothing creates. A model that creates one changes what later trials see.
 SCRATCH_PATH = pathlib.Path("/tmp/evalprop")
 # Scored: the turn's outcome counts. Anything else leaves every denominator.
@@ -30,6 +33,10 @@ SCORED = ("ok", "deadline")
 
 class InfraError(Exception):
     """The trial could not be run or read. Never an outcome."""
+
+
+class TrialStopped(Exception):
+    """The supervisor is stopping this arm's gateway."""
 
 
 def _hash12(value):
@@ -45,21 +52,23 @@ def _terminal(wait):
             and (wait.get("endedAt") is not None or bool(wait.get("stopReason")) or bool(wait.get("livenessState"))))
 
 
-async def preflight(arm_name, arm, model, client):
-    """Identity, methods and config. Reads only. Returns the receipt; raises ArmMismatch."""
+async def preflight(arm_name, arm, model, caps, client):
+    """Identity, methods, config and the spend caps in force. Reads only. Returns the receipt; raises ArmMismatch."""
     identity = arms_module.check_identity(arm, client.hello)
     missing = client.missing_methods()
     if missing:
         raise ArmMismatch(f"gateway does not advertise: {', '.join(missing)}")
-    config = arms_module.check_config(arm, model, await client.call("config.get", {}))
-    return {"arm": arm_name, "model": model, "identity": identity, **config}
+    payload = await client.call("config.get", {})
+    config = arms_module.check_config(arm, model, payload)
+    return {"arm": arm_name, "model": model, "identity": identity, **config, "caps": arms_module.check_caps(caps, payload)}
 
 
-async def run_trial(*, arm_name, arm, descriptions, model, url, token, prompt, prompt_id, kind,
-                    verified=None, deadline_seconds=TURN_DEADLINE_SECONDS, sleep=asyncio.sleep):
+async def run_trial(*, arm_name, arm, descriptions, model, caps, url, token, prompt, prompt_id, kind,
+                    verified=None, stop=None, deadline_seconds=TURN_DEADLINE_SECONDS, sleep=asyncio.sleep):
     """Run one trial and return its record. Never raises for a gateway or product failure: that is a status.
 
     `verified` is the arm's last verified surface in this run: {"gateway", "surface"}. See _surface_for.
+    `stop` is the supervisor's signal for this arm (supervision.StopSignal).
     """
     started = time.monotonic()
     record = {
@@ -70,8 +79,10 @@ async def run_trial(*, arm_name, arm, descriptions, model, url, token, prompt, p
     try:
         url = arms_module.check_url(url)
         async with GatewayClient(url, token) as client:
-            record["gateway"] = await preflight(arm_name, arm, model, client)
-            await _trial_on(client, record, arm, descriptions, model, prompt, verified, deadline_seconds, sleep)
+            record["gateway"] = await preflight(arm_name, arm, model, caps, client)
+            await _trial_on(client, record, arm, descriptions, model, caps, prompt, verified, stop, deadline_seconds, sleep)
+    except CapsMismatch as error:
+        record.update(status="caps_mismatch", reason=str(error))
     except ArmMismatch as error:
         record.update(status="arm_mismatch", reason=str(error))
     except (InfraError, TranscriptError) as error:
@@ -82,6 +93,12 @@ async def run_trial(*, arm_name, arm, descriptions, model, url, token, prompt, p
         record.update(status="infra_error", reason=f"gateway unreachable: {type(error).__name__}")
     except Exception as error:  # a bug or an unexpected frame is never an outcome
         record.update(status="infra_error", reason=f"adapter error: {type(error).__name__}: {error}"[:300])
+    if record["status"] in SCORED and record.get("continuationWakes"):
+        # The config readback says the caps are set. A wake says they did not hold: the cost cap allows none.
+        record.update(status="caps_mismatch", reason=f"caps not in force: {record['continuationWakes']} continuation wake(s) ran in the trial")
+    if stop is not None and stop.reason:
+        # Whatever else went wrong, or had been read by then, this is why.
+        record.update(status="supervisor_stopped", reason=stop.reason)
     if record["status"] not in SCORED:
         # An unscored trial makes no claim about the election, whatever had been read by then.
         record["elected"] = None
@@ -89,7 +106,7 @@ async def run_trial(*, arm_name, arm, descriptions, model, url, token, prompt, p
     return record
 
 
-async def _trial_on(client, record, arm, descriptions, model, prompt, verified, deadline_seconds, sleep):
+async def _trial_on(client, record, arm, descriptions, model, caps, prompt, verified, stop, deadline_seconds, sleep):
     created = await client.call("sessions.create", {
         "key": f"evalprop-{record['arm'].lower()}-{uuid.uuid4().hex}", "agentId": AGENT_ID,
         "label": f"evalprop {record['arm']} {uuid.uuid4().hex[:12]}",
@@ -103,14 +120,23 @@ async def _trial_on(client, record, arm, descriptions, model, prompt, verified, 
         run_id = sent.get("runId")
         if not isinstance(run_id, str) or not run_id:
             raise InfraError("sessions.send answered without a runId")
-        wait = await _wait(client, run_id, deadline_seconds)
+        try:
+            wait = await _wait(client, run_id, deadline_seconds, stop)
+        except TrialStopped:
+            # This connection started the run, so its abort is the one the gateway cannot refuse. The unit is being
+            # stopped beside this, whatever it answers.
+            with contextlib.suppress(GatewayError, TimeoutError, OSError):
+                await client.call("sessions.abort", {"key": key, "clearQueued": True}, timeout=STOP_ABORT_SECONDS)
+            raise InfraError("stopped by the supervisor") from None
         if wait is None:
             # Stop the turn before reading it, so the history read below is its final state.
             await client.call("sessions.abort", {"key": key, "clearQueued": True})
         failed = wait is not None and wait.get("status") == "error"
         failure = f"the turn failed: {str((wait or {}).get('error') or 'no error text')[:200]}"
+        rows = await _history(client, key)
+        record["continuationWakes"] = continuation_wakes(rows)
         try:
-            turn = read_turn(await _history(client, key), prompt, run_id)
+            turn = read_turn(rows, prompt, run_id)
         except TranscriptError as error:
             if wait is None:
                 # Not an outcome, and not an ordinary failure either: report.py shows these on their own.
@@ -146,23 +172,42 @@ async def _trial_on(client, record, arm, descriptions, model, prompt, verified, 
             if selected != model:
                 raise InfraError(f"no assistant row names a model, and the session selected {selected}")
             record["servedModels"], record["servedModelSource"] = [selected], "selection"
+        # A turn can change its own gateway's configuration. The caps have to be the same ones after it as before.
+        after = arms_module.check_caps(caps, await client.call("config.get", {}))
+        if after != record["gateway"]["caps"]:
+            raise CapsMismatch("caps not in force: the gateway's configuration changed during the trial")
         record["status"] = "deadline" if wait is None or wait.get("status") == "timeout" else "ok"
     finally:
         record["metered"] = await _meter(client, key)
         record["cleanup"] = await _cleanup(client, key, sleep)
 
 
-async def _wait(client, run_id, deadline_seconds):
-    """The run's terminal agent.wait answer, or None when the deadline passed first."""
+async def _wait(client, run_id, deadline_seconds, stop):
+    """The run's terminal agent.wait answer, or None when the deadline passed first. Raises TrialStopped on the signal."""
     end = time.monotonic() + deadline_seconds
     while (left := end - time.monotonic()) > 0:
         slice_ms = max(1, min(WAIT_SLICE_MS, int(left * 1000)))
-        answer = await client.call("agent.wait", {"runId": run_id, "timeoutMs": slice_ms}, timeout=slice_ms / 1000 + 15)
+        answer = await _unless_stopped(stop, client.call("agent.wait", {"runId": run_id, "timeoutMs": slice_ms}, timeout=slice_ms / 1000 + 15))
         if _terminal(answer):
             return answer
         if answer.get("status") == "pending":
             await asyncio.sleep(min(1.0, max(0.0, end - time.monotonic())))
     return None
+
+
+async def _unless_stopped(stop, call):
+    if stop is None:
+        return await call
+    call, signal = asyncio.ensure_future(call), asyncio.ensure_future(stop.event.wait())
+    try:
+        await asyncio.wait({call, signal}, return_when=asyncio.FIRST_COMPLETED)
+        if stop.event.is_set():
+            raise TrialStopped(stop.reason)
+        return call.result()
+    finally:
+        for task in (call, signal):
+            task.cancel()
+        await asyncio.gather(call, signal, return_exceptions=True)
 
 
 async def _history(client, key):
@@ -234,17 +279,9 @@ async def _meter(client, key):
 
 async def _tokens(client, key):
     try:
-        payload = await client.call("sessions.usage.timeseries", {"key": key})
-    except GatewayError:
+        return timeseries_tokens(await client.call("sessions.usage.timeseries", {"key": key}))
+    except (GatewayError, MeterError):
         return None
-    points = payload.get("points")
-    if not isinstance(points, list):
-        return None
-    total = 0
-    for point in points:
-        parts = [point.get(n) or 0 for n in ("input", "output", "cacheRead", "cacheWrite")]
-        total += max(point.get("totalTokens") or 0, sum(parts))
-    return int(total)
 
 
 async def _cleanup(client, key, sleep):

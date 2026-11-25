@@ -3,16 +3,25 @@
 It follows the product's wire shapes at openclaw ab5a30ea79 and is strict where a live gateway is: a method outside
 the table, a parameter outside the closed schema, or a missing scope is refused. Turns come from fixtures/turns/*.json,
 picked by a plan (prompt -> one fixture per trial). Every value in a fixture is synthetic; none was captured live.
+
+A turn may also run away: its "runaway" entry says how fast the session and its children spend, and which of abort,
+delete and answering at all the gateway no longer does (_Burn). It can run as a process of its own, which the supervisor
+can kill as it would a real gateway's.
 """
 
 import asyncio
+import contextlib
 import json
+import os
 import pathlib
+import subprocess
+import sys
+import time
 import uuid
 
 from websockets.asyncio.server import serve
 
-from .arms import CONTINUATION_TOOLS, ROOT, apply_overlay, load_scenarios
+from .arms import AGENT_ID, CONTINUATION_TOOLS, ROOT, apply_overlay, load_arms, load_scenarios
 from .gateway import REQUIRED_METHODS
 
 # Closed parameter schemas, packages/gateway-protocol/src/schema at ab5a30ea79: (allowed, required). Only the
@@ -26,7 +35,7 @@ PARAMS = {
     "sessions.describe": (("key", "agentId", "includeDerivedTitles", "includeLastMessage"), ("key",)),
     "sessions.usage": (("key", "agentId", "agentScope", "startDate", "endDate", "mode", "range", "limit", "includeContextWeight"), ()),
     "sessions.usage.timeseries": (("key", "agentId"), ("key",)),
-    "sessions.list": (("limit", "offset", "spawnedBy", "agentId", "activeOnly"), ()),
+    "sessions.list": (("limit", "offset", "spawnedBy", "agentId", "activeOnly", "archived"), ()),
     "sessions.abort": (("key", "runId", "agentId", "clearQueued", "userInitiated"), ()),
     "sessions.patch": (("key", "agentId", "expectedSessionId", "archived", "label"), ("key",)),
     "sessions.delete": (("key", "agentId", "deleteTranscript", "expectedSessionId", "archivedOnly"), ("key",)),
@@ -58,16 +67,38 @@ def _fill(value, mapping):
     return value
 
 
+class _Burn:
+    """A session that spends by itself: one call of callTokens every callSeconds, from `delaySeconds` on, until it is ended."""
+
+    def __init__(self, spec):
+        self.tokens, self.seconds = spec["callTokens"], spec["callSeconds"]
+        self.started, self.ended = time.monotonic() + spec.get("delaySeconds", 0), None
+
+    def spent(self):
+        until = time.monotonic() if self.ended is None else self.ended
+        return self.tokens * max(0, int((until - self.started) / self.seconds))
+
+    @property
+    def running(self):
+        return self.ended is None and time.monotonic() >= self.started
+
+    def end(self):
+        if self.ended is None:
+            self.ended = time.monotonic()
+
+
 class FakeGateway:
     """One arm's fake gateway on 127.0.0.1. Use as an async context manager; `.url` and `.token` are ready inside."""
 
-    def __init__(self, arm, *, model, descriptions, plan, turns=None, scenarios=None, overrides=None, port=0):
+    def __init__(self, arm, *, model, descriptions, plan, caps=None, turns=None, scenarios=None, overrides=None, port=0):
         self.arm, self.model, self.descriptions = arm, model, descriptions
+        self.caps = caps or load_arms()["caps"]
         self.plan, self.turns = plan, turns or load_turns()
         self.prompts = {s["starting_prompt"]: s["id"] for s in scenarios or load_scenarios()}
         self.overrides = overrides or {}
         self.port, self.token, self.url = port, f"fake-{uuid.uuid4().hex}", None
-        self.sessions, self.runs, self.sends, self.deleted = {}, {}, {}, []
+        self.sessions, self.runs, self.sends, self.deleted, self.archive = {}, {}, {}, [], {}
+        self.frozen_at = None
         self.calls, self._server = [], None
 
     async def __aenter__(self):
@@ -105,6 +136,8 @@ class FakeGateway:
                 await self._reply(socket, frame, self._hello(scopes))
                 continue
             self.calls.append((method, params))
+            if self.frozen_at is not None and time.monotonic() >= self.frozen_at:
+                continue  # it still holds the socket open, and answers nothing
             try:
                 payload = self._dispatch(method, params, scopes)
                 if asyncio.iscoroutine(payload):
@@ -154,9 +187,13 @@ class FakeGateway:
         source = {"agents": {"defaults": {"model": {"primary": self.model, "fallbacks": []},
                                           "continuation": {"enabled": True}}},
                   "tools": {}, "plugins": {"entries": {"codex": {"config": {"codexDynamicToolsLoading": "searchable"}}}}}
-        source = apply_overlay(self.arm, self.model, source, "/fake/state/gateway.log")
+        source = apply_overlay(self.arm, self.model, self.caps, source, "/fake/state/gateway.log")
         source.update(self.overrides.get("config", {}))
-        return {"valid": True, "sourceConfig": source, "config": source, "configRevisionHash": "fake", "appliedConfigHash": "fake"}
+        return {"valid": True, "sourceConfig": source, "config": source, "configRevisionHash": "fake",
+                "appliedConfigHash": self.overrides.get("appliedConfigHash", "fake")}
+
+    def _new_session(self, **fields):
+        return {"rows": [], "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": False, "burn": None, "sessionId": uuid.uuid4().hex, **fields}
 
     def _sessions_create(self, params):
         key = params.get("key") or f"fake-{uuid.uuid4().hex}"
@@ -164,8 +201,8 @@ class FakeGateway:
             key = f"agent:{params['agentId']}:{key}" if params.get("agentId") else key
         if key in self.sessions:
             raise _Refusal("INVALID_REQUEST", "session exists")
-        self.sessions[key] = {"rows": [], "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": False}
-        return {"ok": True, "key": key, "sessionId": uuid.uuid4().hex}
+        self.sessions[key] = self._new_session()
+        return {"ok": True, "key": key, "sessionId": self.sessions[key]["sessionId"]}
 
     def _sessions_send(self, params):
         session, message = self._session(params["key"]), params["message"]
@@ -183,11 +220,26 @@ class FakeGateway:
         session["rows"] += _fill(turn["rows"], mapping)
         for child in turn.get("children", []):
             link = child.get("link", "spawnedBy")
-            self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = {
-                "rows": _fill(child.get("rows", []), mapping), "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": True, link: params["key"]}
+            self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = self._new_session(rows=_fill(child.get("rows", []), mapping), settled=True, **{link: params["key"]})
+        if turn.get("runaway"):
+            self._run_away(session, params["key"], turn["runaway"])
         self.runs[run_id] = turn.get("wait", {"status": "ok"})
         session["settled"] = self.runs[run_id]["status"] != "never"
         return {"runId": run_id, "status": "started"}
+
+    def _run_away(self, session, key, spec):
+        session["burn"] = _Burn(spec) if spec.get("callTokens") else None
+        for _ in range(spec.get("children", 0)):
+            # A child with no link to the trial is one the harness's own cleanup never finds.
+            link = {} if spec.get("orphans") else {"spawnedBy": key}
+            self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = self._new_session(settled=True, burn=_Burn({**spec, **spec.get("child", {})}), **link)
+        if "freezeSeconds" in spec:
+            self.frozen_at = time.monotonic() + spec["freezeSeconds"]
+
+    def _stubborn(self, session, what):
+        runaway = (session["fixture"] or {}).get("runaway") or next(
+            (s["fixture"]["runaway"] for s in self.sessions.values() if (s["fixture"] or {}).get("runaway")), {})
+        return what in runaway.get("ignores", ())
 
     async def _agent_wait(self, params):
         if params["runId"] not in self.runs:
@@ -216,6 +268,9 @@ class FakeGateway:
                             "agentRuntime": {"id": self.overrides.get("runtime", "openclaw"), "source": "implicit"}}}
 
     def _sessions_usage(self, params):
+        if "key" not in params:
+            live = sum(self._tokens(s) for s in self.sessions.values())
+            return {"sessions": [], "totals": {"totalTokens": live + sum(self.archive.values()) + self.overrides.get("unlistedTokens", 0)}}
         session = self._session(params["key"])
         row = {"key": params["key"], "hasContextWeight": session["settled"]}
         if params.get("includeContextWeight"):
@@ -247,23 +302,50 @@ class FakeGateway:
                 "tools": {"listChars": 0, "schemaChars": 10 * len(entries), "entries": entries,
                           **({"deferred": {"schemaChars": 10 * len(deferred), "entries": deferred}} if deferred else {})}}
 
-    def _sessions_usage_timeseries(self, params):
+    def _points(self, session):
         points = []
-        for row in self._session(params["key"])["rows"]:
+        for row in session["rows"]:
             usage = row.get("usage")
             if usage:
                 points.append({"timestamp": 0, **{k: usage.get(k, 0) for k in ("input", "output", "cacheRead", "cacheWrite", "totalTokens")}})
+        if session["burn"] is not None and (spent := session["burn"].spent()):
+            points.append({"timestamp": 0, "input": spent, "output": 0, "cacheRead": 0, "cacheWrite": 0, "totalTokens": spent})
+        return points
+
+    def _tokens(self, session):
+        return sum(p["totalTokens"] for p in self._points(session))
+
+    def _sessions_usage_timeseries(self, params):
+        key = params["key"]
+        if key not in self.sessions and key in self.archive:
+            return {"sessionId": "fake", "points": [{"timestamp": 0, "input": self.archive[key], "totalTokens": self.archive[key]}]}
+        points = self._points(self.sessions[key]) if key in self.sessions else []
         if not points:
-            raise _Refusal("INVALID_REQUEST", f"No transcript found for session: {params['key']}")
+            raise _Refusal("INVALID_REQUEST", f"No transcript found for session: {key}")
         return {"sessionId": "fake", "points": points}
+
+    def _active(self, session):
+        burning = session["burn"] is not None and session["burn"].running
+        return burning or (self.runs.get(session["runId"]) or {}).get("status") == "never"
 
     def _sessions_list(self, params):
         links = ("spawnedBy", "parentSessionKey", "controlOwnerSessionKey")
-        rows = [{"key": k, **{n: s.get(n) for n in links}} for k, s in self.sessions.items() if params.get("spawnedBy") in [s.get(n) for n in links]]
-        return {"sessions": rows[: params.get("limit", 50)]}
+        chosen = {k: s for k, s in self.sessions.items() if "spawnedBy" not in params or params["spawnedBy"] in [s.get(n) for n in links]}
+        if params.get("archived") != "all":
+            chosen = {k: s for k, s in chosen.items() if not s["archived"]}
+        rows = [{"key": k, "sessionId": s["sessionId"], "hasActiveRun": self._active(s), **{n: s.get(n) for n in links}} for k, s in chosen.items()]
+        offset, limit = params.get("offset", 0), min(params.get("limit", 50), self.overrides.get("listPage", 10_000))
+        page = {"sessions": rows[offset:offset + limit], "hasMore": offset + limit < len(rows)}
+        if page["hasMore"]:
+            page["nextOffset"] = offset + limit
+        return page
 
     def _sessions_abort(self, params):
         session = self._session(params["key"])
+        if self._stubborn(session, "abort"):
+            return {"ok": True, "abortedRunId": None, "status": "no-active-run"}
+        if session["burn"] is not None:
+            session["burn"].end()
         run = self.runs.get(session["runId"])
         if run and run.get("status") == "never":
             self.runs[session["runId"]] = {"status": "timeout", "endedAt": 1, "stopReason": "aborted"}
@@ -281,6 +363,11 @@ class FakeGateway:
             raise _Refusal("FORBIDDEN", "missing scope: operator.admin")
         if not session["archived"]:
             raise _Refusal("INVALID_REQUEST", "Session is not archived. Archive it first, then delete it.")
+        if self._stubborn(session, "delete"):
+            raise _Refusal("UNAVAILABLE", "still active")
+        if session["burn"] is not None:
+            session["burn"].end()
+        self.archive[f"agent:{AGENT_ID}:{session['sessionId']}"] = self._tokens(session)
         del self.sessions[params["key"]]
         self.deleted.append(params["key"])
         return {"ok": True, "key": params["key"], "deleted": True, "archived": []}
@@ -291,3 +378,43 @@ class _Refusal(Exception):
         super().__init__(message)
         self.code, self.message = code, message
 
+
+
+@contextlib.contextmanager
+def launch_fakes(arm_names, secrets, *, plans=None, overrides=None, arms=None):
+    """One fake gateway process per arm. Yields {arm: {"url", "pid", "tokenFile"}}; their tokens are only in the files.
+
+    Each ends when its standard input does, so none outlives this process.
+    """
+    processes, fakes = {}, {}
+    try:
+        for name in arm_names:
+            token_file = pathlib.Path(secrets) / f"token-{name}"
+            spec = {"arm": name, "tokenFile": str(token_file), "plan": (plans or {}).get(name), "overrides": (overrides or {}).get(name), "arms": arms}
+            processes[name] = subprocess.Popen([sys.executable, "-m", "openclaw_evalbench.fake_gateway"], cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+            processes[name].stdin.write(json.dumps(spec) + "\n")
+            processes[name].stdin.flush()
+            fakes[name] = {**json.loads(processes[name].stdout.readline()), "tokenFile": str(token_file)}
+        yield fakes
+    finally:
+        for process in processes.values():
+            process.kill()
+            process.wait()
+            process.stdin.close()
+            process.stdout.close()
+
+
+async def _serve_one(spec):
+    arms = spec["arms"] or load_arms()
+    arm = arms["arms"][spec["arm"]]
+    plan = spec["plan"] if spec["plan"] is not None else load_plan()["arms"][spec["arm"]]
+    async with FakeGateway(arm, model=arms["model"], descriptions=arms["descriptions"][arm["descriptions"]]["tools"], plan=plan,
+                           caps=arms["caps"], overrides=spec["overrides"] or {}) as fake:
+        with open(os.open(spec["tokenFile"], os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600), "w") as handle:
+            handle.write(fake.token)
+        print(json.dumps({"url": fake.url, "pid": os.getpid()}), flush=True)
+        await asyncio.get_running_loop().run_in_executor(None, sys.stdin.read)
+
+
+if __name__ == "__main__":
+    asyncio.run(_serve_one(json.loads(sys.stdin.readline())))

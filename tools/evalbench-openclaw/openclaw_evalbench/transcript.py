@@ -205,6 +205,11 @@ def turn_rows(rows, prompt, run_id=None):
     return turn
 
 
+def continuation_wakes(rows):
+    """Turns a continuation started: the wake's own row says so (openclaw ab5a30ea src/auto-reply/continuation/work-wake-text.ts:58-59)."""
+    return sum(role_of(r) == "user" and text_of(r).lstrip().startswith("[continuation:wake]") for r in rows)
+
+
 def read_turn(rows, prompt, run_id=None):
     """Everything the eval records about one turn. Raises TranscriptError when the rows can't show it."""
     turn = turn_rows(rows, prompt, run_id)

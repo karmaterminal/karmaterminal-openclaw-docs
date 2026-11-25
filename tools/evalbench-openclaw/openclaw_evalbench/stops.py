@@ -1,7 +1,8 @@
 """One arm's stop rules. Once one fires, the arm starts no further trial.
 
 None of them reaches into a trial that is already running. The token budget in particular is checked between trials:
-it is not a ceiling, and the trial in flight when an arm crosses it runs to its own end (600 s, then the abort).
+it is not a ceiling. What ends a trial that is running is the supervisor (supervisor.py), and its stops come back here as
+run-wide halts: no arm starts another trial.
 """
 
 import re
@@ -25,9 +26,20 @@ def charge(record):
     return (own or ASSUMED_TRIAL_TOKENS) + int(metered.get("children") or 0)
 
 
+class RunStop:
+    """What halts every arm of a run. The first reason stands."""
+
+    def __init__(self):
+        self.reason = None
+
+    def halt(self, reason):
+        if self.reason is None:
+            self.reason = reason
+
+
 class ArmGuard:
-    def __init__(self, arm_name, token_budget):
-        self.arm_name, self.token_budget = arm_name, token_budget
+    def __init__(self, arm_name, token_budget, run=None):
+        self.arm_name, self.token_budget, self.run = arm_name, token_budget, run or RunStop()
         self.tokens = 0
         self.consecutive_errors = 0
         self.halted = None
@@ -38,6 +50,8 @@ class ArmGuard:
 
     def before_trial(self):
         """The reason this arm may not start another trial, or None. The only place the token budget is read."""
+        if self.halted is None and self.run.reason is not None:
+            self.halt(f"run halted: {self.run.reason}")
         if self.halted is None and self.token_budget is not None and self.tokens >= self.token_budget:
             self.halt(f"token budget reached, checked between trials: {self.tokens} of {self.token_budget} metered tokens")
         return self.halted
@@ -47,6 +61,10 @@ class ArmGuard:
         status, reason = record["status"], record.get("reason") or ""
         if status == "arm_mismatch":
             self.halt(f"arm mismatch: {reason}")
+        elif status in ("caps_mismatch", "supervisor_stopped"):
+            # What bounds the spend is not in force, or has just had to act: nothing else starts, on any arm.
+            self.halt(f"{'caps' if status == 'caps_mismatch' else 'supervisor'}: {reason}")
+            self.run.halt(f"arm {self.arm_name}: {reason}")
         elif status in ("infra_error", "deadline_unreadable"):
             self.consecutive_errors += 1
             if _PROVIDER_STOP.search(reason):

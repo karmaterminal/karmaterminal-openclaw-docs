@@ -8,6 +8,7 @@
       "summary": "ab5a, fleet default: continuation tools deferred",
       "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
       "gatewayPort": 20846,
+      "unit": "openclaw-proof-comp-ab5a30ea",
       "descriptions": "ab5a30ea",
       "surface": "deferred",
       "config": {
@@ -27,6 +28,7 @@
       "summary": "ab5a, direct-tools overlay: same text, every tool direct",
       "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
       "gatewayPort": 20966,
+      "unit": "openclaw-proof-comp-706a2c56",
       "descriptions": "ab5a30ea",
       "surface": "direct",
       "config": {
@@ -43,6 +45,7 @@
       "summary": "f9fcd3a5, fleet default: direct-only, control-first text",
       "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
       "gatewayPort": 21086,
+      "unit": "openclaw-proof-comp-f9fcd3a5",
       "descriptions": "f9fcd3a5",
       "surface": "direct",
       "config": {
@@ -63,6 +66,7 @@
       "optional": true,
       "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
       "gatewayPort": 21206,
+      "unit": "openclaw-proof-comp-2fef6685",
       "descriptions": "f9fcd3a5",
       "surface": "direct",
       "config": {
@@ -74,6 +78,38 @@
         },
         "absent": []
       }
+    }
+  },
+  "caps": {
+    "set": {
+      "agents.defaults.timeoutSeconds": 330,
+      "agents.defaults.maxConcurrent": 2,
+      "agents.defaults.continuation.maxChainLength": 1,
+      "agents.defaults.continuation.costCapTokens": 1,
+      "agents.defaults.continuation.maxDelegatesPerTurn": 1,
+      "agents.defaults.subagents.maxSpawnDepth": 1,
+      "agents.defaults.subagents.maxChildrenPerAgent": 1,
+      "agents.defaults.subagents.maxConcurrent": 1,
+      "agents.defaults.subagents.runTimeoutSeconds": 120,
+      "tools.swarm.maxConcurrent": 1,
+      "tools.swarm.maxChildrenPerGroup": 1,
+      "tools.swarm.maxTotalPerGroup": 1,
+      "cron.enabled": false
+    }
+  },
+  "supervision": {
+    "pollSeconds": 2,
+    "readSeconds": 5,
+    "blindSeconds": 10,
+    "abortSeconds": 1,
+    "silentSeconds": 15,
+    "trialTokens": 700000,
+    "trialSeconds": 480,
+    "idleTokens": 150000,
+    "maxActiveRuns": 2,
+    "canary": {
+      "tokens": 2400000,
+      "seconds": 1800
     }
   },
   "comparisons": [

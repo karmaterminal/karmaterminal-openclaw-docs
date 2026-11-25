@@ -162,7 +162,8 @@ is `deadline_unreadable`: unscored, counted on its own, and the report prints th
   an arm saw.
 - **Commands can outlive a trial.** A trial ends its sessions, not the host commands a turn left running. A background one
   ends with its gateway. A durable one (`exec` with `durable: true`) runs in its own `openclaw-proc-*` unit and outlives the
-  gateway too (`docs/gateway/background-process.md:131-133`). `CANARY-PACKET.md` has the command that finds and stops it.
+  gateway too (`docs/gateway/background-process.md:131-133`); the supervisor ends it with its trial. `CANARY-PACKET.md` has the
+  command that finds and stops one by hand.
 - **Served model.** It is read from the assistant rows. A turn of calls with no reply can leave none, and that is how a
   turn that only elected looks, so the session's own selection stands in (the arm has no fallbacks) and the record says so.
 - **Nothing was recorded live.** The fixture turns are written from product source. `REPORT.md` lists what only a live
@@ -194,30 +195,109 @@ A comparison is **not reportable** if either arm has a prompt with fewer than 5 
 text contradicted the arm, more than one runtime, a record that disagrees with EvalBench's own score row, or a runtime
 the other arm didn't run on. The rates are still printed.
 
+## Spend caps
+
+Three layers bound what a trial can spend. The first is the product's own configuration, and the other two don't trust it.
+
+### 1. The product's caps, the same on every arm
+
+They are `caps` in [`arms.json`](arms.json). `overlay` writes them over whatever the seat's configuration says. A trial reads
+them back (`config.get`) **before and after** it runs: each cap has to be in the authored file, in the effective configuration,
+and in the revision the running gateway has applied (`configRevisionHash` = `appliedConfigHash`,
+`src/gateway/config-get-response.ts:32-37`). A trial that fails that, or in which a continuation wake ran, is `caps_mismatch`:
+unscored, and it **halts every arm**. The report counts only trials whose caps were read back.
+
+| cap | value | default, and where it is enforced (the same line at `ab5a30ea` and `f9fcd3a5`, unless two are given) |
+| --- | --- | --- |
+| `agents.defaults.continuation.maxChainLength` | 1 | 10 (`src/auto-reply/continuation/config.ts:18,110`); `continuation/scheduler.ts:27`, `reply/agent-runner-continuation-signal.ts:131` |
+| `agents.defaults.continuation.costCapTokens` | 1 | 500,000 (`config.ts:19,114`); `scheduler.ts:34`, `agent-runner-continuation-signal.ts:151` (the turn's own input and output count), `continuation/delegate-dispatch.ts:315` |
+| `agents.defaults.continuation.maxDelegatesPerTurn` | 1 | 5 (`config.ts:20,118`); `src/agents/tools/continue-delegate-tool.ts:373` at ab5a, `:375` at f9fc; `delegate-dispatch.ts:180` |
+| `agents.defaults.subagents.maxSpawnDepth` | 1 | 5 (`src/config/agent-limits.ts:24`); `src/agents/child-admission.ts:85`, `spawn-plan.ts:303` |
+| `agents.defaults.subagents.maxChildrenPerAgent` | 1 | 5 (`agent-limits.ts:21`); `child-admission.ts:97`, `spawn-plan.ts:327` |
+| `agents.defaults.subagents.maxConcurrent` | 1 | 8 (`agent-limits.ts:20,43`); `src/gateway/server-lanes.ts:83` |
+| `agents.defaults.subagents.runTimeoutSeconds` | 120 | none (`src/agents/subagents/spawn/subagent-spawn-plan.ts:42`; a spawn's own `runTimeoutSeconds` outranks it) |
+| `tools.swarm.maxConcurrent`, `.maxChildrenPerGroup`, `.maxTotalPerGroup` | 1, 1, 1 | 32, 50, 200 (`src/agents/subagents/swarm/swarm-config.ts:6-8`); `child-admission.ts:91,97`. Per group, and the group id is the caller's |
+| `agents.defaults.timeoutSeconds` | 330 | 48 h (`src/agents/timeout.ts:13,25`), per model attempt |
+| `agents.defaults.maxConcurrent` | 2 | 8 or 4 per CPU (`agent-limits.ts:5-6,35`); `server-lanes.ts:33,75` |
+| `cron.enabled` | `false` | `true` (`src/gateway/server-cron.ts:117`); 8 runs at once otherwise (`src/config/cron-limits.ts:3`) |
+
+- **`costCapTokens: 1` is the one that matters.** A continuation tool answers `scheduled` without looking at the budget; the
+  budget is read when the turn ends, and by then the turn's own output is over the cap. So the election happens, and is
+  answered, recorded and scored, and its wake or delegate never runs. `maxChainLength: 1` is behind it, for a turn whose usage
+  the provider did not report.
+- **Swarm collectors are a second way to have children**, which `maxChildrenPerAgent` does not count (`spawn-plan.ts:307-316`).
+  An agent's own `tools.swarm` limits outrank the global ones (`swarm-config.ts:29`), so `overlay` clears those three keys from
+  `agents.entries.main` and preflight refuses them. The agent's `enabled` switch is the seat's surface and is left alone.
+- **`request_compaction` needs none**: 70 % of the context (`src/agents/tools/request-compaction-tool.ts:26`), once in 5 minutes
+  (`:29`), and refused as `context_unmeasured` on a session's first turn (`:220`).
+- **Loop detection is left as it is.** Its thresholds are constants (`src/agents/tool-loop-detection.ts:594`), and its warnings
+  are text the model reads, before it may elect.
+
+They are tight on purpose and must not move the **first** election, which is all that is scored. Run through the product's own
+code at both SHAs: the config schema accepts them; `continue_work` and `continue_delegate` answer `scheduled` under them; and the
+49 tools the product builds have the same names, descriptions and parameters with and without them (with swarm switched off
+instead, they differ). What a turn can notice is a refusal after it has already spawned or delegated once.
+
+### 2. The supervisor
+
+`run` starts it as a process of its own, in a transient unit of its own, and sends nothing until it is armed. It reads each
+gateway's usage on its own connection, keeps its own clock, and enforces `supervision` in [`arms.json`](arms.json):
+
+| limit | value | rule |
+| --- | --- | --- |
+| one trial | 700,000 metered tokens, 480 s | `trial-tokens`, `trial-wall-clock` |
+| outside a trial | 150,000 metered tokens | `idle-spend` |
+| the run, all arms | `--run-token-cap`, `--run-seconds`: 2,400,000 and 1800 s unless told otherwise (the canary's) | `run-tokens`, `run-wall-clock`: **every** gateway |
+| active runs on one gateway | 2 | `active-runs` |
+| no complete reading | 10 s (it reads every 2 s) | `meter-blind` |
+| the gateway's process ended or changed | at once | `gateway-gone` |
+| the process that runs the trials ended, or the supervisor was told to | at once | `runner-gone`, `supervisor-stopped`: **every** gateway |
+
+A stop is: record why; `sessions.abort` for what is listed, for at most 1 s (a caller that didn't start a run may be refused,
+`chat-abort-authorization.ts:222-227`; the runner aborts its own turn at the same time); **SIGKILL of the unit's cgroup**; then
+the same for whatever outlives it, until two looks find nothing. A durable exec is the known one: it runs in its own
+`openclaw-proc-<hash>` unit (`src/agents/bash-process-systemd.ts:70-162`). The supervisor finds it by the gateway's directory in
+its unit file, at any stop and at the end of every trial. A stopped gateway is marked, and neither `run` nor the supervisor uses
+it again.
+
+The trial in flight is `supervisor_stopped`: unscored, with its cleanup tried and recorded. **Every arm starts no further trial**,
+and the run ends in order, with its CSVs, report and manifest. When a run ends, well or not, every gateway is stopped.
+
+Usage is `sessions.usage.timeseries` for every listed session, counted from a baseline and never going down; a session that left
+the listing is read once more from its archive; `sessions.usage`'s own total is read every 30 s for what the list hides (a cron
+run, `src/gateway/session-list-filters.ts:465-471`); and at a trial's end the harness's own count stands in for a session that
+came and went between two readings. A reading that failed is never a zero.
+
+### 3. If the supervisor is lost
+
+The runner stops every gateway itself when the supervisor's connection ends, or after 15 s of silence. And a systemd timer,
+set before the first trial, stops the same units 60 s after the run's clock, whoever is alive.
+
+`tests/test_supervisor.py` and `tests/test_units.py` run all of it against processes and systemd units that really die.
+[`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has the arithmetic, with expected and enforced apart.
+
 ## Stop rules
 
 The adapter enforces these itself. Once one fires, every later trial of that arm returns at once, unscored. None of them
-reaches into a trial that is already running.
+reaches into a trial that is already running; the supervisor does.
 
 | rule | limit |
 | --- | --- |
+| spend caps not in force, or the supervisor stopped an arm | first occurrence, **every arm** |
 | wrong gateway: not loopback, port 18789, a channel configured, commit or config not the arm's | first occurrence |
 | surface or description text contradicts the arm, or another model served a turn | first occurrence |
 | provider quota, auth or rate-limit error | first occurrence |
 | cleanup of a trial's session failed (an armed wake could keep spending) | first occurrence |
 | infrastructure errors or unreadable deadlines in a row | 3 |
 | metered tokens (cache reads included), per arm, **checked between trials** | `--token-budget`, default 35,000,000. Not a ceiling |
-| one trial | 600 s, then `sessions.abort` |
+| one trial | 300 s, then `sessions.abort` |
 
 The budget charges the turn, any later turn of its session, and every session spawned under it. A turn the gateway
 reports no usage for is charged 150,000, so the budget never runs on zeros.
 
-**The 35 M stop is checked between trials. It is not a hard ceiling.** One trial is in flight per arm, and nothing stops it
-but its own 600 s deadline, so an arm can end past the stop by one trial's spend. The worst case worth planning for is a
-turn that loops for the whole 600 s: **≈ 15 M metered tokens per arm**, so 50 M for an arm and 150 M for three (200 M for
-four). Each child session that loops beside it adds up to as much again, and the product allows five of those by default:
-≈ 90 M. The arithmetic is in [`REPORT.md`](REPORT.md#one-trials-maximum). The meter reads what the gateway recorded before
-cleanup, so a call that was cut off is not in it.
+**The 35 M stop is checked between trials. It is not a hard ceiling**: one trial is in flight per arm, and an arm can end past
+the stop by that trial's spend. What bounds that trial is the supervisor: 0.70 M, and 0.64 M for one polling interval
+([the packet](CANARY-PACKET.md#spend)).
 
 Every trial ends by stopping the sessions it started: its session is archived and deleted first (`sessions.delete` ends the
 session's continuations and its subagents), then every session linked under it, until a listing shows none.
@@ -251,7 +331,9 @@ The ports are 120 apart and start past the live gateway's. A gateway also derive
 | `openclaw_evalbench/generator.py` | a subclass of EvalBench's `agent_grpc_proxy` (EvalBench's `generator_class` hook) |
 | `scorers/continuation_election.py` | EvalBench `python_scorer`: 100 when the turn elected |
 | `openclaw_evalbench/report.py`, `stats.py` | EvalBench's CSVs → per-arm rates, intervals and comparisons |
-| `openclaw_evalbench/fake_gateway.py`, `fixtures/` | the fake gateway and its fixture turns |
+| `openclaw_evalbench/supervisor.py`, `meter.py`, `units.py` | the spend supervisor: its rules, its ledger, and how a gateway is proved and stopped |
+| `openclaw_evalbench/supervision.py`, `stops.py` | the runner's side of it, and the halts |
+| `openclaw_evalbench/fake_gateway.py`, `fixtures/` | the fake gateway and its fixture turns, runaways included |
 
 Scorers: `trajectory_matcher`, `token_consumption`, `continuation_election`. No LLM judge, no simulated user
 (`max_turns: 1`, `generator: noop`).
@@ -262,11 +344,12 @@ Scorers: `trajectory_matcher`, `token_consumption`, `continuation_election`. No 
 cd tools/evalbench-openclaw
 ./bootstrap.sh            # clones EvalBench at EVALBENCH_PIN outside the repo, uv sync --frozen, regenerates its protobuf stubs
 ./run.sh test             # adapter tests
-./run.sh offline --out /tmp/evalprop-offline                          # 270 trials against three fake gateways
+./run.sh offline --out /tmp/evalprop-offline                          # 270 trials against three fake gateways, supervised as a fire is
 ./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D         # 360, with arm D
 ```
 
-`uv` must be on `PATH` (or set `UV`). `OPENCLAW_EVALBENCH_HOME` moves the install; the default is
+The tests start and kill their own processes, and, where there is a systemd user manager, transient units under random names
+of their own; no OpenClaw and no unit of a run is involved. `uv` must be on `PATH` (or set `UV`). `OPENCLAW_EVALBENCH_HOME` moves the install; the default is
 `~/.cache/openclaw-evalbench`.
 
 ## Firing it: for a seat owner
@@ -309,7 +392,7 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
    `overlay` sets `agents.defaults.skipBootstrap: true` in every arm. A fresh workspace would otherwise be seeded
    with the first-run ritual, and one trial's answer to it would leak into the next. It also writes the firing model and
    points `logging.file` into the gateway's own state: without that, an isolated gateway writes to the live gateway's
-   rolling log in `/tmp/openclaw` and prunes it.
+   rolling log in `/tmp/openclaw` and prunes it. It writes the [spend caps](#spend-caps) too.
 4. **Preflight** (reads only; no session, no model turn):
 
    ```bash
@@ -318,32 +401,41 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
    ```
 
 5. **Canary**, 9 trials (one control, one `continue_work` prompt and one `continue_delegate` prompt per arm), read by the
-   rules in the packet. A lower `--token-budget` is still checked between trials:
+   rules in the packet. A lower `--token-budget` is still checked between trials; `--run-token-cap` and `--run-seconds` are the
+   supervisor's, and stop what is running:
 
    ```bash
-   ./run.sh run --go <owner-message-id> --out ~/proof-runs/evalprop-canary --num-trials 1 --token-budget 2000000 \
-     --scenarios c1-arithmetic,w1-file-appears,d1-second-pair-of-eyes
+   ./run.sh run --go <owner-message-id> --out ~/proof-runs/evalprop-canary --num-trials 1 --token-budget 800000 \
+     --run-token-cap 2400000 --run-seconds 1800 --scenarios c1-arithmetic,w1-file-appears,d1-second-pair-of-eyes
    ```
 
-6. **The fire**, 270 trials (`--arms A,B,C,D` for 360), on its own go:
+6. **The fire**, 270 trials (`--arms A,B,C,D` for 360), on its own go. Its totals are the fire's, said out loud: without the two
+   options a run has the canary's, and stops there.
 
    ```bash
-   ./run.sh run --go <owner-message-id> --out ~/proof-runs/evalprop-$(date -u +%Y%m%dT%H%M%SZ)
+   ./run.sh run --go <owner-message-id> --out ~/proof-runs/evalprop-$(date -u +%Y%m%dT%H%M%SZ) \
+     --run-token-cap 75000000 --run-seconds 14400
    ```
 
-7. **Afterwards**: copy the CSVs and `report.md`, then the packet's emergency stop and its `finish` for each gateway.
+7. **Afterwards**: every gateway is already stopped. Copy the CSVs and `report.md`, then the packet's emergency stop (for what a
+   person may have left) and its `finish` for each gateway.
    Read `evals.csv` before publishing it. It holds the models' replies and shell commands.
 
 `--go` takes the message id of the owner's go, and it is written into the run's manifest. Without it, `run` refuses.
 
 ### Cost of one full fire
 
-270 trials. Estimated **50 M metered tokens, range 16–100 M**, most of it cache reads, and roughly 1.5–3 hours with the
-three arms running together. The stop, 35 M per arm, is checked between trials; the worst-case overshoot is one trial per
-arm, ≈ 15 M each. **Arm D adds 90 trials and about 16 M (5.4–33 M)**, for 65 M (22–130 M) in all. It carries every
-tool's schema as B does, so expect both above A and C. The arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).
+270 trials. **Expected**: 50 M metered tokens, range 16–100 M, most of it cache reads, and roughly 1.5–3 hours with the three
+arms running together. **Enforced**: 75 M and 4 h for the run (`--run-token-cap`, `--run-seconds`), plus one polling interval of
+the three arms in flight (3 × 0.64 M), and 0.70 M a trial. The 35 M stop per arm is checked between trials. **Arm D adds 90
+trials and about 16 M (5.4–33 M)**, for 65 M (22–130 M) in all, and needs a higher cap. It carries every tool's schema as B does,
+so expect both above A and C. The caps stop the later turns the estimate allows for (its +35 %), so it is high if anything. The
+arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).
 
 ### Top-ups and re-reports
+
+A run leaves its gateways stopped. `login-finish` starts one again on the sign-in it already has, unless a supervisor stopped it
+for a reason: that one is shredded and set up again.
 
 ```bash
 ./run.sh run --go <id> --out <new-dir> --num-trials 1 --scenarios <prompts below 5 scored trials> --arms <arm>

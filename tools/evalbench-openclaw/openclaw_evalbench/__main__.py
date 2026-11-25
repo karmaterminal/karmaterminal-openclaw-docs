@@ -40,15 +40,14 @@ def _now():
 
 
 def build_configs(out, arm_names, *, gateway_urls=None, num_trials=None, scenarios=None):
-    """EvalBench's configs for this run, with absolute paths, written under out/config. Returns {arm: run config}."""
+    """EvalBench's configs for this run, written under out/config. Returns {arm: run config}.
+
+    Repository paths stay relative to this directory, which is the working directory of a run: EvalBench copies them
+    into configs.csv, and a host path there would be noise.
+    """
     config_dir = out / "config"
     config_dir.mkdir(parents=True)
     base = yaml.safe_load((ROOT / "configs/run_config.yaml").read_text())
-    base["dataset_config"] = str(ROOT / base["dataset_config"])
-    base["simulated_user_model_config"] = str(ROOT / base["simulated_user_model_config"])
-    for scorer in base["scorers"].values():
-        if "script_path" in scorer:
-            scorer["script_path"] = str(ROOT / scorer["script_path"])
     base["reporting"]["csv"]["output_directory"] = str(out / "results")
     if num_trials is not None:
         base["num_trials"] = num_trials
@@ -176,6 +175,7 @@ def _new_out(path):
     if out.exists():
         raise SystemExit(f"{out} exists; a run never reuses a directory")
     out.mkdir(parents=True, mode=0o700)
+    os.chdir(ROOT)  # the configs' own paths are relative to it
     return out
 
 

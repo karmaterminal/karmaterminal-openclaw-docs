@@ -4,11 +4,11 @@ In EvalBench's agent proxy protocol EvalBench is the gRPC server; the agent conn
 answers TurnRequests on one bidirectional stream (evalbench/eval_service.py AgentInteract).
 """
 
-import asyncio
 import json
 import logging
 import os
 import pathlib
+import re
 import uuid
 
 import grpc
@@ -28,6 +28,8 @@ ARGS_MAX_CHARS = 600
 REPLY_MAX_CHARS = 8000
 # The adapter always answers before EvalBench's own timeout, which would turn silence into a scored failure.
 ANSWER_MARGIN_SECONDS = 180.0
+# A model can write a session key into a tool call or a reply.
+_SESSION_KEY = re.compile(r"agent:[A-Za-z0-9_.-]+:[A-Za-z0-9_.:/@-]+")
 
 
 class JobError(Exception):
@@ -43,6 +45,17 @@ def read_token(arm_name, environ=os.environ):
     if not token:
         raise ValueError(f"OPENCLAW_EVAL_TOKEN_FILE_{arm_name} names an empty file")
     return token
+
+
+def scrub(value, token):
+    """A record without gateway tokens or session keys, wherever the model or the gateway put them."""
+    if isinstance(value, str):
+        return _SESSION_KEY.sub("agent:<key>", value.replace(token, "<token>") if token else value)
+    if isinstance(value, list):
+        return [scrub(v, token) for v in value]
+    if isinstance(value, dict):
+        return {k: scrub(v, token) for k, v in value.items()}
+    return value
 
 
 def meta_of(record):
@@ -93,7 +106,7 @@ class ArmJob:
             async for message in stream:
                 payload = message.WhichOneof("payload")
                 if payload == "turn_request":
-                    record = await self._answer(message.turn_request)
+                    record = await self._settle(message.turn_request)
                     await stream.write(eval_agent_pb2.AgentStreamMessage(
                         session_id=self.session_id, correlation_id=message.correlation_id,
                         turn_response=turn_response(message.turn_request.turn_index, record)))
@@ -107,36 +120,48 @@ class ArmJob:
             await stream.done_writing()
         except grpc.aio.AioRpcError as error:
             raise JobError(f"EvalBench ended arm {self.arm_name}'s stream: {error.code().name} {error.details()}") from None
+        finally:
+            if result is None:
+                stream.cancel()
         if result is None:
             raise JobError(f"EvalBench ended arm {self.arm_name}'s stream without a summary")
         return result
 
-    async def _answer(self, request):
-        env = dict(request.env)
-        prompt_id, kind = env.get("OPENCLAW_EVAL_PROMPT_ID") or "", env.get("OPENCLAW_EVAL_KIND") or ""
-        base = {"schema": "openclaw.evalbench.trial.v1", "arm": self.arm_name, "promptId": prompt_id, "kind": kind,
-                "elected": None, "usage": None, "reply": "", "calls": [], "cleanup": {"ok": None, "reason": None}}
+    async def _settle(self, request):
+        """The record for one turn request, whatever happens. A silent stream would hold EvalBench for its whole timeout."""
         halted = self.guard.before_trial()
+        base = {"schema": "openclaw.evalbench.trial.v1", "arm": self.arm_name,
+                "promptId": request.env.get("OPENCLAW_EVAL_PROMPT_ID") or "", "kind": request.env.get("OPENCLAW_EVAL_KIND") or "",
+                "elected": None, "usage": None, "reply": "", "calls": [], "cleanup": {"ok": None, "reason": None}}
         if halted:
             record = {**base, "status": "halted", "reason": halted}
-        elif env.get("OPENCLAW_EVAL_ARM") != self.arm_name:
-            record = {**base, "status": "arm_mismatch",
-                      "reason": f"model config says arm {env.get('OPENCLAW_EVAL_ARM')}, this job is arm {self.arm_name}"}
-        elif request.resume or request.turn_index < 1:
-            record = {**base, "status": "infra_error", "reason": "a resumed turn was requested; every trial is one fresh turn"}
-        elif not prompt_id or kind not in ("eligible", "control"):
-            record = {**base, "status": "infra_error", "reason": "the scenario's env names no prompt id or kind"}
         else:
-            record = await self._runner(
-                arm_name=self.arm_name, arm=self.arm, model=self.arms["model"],
-                descriptions=self.arms["descriptions"][self.arm["descriptions"]]["tools"],
-                url=env.get("OPENCLAW_EVAL_GATEWAY_URL"), token=self._token, prompt=request.prompt, prompt_id=prompt_id,
-                kind=kind, deadline_seconds=min(self.deadline_seconds, max(1.0, request.timeout_seconds - ANSWER_MARGIN_SECONDS)))
-        self.trials += 1
-        if record["status"] != "halted":
+            try:
+                record = await self._answer(request, base)
+            except Exception as error:
+                # run_trial settles its own failures, so this is a bug here: nothing after it can be trusted.
+                record = {**base, "status": "infra_error", "reason": f"adapter bug: {type(error).__name__}: {error}"[:300]}
+                self.guard.halt(record["reason"])
             self.guard.after_trial(record)
+        self.trials += 1
+        record = scrub(record, self._token)
         with self.trial_log.open("a") as out:
             out.write(json.dumps({"trial": self.trials, **record}, ensure_ascii=False) + "\n")
-        log.info("arm %s trial %d %s: %s%s", self.arm_name, self.trials, prompt_id, record["status"],
+        log.info("arm %s trial %d %s: %s%s", self.arm_name, self.trials, record["promptId"], record["status"],
                  f" ({record['reason']})" if record.get("reason") else "")
         return record
+
+    async def _answer(self, request, base):
+        env, prompt_id, kind = dict(request.env), base["promptId"], base["kind"]
+        if env.get("OPENCLAW_EVAL_ARM") != self.arm_name:
+            return {**base, "status": "arm_mismatch",
+                    "reason": f"model config says arm {env.get('OPENCLAW_EVAL_ARM')}, this job is arm {self.arm_name}"}
+        if request.resume:
+            return {**base, "status": "infra_error", "reason": "a resumed turn was requested; every trial is one fresh turn"}
+        if not prompt_id or kind not in ("eligible", "control"):
+            return {**base, "status": "infra_error", "reason": "the scenario's env names no prompt id or kind"}
+        return await self._runner(
+            arm_name=self.arm_name, arm=self.arm, model=self.arms["model"],
+            descriptions=self.arms["descriptions"][self.arm["descriptions"]]["tools"],
+            url=env.get("OPENCLAW_EVAL_GATEWAY_URL"), token=self._token, prompt=request.prompt, prompt_id=prompt_id,
+            kind=kind, deadline_seconds=min(self.deadline_seconds, max(1.0, request.timeout_seconds - ANSWER_MARGIN_SECONDS)))

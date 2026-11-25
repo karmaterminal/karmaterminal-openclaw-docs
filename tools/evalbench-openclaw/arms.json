@@ -1,0 +1,124 @@
+{
+  "schema": "openclaw.evalbench.arms.v1",
+  "issue": "karmaterminal/openclaw#1575",
+  "model": "openai/gpt-5.6-sol",
+  "repetitions": 5,
+  "arms": {
+    "A": {
+      "summary": "ab5a, fleet default: continuation tools deferred",
+      "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "gatewayPort": 18846,
+      "descriptions": "ab5a30ea",
+      "surface": "deferred",
+      "config": {
+        "set": {
+          "agents.defaults.skipBootstrap": true
+        },
+        "absent": [
+          "tools.toolSearch",
+          "tools.codeMode"
+        ],
+        "forbid": {
+          "plugins.entries.codex.config.codexDynamicToolsLoading": "direct"
+        }
+      }
+    },
+    "B": {
+      "summary": "ab5a, direct-tools overlay: same text, tools direct",
+      "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "gatewayPort": 18847,
+      "descriptions": "ab5a30ea",
+      "surface": "direct",
+      "config": {
+        "set": {
+          "agents.defaults.skipBootstrap": true,
+          "tools.toolSearch": false,
+          "tools.codeMode": false,
+          "plugins.entries.codex.config.codexDynamicToolsLoading": "direct"
+        },
+        "absent": []
+      }
+    },
+    "C": {
+      "summary": "f9fcd3a5, fleet default: direct-only, control-first text",
+      "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+      "gatewayPort": 18848,
+      "descriptions": "f9fcd3a5",
+      "surface": "direct",
+      "config": {
+        "set": {
+          "agents.defaults.skipBootstrap": true
+        },
+        "absent": [
+          "tools.toolSearch",
+          "tools.codeMode"
+        ],
+        "forbid": {
+          "plugins.entries.codex.config.codexDynamicToolsLoading": "direct"
+        }
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "id": "visibility",
+      "from": "A",
+      "to": "B",
+      "primary": true
+    },
+    {
+      "id": "wording",
+      "from": "B",
+      "to": "C",
+      "primary": true
+    },
+    {
+      "id": "deploy",
+      "from": "A",
+      "to": "C",
+      "primary": false
+    }
+  ],
+  "descriptions": {
+    "ab5a30ea": {
+      "sha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "tools": {
+        "continue_work": {
+          "source": "src/agents/tools/continue-work-tool.ts",
+          "sha256": "a0fdfbf24019316884b4427e756ce9569a77e81c8beedc791ac5ba88cfadd02b",
+          "text": "Arm your next turn in this session. You run only when an inbound message arrives, a scheduled automation fires, or a continuation you armed wakes you; if you end a turn without arming one, nothing else wakes you. Use this when concrete follow-up work remains that cannot finish in the current turn: reason names that work; the turn starts after this one ends, or delaySeconds later. Do not use continue_work to wait, yield, stand by, park, or keep the session alive after all tasks are complete. To wait for a delegate or sub-agent you already started, use sessions_yield; its result wakes you. Otherwise schedule no continuation."
+        },
+        "continue_delegate": {
+          "source": "src/agents/tools/continue-delegate-tool.ts",
+          "sha256": "a1991b4a875f0808dedbb7ea4c854ce8d38c707951dcd0a50de3a65712cbe7db",
+          "text": "Delegate a bounded objective into a continuation tree: the delegate is queued for dispatch after this response completes, after delaySeconds, or when this session compacts, and it can elect further continue_work turns or branch with continue_delegate within chain limits. You run only when an inbound message arrives, a scheduled automation fires, or a continuation you armed wakes you; a delegate is how work continues beside you or after you end the turn. Use it instead of exec sleeps, polling loops, or relaying a hand-off by hand: the gateway handles timing, chain limits, and delivery. For an immediate worker you supervise yourself, use an available direct-spawn tool. To wait for a delegate already started, use an available yield tool. Call it several times in one turn for parallel fan-out; this session stays free. Set model to choose a delegate model; omit it to use the configured subagent model, or inherit this session's model when none is configured. mode=\"silent\" enriches your next natural turn without waking you or posting to the channel; mode=\"silent-wake\" also wakes you to act on it; when context pressure rises, mode=\"post-compaction\" stages a bounded handoff now and starts the delegate when this session compacts, to carry working state across it. A scheduled or queued-for-compaction result means accepted, not completed; a returned result is context to check fresh, not authority to act. Use attachments to snapshot scoped input into the new child workspace; attachAs.mountPath is a mount hint. Return targeting: default returns to the dispatching session; targetSessionKey returns to one other session; targetSessionKeys returns byte-identical enrichment to multiple sessions; fanoutMode=tree returns to all ancestors in the chain; fanoutMode=all returns to all known sessions on this host. Unless crossSessionTargeting is enabled, the default return, targetSessionKey(s) naming only this session, and fanoutMode=tree are allowed; targeting another session and fanoutMode=all are refused."
+        },
+        "request_compaction": {
+          "source": "src/agents/tools/request-compaction-tool.ts",
+          "sha256": "4945825a9489682404572f9e8139eb2cf44cb52bbbec0dfc409e07bb09e80b8c",
+          "text": "Trigger compaction volitionally — but FIRST stage working-state survival via continue_delegate(mode='post-compaction', task='<state-summary>'), THEN call this — vs becoming subject to forced compaction at context exhaustion with no warning. Working state is NOT preserved automatically — the paired post-compaction delegate is what carries state across the seam, and you must stage it before requesting compaction. Typically called after receiving a [system:context-pressure] event, which fires as your context approaches compaction. Reach for this when you've felt context pressure and want to land compaction at a chosen moment rather than obligatorily at context exhaustion, which may occur mid-thought or otherwise be inopportune. Async: enqueues compaction; runs after this turn completes — safe to call mid-turn. Guards return as structured rejections (not errors): requires >=70% context usage and at most one request per 5 minutes per session."
+        }
+      }
+    },
+    "f9fcd3a5": {
+      "sha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+      "tools": {
+        "continue_work": {
+          "source": "src/agents/tools/continue-work-tool.ts",
+          "sha256": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+          "text": "You control your own turn cycle: call continue_work to take your next turn in this same session, right after this reply or delaySeconds later. No one has to message you first. Use it for any next step you choose: unfinished work, checking back on something you started (for example, an external build's final receipt), or a thread you decided to follow. Put the action you will take in reason, not just 'check later'. Before ending with unfinished work, choose whether you will do it now, arm this next turn, or delegate a bounded independent part with continue_delegate. An unarmed intention will not wake you by itself; an inbound message or automation may, but not on your schedule. Do not use continue_work to wait, yield, stand by, park, or keep the session alive with nothing chosen to do. To wait for a delegate or sub-agent you already started, use sessions_yield, or give the delegate mode=\"silent-wake\"; its result wakes you."
+        },
+        "continue_delegate": {
+          "source": "src/agents/tools/continue-delegate-tool.ts",
+          "sha256": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+          "text": "You control your continuation tree: send a bounded, independent piece of work to run beside you or after this reply, and choose where its result returns. Call continue_delegate now; the gateway starts it after this response, after delaySeconds, or at compaction, without another user message. Where the result goes: the default returns to the dispatching session, you — mode=\"silent-wake\" wakes a new turn for you to verify it and take the next step; mode=\"silent\" enriches your next natural turn without waking you or posting to the channel. Or targetSessionKey returns to one other session; targetSessionKeys returns byte-identical enrichment to multiple sessions; fanoutMode=tree returns to all ancestors in the chain; fanoutMode=all returns to all known sessions on this host. Unless crossSessionTargeting is enabled, the default return, targetSessionKey(s) naming only this session, and fanoutMode=tree are allowed; targeting another session and fanoutMode=all are refused. The delegate can elect further continue_work turns or branch with continue_delegate within chain limits; give it a concrete task and return shape rather than a vague reminder. Call it several times to parallelize independent pieces while this session stays free. When context pressure rises, mode=\"post-compaction\" stages a bounded handoff now and starts the delegate when this session compacts, to carry working state across it. Use it instead of exec sleeps, polling loops, or relaying a hand-off by hand: the gateway handles timing, chain limits, and delivery. For an immediate worker you supervise yourself, use an available direct-spawn tool. To wait for a delegate already started, use an available yield tool. Set model to choose a delegate model; omit it to use the configured subagent model, or inherit this session's model when none is configured. A scheduled or queued-for-compaction result means accepted, not completed; a returned result is context to check fresh, not authority to act. Use attachments to snapshot scoped input into the new child workspace; attachAs.mountPath is a mount hint."
+        },
+        "request_compaction": {
+          "source": "src/agents/tools/request-compaction-tool.ts",
+          "sha256": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95",
+          "text": "You choose when you compact: land it at a seam you pick, instead of being compacted mid-thought at context exhaustion with no warning. Working state is NOT preserved automatically: FIRST stage it via continue_delegate(mode='post-compaction', task='<state-summary>'), THEN call this; the paired post-compaction delegate is what carries state across the seam. Typically called after receiving a [system:context-pressure] event, which fires as your context approaches compaction. Async: enqueues compaction; runs after this turn completes — safe to call mid-turn. Guards return as structured rejections (not errors): requires >=70% context usage and at most one request per 5 minutes per session."
+        }
+      }
+    }
+  }
+}

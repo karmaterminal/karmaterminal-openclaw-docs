@@ -1,0 +1,9 @@
+{
+  "id": "provider-error",
+  "describe": "The provider refused mid-turn.",
+  "rows": [],
+  "wait": {
+    "status": "error",
+    "error": "provider overloaded"
+  }
+}

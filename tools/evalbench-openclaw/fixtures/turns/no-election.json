@@ -1,0 +1,27 @@
+{
+  "id": "no-election",
+  "describe": "A plain reply that promises to look again and elects nothing.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "It isn't there yet. I'll keep an eye on it and let you know."
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 35,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25235
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

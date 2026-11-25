@@ -1,0 +1,27 @@
+{
+  "id": "token-form",
+  "describe": "The bracket form at the end of the reply. Recorded, never counted as an election.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "Not there yet.\n\nCONTINUE_WORK:900"
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 30,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25230
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

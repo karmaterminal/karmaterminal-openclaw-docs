@@ -1,0 +1,67 @@
+{
+  "id": "exec-no-election",
+  "describe": "An exec call and a reply; no election.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "e1",
+          "name": "exec",
+          "arguments": {
+            "command": "ls /tmp/evalprop"
+          }
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 40,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25240
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "e1",
+      "toolName": "exec",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"completed\",\n  \"exitCode\": 2\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "The directory isn't there yet."
+        }
+      ],
+      "usage": {
+        "input": 300,
+        "output": 20,
+        "cacheRead": 25200,
+        "cacheWrite": 0,
+        "totalTokens": 25520
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "id": "provider-quota",
+  "describe": "The provider refused the account.",
+  "rows": [],
+  "wait": {
+    "status": "error",
+    "error": "429 usage limit reached"
+  }
+}

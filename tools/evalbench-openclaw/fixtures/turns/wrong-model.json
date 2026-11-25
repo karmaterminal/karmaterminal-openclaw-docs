@@ -1,0 +1,27 @@
+{
+  "id": "wrong-model",
+  "describe": "A turn another model served.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "openai",
+      "model": "gpt-5.6-terra",
+      "content": [
+        {
+          "type": "text",
+          "text": "391"
+        }
+      ],
+      "usage": {
+        "input": 1100,
+        "output": 8,
+        "cacheRead": 0,
+        "cacheWrite": 0,
+        "totalTokens": 1108
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+# Arm B: ab5a, direct-tools overlay: same text, tools direct (arms.json).
+# EvalBench copies this file into configs.csv, so it never holds a credential: the adapter reads the gateway token
+# from the file named by OPENCLAW_EVAL_TOKEN_FILE_B in its own environment.
+generator: agent_grpc_proxy
+generator_class: openclaw_evalbench.generator:OpenClawProxyGenerator
+timeout_seconds: 900.0
+env:
+  OPENCLAW_EVAL_ARM: "B"
+  OPENCLAW_EVAL_GATEWAY_URL: "ws://127.0.0.1:18847"

@@ -1,0 +1,27 @@
+{
+  "id": "control-clean",
+  "describe": "A complete one-shot answer.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "391"
+        }
+      ],
+      "usage": {
+        "input": 1100,
+        "output": 8,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25108
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

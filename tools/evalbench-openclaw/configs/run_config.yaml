@@ -1,0 +1,20 @@
+# One EvalBench run config for all three arms. run.sh fills in model_config per arm and makes every path absolute.
+experiment_name: openclaw-continuation-propensity
+dataset_config: datasets/continuation-propensity.evalset.json
+dataset_format: agent-format
+orchestrator: agent
+simulated_user_model_config: configs/simulated_user_noop.yaml
+num_trials: 5
+
+scorers:
+  # expected_trajectory uses `openclaw__<tool>`. The matcher drops every name without `__` on both sides, so it
+  # compares continuation elections only. With bare names it would drop those too and score every trial 100.
+  trajectory_matcher: {}
+  token_consumption: {}
+  continuation_election:
+    type: python_scorer
+    script_path: scorers/continuation_election.py
+
+reporting:
+  csv:
+    output_directory: results

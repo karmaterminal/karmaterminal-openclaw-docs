@@ -131,7 +131,7 @@ class ArmJob:
     async def _settle(self, request):
         """The record for one turn request, whatever happens. A silent stream would hold EvalBench for its whole timeout."""
         halted = self.guard.before_trial()
-        base = {"schema": "openclaw.evalbench.trial.v1", "arm": self.arm_name,
+        base = {"schema": "openclaw.evalbench.trial.v1", "arm": self.arm_name, "model": self.arms["model"],
                 "promptId": request.env.get("OPENCLAW_EVAL_PROMPT_ID") or "", "kind": request.env.get("OPENCLAW_EVAL_KIND") or "",
                 "elected": None, "usage": None, "metered": None, "reply": "", "calls": [], "cleanup": {"ok": None, "reason": None}}
         if halted:
@@ -160,6 +160,9 @@ class ArmJob:
         if env.get("OPENCLAW_EVAL_ARM") != self.arm_name:
             return {**base, "status": "arm_mismatch",
                     "reason": f"model config says arm {env.get('OPENCLAW_EVAL_ARM')}, this job is arm {self.arm_name}"}
+        if env.get("OPENCLAW_EVAL_MODEL") != self.arms["model"]:
+            return {**base, "status": "arm_mismatch",
+                    "reason": f"model config says model {env.get('OPENCLAW_EVAL_MODEL')}, arms.json says {self.arms['model']}"}
         if request.resume:
             return {**base, "status": "infra_error", "reason": "a resumed turn was requested; every trial is one fresh turn"}
         if not prompt_id or kind not in ("eligible", "control"):

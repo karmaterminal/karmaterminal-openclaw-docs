@@ -2,7 +2,7 @@
 import copy
 
 import pytest
-from conftest import rows_of
+from conftest import MODEL, MODEL_ID, OTHER_MODEL, rows_of
 
 from openclaw_evalbench.transcript import TranscriptError, read_turn
 
@@ -146,21 +146,21 @@ def test_an_envelope_for_another_tool_gives_no_status_but_the_call_stands():
 def test_usage_sums_every_assistant_row_and_counts_cache_reads():
     turn = read("election-work")
     assert turn["usage"] == {"input": 1400, "output": 120, "cacheRead": 49200, "cacheWrite": 0, "total": 50720}
-    assert turn["modelCalls"] == 2 and turn["servedModels"] == ["openai/gpt-5.6-sol"]
+    assert turn["modelCalls"] == 2 and turn["servedModels"] == [MODEL]
 
 
 def test_served_model_reads_a_fallback_and_a_dated_snapshot():
     rows = rows_of("control-clean")
-    rows[1]["responseModel"] = "gpt-5.6-sol-2026-08-01"
-    assert read_turn(rows, "the prompt")["servedModels"] == ["openai/gpt-5.6-sol"]
-    rows[1]["responseModel"] = "gpt-5.6-terra"
-    assert read_turn(rows, "the prompt")["servedModels"] == ["openai/gpt-5.6-terra"]
+    rows[1]["responseModel"] = f"{MODEL_ID}-2026-08-01"
+    assert read_turn(rows, "the prompt")["servedModels"] == [MODEL]
+    rows[1]["responseModel"] = OTHER_MODEL.split("/")[1]
+    assert read_turn(rows, "the prompt")["servedModels"] == [OTHER_MODEL]
 
 
 def test_a_transcript_only_row_serves_no_model():
     rows = rows_of("control-clean")
     rows.append({"role": "assistant", "provider": "openclaw", "model": "delivery-mirror", "content": [{"type": "text", "text": "391"}]})
-    assert read_turn(rows, "the prompt")["servedModels"] == ["openai/gpt-5.6-sol"]
+    assert read_turn(rows, "the prompt")["servedModels"] == [MODEL]
 
 
 @pytest.mark.parametrize("change, message", [

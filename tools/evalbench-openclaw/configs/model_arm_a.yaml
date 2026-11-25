@@ -1,9 +1,10 @@
 # Arm A: ab5a, fleet default: continuation tools deferred (arms.json).
 # EvalBench copies this file into configs.csv, so it never holds a credential: the adapter reads the gateway token
 # from the file named by OPENCLAW_EVAL_TOKEN_FILE_A in its own environment.
+# The firing model is arms.json's `model`; a run writes it into its copy of this file as env.OPENCLAW_EVAL_MODEL.
 generator: agent_grpc_proxy
 generator_class: openclaw_evalbench.generator:OpenClawProxyGenerator
 timeout_seconds: 900.0
 env:
   OPENCLAW_EVAL_ARM: "A"
-  OPENCLAW_EVAL_GATEWAY_URL: "ws://127.0.0.1:18846"
+  OPENCLAW_EVAL_GATEWAY_URL: "ws://127.0.0.1:20846"

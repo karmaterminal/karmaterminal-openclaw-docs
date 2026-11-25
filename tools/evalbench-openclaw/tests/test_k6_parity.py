@@ -6,7 +6,7 @@ import shutil
 import subprocess
 
 import pytest
-from conftest import rows_of
+from conftest import MODEL, MODEL_ID, PROVIDER, rows_of
 
 from openclaw_evalbench.arms import CONTINUATION_TOOLS
 from openclaw_evalbench.fake_gateway import load_turns
@@ -45,7 +45,7 @@ def test_hostile_rows_read_the_same():
         {**call, "arguments": {"id": "mcp:server:continue_work", "args": {}}}, {**call, "arguments": {"id": "continue_work", "args": "x"}},
         {"type": "toolCall", "toolName": "continue_work", "input": {"reason": "r"}}, {"type": "toolCall"}, {"type": "text", "text": "continue_work"},
     ]
-    rows = [{"role": "assistant", "provider": "openai", "model": "gpt-5.6-sol", "content": parts}]
+    rows = [{"role": "assistant", "provider": PROVIDER, "model": MODEL_ID, "content": parts}]
     envelope = json.loads(result["content"][0]["text"])
     def variant(change):
         value = copy.deepcopy(envelope)
@@ -60,8 +60,8 @@ def test_hostile_rows_read_the_same():
         {**result, "content": [], "details": {"status": "scheduled"}},
         {"role": "toolResult", "toolCallId": "x", "toolName": "continue_work", "content": json.dumps({"status": "scheduled"})},
         {"role": "toolResult", "toolCallId": "x", "toolName": "ns__continue_work", "content": [], "details": {"status": "scheduled"}},
-        {"role": "assistant", "provider": "openai", "model": "gpt-5.6-sol", "responseModel": "gpt-5.6-sol-20260801", "content": []},
-        {"role": "assistant", "provider": "openai", "model": "gpt-5.6-sol", "responseModel": "gpt-5.6-sol-mini", "content": []},
-        {"role": "assistant", "model": "gpt-5.6-sol", "content": []}, {"role": "assistant", "model": "openai/gpt-5.6-sol", "content": []},
+        {"role": "assistant", "provider": PROVIDER, "model": MODEL_ID, "responseModel": f"{MODEL_ID}-20260801", "content": []},
+        {"role": "assistant", "provider": PROVIDER, "model": MODEL_ID, "responseModel": f"{MODEL_ID}-mini", "content": []},
+        {"role": "assistant", "model": MODEL_ID, "content": []}, {"role": "assistant", "model": MODEL, "content": []},
     ]
     assert ours(rows) == k6(rows)

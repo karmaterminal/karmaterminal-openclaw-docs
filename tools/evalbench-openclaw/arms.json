@@ -1,13 +1,13 @@
 {
   "schema": "openclaw.evalbench.arms.v1",
   "issue": "karmaterminal/openclaw#1575",
-  "model": "openai/gpt-5.6-sol",
+  "model": "openai/gpt-6.1-sol",
   "repetitions": 5,
   "arms": {
     "A": {
       "summary": "ab5a, fleet default: continuation tools deferred",
       "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
-      "gatewayPort": 18846,
+      "gatewayPort": 20846,
       "descriptions": "ab5a30ea",
       "surface": "deferred",
       "config": {
@@ -24,9 +24,9 @@
       }
     },
     "B": {
-      "summary": "ab5a, direct-tools overlay: same text, tools direct",
+      "summary": "ab5a, direct-tools overlay: same text, every tool direct",
       "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
-      "gatewayPort": 18847,
+      "gatewayPort": 20966,
       "descriptions": "ab5a30ea",
       "surface": "direct",
       "config": {
@@ -42,7 +42,7 @@
     "C": {
       "summary": "f9fcd3a5, fleet default: direct-only, control-first text",
       "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
-      "gatewayPort": 18848,
+      "gatewayPort": 21086,
       "descriptions": "f9fcd3a5",
       "surface": "direct",
       "config": {
@@ -57,23 +57,61 @@
           "plugins.entries.codex.config.codexDynamicToolsLoading": "direct"
         }
       }
+    },
+    "D": {
+      "summary": "f9fcd3a5, direct-tools overlay: control-first text, every tool direct",
+      "optional": true,
+      "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+      "gatewayPort": 21206,
+      "descriptions": "f9fcd3a5",
+      "surface": "direct",
+      "config": {
+        "set": {
+          "agents.defaults.skipBootstrap": true,
+          "tools.toolSearch": false,
+          "tools.codeMode": false,
+          "plugins.entries.codex.config.codexDynamicToolsLoading": "direct"
+        },
+        "absent": []
+      }
     }
   },
   "comparisons": [
     {
       "id": "visibility",
+      "label": "visibility (all tools direct)",
       "from": "A",
       "to": "B",
-      "primary": true
+      "primary": true,
+      "note": "same build and text. B makes every tool direct, not only the continuation tools, so this is the effect of an all-direct surface."
+    },
+    {
+      "id": "composite",
+      "label": "composite: new text + direct-set narrowing",
+      "from": "B",
+      "to": "C",
+      "primary": true,
+      "note": "not the wording effect. C has the new text, and it also narrows the direct set: B makes every tool direct, while C adds only the three continuation tools to the fleet default's direct set. Arm D separates the two."
     },
     {
       "id": "wording",
+      "label": "wording (all tools direct)",
       "from": "B",
+      "to": "D",
+      "primary": true,
+      "note": "every tool is direct in both; only the text differs. On the Codex harness D's continuation tools also move into the openclaw_direct namespace."
+    },
+    {
+      "id": "placement",
+      "label": "placement: direct-set narrowing (new text)",
+      "from": "D",
       "to": "C",
-      "primary": true
+      "primary": true,
+      "note": "same build and text; C goes back to the fleet default's direct set plus the three continuation tools. B → D and D → C add up to B → C."
     },
     {
       "id": "deploy",
+      "label": "deploy of f9fcd3a5",
       "from": "A",
       "to": "C",
       "primary": false

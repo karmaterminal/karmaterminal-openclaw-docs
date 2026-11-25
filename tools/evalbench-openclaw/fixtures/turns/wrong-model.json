@@ -5,7 +5,7 @@
     {
       "role": "assistant",
       "provider": "openai",
-      "model": "gpt-5.6-terra",
+      "model": "another-model",
       "content": [
         {
           "type": "text",

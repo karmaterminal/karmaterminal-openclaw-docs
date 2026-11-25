@@ -1,4 +1,4 @@
-"""preflight | run | offline | report | overlay. See README.md."""
+"""model | preflight | run | offline | report | overlay. See README.md."""
 
 import argparse
 import asyncio
@@ -16,10 +16,12 @@ import sys
 import yaml
 
 from . import arms as arms_module
-from .arms import ROOT, load_arms, load_scenarios
+from .arms import ROOT, default_arms, load_arms, load_scenarios
 from .trial import SCRATCH_PATH
 
+# Per arm, checked between trials. Not a ceiling: the trial in flight can exceed it (stops.py).
 DEFAULT_TOKEN_BUDGET = 35_000_000
+TOKEN_BUDGET_RULE = "per arm, checked between trials; not a ceiling, the trial in flight can exceed it"
 OFFLINE_DEADLINE_SECONDS = 1.0
 # EvalBench drops a session three hours after it starts and ends the job without a result (util/sessionmgr.py ttl).
 SESSION_TTL_SECONDS = 48 * 3600
@@ -40,8 +42,11 @@ def _now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
 
 
-def build_configs(out, arm_names, *, gateway_urls=None, num_trials=None, scenarios=None):
+def build_configs(out, arm_names, *, model, gateway_urls=None, num_trials=None, scenarios=None):
     """EvalBench's configs for this run, written under out/config. Returns {arm: run config}.
+
+    The firing model goes into every arm's model config here, from arms.json: EvalBench copies it into configs.csv and
+    sends it back with every turn, and the adapter refuses a turn that names another.
 
     Repository paths stay relative to this directory, which is the working directory of a run: EvalBench copies them
     into configs.csv, and a host path there would be noise.
@@ -56,11 +61,12 @@ def build_configs(out, arm_names, *, gateway_urls=None, num_trials=None, scenari
         base["scenarios"] = list(scenarios)
     run_configs = {}
     for name in arm_names:
-        model = yaml.safe_load((ROOT / f"configs/model_arm_{name.lower()}.yaml").read_text())
+        config = yaml.safe_load((ROOT / f"configs/model_arm_{name.lower()}.yaml").read_text())
+        config["env"]["OPENCLAW_EVAL_MODEL"] = model
         if gateway_urls:
-            model["env"]["OPENCLAW_EVAL_GATEWAY_URL"] = gateway_urls[name]
+            config["env"]["OPENCLAW_EVAL_GATEWAY_URL"] = gateway_urls[name]
         path = config_dir / f"model_arm_{name.lower()}.yaml"
-        path.write_text(yaml.safe_dump(model, sort_keys=False))
+        path.write_text(yaml.safe_dump(config, sort_keys=False))
         run_configs[name] = {**base, "experiment_name": f"{base['experiment_name']}-{name}", "model_config": str(path)}
         (config_dir / f"run_arm_{name.lower()}.yaml").write_text(yaml.safe_dump(run_configs[name], sort_keys=False))
     return run_configs
@@ -159,14 +165,14 @@ def _finish(out, results, manifest, arms):
     return 1 if failures else 0
 
 
-def _manifest(args, arm_names, urls, offline):
+def _manifest(args, arms, urls, offline):
     pin = (ROOT / "EVALBENCH_PIN").read_text().strip()
     return {
         "schema": "openclaw.evalbench.run.v1", "issue": "karmaterminal/openclaw#1575", "offline": offline,
-        "go": getattr(args, "go", None), "started": _now(), "arms": arm_names, "gatewayUrls": urls,
+        "go": getattr(args, "go", None), "started": _now(), "arms": args.arms, "model": arms["model"], "gatewayUrls": urls,
         "evalbenchPin": pin, "evalbenchHead": _git("rev-parse", "HEAD", cwd=os.environ.get("OPENCLAW_EVALBENCH_SRC", ".")),
         "harnessHead": _git("rev-parse", "HEAD"), "harnessDirty": bool(_git("status", "--porcelain", "--", ".")),
-        "numTrials": args.num_trials, "scenarios": args.scenarios, "tokenBudgetPerArm": args.token_budget,
+        "numTrials": args.num_trials, "scenarios": args.scenarios, "tokenBudgetPerArm": args.token_budget, "tokenBudgetRule": TOKEN_BUDGET_RULE,
         "evalsetSha256": _sha256(ROOT / "datasets/continuation-propensity.evalset.json"), "armsSha256": _sha256(ROOT / "arms.json"),
     }
 
@@ -221,9 +227,9 @@ def cmd_run(args):
     if SCRATCH_PATH.exists():
         raise SystemExit(f"refusing: {SCRATCH_PATH} exists; the prompts need it absent")
     tokens, out = _token_files(args.arms), _new_out(args.out)
-    manifest = _manifest(args, args.arms, urls, offline=False)
+    manifest = _manifest(args, arms, urls, offline=False)
     with _logging_to(out / "evalbench.log"):
-        run_configs = build_configs(out, args.arms, gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
+        run_configs = build_configs(out, args.arms, model=arms["model"], gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
         results = asyncio.run(run_jobs(out, run_configs, arms=arms, tokens=tokens, token_budget=args.token_budget))
     return _finish(out, results, manifest, arms)
 
@@ -240,13 +246,13 @@ def cmd_offline(args):
                 fakes[name] = await stack.enter_async_context(FakeGateway(
                     arm, model=arms["model"], descriptions=arms["descriptions"][arm["descriptions"]]["tools"], plan=plan[name]))
             urls = {n: f.url for n, f in fakes.items()}
-            run_configs = build_configs(out, args.arms, gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
+            run_configs = build_configs(out, args.arms, model=arms["model"], gateway_urls=urls, num_trials=args.num_trials, scenarios=args.scenarios)
             results = await run_jobs(out, run_configs, arms=arms, tokens={n: f.token for n, f in fakes.items()},
                                      token_budget=args.token_budget, deadline_seconds=OFFLINE_DEADLINE_SECONDS)
             leftovers = {n: len(f.sessions) for n, f in fakes.items() if f.sessions}
             return urls, results, leftovers
 
-    manifest = _manifest(args, args.arms, None, offline=True)
+    manifest = _manifest(args, arms, None, offline=True)
     with _logging_to(out / "evalbench.log"):
         manifest["gatewayUrls"], results, leftovers = asyncio.run(everything())
     code = _finish(out, results, manifest, arms)
@@ -271,8 +277,14 @@ def cmd_report(args):
     return 0
 
 
+def cmd_model(_args):
+    """Print the firing model, for the launcher's PROOF_PRIMARY_MODEL."""
+    print(load_arms()["model"])
+    return 0
+
+
 def cmd_overlay(args):
-    """Write one arm's settings into an isolated proof gateway's config file, in place."""
+    """Write the firing model and one arm's settings into an isolated proof gateway's config file, in place."""
     path = pathlib.Path(args.config).expanduser().resolve()
     live = pathlib.Path("~/.openclaw").expanduser().resolve()
     if path == live or live in path.parents:
@@ -280,13 +292,16 @@ def cmd_overlay(args):
     config = json.loads(path.read_text())
     if config.get("channels"):
         raise SystemExit("refusing: this config has a channel, so it is not an isolated proof gateway's")
-    text = json.dumps(arms_module.apply_overlay(load_arms()["arms"][args.arm], config), indent=2) + "\n"
+    arms = load_arms()
+    # Under state/, so the launcher's shred takes it.
+    log_file = str(path.parent / "state" / "gateway.log")
+    text = json.dumps(arms_module.apply_overlay(arms["arms"][args.arm], arms["model"], config, log_file), indent=2) + "\n"
     temporary = path.with_name(path.name + ".evalprop")
     descriptor = os.open(temporary, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
     with os.fdopen(descriptor, "w") as handle:
         handle.write(text)
     os.replace(temporary, path)
-    print(f"arm {args.arm} settings written to {path}; restart the gateway on it")
+    print(f"arm {args.arm} settings and model {arms['model']} written to {path}; restart the gateway on it")
     return 0
 
 
@@ -320,20 +335,22 @@ def main(argv=None):
     for name, handler, live in (("preflight", cmd_preflight, True), ("run", cmd_run, True), ("offline", cmd_offline, False)):
         command = commands.add_parser(name)
         command.set_defaults(handler=handler)
-        command.add_argument("--arms", type=_arm_list, default=list(load_arms()["arms"]))
+        command.add_argument("--arms", type=_arm_list, default=default_arms(load_arms()),
+                             help="comma-separated; the default leaves out the optional arms")
         if live:
             command.add_argument("--gateway-url", action="append", metavar="ARM=URL")
         if name != "preflight":
             command.add_argument("--out", required=True)
             command.add_argument("--num-trials", type=_positive, default=load_arms()["repetitions"])
             command.add_argument("--scenarios", type=_scenario_list)
-            command.add_argument("--token-budget", type=_positive, default=DEFAULT_TOKEN_BUDGET, help="metered tokens per arm")
+            command.add_argument("--token-budget", type=_positive, default=DEFAULT_TOKEN_BUDGET, help=f"metered tokens, cache reads included: {TOKEN_BUDGET_RULE}")
         if name == "run":
             command.add_argument("--go", help="message id of the seat owner's go")
     command = commands.add_parser("report")
     command.set_defaults(handler=cmd_report)
     command.add_argument("--job", action="append", required=True, metavar="ARM=DIR")
     command.add_argument("--json", action="store_true")
+    commands.add_parser("model").set_defaults(handler=cmd_model)
     command = commands.add_parser("overlay")
     command.set_defaults(handler=cmd_overlay)
     command.add_argument("arm", choices=list(load_arms()["arms"]))

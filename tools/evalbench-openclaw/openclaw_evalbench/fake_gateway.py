@@ -154,7 +154,7 @@ class FakeGateway:
         source = {"agents": {"defaults": {"model": {"primary": self.model, "fallbacks": []},
                                           "continuation": {"enabled": True}}},
                   "tools": {}, "plugins": {"entries": {"codex": {"config": {"codexDynamicToolsLoading": "searchable"}}}}}
-        source = apply_overlay(self.arm, source)
+        source = apply_overlay(self.arm, self.model, source, "/fake/state/gateway.log")
         source.update(self.overrides.get("config", {}))
         return {"valid": True, "sourceConfig": source, "config": source, "configRevisionHash": "fake", "appliedConfigHash": "fake"}
 
@@ -184,7 +184,7 @@ class FakeGateway:
         for child in turn.get("children", []):
             link = child.get("link", "spawnedBy")
             self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = {
-                "rows": child.get("rows", []), "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": True, link: params["key"]}
+                "rows": _fill(child.get("rows", []), mapping), "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": True, link: params["key"]}
         self.runs[run_id] = turn.get("wait", {"status": "ok"})
         session["settled"] = self.runs[run_id]["status"] != "never"
         return {"runId": run_id, "status": "started"}

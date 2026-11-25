@@ -3,6 +3,7 @@ import csv
 import json
 
 import pytest
+from conftest import MODEL, OTHER_MODEL
 
 from openclaw_evalbench import stats
 from openclaw_evalbench.report import build_report, read_job, render
@@ -13,8 +14,8 @@ SCENARIOS = [{"id": p, "kind": "eligible", "expected_trajectory": ["openclaw__co
 
 
 def arms(repetitions=5):
-    return {"model": "openai/gpt-5.6-sol", "repetitions": repetitions,
-            "comparisons": [{"id": "visibility", "from": "A", "to": "B", "primary": True}]}
+    return {"model": MODEL, "repetitions": repetitions,
+            "comparisons": [{"id": "visibility", "label": "visibility (all tools direct)", "note": "what it is", "from": "A", "to": "B", "primary": True}]}
 
 
 def trial(prompt, index, elected, *, status="ok", kind=None, tool="continue_work", surface="verified"):
@@ -23,8 +24,8 @@ def trial(prompt, index, elected, *, status="ok", kind=None, tool="continue_work
         "promptId": prompt, "kind": kind or ("control" if prompt in CONTROL else "eligible"), "status": status,
         "reason": None if scored else "why", "elected": elected if scored else None,
         "elections": [{"tool": tool, "via": "direct", "status": "scheduled"}] if elected else [],
-        "usage": {"total": 100}, "metered": {"session": 100, "children": 0}, "modelCalls": 1, "runtime": "openclaw", "servedModels": ["openai/gpt-5.6-sol"], "otherTools": [],
-        "surface": {"verdict": surface, "systemPromptHash": "h", "descriptionText": {"continue_work": "match"}}, "scratchPresent": False, "tokenForm": {"continue_work": False, "continue_delegate": False},
+        "usage": {"total": 100}, "metered": {"session": 100, "children": 0}, "modelCalls": 1, "runtime": "openclaw", "model": MODEL, "servedModels": [MODEL], "otherTools": [],
+        "surface": {"verdict": surface, "directTools": 31, "deferredTools": 0, "systemPromptHash": "h", "descriptionText": {"continue_work": "match"}}, "scratchPresent": False, "tokenForm": {"continue_work": False, "continue_delegate": False},
         "discovery": {"observable": False, "searches": 0, "searchBeforeElection": False, "queries": []}}}
 
 
@@ -187,9 +188,56 @@ def test_the_rendered_report_prints_rates_intervals_prompts_and_discovery(tmp_pa
     text = render(report_for(tmp_path, a, arm_trials({"e1": 5, "e2": 5, "e3": 5}), manifest={"offline": True}))
     low, high = stats.wilson(2, 15)
     for piece in ("| A | 2/15 | 13.3 % |", f"{100 * low:.1f}–{100 * high:.1f} %", "| e1 | eligible | continue_work | 2/5 | 5/5 |", "Offline rehearsal",
-                  "searched in 20 of 20 trials; before an election in 2. Queries: `later` ×20.", "**B**: not observable", "visibility: A → B",
-                  "**A**: surface: verified 20; description text: match 20; runtime: openclaw 20; contradictions: 0."):
+                  "searched in 20 of 20 trials; before an election in 2. Queries: `later` ×20.", "**B**: not observable", "| A → B: visibility (all tools direct) |", "- **A → B**: what it is",
+                  f"**A**: surface: verified 20; description text: match 20; runtime: openclaw 20; served: {MODEL} 20; tools: 31 direct and 0 deferred 20; contradictions: 0.",
+                  "| A | 2,000 | 100 |", "checked between trials, so it is not a ceiling"):
         assert piece in text, piece
+
+
+@pytest.mark.parametrize("change", [{"servedModels": [OTHER_MODEL]}, {"servedModels": [MODEL, OTHER_MODEL]}, {"servedModels": []}, {"model": OTHER_MODEL}, {"model": None}])
+def test_a_trial_fired_for_or_served_by_another_model_is_unscored(tmp_path, change):
+    a = arm_trials({"e1": 5})
+    a[0]["meta"].update(change)
+    report = report_for(tmp_path, a, arm_trials({}))
+    out = report["arms"]["A"]
+    assert out["unscored"] == {"other_model": 1} and (out["eligible"]["elected"], out["eligible"]["scored"]) == (4, 14)
+    assert report["comparisons"][0]["reading"] == "not reportable"
+
+
+def test_a_run_for_one_model_never_reads_as_a_run_for_another(tmp_path):
+    jobs = {"A": [job(tmp_path / "a", arm_trials({}))], "B": [job(tmp_path / "b", arm_trials({"e1": 5}))]}
+    report = build_report(jobs, arms={**arms(), "model": OTHER_MODEL}, scenarios=SCENARIOS)
+    assert report["model"] == OTHER_MODEL and all(a["unscored"] == {"other_model": 20} for a in report["arms"].values())
+    assert all(a["eligible"]["rate"] is None for a in report["arms"].values())
+
+
+def test_the_report_says_what_the_stop_is_and_what_the_dearest_trial_cost(tmp_path):
+    a = arm_trials({})
+    a[3]["meta"]["metered"] = {"session": 900, "children": 4_000}
+    report = report_for(tmp_path, a, arm_trials({}), manifest={"tokenBudgetPerArm": 35_000_000})
+    assert (report["arms"]["A"]["largestTrialTokens"], report["arms"]["A"]["meteredTokens"]) == (4_900, 19 * 100 + 4_900)
+    assert "The spend stop (35,000,000 per arm) is checked between trials" in render(report)
+
+
+def test_arm_d_is_reported_like_any_arm_and_splits_the_composite(tmp_path):
+    from openclaw_evalbench.arms import load_arms
+    declared = {**arms(), "comparisons": load_arms()["comparisons"]}
+    elected = {"A": {}, "B": {"e1": 1}, "C": {"e1": 5, "e2": 2}, "D": {"e1": 3}}
+    without = {n: [job(tmp_path / f"{n.lower()}-off", arm_trials(elected[n]))] for n in "ABC"}
+    off = build_report(without, arms=declared, scenarios=SCENARIOS)
+    assert [c["id"] for c in off["comparisons"]] == ["visibility", "composite", "deploy"]
+    on = build_report({**without, "D": [job(tmp_path / "d", arm_trials(elected["D"]))]}, arms=declared, scenarios=SCENARIOS)
+    by_id = {c["id"]: c for c in on["comparisons"]}
+    assert list(by_id) == ["visibility", "composite", "wording", "placement", "deploy"]
+    assert {i: (c["from"], c["to"], c["primary"]) for i, c in by_id.items()} == {
+        "visibility": ("A", "B", True), "composite": ("B", "C", True), "wording": ("B", "D", True), "placement": ("D", "C", True), "deploy": ("A", "C", False)}
+    assert by_id["wording"]["difference"] + by_id["placement"]["difference"] == pytest.approx(by_id["composite"]["difference"])
+    assert all(c["blockers"] == [] and c["newcombe95"] and c["bootstrap95"] for c in by_id.values())
+    text = render(on)
+    for piece in ("| A → B: visibility (all tools direct) |", "| B → C: composite: new text + direct-set narrowing |", "| B → D: wording (all tools direct) |",
+                  "- **B → C**: not the wording effect.", "| D | 3/15 |", "- **D**: surface: verified 20"):
+        assert piece in text, piece
+    assert "wording:" not in text, "no contrast is headlined as the wording effect but D against B"
 
 
 @pytest.mark.parametrize("manifest, shown", [({"offline": True}, True), ({"offline": False}, False), (None, False)])

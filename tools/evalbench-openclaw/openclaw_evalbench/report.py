@@ -25,8 +25,11 @@ def _rows(path):
         return list(csv.DictReader(handle))
 
 
-def read_job(job_dir, arm_name=None):
-    """The trials of one EvalBench job, in the order they ran. Every evals.csv row becomes one trial; none is dropped."""
+def read_job(job_dir, arm_name=None, model=None):
+    """The trials of one EvalBench job, in the order they ran. Every evals.csv row becomes one trial; none is dropped.
+
+    With `model`, a trial that was fired for, or served by, any other model is unscored.
+    """
     job_dir = pathlib.Path(job_dir)
     scores = {}
     for row in _rows(job_dir / "scores.csv"):
@@ -42,7 +45,11 @@ def read_job(job_dir, arm_name=None):
         meta = envelope.get("openclaw") or {}
         error = row.get("generated_error") or ""
         scored = not error and meta.get("status") in SCORED and isinstance(meta.get("elected"), bool)
-        status = meta.get("status") or "unanswered"
+        status, reason = meta.get("status") or "unanswered", meta.get("reason") or error or None
+        served = set(meta.get("servedModels") or [])
+        if scored and model is not None and (meta.get("model") != model or served != {model}):
+            scored, status = False, "other_model"
+            reason = f"fired for {meta.get('model')}, served by {', '.join(sorted(served)) or 'no named model'}; the firing model is {model}"
         problem = None
         if meta and meta.get("promptId") != prompt_id:
             problem = f"{row['eval_id']}: the trial record is for prompt {meta.get('promptId')}"
@@ -55,7 +62,7 @@ def read_job(job_dir, arm_name=None):
             elif (float(score_row["score"]) == 100.0) != meta["elected"] or "FAIL" in (score_row.get("comparison_logs") or ""):
                 problem = f"{row['eval_id']}: continuation_election scored {score_row['score']}, the trial says {meta['elected']}"
         trials.append({"evalId": row["eval_id"], "promptId": prompt_id, "scored": scored, "status": status,
-                       "reason": meta.get("reason") or error or None, "meta": meta, "problem": problem})
+                       "reason": reason, "meta": meta, "problem": problem})
     return trials
 
 
@@ -84,9 +91,9 @@ def _arm(trials, scenarios, repetitions):
                             "elected": 0, "scored": 0, "unscored": 0, "tools": Counter()} for s in scenarios}
     totals, tools, token_form, unscored = defaultdict(lambda: [0, 0]), Counter(), Counter(), Counter()
     expected_tool = searched = searched_first = observable = deadline = unreadable_eligible = extra = scratch = 0
-    via, surfaces, text = Counter(), Counter(), Counter()
+    via, surfaces, text, shapes = Counter(), Counter(), Counter(), Counter()
     queries, runtimes, others, served, prompts_hash = Counter(), Counter(), Counter(), Counter(), set()
-    tokens, calls, accepted, problems, mismatches = 0, 0, 0, [], 0
+    tokens, largest, calls, accepted, problems, mismatches = 0, 0, 0, 0, [], 0
     for trial in trials:
         meta, prompt = trial["meta"], trial["promptId"]
         if trial["problem"]:
@@ -94,7 +101,8 @@ def _arm(trials, scenarios, repetitions):
         if prompt not in per_prompt:
             problems.append(f"{trial['evalId']}: not a prompt of this evalset")
             continue
-        tokens += charge(meta) if meta else 0
+        charged = charge(meta) if meta else 0
+        tokens, largest = tokens + charged, max(largest, charged)
         scratch += bool(meta.get("scratchPresent"))
         calls += meta.get("modelCalls") or 0
         if (meta.get("surface") or {}).get("verdict") == "mismatch":
@@ -119,6 +127,9 @@ def _arm(trials, scenarios, repetitions):
         surface = meta.get("surface") or {}
         surfaces[str(surface.get("verdict"))] += 1
         text.update((surface.get("descriptionText") or {}).values())
+        if surface.get("directTools") is not None:
+            shapes[f"{surface['directTools']} direct and {surface['deferredTools']} deferred"
+                   f"{', Code Mode' if surface.get('codeModeControls') else ''}"] += 1
         prompts_hash.add(surface.get("systemPromptHash"))
         for form, seen in (meta.get("tokenForm") or {}).items():
             token_form[form] += bool(seen)
@@ -145,6 +156,7 @@ def _arm(trials, scenarios, repetitions):
         "surfaceMismatches": mismatches, "problems": problems,
         "electedTool": dict(tools), "electedExpectedTool": expected_tool, "electedAccepted": accepted,
         "electedVia": dict(via), "extraTrials": extra, "surfaces": dict(surfaces), "descriptionText": dict(text),
+        "surfaceShapes": dict(shapes),
         "scratchPresent": scratch,
         # Turns stopped at the deadline whose history could not be read: the eligible rate if none of them elected.
         "eligibleIfUnreadableDeadlinesDidNotElect": _rate(totals["eligible"][0], totals["eligible"][1] + unreadable_eligible),
@@ -152,7 +164,7 @@ def _arm(trials, scenarios, repetitions):
                       "queries": dict(queries.most_common())},
         "tokenForm": dict(token_form), "otherTools": dict(others.most_common()), "runtimes": dict(runtimes),
         "servedModels": dict(served), "distinctSystemPrompts": len(prompts_hash - {None}),
-        "meteredTokens": tokens, "modelCalls": calls,
+        "meteredTokens": tokens, "largestTrialTokens": largest, "modelCalls": calls,
         "perPrompt": {p: {**e, "tools": dict(e["tools"])} for p, e in per_prompt.items()},
     }
 
@@ -192,7 +204,7 @@ def build_report(jobs, *, arms=None, scenarios=None, manifest=None):
             if path in used:
                 raise ValueError(f"job {path.name} was given twice (arm {used[path]} and arm {name})")
             used[path] = name
-        trials = [t for d in dirs for t in read_job(d, name)]
+        trials = [t for d in dirs for t in read_job(d, name, arms["model"])]
         out[name] = _arm(_first_repetitions(trials, arms["repetitions"]), scenarios, arms["repetitions"])
     comparisons = [_compare(out, c) for c in arms["comparisons"] if c["from"] in out and c["to"] in out]
     return {"schema": REPORT_SCHEMA, "repetitions": arms["repetitions"], "model": arms["model"],
@@ -218,7 +230,8 @@ def render(report):
     manifest = report.get("manifest") or {}
     if manifest.get("offline"):
         lines += ["**Offline rehearsal against the fake gateway. Every number below is scripted; none is about a model.**", ""]
-    lines += [f"Model `{report['model']}`, {report['repetitions']} repetitions per prompt and arm. "
+    lines += [f"Model `{report['model']}`, no fallbacks; a trial any other model served is unscored. "
+              f"{report['repetitions']} repetitions per prompt and arm. "
               "Rates are trials whose turn called a continuation tool, over scored trials.", "",
               "| arm | eligible: elected | rate | Wilson 95 % | control: elected | rate | Wilson 95 % | unscored |",
               "| --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -229,16 +242,20 @@ def render(report):
     lines += ["", "## Comparisons (eligible election rate)", "",
               "| comparison | difference | Newcombe 95 % | prompt bootstrap 95 % | reading |", "| --- | --- | --- | --- | --- |"]
     for c in report["comparisons"]:
-        label = f"{c['id']}: {c['from']} → {c['to']}" + ("" if c["primary"] else " (descriptive)")
+        label = f"{c['from']} → {c['to']}: {c['label']}" + ("" if c["primary"] else " (descriptive)")
         diff = "n/a" if c["difference"] is None else f"{100 * c['difference']:+.1f} pp"
         lines.append(f"| {label} | {diff} | {_interval(c['newcombe95'], True)} | {_interval(c['bootstrap95'], True)} | {c['reading']} |")
-    blocked = [f"- {c['id']}: {b}" for c in report["comparisons"] for b in c["blockers"]]
+    notes = [f"- **{c['from']} → {c['to']}**: {c['note']}" for c in report["comparisons"] if c.get("note")]
+    if notes:
+        lines += ["", "What each comparison is:", ""] + notes
+    blocked = [f"- {c['from']} → {c['to']}: {b}" for c in report["comparisons"] for b in c["blockers"]]
     if blocked:
         lines += ["", "Not reportable because:", ""] + blocked
     lines += ["", "## Surface", ""]
     for name, arm in report["arms"].items():
         lines.append(f"- **{name}**: surface: {_counts(arm['surfaces'])}; description text: {_counts(arm['descriptionText'])}; "
-                     f"runtime: {_counts(arm['runtimes'])}; contradictions: {arm['surfaceMismatches']}.")
+                     f"runtime: {_counts(arm['runtimes'])}; served: {_counts(arm['servedModels'])}; "
+                     f"tools: {_counts(arm['surfaceShapes'])}; contradictions: {arm['surfaceMismatches']}.")
     lines += ["", "## What was elected, and how", "",
               "| arm | tools elected (trials) | fitting tool | accepted | how it was called | bracket form (not counted) | deadline | eligible rate if unreadable deadlines did not elect |",
               "| --- | --- | --- | --- | --- | --- | --- | --- |"]
@@ -262,10 +279,13 @@ def render(report):
     for prompt, entry in first["perPrompt"].items():
         cells = " | ".join(f"{a['perPrompt'][prompt]['elected']}/{a['perPrompt'][prompt]['scored']}" for a in report["arms"].values())
         lines.append(f"| {prompt} | {entry['kind']} | {', '.join(entry['expected']) or '—'} | {cells} |")
-    lines += ["", "## Cost and integrity", "", "| arm | metered tokens | model calls seen | distinct system prompts | extra trials not counted | scratch path present | record problems |",
-              "| --- | --- | --- | --- | --- | --- | --- |"]
+    lines += ["", "## Cost and integrity", "", "| arm | metered tokens | largest trial | model calls seen | distinct system prompts | extra trials not counted | scratch path present | record problems |",
+              "| --- | --- | --- | --- | --- | --- | --- | --- |"]
     for name, arm in report["arms"].items():
-        lines.append(f"| {name} | {arm['meteredTokens']:,} | {arm['modelCalls']} | {arm['distinctSystemPrompts']} | {arm['extraTrials']} | {arm['scratchPresent']} | {len(arm['problems'])} |")
+        lines.append(f"| {name} | {arm['meteredTokens']:,} | {arm['largestTrialTokens']:,} | {arm['modelCalls']} | {arm['distinctSystemPrompts']} | {arm['extraTrials']} | {arm['scratchPresent']} | {len(arm['problems'])} |")
+    budget = manifest.get("tokenBudgetPerArm")
+    lines += ["", f"Metered tokens include cache reads. The spend stop{f' ({budget:,} per arm)' if budget else ''} is checked between trials, "
+              "so it is not a ceiling: the trial in flight when an arm crosses it runs to its end."]
     problems = [f"- {name}: {p}" for name, arm in report["arms"].items() for p in arm["problems"]]
     if problems:
         lines += [""] + problems

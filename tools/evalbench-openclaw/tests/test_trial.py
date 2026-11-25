@@ -3,7 +3,7 @@ import asyncio
 import json
 
 import pytest
-from conftest import PROMPT, fake_gateway
+from conftest import MODEL, OTHER_MODEL, PROMPT, fake_gateway
 
 from openclaw_evalbench.arms import load_arms
 from openclaw_evalbench.stops import ASSUMED_TRIAL_TOKENS, MAX_CONSECUTIVE_INFRA_ERRORS, ArmGuard, charge
@@ -31,7 +31,7 @@ def trial(arms, arm_name, turn, *, prompt_id=W, kind="eligible", deadline=5.0, t
 def record_gateway(fake):
     """The gateway receipt a trial on this fake records."""
     server = fake._hello([])["server"]
-    return {"arm": next(n for n, a in A_ARMS.items() if a == fake.arm), "identity": {k: server.get(k) for k in ("commit", "buildId", "version", "bootId")},
+    return {"arm": next(n for n, a in A_ARMS.items() if a == fake.arm), "model": fake.model, "identity": {k: server.get(k) for k in ("commit", "buildId", "version", "bootId")},
             "configRevisionHash": "fake"}
 
 
@@ -47,7 +47,7 @@ def test_an_election(arms):
     record, fake = trial(arms, "C", "election-work")
     assert (record["status"], record["elected"], record["elections"][0]["tool"]) == ("ok", True, "continue_work")
     assert record["surface"]["verdict"] == "verified" and set(record["surface"]["descriptionText"].values()) == {"match"}
-    assert record["runtime"] == "openclaw" and record["servedModels"] == ["openai/gpt-5.6-sol"]
+    assert record["runtime"] == "openclaw" and record["servedModels"] == [MODEL] and record["model"] == MODEL
     assert record["cleanup"] == {"ok": True, "reason": None} and fake.sessions == {}
 
 
@@ -144,12 +144,12 @@ def test_a_code_mode_election_is_seen(arms):
 def test_a_turn_that_only_elected_and_left_no_reply_is_scored(arms):
     record, _ = trial(arms, "C", "election-no-assistant-row")
     assert (record["status"], record["elected"]) == ("ok", True)
-    assert record["servedModels"] == ["openai/gpt-5.6-sol"] and record["servedModelSource"] == "selection"
+    assert record["servedModels"] == [MODEL] and record["servedModelSource"] == "selection"
 
 
 def test_a_turn_no_row_names_a_model_for_needs_the_sessions_own_selection(arms):
-    record, _ = trial(arms, "C", "election-no-assistant-row", overrides={"selectedModel": "openai/gpt-5.6-terra"})
-    assert (record["status"], record["elected"]) == ("infra_error", None) and "openai/gpt-5.6-terra" in record["reason"]
+    record, _ = trial(arms, "C", "election-no-assistant-row", overrides={"selectedModel": OTHER_MODEL})
+    assert (record["status"], record["elected"]) == ("infra_error", None) and OTHER_MODEL in record["reason"]
 
 
 def test_a_description_that_is_not_the_arms_text_contradicts_the_arm(arms):
@@ -196,7 +196,7 @@ def test_paged_history_is_read_to_its_first_row(arms):
 @pytest.mark.parametrize("turn, kwargs, status, reason", [
     ("provider-error", {}, "infra_error", "the turn failed: provider overloaded"),
     ("provider-quota", {}, "infra_error", "429 usage limit"),
-    ("wrong-model", {}, "arm_mismatch", "served by openai/gpt-5.6-terra"),
+    ("wrong-model", {}, "arm_mismatch", f"served by {OTHER_MODEL}, not {MODEL}"),
     ("election-work", {"overrides": {"surface": "deferred"}}, "arm_mismatch", "expected every continuation tool direct"),
     ("election-work", {"overrides": {"noReport": True}}, "infra_error", "no prompt report"),
     ("election-work", {"overrides": {"server": {"commit": "ab5a30ea79b7"}}}, "arm_mismatch", "is not the arm's"),
@@ -296,6 +296,12 @@ def test_a_provider_refusal_stops_the_arm_at_once(text):
 def test_the_token_budget_is_checked_between_trials():
     spent = {"status": "ok", "usage": {"total": 600}, "metered": {"session": 600, "children": 0}}
     assert guard_after(spent, budget=1000) is None
-    assert "token budget reached: 1200 of 1000" in guard_after(spent, spent, budget=1000)
+    assert "token budget reached, checked between trials: 1200 of 1000" in guard_after(spent, spent, budget=1000)
+    # It is not a ceiling: nothing stops a trial that is already running, whatever it costs.
+    dear = {"status": "ok", "usage": {"total": 50_000}, "metered": {"session": 50_000, "children": 900_000}}
+    guard = ArmGuard("A", 1000)
+    assert guard.before_trial() is None
+    guard.after_trial({"reason": None, "cleanup": {"ok": True}, **dear})
+    assert guard.tokens == 950_000 and "checked between trials: 950000 of 1000" in guard.before_trial()
     # A trial that failed after spending still counts.
     assert guard_after({"status": "infra_error", "reason": "x", "usage": {"total": 1000}, "metered": {"session": None, "children": 0}}, budget=1000)

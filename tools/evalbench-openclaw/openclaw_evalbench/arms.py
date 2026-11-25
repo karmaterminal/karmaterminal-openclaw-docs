@@ -11,6 +11,10 @@ CONTINUATION_TOOLS = ("continue_work", "continue_delegate", "request_compaction"
 # every other tool from both sides and compares elections alone.
 CANONICAL_SERVER = "openclaw"
 LIVE_GATEWAY_PORT = 18789
+# The agent every trial runs as. Its own settings outrank agents.defaults.
+AGENT_ID = "main"
+# The machine-wide log directory a gateway writes to, and prunes, when its config names no log file (src/logging/logger.ts:40).
+SHARED_LOG_DIR = "/tmp/openclaw"
 _MISSING = object()
 
 
@@ -63,9 +67,26 @@ def check_identity(arm, hello):
     return {"commit": commit, "buildId": build_id, "version": server.get("version"), "bootId": server.get("bootId")}
 
 
-def read_path(config, dotted):
+def default_arms(arms):
+    """The arms a run takes when none are named: every arm but the optional ones."""
+    return [name for name, arm in arms["arms"].items() if not arm.get("optional")]
+
+
+def outranking_paths(model):
+    """The settings that outrank the arm's model or its tools.codeMode for this agent and model.
+
+    The proof-gateway launcher copies both places from the seat's live config. openclaw ab5a30ea:
+    src/agents/agent-scope.ts:268-273 (an agent's own model) and src/agents/code-mode-runtime.ts:84-92 (codeMode).
+    """
+    agent = ("agents", "entries", AGENT_ID)
+    return ((*agent, "model"), (*agent, "tools", "codeMode"), (*agent, "models", model, "codeMode"),
+            ("agents", "defaults", "models", model, "codeMode"))
+
+
+def read_path(config, path):
+    """The value at a dotted path, or at a tuple of keys (a model id has dots in it)."""
     node = config
-    for part in dotted.split("."):
+    for part in path.split(".") if isinstance(path, str) else path:
         if not isinstance(node, dict) or part not in node:
             return _MISSING
         node = node[part]
@@ -73,7 +94,7 @@ def read_path(config, dotted):
 
 
 def check_config(arm, model, payload):
-    """Check config.get's authored (sourceConfig) and effective (config) settings for the arm."""
+    """Check config.get's authored (sourceConfig) and effective (config) settings for the arm and the firing model."""
     source, effective = (payload or {}).get("sourceConfig"), (payload or {}).get("config")
     if (payload or {}).get("valid") is not True or not isinstance(source, dict) or not isinstance(effective, dict):
         raise ArmMismatch("config.get returned no valid configuration")
@@ -94,6 +115,12 @@ def check_config(arm, model, payload):
         problems.append(f"agents.defaults.model.primary must be {model}")
     if read_path(effective, "agents.defaults.model.fallbacks") not in (_MISSING, []):
         problems.append("agents.defaults.model.fallbacks must be empty")
+    for path in outranking_paths(model):
+        if read_path(source, path) is not _MISSING:
+            problems.append(f"{'.'.join(path)} must be unset: it outranks the arm's setting")
+    log_file = read_path(source, "logging.file")
+    if not isinstance(log_file, str) or not log_file or log_file.startswith(SHARED_LOG_DIR + "/"):
+        problems.append(f"logging.file must name a private file: without it the gateway shares the live gateway's log in {SHARED_LOG_DIR}")
     # An isolated proof gateway has no channel. A live one does, and must never be evaluated.
     for config in (source, effective):
         channels = read_path(config, "channels")
@@ -105,10 +132,14 @@ def check_config(arm, model, payload):
     return {"configRevisionHash": payload.get("configRevisionHash")}
 
 
-def apply_overlay(arm, config):
-    """The arm's settings written into a proof gateway's config (a new dict; the input is not changed)."""
+def apply_overlay(arm, model, config, log_file):
+    """The firing model, a private log file and the arm's settings, written into a proof gateway's config.
+
+    Returns a new dict; the input is not changed.
+    """
     out = json.loads(json.dumps(config))
-    for key, value in arm["config"].get("set", {}).items():
+    settings = {"agents.defaults.model": {"primary": model, "fallbacks": []}, "logging.file": log_file, **arm["config"].get("set", {})}
+    for key, value in settings.items():
         node = out
         *parents, leaf = key.split(".")
         for part in parents:
@@ -116,9 +147,9 @@ def apply_overlay(arm, config):
             if not isinstance(node, dict):
                 raise ArmMismatch(f"{key}: {part} is not an object in this config")
         node[leaf] = value
-    for key in arm["config"].get("absent", []):
+    for path in [*(key.split(".") for key in arm["config"].get("absent", [])), *outranking_paths(model)]:
         node = out
-        *parents, leaf = key.split(".")
+        *parents, leaf = path
         for part in parents:
             node = node.get(part) if isinstance(node, dict) else None
         if isinstance(node, dict):

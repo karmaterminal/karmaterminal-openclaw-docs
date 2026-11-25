@@ -8,7 +8,7 @@ import time
 import uuid
 
 from . import arms as arms_module
-from .arms import ArmMismatch
+from .arms import AGENT_ID, ArmMismatch
 from .gateway import GatewayClient, GatewayError
 from .surface import read_surface, surface_verdict
 from .transcript import TranscriptError, read_turn
@@ -24,7 +24,6 @@ CLEANUP_ROUNDS = 3
 CLEANUP_CALL_SECONDS = 90.0
 # The prompts name files here that nothing creates. A model that creates one changes what later trials see.
 SCRATCH_PATH = pathlib.Path("/tmp/evalprop")
-AGENT_ID = "main"
 # Scored: the turn's outcome counts. Anything else leaves every denominator.
 SCORED = ("ok", "deadline")
 
@@ -53,7 +52,7 @@ async def preflight(arm_name, arm, model, client):
     if missing:
         raise ArmMismatch(f"gateway does not advertise: {', '.join(missing)}")
     config = arms_module.check_config(arm, model, await client.call("config.get", {}))
-    return {"arm": arm_name, "identity": identity, **config}
+    return {"arm": arm_name, "model": model, "identity": identity, **config}
 
 
 async def run_trial(*, arm_name, arm, descriptions, model, url, token, prompt, prompt_id, kind,
@@ -64,7 +63,7 @@ async def run_trial(*, arm_name, arm, descriptions, model, url, token, prompt, p
     """
     started = time.monotonic()
     record = {
-        "schema": "openclaw.evalbench.trial.v1", "arm": arm_name, "promptId": prompt_id, "kind": kind,
+        "schema": "openclaw.evalbench.trial.v1", "arm": arm_name, "model": model, "promptId": prompt_id, "kind": kind,
         "status": None, "reason": None, "elected": None, "elections": [], "calls": [], "reply": "",
         "usage": None, "metered": None, "scratchPresent": SCRATCH_PATH.exists(), "cleanup": {"ok": None, "reason": None},
     }

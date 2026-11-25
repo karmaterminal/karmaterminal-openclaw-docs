@@ -1,4 +1,8 @@
-"""One arm's stop rules. Once one fires, the arm starts no further trial."""
+"""One arm's stop rules. Once one fires, the arm starts no further trial.
+
+None of them reaches into a trial that is already running. The token budget in particular is checked between trials:
+it is not a ceiling, and the trial in flight when an arm crosses it runs to its own end (600 s, then the abort).
+"""
 
 import re
 
@@ -33,9 +37,9 @@ class ArmGuard:
             self.halted = reason
 
     def before_trial(self):
-        """The reason this arm may not start another trial, or None."""
+        """The reason this arm may not start another trial, or None. The only place the token budget is read."""
         if self.halted is None and self.token_budget is not None and self.tokens >= self.token_budget:
-            self.halt(f"token budget reached: {self.tokens} of {self.token_budget} metered tokens")
+            self.halt(f"token budget reached, checked between trials: {self.tokens} of {self.token_budget} metered tokens")
         return self.halted
 
     def after_trial(self, record):

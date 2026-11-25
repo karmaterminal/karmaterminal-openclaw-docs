@@ -10,6 +10,10 @@ from openclaw_evalbench.arms import load_arms, load_scenarios  # noqa: E402
 from openclaw_evalbench.fake_gateway import FakeGateway, load_turns  # noqa: E402
 
 PROMPT = {s["id"]: s["starting_prompt"] for s in load_scenarios()}
+# The firing model is one value in arms.json; no test repeats it.
+MODEL = load_arms()["model"]
+PROVIDER, MODEL_ID = MODEL.split("/", 1)
+OTHER_MODEL = "openai/another-model"
 
 
 @pytest.fixture
@@ -17,7 +21,7 @@ def arms():
     return load_arms()
 
 
-def rows_of(turn_id, prompt="the prompt", run_id="run-1", provider="openai", model="gpt-5.6-sol"):
+def rows_of(turn_id, prompt="the prompt", run_id="run-1", provider=PROVIDER, model=MODEL_ID):
     """A fixture turn as chat.history rows, after the user row that started it."""
     from openclaw_evalbench.fake_gateway import _fill
     mapping = {"{{prompt}}": prompt, "{{runId}}": run_id, "{{provider}}": provider, "{{model}}": model}

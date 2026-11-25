@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 import pytest
-from conftest import ROOT, fake_gateway
+from conftest import MODEL, ROOT, fake_gateway
 
 from evalproto import eval_agent_pb2
 from generators.models.agent_grpc_proxy import AGENT_GRPC_PROXY_QUEUES, AgentGrpcProxyGenerator
@@ -27,7 +27,7 @@ def record(**changes):
             "calls": [{"id": "c1", "name": "exec", "via": "direct", "args": {"command": "true"}, "answered": True, "isError": False, "status": None},
                       {"id": "c2", "name": "continue_work", "via": "dispatcher", "args": {"reason": "r"}, "answered": True, "isError": False, "status": "scheduled"}],
             "reply": "done", "usage": {"input": 100, "output": 20, "cacheRead": 900, "cacheWrite": 0, "total": 1020},
-            "servedModels": ["openai/gpt-5.6-sol"]}
+            "servedModels": [MODEL]}
     return {**base, **changes}
 
 
@@ -160,15 +160,15 @@ def test_the_election_scorer_marks_an_unscored_row_and_fails_on_no_record():
 
 # --- whole jobs ---------------------------------------------------------------------------------------------------------
 
-def run_offline(tmp_path, plans, *, num_trials, scenarios, deadline=0.5, budget=None, overrides=None):
-    arms = load_arms()
+def run_offline(tmp_path, plans, *, num_trials, scenarios, deadline=0.5, budget=None, overrides=None, arms=None):
+    arms = arms or load_arms()
 
     async def go():
         fakes = {n: fake_gateway(arms, n, plan, overrides=(overrides or {}).get(n)) for n, plan in plans.items()}
         for fake in fakes.values():
             await fake.__aenter__()
         try:
-            configs = build_configs(tmp_path, list(plans), gateway_urls={n: f.url for n, f in fakes.items()}, num_trials=num_trials, scenarios=scenarios)
+            configs = build_configs(tmp_path, list(plans), model=arms["model"], gateway_urls={n: f.url for n, f in fakes.items()}, num_trials=num_trials, scenarios=scenarios)
             results = await run_jobs(tmp_path, configs, arms=arms, tokens={n: f.token for n, f in fakes.items()}, token_budget=budget, deadline_seconds=deadline)
             return results, {n: len(f.sessions) for n, f in fakes.items()}, {n: f.token for n, f in fakes.items()}
         finally:
@@ -242,7 +242,8 @@ def test_a_halted_arm_stops_spending_and_fails_the_run(tmp_path):
 def test_the_token_budget_stops_an_arm_between_trials(tmp_path):
     c = "c1-arithmetic"
     results, _, _, report, code = run_offline(tmp_path, {"A": {c: ["control-clean"]}}, num_trials=4, scenarios=[c], budget=50_000)
-    assert code == 1 and "token budget reached" in results["A"]["halted"]
+    assert code == 1 and "token budget reached, checked between trials" in results["A"]["halted"]
+    assert results["A"]["meteredTokens"] > 50_000, "the trial in flight when the arm crossed the stop ran to its end"
     assert report["arms"]["A"]["control"]["scored"] == 2 and report["arms"]["A"]["unscored"] == {"halted": 2}
 
 
@@ -274,7 +275,7 @@ def run_offline_expecting_no_report(tmp_path):
 
     async def go():
         async with fake_gateway(arms, "A", {}) as fake:
-            configs = build_configs(tmp_path, ["A"], gateway_urls={"A": fake.url}, num_trials=1, scenarios=["no-such-scenario"])
+            configs = build_configs(tmp_path, ["A"], model=arms["model"], gateway_urls={"A": fake.url}, num_trials=1, scenarios=["no-such-scenario"])
             return await run_jobs(tmp_path, configs, arms=arms, tokens={"A": fake.token}, token_budget=None)
     import os
     here = os.getcwd()

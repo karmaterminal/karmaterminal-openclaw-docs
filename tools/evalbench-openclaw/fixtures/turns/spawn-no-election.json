@@ -70,8 +70,8 @@
       "rows": [
         {
           "role": "assistant",
-          "provider": "openai",
-          "model": "gpt-5.6-sol",
+          "provider": "{{provider}}",
+          "model": "{{model}}",
           "content": [
             {
               "type": "text",

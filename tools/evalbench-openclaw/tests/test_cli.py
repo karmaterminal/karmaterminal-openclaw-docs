@@ -2,7 +2,7 @@
 import json
 
 import pytest
-from conftest import ROOT
+from conftest import MODEL, ROOT
 
 from openclaw_evalbench import __main__ as cli
 from openclaw_evalbench.adapter import read_token
@@ -10,7 +10,7 @@ from openclaw_evalbench.adapter import read_token
 
 @pytest.fixture
 def tokens(tmp_path, monkeypatch):
-    for name in "ABC":
+    for name in "ABCD":
         path = tmp_path / f"token-{name}"
         path.write_text(f"token-{name}\n")
         monkeypatch.setenv(f"OPENCLAW_EVAL_TOKEN_FILE_{name}", str(path))
@@ -32,7 +32,7 @@ def test_run_refuses_without_an_owner_message_id(tokens, go):
     assert not (tokens / "out").exists()
 
 
-@pytest.mark.parametrize("url", ["A=ws://127.0.0.1:18789", "A=ws://example.com:18846"])
+@pytest.mark.parametrize("url", ["A=ws://127.0.0.1:18789", "A=ws://example.com:20846"])
 def test_run_refuses_a_live_or_remote_gateway(tokens, url):
     with pytest.raises(SystemExit, match="refusing"):
         cli.main(["run", "--go", "1573086211386384495", "--out", str(tokens / "out"), "--gateway-url", url])
@@ -51,7 +51,7 @@ def test_run_and_offline_refuse_a_used_directory(tokens):
             cli.main(argv)
 
 
-@pytest.mark.parametrize("argv", [["--arms", "D"], ["--arms", "A,A"], ["--arms", ""], ["--scenarios", "nope"], ["--num-trials", "0"], ["--token-budget", "0"]])
+@pytest.mark.parametrize("argv", [["--arms", "Z"], ["--arms", "A,A"], ["--arms", ""], ["--scenarios", "nope"], ["--num-trials", "0"], ["--token-budget", "0"]])
 def test_bad_choices_are_refused(argv):
     with pytest.raises(SystemExit):
         cli.main(["offline", "--out", "/nonexistent/x", *argv])
@@ -70,6 +70,8 @@ def test_overlay_writes_one_arm_into_an_isolated_config(tmp_path, capsys):
     assert cli.main(["overlay", "B", str(path)]) == 0
     written = json.loads(path.read_text())
     assert written["tools"] == {"toolSearch": False, "codeMode": False} and written["gateway"] == {"auth": {"token": "t"}}
+    assert written["agents"]["defaults"]["model"] == {"primary": MODEL, "fallbacks": []}
+    assert written["logging"] == {"file": str(tmp_path / "state/gateway.log")}, "where the launcher's shred finds it"
     assert path.stat().st_mode & 0o777 == 0o600 and [p.name for p in tmp_path.iterdir()] == ["openclaw.json"]
     assert '"t"' not in capsys.readouterr().out
 
@@ -93,11 +95,32 @@ def test_overlay_refuses_the_live_config_and_a_config_with_channels(tmp_path, mo
 def test_build_configs_holds_no_token_and_keeps_repository_paths_relative(tokens, tmp_path):
     out = tmp_path / "o"
     out.mkdir()
-    configs = cli.build_configs(out, ["A", "B", "C"], num_trials=2, scenarios=["c1-arithmetic"])
+    configs = cli.build_configs(out, ["A", "B", "C"], model=MODEL, num_trials=2, scenarios=["c1-arithmetic"])
     text = "".join(p.read_text() for p in (out / "config").iterdir())
     assert "token-" not in text and str(ROOT) not in text
     assert {c["experiment_name"] for c in configs.values()} == {f"openclaw-continuation-propensity-{n}" for n in "ABC"}
     assert all(c["num_trials"] == 2 and c["scenarios"] == ["c1-arithmetic"] and c["dataset_config"].startswith("datasets/") for c in configs.values())
+
+
+def test_arm_d_runs_only_when_named(tokens, monkeypatch):
+    seen = []
+
+    async def jobs(_out, run_configs, **_kwargs):
+        seen.append(list(run_configs))
+        raise SystemExit("enough")
+    monkeypatch.setattr(cli, "run_jobs", jobs)
+    for index, argv in enumerate(([], ["--arms", "A,B,C,D"])):
+        with pytest.raises(SystemExit, match="enough"):
+            cli.main(["run", "--go", "1573086211386384495", "--out", str(tokens / f"out{index}"), *argv])
+    assert seen == [["A", "B", "C"], ["A", "B", "C", "D"]]
+
+
+@pytest.mark.parametrize("command", ["run", "offline"])
+def test_the_budget_option_says_it_is_not_a_ceiling(command, capsys):
+    with pytest.raises(SystemExit):
+        cli.main([command, "--help"])
+    shown = " ".join(capsys.readouterr().out.split())
+    assert "checked between trials; not a ceiling, the trial in flight can exceed it" in shown
 
 
 def test_preflight_names_the_failing_arm(tokens, capsys):

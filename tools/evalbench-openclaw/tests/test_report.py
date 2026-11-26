@@ -191,7 +191,7 @@ def test_the_rendered_report_prints_rates_intervals_prompts_and_discovery(tmp_pa
     for piece in ("| A | 2/15 | 13.3 % |", f"{100 * low:.1f}–{100 * high:.1f} %", "| e1 | eligible | continue_work | 2/5 | 5/5 |", "Offline rehearsal",
                   "searched in 20 of 20 trials; before an election in 2. Queries: `later` ×20.", "**B**: not observable", "| A → B: visibility (all tools direct) |", "- **A → B**: what it is",
                   f"**A**: surface: verified 20; description text: match 20; runtime: openclaw 20; served: {MODEL} 20; tools: 31 direct and 0 deferred 20; contradictions: 0; "
-                  "caps verified: 20; continuation wakes: 0.",
+                  "caps verified: 20; continuation wakes: 0; treatment limitations: 0 trial(s) (none), elected after one: 0.",
                   "| A | 2,000 | 100 |", "checked between trials, so it is not a ceiling"):
         assert piece in text, piece
 

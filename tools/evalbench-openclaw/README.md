@@ -164,9 +164,9 @@ is `deadline_unreadable`: unscored, counted on its own, and the report prints th
   ends with its gateway. A durable one (`exec` with `durable: true`) runs in its own `openclaw-proc-*` unit and outlives the
   gateway too (`docs/gateway/background-process.md:131-133`); the supervisor ends it with its trial. `CANARY-PACKET.md` has the
   command that finds and stops one by hand.
-- **Automations outlive their trial.** The harness has no right to remove one (`cron.remove` needs operator.admin). It can fire
-  inside a later trial of its arm, in a session of its own: it never enters that trial's turn, and it counts toward the
-  supervisor's limits. `report.json` counts the calls (`otherTools`).
+- **Automations outlive their trial, and don't fire.** The harness has no right to remove one (`cron.remove` needs
+  operator.admin), and cron's scheduler is off, so one fires only if a turn forces it. `report.json` counts the calls
+  (`otherTools`) and the trials that made one (treatment limitations).
 - **Served model.** It is read from the assistant rows. A turn of calls with no reply can leave none, and that is how a
   turn that only elected looks, so the session's own selection stands in (the arm has no fallbacks) and the record says so.
 - **Nothing was recorded live.** The fixture turns are written from product source. `REPORT.md` lists what only a live
@@ -198,11 +198,13 @@ A comparison is **not reportable** if either arm has a prompt with fewer than 5 
 text contradicted the arm, more than one runtime, a record that disagrees with EvalBench's own score row, or a runtime
 the other arm didn't run on. The rates are still printed.
 
-## Spend caps
+## Spend caps and admission
 
-Three layers bound what a trial can spend. The first is the product's own configuration, and the other two don't trust it.
+Three layers stand between a trial and the provider. The first is the product's own configuration, and the other two don't
+trust it. **None of them is a token ceiling**: [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) says what each one enforces,
+what nothing here bounds, and the estimates in between.
 
-### 1. The product's caps, the same on every arm
+### 1. The product's caps and admission settings, the same on every arm
 
 They are `caps` in [`arms.json`](arms.json). `overlay` writes them over whatever the seat's configuration says. A trial reads
 them back (`config.get`) **before and after** it runs: each cap has to be in the authored file, in the effective configuration,
@@ -221,7 +223,9 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
 | `agents.defaults.subagents.runTimeoutSeconds` | 120 | none (`src/agents/subagents/spawn/subagent-spawn-plan.ts:42`; a spawn's own `runTimeoutSeconds` outranks it) |
 | `tools.swarm.maxConcurrent`, `.maxChildrenPerGroup`, `.maxTotalPerGroup` | 1, 1, 1 | 32, 50, 200 (`src/agents/subagents/swarm/swarm-config.ts:6-8`); `child-admission.ts:91,97`. Per group, and the group id is the caller's |
 | `agents.defaults.timeoutSeconds` | 330 | 48 h (`src/agents/timeout.ts:13,25`), per model attempt |
-| `agents.defaults.maxConcurrent` | 2 | 8 or 4 per CPU (`agent-limits.ts:5-6,35`); `server-lanes.ts:33,75` |
+| `agents.defaults.maxConcurrent` | 1 | 8 or 4 per CPU (`agent-limits.ts:5-6,35`); `server-lanes.ts:33,75`. **Admission**: the main lane, where every turn runs (`src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`), takes one at a time; a second waits in the queue |
+| `cron.enabled` | false | true (`src/config/cron-limits.ts:1`); read once at start (`src/gateway/server-cron-lazy.ts:23-24`): no scheduler lease (`src/cron/service/scheduler-actor.ts:138`), no event fire (`ops-event.ts:80`). **Admission**: no automation fires by itself. A forced run does (below) |
+| `agents.defaults.utilityModel` | `""` | the provider's (`src/agents/utility-model-setting.ts:13-28`: empty is `disabled`). **Admission**: no activity recap, a model call of its own after every turn (`src/gateway/session-activity-summaries.ts:186-191`). An agent's own setting outranks it, so `overlay` clears `agents.entries.main.utilityModel` and preflight refuses it |
 
 - **`costCapTokens: 1` is the one that matters.** A continuation tool answers `scheduled` without looking at the budget; the
   budget is read when the turn ends, and by then the turn's own output is over the cap. So the election happens, and is
@@ -234,20 +238,52 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
   `agents.entries.main` and preflight refuses them. The agent's `enabled` switch is the seat's surface and is left alone.
 - **`request_compaction` needs none**: 70 % of the context (`src/agents/tools/request-compaction-tool.ts:26`), once in 5 minutes
   (`:29`), and refused as `context_unmeasured` on a session's first turn (`:220`).
-- **Loop detection and cron are left as they are.** Loop thresholds are constants (`src/agents/tool-loop-thresholds.ts:1`, used at
-  `tool-loop-detection.ts:590-594`), and its warnings are text the model reads, before it may elect. `cron.enabled: false` would
-  show in what `automations` answers (`src/cron/service/ops-read.ts:49-55`), the tool a turn might take instead.
+- **Loop detection is left as it is.** Its thresholds are constants (`src/agents/tool-loop-thresholds.ts:1`, used at
+  `tool-loop-detection.ts:590-594`), and its warnings are text the model reads, before it may elect.
+- **Cron's scheduler is off, and the tool is not.** `automations` is registered whatever `cron.enabled` says
+  (`src/agents/openclaw-tools.ts:504`), with the same definition. What changes is some of what it answers: `status` says
+  `enabled: false` (`src/cron/service/ops-read.ts:49-55`), and a job it adds never fires by itself. A forced run
+  (`runMode: "force"`) still runs (`src/gateway/server-methods/cron-run.ts:50-52`). Every `automations` answer is recorded as a
+  treatment limitation (below).
+- **No context budget is set.** `models.providers.openai.models[].contextTokens` would lower the estimate-checked budget each
+  request is admitted against, and it would move `request_compaction`'s 70 % guard and the context-pressure events with it
+  (`src/agents/tools/request-compaction-tool.ts:226-238`, `src/auto-reply/reply/agent-runner-execute.ts:311-318`): one of the
+  choices measured. No output limit can be set on this route: the ChatGPT request never carries one
+  (`packages/ai/src/providers/openai-chatgpt-responses-request.ts:48-105`).
+- **Skill Workshop's review is not switched off.** Its setting is ignored until Doctor records the Workshop migration
+  (`src/config/skill-workshop-plugin-migration.ts:92-121`), and preflight reading it back found it absent from the effective
+  configuration.
 
-They are tight on purpose and must not move the **first** election, which is all that is scored. Run through the product's own
-code at both SHAs: the config schema accepts them; `continue_work` and `continue_delegate` answer `scheduled` under them; and the
-49 tools the product builds have the same names, descriptions and parameters with and without them (with swarm switched off
-instead, they differ). What a turn can notice before its first election is a refusal it earned: a second child while the first
-runs, or a child of a child.
+They are tight on purpose, and must limit what **runs** and not what the model is shown: the first election is all that is
+scored. [`probes/product-probe.mts`](probes/product-probe.mts) runs them through the product's own code at both SHAs, and
+[`probes/receipts`](probes/receipts) holds what it printed (`tests/test_probes.py` checks the receipts against `arms.json`
+and the probe's own hash):
+
+- the config schema accepts them, and `config.get`'s own pipeline reads each back, authored and effective;
+- `continue_work` and `continue_delegate` still answer `scheduled`; the turn's end then says `cost-capped`, and `chain-capped`
+  for a second hop;
+- in the product's own command queue, two turns start one after the other, and so do two children of one session; two
+  collectors in two swarm groups, and two automation runs, start together;
+- through the product's `/context` path, the 66 tools it builds (names, descriptions, parameters) and the whole system prompt,
+  the per-session additions included, are byte for byte the same with and without them, on every arm, for each one alone and
+  all together. Swarm off, an empty `allowAgents` and `automations` denied are each seen to change it.
+
+**What a turn can still notice** is a refusal it earned (a second child while the first runs, a child of a child, a second
+collector in one group, a second delegate in one turn) and, with the scheduler off, what `automations` answers. Each trial
+records them as **treatment limitations** (`limitations`: the tool, the setting its answer named, the answer), and whether an
+election came after one (`electedAfterLimitation`). The report counts them per arm. They never take a trial out.
+
+**What no setting here bounds**, at either SHA, without changing what the model is shown: tokens in one call, calls in one
+turn, and the lanes a turn opens itself (a collector in each swarm group it names, a forced automation run, `sessions_send` to
+another session, tool calls of one response that run at once). [The packet](CANARY-PACKET.md#what-nothing-here-bounds) has the
+lines.
 
 ### 2. The supervisor
 
 `run` starts it as a process of its own, in a transient unit of its own, and sends nothing until it is armed. It reads each
-gateway's usage on its own connection, keeps its own clock, and enforces `supervision` in [`arms.json`](arms.json):
+gateway's usage on its own connection, keeps its own clock, and enforces `supervision` in [`arms.json`](arms.json). Its token
+limits are where it stops a gateway, not a ceiling: what is spent until the kill depends on the calls in flight. Its clocks
+hold whatever happens:
 
 | limit | value | rule |
 | --- | --- | --- |
@@ -307,8 +343,8 @@ The budget charges the turn, any later turn of its session, and every session sp
 reports no usage for is charged 150,000, so the budget never runs on zeros.
 
 **The 35 M stop is checked between trials. It is not a hard ceiling**: one trial is in flight per arm, and an arm can end past
-the stop by that trial's spend. What bounds that trial is the supervisor: 0.70 M and the time a stop takes, 1.98 M whatever its
-readings do ([the packet](CANARY-PACKET.md#spend)).
+the stop by that trial's spend. What ends that trial is the supervisor, at 0.70 M or 480 s; what it spends until then is an
+estimate, not a bound ([the packet](CANARY-PACKET.md#conditional)).
 
 Every trial ends by stopping the sessions it started: its session is archived and deleted first (`sessions.delete` ends the
 session's continuations and its subagents), then every session linked under it, until a listing shows none.
@@ -344,7 +380,8 @@ The ports are 120 apart and start past the live gateway's. A gateway also derive
 | `openclaw_evalbench/report.py`, `stats.py` | EvalBench's CSVs → per-arm rates, intervals and comparisons |
 | `openclaw_evalbench/supervisor.py`, `meter.py`, `units.py` | the spend supervisor: its rules, its ledger, and how a gateway is proved and stopped |
 | `openclaw_evalbench/supervision.py`, `stops.py` | the runner's side of it, and the halts |
-| `openclaw_evalbench/fake_gateway.py`, `fixtures/` | the fake gateway and its fixture turns, runaways included |
+| `openclaw_evalbench/fake_gateway.py`, `fixtures/` | the fake gateway and its fixture turns, runaways included; it admits a runaway's children as the product does |
+| `probes/product-probe.mts`, `probes/receipts/` | the caps and admission through the product's own code at each SHA, and what it printed |
 
 Scorers: `trajectory_matcher`, `token_consumption`, `continuation_election`. No LLM judge, no simulated user
 (`max_turns: 1`, `generator: noop`).
@@ -403,7 +440,7 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
    `overlay` sets `agents.defaults.skipBootstrap: true` in every arm. A fresh workspace would otherwise be seeded
    with the first-run ritual, and one trial's answer to it would leak into the next. It also writes the firing model and
    points `logging.file` into the gateway's own state: without that, an isolated gateway writes to the live gateway's
-   rolling log in `/tmp/openclaw` and prunes it. It writes the [spend caps](#spend-caps) too.
+   rolling log in `/tmp/openclaw` and prunes it. It writes the [spend caps and admission settings](#spend-caps-and-admission) too.
 4. **Preflight** (reads only; no session, no model turn):
 
    ```bash
@@ -437,8 +474,10 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
 ### Cost of one full fire
 
 270 trials. **Expected**: 50 M metered tokens, range 16–100 M, most of it cache reads, and roughly 1.5–3 hours with the three
-arms running together. **Enforced**: 75 M and 4 h for the run (`--run-token-cap`, `--run-seconds`), plus the time a stop takes on
-the three arms in flight (3 × 1.28 M at most), and 0.70 M a trial. The 35 M stop per arm is checked between trials. **Arm D adds 90
+arms running together. **Enforced**: 4 h for the run (`--run-seconds`) and 480 s a trial, each + 1 s, and the admission above.
+**Where the supervisor stops it**: 75 M for the run (`--run-token-cap`) and 0.70 M a trial; what the arms in flight spend
+until the kill is conditional, 3 × 5.0 M at 5 s a call and 628 k a call ([the packet's arithmetic](CANARY-PACKET.md#conditional)).
+The 35 M stop per arm is checked between trials. **Arm D adds 90
 trials and about 16 M (5.4–33 M)**, for 65 M (22–130 M) in all, and needs a higher cap. It carries every tool's schema as B does,
 so expect both above A and C. The caps stop the later turns the estimate allows for (its +35 %), so it is high if anything. The
 arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).

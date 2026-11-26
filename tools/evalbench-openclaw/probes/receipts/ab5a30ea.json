@@ -65,7 +65,7 @@
  },
  "model": "openai/gpt-6.1-sol",
  "node": "v26.9.0",
- "probeSha256": "df4d7908a29a0f8f9f3a73b62c82abb08f8b9095f4bc1d3bb242310247654a95",
+ "probeSha256": "253b17cd56ded53cd9d1adc2396427bc089fecf0b6e6704f35ea2f38d1f029ba",
  "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
  "settings": {
   "agents.defaults.continuation.costCapTokens": 1,
@@ -143,7 +143,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "b3d202f6485aa12133ae80cf5f2ac04d1ab3ee2307be412f3f4e63b54e53de2d",
+   "promptHash": "c77f9a9a011b58f78f3d1ac89adc02bab2c2736c9a2ded4fcd6a757b0bd679d6",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "3021344ccef7df1dabb369125703c7831465bbfc032d3c5d049dd8a1b40cfdf9",
@@ -215,7 +215,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "b3d202f6485aa12133ae80cf5f2ac04d1ab3ee2307be412f3f4e63b54e53de2d",
+   "promptHash": "c77f9a9a011b58f78f3d1ac89adc02bab2c2736c9a2ded4fcd6a757b0bd679d6",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "3021344ccef7df1dabb369125703c7831465bbfc032d3c5d049dd8a1b40cfdf9",
@@ -287,7 +287,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "b3d202f6485aa12133ae80cf5f2ac04d1ab3ee2307be412f3f4e63b54e53de2d",
+   "promptHash": "c77f9a9a011b58f78f3d1ac89adc02bab2c2736c9a2ded4fcd6a757b0bd679d6",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "3021344ccef7df1dabb369125703c7831465bbfc032d3c5d049dd8a1b40cfdf9",
@@ -359,7 +359,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "b3d202f6485aa12133ae80cf5f2ac04d1ab3ee2307be412f3f4e63b54e53de2d",
+   "promptHash": "c77f9a9a011b58f78f3d1ac89adc02bab2c2736c9a2ded4fcd6a757b0bd679d6",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "3021344ccef7df1dabb369125703c7831465bbfc032d3c5d049dd8a1b40cfdf9",

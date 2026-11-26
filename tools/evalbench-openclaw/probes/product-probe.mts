@@ -4,7 +4,7 @@
 //
 // Run it with HOME, OPENCLAW_STATE_DIR, OPENCLAW_CONFIG_PATH and TMPDIR in an empty directory of its own: it writes each
 // variant's configuration to OPENCLAW_CONFIG_PATH and reads it back the way config.get does. It prints one line,
-// "PRODUCT-PROBE <json>". probes/README.md says what each part shows and how the receipts in artifacts/probes were made.
+// "PRODUCT-PROBE <json>". probes/README.md says what each part shows and how the receipts in probes/receipts were made.
 import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

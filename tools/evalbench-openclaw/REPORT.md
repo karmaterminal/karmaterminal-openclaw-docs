@@ -11,14 +11,17 @@ of the path was exercised: gRPC, WS, history, scorers, supervision, CSVs and rep
 [`artifacts/offline-rehearsal/`](artifacts/offline-rehearsal/report.md) and
 [`artifacts/offline-rehearsal-arm-d/`](artifacts/offline-rehearsal-arm-d/report.md).
 
-**The canary's spend is now bounded by something that runs: 1.98 M metered tokens for one trial and 6.24 M for the nine, whatever
-the readings do**, and 1.34 M and 4.32 M while every reading is on time. [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has the
-arithmetic, what enforces each number, and what it rests on.
+**No number of tokens is enforced, for a trial or for the canary.** What is enforced is time (480 s a trial and 1800 s the
+canary, each + 1 s) and admission in the product (one turn at a time per gateway, one child per session and none of its own,
+no automation that fires by itself, no activity recap). The token numbers are estimates on named assumptions: 1.98 M a trial
+and 6.24 M the canary at 5 s and 160 k a call, and 5.7–18.3 M and 17.5–55 M at the most a call can carry on this route and 5 s
+to 1 s a call, before the lanes a turn opens itself, which nothing bounds. [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has
+the two columns, the residual, and what would make it a ceiling.
 
 | ref | value |
 | --- | --- |
 | docs base | `main` at `07f70cb98eec70a341952f11eff02d71d19ff08d` (local = tracking = server) |
-| reviewed heads this follows up | `52465362d18b761e5b0eab61026dbf8f39776413` (🌻's read of the packet, room 19:34Z, message 1575233154115969149); before it `cad3a0456f2426907b89caa1964d575bf047e42a` (🌿's review, 🌻's three conditions) |
+| reviewed heads this follows up | `d78d1614adc2e9f288715301cffbb6ee19448d4f` (🌻's read of the spend bound and `supervisor.py`, room 22:22Z, message 1575275397732630690; the constraint, 22:23Z, 1575275641740333060); before it `52465362d18b761e5b0eab61026dbf8f39776413` (🌻's read of the packet, room 19:34Z, message 1575233154115969149) and `cad3a0456f2426907b89caa1964d575bf047e42a` (🌿's review, 🌻's three conditions) |
 | lane branch | `codeagent/cont-propensity-evalbench` (final SHA in the PR) |
 | product, arms A and B | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` (server: `frond/1321-sovereign-loader-ab5a` and others) |
 | product, arms C and D | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` (server: `gloss/1575-continuation-surface`) |
@@ -27,18 +30,45 @@ arithmetic, what enforces each number, and what it rests on.
 | openclaw-bootstrap workflow read | `main` at `51546ce6ac213d9e2f62c58a318248652a45e7e7` |
 | CI / presentation | N/A / N/A |
 
-## What changed for 🌻's spend condition
+## What changed for 🌻's admission condition (follow-up 3)
+
+🌻's point at `d78d1614`: 1.98 M and 6.24 M were conditional estimates, not ceilings. Neither 5 s nor 160 k a call is enforced,
+the packet's own worst context gave 3.7 M and 11.4 M, and a turn can have more than two calls in flight before the supervisor
+sees them. Detection is not admission. 🌻's constraint: bound what runs, never what the model is shown, the same on every arm;
+record what the model can see of it; and if the pinned builds can't, bring back the residual plainly.
+
+| asked for | what it is now |
+| --- | --- |
+| a per-call ceiling, product-enforced, from source at both SHAs | **none can be set.** The ChatGPT route never sends an output limit (`openai-chatgpt-responses-request.ts:48-105`); input is checked against the route's 500 k budget by a characters ÷ 4 estimate with no reserve; nothing counts calls in a turn. A context budget (`models.providers.openai.models[].contextTokens`) would lower the check, and move `request_compaction`'s 70 % guard and the context-pressure events with it: one of the choices measured, so it is not set |
+| admission: at most one model call in flight per gateway | **not reachable by configuration.** Set, the same on every arm and verified like the caps: one turn at a time (`agents.defaults.maxConcurrent: 1`, was 2), no automation that fires by itself (`cron.enabled: false`), no activity recap after a turn (`agents.defaults.utilityModel: ""`). Already set: one child per session, none of its own, one collector per swarm group. Open: a collector in every group a turn names, forced automation runs, `sessions_send` to other sessions, the tool calls of one response (they run at once), media and research jobs. Every child and swarm cap has a minimum of 1 |
+| the surface intact, proved at both SHAs for every new setting | `probes/product-probe.mts` through the product's own code: 66 tool definitions and the whole system prompt byte for byte the same, each setting alone and all together, every arm; three settings that do change it are seen to. Receipts in `probes/receipts`, checked by `tests/test_probes.py` against `arms.json` and the probe's hash |
+| refusals the model sees, recorded per trial | `limitations` in every trial record (a refusal that names a cap, and every `automations` answer with the scheduler off) and `electedAfterLimitation`; the report counts them per arm and leaves the rates alone |
+| the headline: enforced apart from conditional | the packet's top table and its Spend section: time and admission enforced, no token number; the estimates beside their assumptions; 3.7 M / 11.4 M reconciled (too low: this route admits a call to its whole estimated budget and limits no output, so 628 k a call, not 375 k) |
+| tests: preflight refuses, and a second call is refused, not killed | a gateway whose admission settings aren't authored, effective and applied is refused (each setting, both readings), and so is an agent's own utility model. A fake that tries six spawns runs one child and is refused five in the product's words, recorded as limitations, with nothing for the supervisor to stop. Six swarm groups are six admitted collectors, and the supervisor stops them: the residual, in a test |
+| the residual, for 🌻 | the packet's [The residual](CANARY-PACKET.md#the-residual): what is unbounded, as numbers, and three ways to a ceiling that are outside these pinned builds |
+
+What reading the product for this found:
+
+- **The Skill Workshop setting was not in force.** Its off switch is ignored until Doctor records the Workshop migration
+  (`src/config/skill-workshop-plugin-migration.ts:92-121`). The probe's readback of the effective configuration showed it
+  missing, as preflight would have on a live gateway. It is not set; the review stays open.
+- **An activity recap is a model call after every trial's turn**, on the utility model, outside the session's usage. It is off.
+- **Forced automation runs ignore `cron.enabled`**, and the tool waits on one 60 s, or 10 min if asked.
+- **Turns run in the main lane; wakes and other internal events don't** (`agent-runner-fallback-candidate.ts:110-115`), so
+  one main slot holds the turns, and the cost cap still holds the wakes.
+
+## What changed for 🌻's spend condition (follow-up 2)
 
 🌻's point at `52465362`: the expected 1.6 M is not a bound, and the 51 M and 276 M beside it were enforced by nothing.
 
 | asked for | what it is now |
 | --- | --- |
-| product caps, the same on every arm | twelve, in `arms.json` `caps`. `overlay` writes them; each trial reads them back, authored, effective and applied, before and after. A trial whose caps didn't take is unscored and halts **every** arm. [README](README.md#spend-caps) cites each at both SHAs |
+| product caps, the same on every arm | twelve, in `arms.json` `caps` (fourteen since follow-up 3). `overlay` writes them; each trial reads them back, authored, effective and applied, before and after. A trial whose caps didn't take is unscored and halts **every** arm. [README](README.md#spend-caps-and-admission) cites each at both SHAs |
 | the tightest values that still let the first election happen | `costCapTokens: 1` and `maxChainLength: 1`: the election is answered `scheduled`, and nothing follows it. One child, with none of its own. Run through the product's own code at both SHAs (below) |
 | an external supervisor that doesn't trust the product | `supervisor.py`, a process and a unit of its own: a reading a second, a limit per trial, per run and outside a trial, its own clocks, active runs, and a gateway it can't read. `sessions.abort`, then SIGKILL of the unit, then what outlives it |
 | a durable exec can't bypass it | any stop, and the end of every trial, ends every transient unit whose log, environment or binding is the gateway's. Tested with a real durable unit, beside the trap: stopping the gateway's own unit leaves it running |
 | fake gateways that loop, spawn children and ignore aborts | each a process that dies for real, or a systemd unit. Stopped within its limit; its trial's cleanup ran and is on record; the run ended in order |
-| the bound as enforced arithmetic | the packet's Spend section: expected and enforced in separate columns, what enforces each number, and how that was tested. A test recomputes it from `arms.json` |
+| the bound as enforced arithmetic | the packet's Spend section: expected and enforced in separate columns, what enforces each number, and how that was tested. A test recomputes it from `arms.json`. Follow-up 3 found those numbers conditional, and says so |
 | CI handoff | the packet's last section |
 
 What reading the product for this found:
@@ -211,18 +241,21 @@ with B, and another sign-in, gateway and state dir. It runs beside the others, s
 | central (an eligible trial: 3.5 calls, +35 %) | 3.5 | 0.2 M |
 | high (6 calls, +30 %) | 6 | 0.47 M |
 | a loop, under the product's caps alone: 330 s at 5 s a call, 60 k growing 1 k, and one child for 120 s | 66 + 24 | 7.8 M |
-| **enforced**: the supervisor's 0.70 M, and the time a stop takes | | **1.98 M**; 1.34 M while every reading is on time |
-| before this change: a loop for 600 s, or that and five children | 120, 720 | 15 M, 90 M, enforced by nothing |
+| **enforced** | | **no token number**: the supervisor's clock kills it by 480 s |
+| conditional: the supervisor's 0.70 M, and what the turn and its child spend until the kill | | 1.98 M at 5 s and 160 k a call; 5.7 M at 5 s and 628 k, the most this route lets a call carry; 18.3 M at 1 s. More for every lane the turn opens |
+| before follow-up 2: a loop for 600 s, or that and five children | 120, 720 | 15 M, 90 M, enforced by nothing |
 
 | the 270-trial fire | three arms | with D |
 | --- | --- | --- |
 | expected (low – high) | 50 M (16 – 100 M) | 65 M (22 – 130 M) |
-| **enforced** by `--run-token-cap 75000000`, plus the time a stop takes per arm in flight (1.28 M) | **79 M** | a cap of its own |
+| **enforced** | 4 h (`--run-seconds 14400`), + 1 s; no token number | the same |
+| conditional: where the supervisor stops it, `--run-token-cap 75000000`, plus what the arms in flight spend until the kill | 79 M at 5 s and 160 k a call; 90 M at 628 k; 128 M at 1 s a call | a cap of its own |
 | the 35 M stop per arm, checked between trials | 105 M | 140 M |
 
 5 s a call is an assumption about a model whose reasoning can't be turned off, and 160 k a call is one full-size tool result per
-call; the packet says what the numbers are if every call carries the most the product allows. The report prints each arm's
-largest trial and the supervisor's readings, so the canary replaces this with numbers.
+call. Neither is enforced: the packet's [Conditional](CANARY-PACKET.md#conditional) table gives the numbers at the most a call
+can carry on this route and at shorter calls. The report prints each arm's largest trial and the supervisor's readings, so the
+canary puts measured numbers beside the assumptions. They stay assumptions about the next run.
 
 ## Not settled without a live canary
 

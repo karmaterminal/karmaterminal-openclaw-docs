@@ -10,7 +10,7 @@ from openclaw_evalbench import __main__ as cli
 from openclaw_evalbench.arms import load_arms, load_scenarios
 from openclaw_evalbench.trial import TURN_DEADLINE_SECONDS
 
-PACKET, README = ((ROOT / name).read_text() for name in ("CANARY-PACKET.md", "README.md"))
+PACKET, README, REPORT = ((ROOT / name).read_text() for name in ("CANARY-PACKET.md", "README.md", "REPORT.md"))
 ARMS = load_arms()
 S, CAPS = ARMS["supervision"], ARMS["caps"]["set"]
 
@@ -29,63 +29,94 @@ def commands(text, name):
 
 M = 1_000_000
 CALL_SECONDS, CALL = 5, 160_000
+# The most one call carries on this route: the 500 k budget its input is checked against (by an estimate), and the model's
+# 128 k of output, which no request limits (CANARY-PACKET.md, What nothing here bounds).
+ROUTE_CALL = 500_000 + 128_000
 
 
-def calls(seconds):
+def calls(seconds, call_seconds=CALL_SECONDS):
     """Calls one lane can spend in this long: one finishing at once, one for each whole call after it, and the one in flight."""
-    return 1 + int(seconds // CALL_SECONDS) + 1
-
-
-def growing(seconds, each=1_000, start=60_000):
-    n = seconds // CALL_SECONDS
-    return n * start + each * n * (n - 1) // 2
+    return 1 + int(seconds // call_seconds) + 1
 
 
 # From the last sample under the limit to the kill: the rest of that reading, the pause, the whole next reading, the aborts.
 POLL = 2 * S["readSeconds"] + S["pollSeconds"] + S["abortSeconds"]
 BLIND = S["readSeconds"] + S["blindSeconds"] + S["abortSeconds"] + 0.5     # 0.5 s for the tick and the kill
+# The turn and its one child: the lanes the product's admission leaves a trial (probes/receipts).
 LANES = S["maxActiveRuns"]
-OVER, OVER_BLIND = LANES * calls(POLL) * CALL, LANES * calls(BLIND) * CALL
-TRIAL, RUN = S["trialTokens"], S["canary"]["tokens"]
-PRODUCT = growing(CAPS["agents.defaults.timeoutSeconds"]) + growing(CAPS["agents.defaults.subagents.runTimeoutSeconds"])
+TRIAL, RUN, ARMS_IN_CANARY = S["trialTokens"], S["canary"]["tokens"], 3
+
+
+def trial(call, call_seconds=CALL_SECONDS, window=BLIND):
+    return TRIAL + LANES * calls(window, call_seconds) * call
+
+
+def canary(call, call_seconds=CALL_SECONDS, window=BLIND):
+    return min(9 * trial(call, call_seconds, window), RUN + ARMS_IN_CANARY * LANES * calls(window, call_seconds) * call)
+
+
+def lane(call, call_seconds):
+    return calls(BLIND, call_seconds) * call
 
 
 def test_the_limits_are_the_multiples_the_packet_gives():
     assert TRIAL == pytest.approx(1.5 * 6 * 60_000 * 1.3, rel=0.01) and RUN == pytest.approx(1.5 * 1.6 * M)
     assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4.5, 12.5, 2, 4)
     flat = " ".join(PACKET.split())
-    assert "at most 4.5 s from the last sample under the limit to the kill" in flat and "12.5 s from the last sample" in flat
+    assert "within 12.5 s of the last reading under it, whatever the readings do; 4.5 s while every reading is on time" in flat
 
 
-def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit():
+def test_the_admission_leaves_a_trial_two_lanes():
+    caps = ARMS["caps"]["set"]
+    assert LANES == 2 and caps["agents.defaults.maxConcurrent"] == 1 and caps["agents.defaults.subagents.maxChildrenPerAgent"] == 1
+
+
+def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit_one_tool_result_at_a_time():
     context, total = 60_000, 0
     while total + context < TRIAL:
         total, context = total + context, context + 16_000
     assert context == 156_000 <= CALL
 
 
-@pytest.mark.parametrize("value, shown", [
-    (min(PRODUCT, TRIAL) + OVER, "min(7.8 M, 0.70 M) + 0.64 M = 1.34 M |"), (TRIAL + OVER_BLIND, "0.70 M + 1.28 M = **1.98 M**"),
-    (min(9 * (TRIAL + OVER), RUN + 3 * OVER), "min(9 × 1.34 M, 2.40 M + 3 × 0.64 M) = 4.32 M |"),
-    (min(9 * (TRIAL + OVER_BLIND), RUN + 3 * OVER_BLIND), "min(9 × 1.98 M, 2.40 M + 3 × 1.28 M) = **6.24 M**"),
-    (TRIAL + LANES * calls(BLIND) * 375_000, "2 × 4 × 375 k = **3.7 M**"), (RUN + 3 * LANES * calls(BLIND) * 375_000, "2.40 M + 3 × 3.0 M = **11.4 M**"),
+@pytest.mark.parametrize("value_trial, value_canary, row", [
+    (trial(CALL), canary(CALL), "| 5 s and 160 k a call (the packet at `d78d1614`) | 1.98 M | 6.24 M |"),
+    (trial(375_000), canary(375_000), "| 3.7 M | 11.4 M |"),
+    (trial(ROUTE_CALL), canary(ROUTE_CALL), "| **5.7 M** | **17.5 M** |"),
+    (trial(ROUTE_CALL, 2), canary(ROUTE_CALL, 2), "| the same at 2 s a call | 10.7 M | 32.5 M |"),
+    (trial(ROUTE_CALL, 1), canary(ROUTE_CALL, 1), "| the same at 1 s a call | **18.3 M** | **55 M** |"),
+    (trial(ROUTE_CALL, window=POLL), canary(ROUTE_CALL, window=POLL), "| 3.2 M | 9.9 M |"),
 ])
-def test_the_packets_numbers_are_arms_jsons(value, shown):
-    printed = float(re.findall(r"([\d.]+) M", shown)[-1]) * M
-    assert printed == pytest.approx(value, rel=0.002) and shown in PACKET
+def test_the_conditional_numbers_are_arms_jsons_on_their_assumptions(value_trial, value_canary, row):
+    shown = [float(n) * M for n in re.findall(r"([\d.]+) M", row)]
+    assert shown == [pytest.approx(value_trial, abs=0.05 * M), pytest.approx(value_canary, abs=0.5 * M)] and row in PACKET
 
 
-def test_the_product_caps_alone_bound_a_trial_at_what_the_packet_says():
-    assert PRODUCT == pytest.approx(7.8 * M, rel=0.01) and 9 * PRODUCT == pytest.approx(70 * M, rel=0.01)
-    assert "| 7.8 M | **0.70 M** |" in PACKET and "| 70 M | **2.40 M** |" in PACKET
+def test_each_lane_a_turn_opens_adds_what_the_packet_says():
+    assert [round(lane(ROUTE_CALL, s) / M, 1) for s in (5, 2, 1)] == [2.5, 5.0, 8.8]
+    assert "+ 2.5 M at 5 s, 5.0 M at 2 s, 8.8 M at 1 s" in PACKET and "adds 2.5–8.8 M to its trial" in PACKET
+    residual = PACKET.split("### The residual")[1].split("\n### ")[0]
+    assert "5.7–18.3 M for one trial and 17.5–55 M for the" in " ".join(residual.split())
 
 
-def test_expected_and_enforced_are_separate_columns():
-    header = next(line for line in PACKET.splitlines() if line.startswith("| | expected |"))
-    assert [c.strip() for c in header.strip("|").split("|")][1:6] == [
-        "expected", "product caps alone, estimated", "the supervisor's limit", "enforced, every reading on time: limit + one polling interval", "**enforced, whatever the readings do**"]
+def test_no_number_of_tokens_is_called_enforced():
     top = PACKET.split("## Commands")[0]
-    assert "**1.98 M** metered tokens for one trial and **6.24 M** for the canary, whatever the readings do; **1.34 M** and **4.32 M** while every reading is on time" in top
+    row = next(line for line in top.splitlines() if line.startswith("| enforced, whatever the provider or model does |"))
+    assert "**No number of tokens.**" in row and not re.search(r"\d M\b", row)
+    assert "| conditional: estimates, each on a named assumption |" in top and "**nothing bounds how many it opens**" in top
+    enforced = PACKET.split("### Enforced")[1].split("\n### ")[0]
+    bounds = [line.split("|")[2] for line in enforced.splitlines() if line.startswith("| ") and not line.startswith(("| what |", "| --- |"))]
+    assert len(bounds) == 9 and not [b for b in bounds if re.search(r"\d M\b|tokens", b)]
+    assert "No number of tokens is enforced." in PACKET and "**No number of tokens is enforced, for a trial or for the canary.**" in REPORT
+    for text in (PACKET, README, REPORT):
+        flat = " ".join(text.split())
+        assert "whatever its readings do" not in flat and "bounded by something that runs" not in flat
+
+
+def test_the_old_most_context_case_is_reconciled():
+    flat = " ".join(PACKET.split())
+    assert "The 3.7 M and 11.4 M were too low for this route." in flat and "So 628 k replaces 375 k." in flat
+    assert ROUTE_CALL == 628_000 and "128,000 (`extensions/openai/openclaw.plugin.json:126`)" in flat
+    assert "500,000 (`extensions/openai/model-route-contract.ts:2`)" in flat
 
 
 @pytest.mark.parametrize("shown", ["700,000 metered tokens, 480 s", "| 150,000 metered tokens |", "| active or queued runs on one gateway | 2 |",
@@ -103,7 +134,8 @@ def test_every_cap_is_in_both_documents_with_its_value():
         keys = re.findall(r"`([^`]+)`", cell)
         for key, one in zip(keys, value.strip("`").split(", ") if len(keys) > 1 else [value.strip("` ")]):
             named[key if not key.startswith(".") else keys[0].rsplit(".", 1)[0] + key] = one
-    assert {k: v for k, v in named.items() if k in CAPS} == {k: ("false" if v is False else str(v)) for k, v in CAPS.items()}
+    shown = lambda v: "false" if v is False else '""' if v == "" else str(v)
+    assert {k: v for k, v in named.items() if k in CAPS} == {k: shown(v) for k, v in CAPS.items()}
     section = PACKET.split("### Product caps")[1].split("\n## ")[0]
     assert all(key.rsplit(".", 1)[1] in section for key in CAPS)
 

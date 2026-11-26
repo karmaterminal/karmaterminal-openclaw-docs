@@ -25,7 +25,8 @@ def tracked(*patterns):
 
 
 def test_no_code_config_fixture_or_test_names_a_model():
-    files = tracked("*.py", "*.yaml", "*.json", "*.mjs", "*.sh", ":!artifacts", ":!arms.json")
+    # The archived rehearsals and the probe's receipts record arms.json's model: they are what it printed.
+    files = tracked("*.py", "*.yaml", "*.json", "*.mjs", "*.mts", "*.sh", ":!artifacts", ":!probes/receipts", ":!arms.json")
     hits = {str(f.relative_to(ROOT)): found for f in files if f.name != "test_model.py" and (found := LITERAL.findall(f.read_text()))}
     assert hits == {}
     assert LITERAL.findall((ROOT / "arms.json").read_text()) == [MODEL.split("/")[1]], "arms.json names it once"

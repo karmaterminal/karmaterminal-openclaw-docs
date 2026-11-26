@@ -4,7 +4,7 @@ import copy
 import json
 
 import pytest
-from conftest import MODEL, PROMPT, fake_gateway
+from conftest import MODEL, OTHER_MODEL, PROMPT, fake_gateway
 from test_arms import CAPS, LOG, config_for
 from test_report import arm_trials, report_for
 from test_trial import W, trial
@@ -109,7 +109,7 @@ def test_the_admission_settings_are_caps():
 @pytest.mark.parametrize("where", ["sourceConfig", "config"])
 @pytest.mark.parametrize("key, seat", [("agents.defaults.maxConcurrent", 2), ("agents.defaults.maxConcurrent", None),
                                        ("cron.enabled", True), ("cron.enabled", None),
-                                       ("agents.defaults.utilityModel", "openai/gpt-6.1-mini"), ("agents.defaults.utilityModel", None)])
+                                       ("agents.defaults.utilityModel", OTHER_MODEL), ("agents.defaults.utilityModel", None)])
 def test_a_gateway_whose_admission_is_not_in_force_is_refused(arms, key, seat, where):
     # What a seat's own configuration would leave there if the overlay had not written it.
     broken = payload(arms["arms"]["C"])
@@ -121,7 +121,7 @@ def test_a_gateway_whose_admission_is_not_in_force_is_refused(arms, key, seat, w
 def test_the_agents_own_utility_model_outranks_the_default_so_it_is_refused_and_cleared(arms):
     arm = arms["arms"]["A"]
     broken = payload(arm)
-    broken["sourceConfig"]["agents"]["entries"] = {"main": {"utilityModel": "openai/gpt-6.1-mini", "name": "kept"}}
+    broken["sourceConfig"]["agents"]["entries"] = {"main": {"utilityModel": OTHER_MODEL, "name": "kept"}}
     with pytest.raises(A.CapsMismatch, match="agents.entries.main.utilityModel must be unset"):
         A.check_caps(CAPS, broken)
     fixed = A.apply_overlay(arm, MODEL, CAPS, broken["sourceConfig"], LOG)

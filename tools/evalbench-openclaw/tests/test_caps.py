@@ -223,3 +223,30 @@ def test_the_report_shows_what_the_supervisor_did(tmp_path):
     assert "Limits: 700,000 metered tokens and 480 s per trial" in text and "halted: supervisor, arm A: trial-tokens" in text
     assert "| A | 712,000 | 1 | 712,000 | 9.5 s | 5 | 2.1 s | trial-tokens | yes | 3 |" in text and "| nothing | NO | 2 |" in text
     assert "## Supervision" not in render(report_for(tmp_path / "x", arm_trials({}), arm_trials({})))
+
+
+@pytest.mark.parametrize("seat, named", [
+    ({"skills": {"workshop": {"autonomous": {"mode": "auto"}}}}, "skills.workshop"),
+    ({"plugins": {"deny": ["skill-workshop"]}}, "plugins.deny"),
+    ({"plugins": {"allow": ["openai", "codex"]}}, "plugins.allow"),
+    ({"plugins": {"entries": {"skill-workshop": {"enabled": False}}}}, "plugins.entries.skill-workshop"),
+    ({"plugins": {"entries": {"skill-workshop": {"config": {"autonomous": {"mode": "propose"}}}}}}, "plugins.entries.skill-workshop"),
+    # Already marked by the product's own write: refused all the same, since preflight can't tell whose marker it reads.
+    ({"meta": {"migrations": {"skillWorkshopPlugin": True}}, "plugins": {"deny": ["skill-workshop"]}}, "plugins.deny"),
+])
+def test_workshop_policy_the_marker_would_make_take_effect_is_refused(arms, seat, named):
+    arm = arms["arms"]["A"]
+    with pytest.raises(A.ArmMismatch, match=f"Doctor must migrate first: {named}"):
+        A.apply_overlay(arm, MODEL, CAPS, copy.deepcopy(seat), LOG)
+    # And a gateway that has it anyway, with the caps written over it, is not in force.
+    broken = payload(arm)
+    for key, value in seat.items():
+        broken["sourceConfig"].setdefault(key, {}).update(copy.deepcopy(value))
+    with pytest.raises(A.CapsMismatch, match=f"leave unrepaired: {named}"):
+        A.check_caps(CAPS, broken)
+
+
+def test_an_allowlist_with_the_plugin_and_nothing_older_are_fine(arms):
+    for seat in ({"plugins": {"allow": ["openai", "skill-workshop"]}}, {"plugins": {"entries": {"openai": {"enabled": True}}}}, {}):
+        out = A.apply_overlay(arms["arms"]["A"], MODEL, CAPS, copy.deepcopy(seat), LOG)
+        assert A.check_caps(CAPS, {**payload(arms["arms"]["A"]), "sourceConfig": out, "config": out})["verdict"] == "verified"

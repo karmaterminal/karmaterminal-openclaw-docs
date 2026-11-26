@@ -338,9 +338,11 @@ is not in force halts every arm. They limit what runs and leave what the model i
     the continuation caps (`src/cron/service/wake.ts:150-158`) and goes to the caller's own session unless it names another
     (`src/agents/tools/cron-tool.ts:676-697`); the exit notice of a background `exec`, on by default
     (`src/agents/bash-tools.exec-notify.ts:31-48`, `bash-tools.exec-request-preparation.ts:167`); and a child's completion
-    announce. Each is a turn of its own, after the trial's on its session or beside it on another, in the lane for internal
-    events, 8 wide (`agent-runner-fallback-candidate.ts:110-115`). None writes a `[continuation:wake]` row, so the trial's
-    wake check doesn't see them; the trial's cleanup deletes its session, and the supervisor meters them.
+    announce. Each is a turn of its own, after the trial's on its session or beside it on another. The wake and the exit
+    notice run in the lane for internal events, 8 wide (`agent-runner-fallback-candidate.ts:110-115`); the announce asks for
+    no lane and takes the main one (`src/agents/subagents/announce/subagent-announce-direct-delivery.ts:380-399`,
+    `src/agents/embedded-agent-runner/lanes.ts:35`), behind the trial's turn. None writes a `[continuation:wake]` row, so the
+    trial's wake check doesn't see them; the trial's cleanup deletes its session, and the supervisor meters them.
   - **two collectors spawned into one group at once**: collector admission takes no reservation
     (`subagent-spawn-request.ts:298-304`), so both may be admitted. The group's lane still runs them one at a time. Not
     verified.

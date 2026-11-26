@@ -58,8 +58,8 @@ What reading the product for this found:
 - **An activity recap is a model call after every trial's turn**, on the utility model, outside the session's usage. It is off.
 - **Forced automation runs ignore `cron.enabled`**, and the tool waits on one 60 s, or 10 min if asked.
 - **Message turns run in the main lane; internal events don't** (`agent-runner-fallback-candidate.ts:110-115`). One main slot
-  holds message turns; the cost cap holds continuation wakes; an `automations` wake, a background command's exit notice and a
-  child's announce are turns that neither holds.
+  holds message turns, and a child's announce, which asks for no lane; the cost cap holds continuation wakes; an `automations`
+  wake and a background command's exit notice are turns that neither holds.
 
 ## What changed for 🌻's spend condition (follow-up 2)
 

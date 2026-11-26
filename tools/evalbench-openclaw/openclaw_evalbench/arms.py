@@ -101,6 +101,38 @@ def outranking_cap_paths():
             (*agent, "utilityModel"))
 
 
+WORKSHOP_ID = "skill-workshop"
+WORKSHOP_MARKER = "meta.migrations.skillWorkshopPlugin"
+
+
+def workshop_policy_to_migrate(config, caps):
+    """Skill Workshop policy beside the caps' migration marker that the marker would make take effect. Empty when none.
+
+    The caps set the marker so the runtime reads Skill Workshop's setting. Unmarked, the runtime ignores older Workshop
+    policy, and Doctor would repair it: an entry or deny id dropped and an allowlist joined (openclaw ab5a30ea
+    src/config/skill-workshop-plugin-migration.ts:33-86), `skills.workshop` moved (:170-209). Marked, it takes effect, and a
+    deny or an allowlist without the plugin would remove `skill_workshop` from the surface. So any of it is refused, at
+    overlay and at preflight alike, whether or not the seat's own config was marked already; the launcher copies none.
+    """
+    if WORKSHOP_MARKER not in caps["set"]:
+        return []
+    ours = {k.removeprefix(f"plugins.entries.{WORKSHOP_ID}."): v for k, v in caps["set"].items() if k.startswith(f"plugins.entries.{WORKSHOP_ID}.")}
+    found = []
+    if read_path(config, "skills.workshop") is not _MISSING:
+        found.append("skills.workshop")
+    entry = read_path(config, ("plugins", "entries", WORKSHOP_ID))
+    beside_ours = isinstance(entry, dict) and bool(set(entry) - {"config"})
+    if entry is not _MISSING and (beside_ours or any(read_path(entry, key) != value for key, value in ours.items())):
+        found.append(f"plugins.entries.{WORKSHOP_ID}")
+    is_workshop = lambda value: isinstance(value, str) and value.strip().lower() == WORKSHOP_ID
+    deny, allow = read_path(config, "plugins.deny"), read_path(config, "plugins.allow")
+    if isinstance(deny, list) and any(map(is_workshop, deny)):
+        found.append("plugins.deny")
+    if isinstance(allow, list) and allow and not any(map(is_workshop, allow)):
+        found.append("plugins.allow")
+    return found
+
+
 def read_path(config, path):
     """The value at a dotted path, or at a tuple of keys (a model id has dots in it)."""
     node = config
@@ -182,6 +214,9 @@ def check_caps(caps, payload):
     for path in outranking_cap_paths():
         if read_path(source, path) is not _MISSING:
             problems.append(f"{'.'.join(path)} must be unset: it outranks the caps")
+    stale = workshop_policy_to_migrate(source, caps)
+    if stale:
+        problems.append(f"Skill Workshop policy that the migration marker would leave unrepaired: {', '.join(stale)}")
     authored, applied = payload.get("configRevisionHash"), payload.get("appliedConfigHash")
     if not authored or applied != authored:
         problems.append("the running gateway has not applied this configuration")
@@ -195,6 +230,9 @@ def apply_overlay(arm, model, caps, config, log_file):
 
     Returns a new dict; the input is not changed.
     """
+    stale = workshop_policy_to_migrate(config, caps)
+    if stale:
+        raise ArmMismatch(f"this config holds Skill Workshop policy that Doctor must migrate first: {', '.join(stale)}")
     out = json.loads(json.dumps(config))
     swarm = read_path(out, "tools.swarm")
     if isinstance(swarm, bool):

@@ -242,7 +242,9 @@ setRuntimeConfigSnapshot(cfg, cfg);
       };
       if (path_ === "attempt") {
         Object.assign(part, { mode: reference.mode, sent: reference.sent, catalogued: reference.catalogued,
-          continuationSection: reference.prompt.includes("continue_work") && reference.prompt.includes("continue_delegate") });
+          // The section's own heading (src/agents/system-prompt-continuation.ts:27 at ab5a, :40 at f9fc); the tool names alone
+          // also appear elsewhere in the prompt.
+          continuationSection: reference.prompt.includes("## Continuation & Delegation") });
       }
       for (const [key, value] of Object.entries(caps)) part.eachCapAlone[key] = compare(reference, await build(withSettings(armBase, { [key]: value }))).same;
       for (const [label, set] of Object.entries(negatives)) part.negativeControls[label] = compare(reference, await build(withSettings(armBase, { ...caps, ...set })));

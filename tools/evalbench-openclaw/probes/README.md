@@ -50,9 +50,12 @@ the caps, which is 4 per CPU (`admission.lanesWithoutCaps.widths.main`).
 
 - **A live gateway.** The probe calls the functions a gateway calls; it does not start one. Preflight's readback on the
   seat is what shows the caps applied by the running process.
-- **The real attempt end to end.** The attempt path calls the product's own planner, runtime and prompt builder, with the
-  inputs a trial's turn would give them; it does not run an attempt, so what an attempt adds from its session and run state
-  (history, delivery facts, sandbox) is not in it. None of that reads a cap.
+- **The real attempt end to end.** The attempt path calls the product's own planner, runtime and prompt builder; it does not
+  run an attempt. Its model is the firing model's route and Code Mode preference, not the resolved model; the tools are built
+  with fewer options than an attempt passes (no model compat, construction plan or Code Mode skills); `compactTools` gets no
+  prepared options and the provider's schema normalization is not applied; and the prompt has no Code Mode catalog prompt,
+  skills prompt, bootstrap files or extra prompt, nor what the session and run add (history, delivery facts, sandbox). None of
+  those inputs reads a cap, so the comparison with and without the caps hides nothing; it is not the attempt's exact bytes.
 - **The seat's own configuration.** The surface is compared on the arms' settings alone. The launcher copies more from the
   seat (tools policy, models, plugins); the caps are compared with and without on the same base, so a difference they make is
   seen whatever that base holds, unless it is a difference only that seat's settings would expose.

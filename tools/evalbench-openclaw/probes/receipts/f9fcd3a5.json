@@ -69,7 +69,7 @@
  },
  "model": "openai/gpt-6.1-sol",
  "node": "v26.9.0",
- "probeSha256": "04419e6a66cf0579a181a921dc6087ed45fd277da8117b733d29587e303a3e1f",
+ "probeSha256": "df5e4c034c265a2a759d16be519264ccdafa54d585c0032359fcc3605acd7d72",
  "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
  "settings": {
   "agents.defaults.continuation.costCapTokens": 1,

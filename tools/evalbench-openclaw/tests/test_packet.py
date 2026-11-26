@@ -42,8 +42,8 @@ def calls(seconds, call_seconds=CALL_SECONDS):
 # From the last sample under the limit to the kill: the rest of that reading, the pause, the whole next reading, the aborts.
 POLL = 2 * S["readSeconds"] + S["pollSeconds"] + S["abortSeconds"]
 BLIND = S["readSeconds"] + S["blindSeconds"] + S["abortSeconds"] + 0.5     # 0.5 s for the tick and the kill
-# The turn and its one child: the lanes the product's admission leaves a trial (probes/receipts).
-LANES = S["maxActiveRuns"]
+# The turn and its one child: what the product's admission leaves a trial (probes/receipts). The supervisor stops a third.
+LANES = ARMS["caps"]["set"]["agents.defaults.maxConcurrent"] + ARMS["caps"]["set"]["agents.defaults.subagents.maxChildrenPerAgent"]
 TRIAL, RUN, ARMS_IN_CANARY = S["trialTokens"], S["canary"]["tokens"], 3
 
 
@@ -66,9 +66,8 @@ def test_the_limits_are_the_multiples_the_packet_gives():
     assert "within 12.5 s of the last reading under it, whatever the readings do; 4.5 s while every reading is on time" in flat
 
 
-def test_the_admission_leaves_a_trial_two_lanes():
-    caps = ARMS["caps"]["set"]
-    assert LANES == 2 and caps["agents.defaults.maxConcurrent"] == 1 and caps["agents.defaults.subagents.maxChildrenPerAgent"] == 1
+def test_the_admission_leaves_a_trial_two_lanes_and_the_supervisor_stops_a_third():
+    assert LANES == 2 == S["maxActiveRuns"]
 
 
 def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit_one_tool_result_at_a_time():

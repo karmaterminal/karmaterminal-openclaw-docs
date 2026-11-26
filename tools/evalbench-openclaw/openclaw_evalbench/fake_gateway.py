@@ -47,8 +47,8 @@ READ = {"config.get", "chat.history", "sessions.describe", "sessions.usage", "se
 UNADVERTISED = {"sessions.usage", "sessions.usage.timeseries"}
 HISTORY_DEFAULT_LIMIT = 200
 # The product's defaults when the configuration sets none (openclaw ab5a30ea src/config/agent-limits.ts:21,
-# src/agents/subagents/swarm/swarm-config.ts:7).
-DEFAULT_CHILDREN_PER_AGENT, DEFAULT_CHILDREN_PER_GROUP = 5, 50
+# src/agents/subagents/swarm/swarm-config.ts:7-8).
+DEFAULT_CHILDREN_PER_AGENT, DEFAULT_CHILDREN_PER_GROUP, DEFAULT_TOTAL_PER_GROUP = 5, 50, 200
 
 
 def load_turns(path=None):
@@ -278,8 +278,13 @@ class FakeGateway:
                        "agents.defaults.subagents.maxChildrenPerAgent).")
             args = {"task": f"part {index + 1}"}
         else:
+            # The group's lifetime total comes first, then its live children (child-admission.ts:91-104).
+            total = sum(s.get("group") == group for s in self.sessions.values() if parent in [s.get(n) for n in links])
+            total_limit = self._limit("tools.swarm.maxTotalPerGroup", DEFAULT_TOTAL_PER_GROUP)
             active, limit = sum(s.get("group") == group for s in children), self._limit("tools.swarm.maxChildrenPerGroup", DEFAULT_CHILDREN_PER_GROUP)
             refusal = f"sessions_spawn reached tools.swarm.maxChildrenPerGroup ({active}/{limit})."
+            if total >= total_limit:
+                active, limit, refusal = 1, 1, f"sessions_spawn reached tools.swarm.maxTotalPerGroup ({total}/{total_limit})."
             args = {"task": f"part {index + 1}", "collect": True, "groupId": group}
         call = {"id": f"spawn-{uuid.uuid4().hex[:8]}", "args": args}
         if active >= limit:

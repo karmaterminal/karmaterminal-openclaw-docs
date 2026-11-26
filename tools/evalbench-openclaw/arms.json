@@ -95,7 +95,9 @@
       "tools.swarm.maxChildrenPerGroup": 1,
       "tools.swarm.maxTotalPerGroup": 1,
       "cron.enabled": false,
-      "agents.defaults.utilityModel": ""
+      "agents.defaults.utilityModel": "",
+      "meta.migrations.skillWorkshopPlugin": true,
+      "plugins.entries.skill-workshop.config.autonomous.mode": "off"
     }
   },
   "supervision": {

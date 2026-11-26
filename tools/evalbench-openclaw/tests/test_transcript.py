@@ -229,6 +229,13 @@ def test_every_automations_answer_is_one_while_cron_is_off():
     assert read_turn(rows, "the prompt", "run-1", {**SETTINGS, "cron.enabled": True})["limitations"] == []
 
 
+def test_every_skill_workshop_answer_is_one_while_its_review_is_off():
+    rows = answered(rows_of("no-election"), "skill_workshop", {"agentId": "main", "mode": "off", "skills": []})
+    assert [f["settings"] for f in read_turn(rows, "the prompt", "run-1", SETTINGS)["limitations"]] == [["plugins.entries.skill-workshop.config.autonomous.mode"]]
+    on = {**SETTINGS, "plugins.entries.skill-workshop.config.autonomous.mode": "auto"}
+    assert read_turn(rows, "the prompt", "run-1", on)["limitations"] == []
+
+
 @pytest.mark.parametrize("name, answer, is_error", [
     ("exec", {"stdout": "agents.defaults.subagents.maxChildrenPerAgent: 1"}, False),       # it names a setting, and refused nothing
     ("sessions_spawn", {"status": "forbidden", "error": "sessions_spawn is not allowed in a sandbox."}, False),   # refused, for no setting of the run's
@@ -248,3 +255,56 @@ def test_a_refusal_through_the_dispatcher_is_read_from_its_envelope():
 
 def test_without_the_runs_settings_nothing_is_read_as_one():
     assert read_turn(answered(rows_of("no-election"), "sessions_spawn", SPAWN_REFUSED), "the prompt", "run-1")["limitations"] == []
+
+
+def response(*calls, run="run-1"):
+    """One assistant row making `calls` [(id, name, answer, nested_under)], and their results in order."""
+    import json
+    rows = [{"role": "assistant", "content": [{"type": "toolCall", "id": i, "name": n, "arguments": {}} for i, n, _, _ in calls],
+             "__openclaw": {"runId": run}}]
+    for call_id, name, answer, _ in calls:
+        rows.append({"role": "toolResult", "toolCallId": call_id, "toolName": name, "isError": False,
+                     "content": [{"type": "text", "text": json.dumps(answer)}], "__openclaw": {"runId": run}})
+    return rows
+
+
+SCHEDULED = {"status": "scheduled", "delaySeconds": 600}
+
+
+def test_an_election_in_the_same_response_as_the_refusal_was_not_decided_after_it():
+    rows = rows_of("no-election")[:1] + response(("p1", "sessions_spawn", SPAWN_REFUSED, None), ("c1", "continue_delegate", SCHEDULED, None))
+    turn = read_turn(rows, "the prompt", "run-1", SETTINGS)
+    assert turn["elected"] is True and len(turn["limitations"]) == 1 and turn["electedAfterLimitation"] is False
+    # Control: the same election one response later was decided with the refusal in view.
+    later = rows_of("no-election")[:1] + response(("p1", "sessions_spawn", SPAWN_REFUSED, None)) + response(("c1", "continue_delegate", SCHEDULED, None))
+    assert read_turn(later, "the prompt", "run-1", SETTINGS)["electedAfterLimitation"] is True
+
+
+def nested(parent, call_id, name, answer):
+    import json
+    return {"role": "custom", "customType": "openclaw.nested-tool.v1", "__openclaw": {"runId": "run-1"}, "content": [
+        {"type": "toolCall", "id": call_id, "name": name, "arguments": {}, "parentToolCallId": parent},
+        {"type": "toolResult", "role": "toolResult", "toolCallId": call_id, "toolName": name, "parentToolCallId": parent,
+         "isError": False, "content": [{"type": "text", "text": json.dumps(answer)}]}]}
+
+
+def test_a_refusal_inside_code_modes_exec_is_one_and_its_script_decided_everything_in_it_at_once():
+    exec_row, exec_result = response(("x1", "exec", {"status": "completed"}, None))
+    one_script = rows_of("no-election")[:1] + [exec_row, nested("x1", "n1", "sessions_spawn", SPAWN_REFUSED),
+                                               nested("x1", "n2", "continue_work", SCHEDULED), exec_result]
+    turn = read_turn(one_script, "the prompt", "run-1", SETTINGS)
+    assert [(f["tool"], f["settings"]) for f in turn["limitations"]] == [("sessions_spawn", ["agents.defaults.subagents.maxChildrenPerAgent"])]
+    assert turn["elected"] is True and turn["electedAfterLimitation"] is False
+    # Control: the election in a second script, written after the first one's result came back.
+    second, second_result = response(("x2", "exec", {"status": "completed"}, None))
+    two_scripts = one_script[:3] + [exec_result, second, nested("x2", "n2", "continue_work", SCHEDULED), second_result]
+    assert read_turn(two_scripts, "the prompt", "run-1", SETTINGS)["electedAfterLimitation"] is True
+
+
+def test_calls_whose_row_history_dropped_are_placed_in_the_response_their_results_sit_in():
+    same = rows_of("no-election")[:1] + response(("p1", "sessions_spawn", SPAWN_REFUSED, None), ("c1", "continue_delegate", SCHEDULED, None))
+    dropped = [same[0]] + same[2:]                                   # the assistant row is gone, its two results stay
+    turn = read_turn(dropped + rows_of("no-election")[1:], "the prompt", "run-1", SETTINGS)
+    assert turn["elected"] is True and len(turn["limitations"]) == 1 and turn["electedAfterLimitation"] is False
+    apart = rows_of("no-election")[:1] + response(("p1", "sessions_spawn", SPAWN_REFUSED, None)) + response(("c1", "continue_delegate", SCHEDULED, None))[1:]
+    assert read_turn(apart + rows_of("no-election")[1:], "the prompt", "run-1", SETTINGS)["electedAfterLimitation"] is True

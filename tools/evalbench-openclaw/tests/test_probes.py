@@ -31,15 +31,28 @@ def test_the_caps_are_valid_and_config_get_reads_every_one_back(sha):
     config = RECEIPTS[sha]["config"]
     assert config["withCaps"] == {"valid": True, "issues": [], "authoredMissing": [], "effectiveMissing": []}
     assert config["typoIsInvalid"] is True, "a misspelt key is refused, so a valid file is not a vacuous one"
+    # Skill Workshop's review is off only with the migration marker beside its setting: without it the runtime drops the entry.
+    assert config["skillWorkshopReview"] == {"withCaps": "off", "withoutCaps": "auto", "modeWithoutTheMarker": "auto"}
+
+
+PATHS = ("context", "attempt")
+# Each arm as the run plans it on the firing model: Code Mode for the fleet default (A, C), every tool direct under the
+# direct-tools overlay (B, D).
+MODE = {"A": "code mode", "B": "every tool direct", "C": "code mode", "D": "every tool direct"}
+
+
+def name(tool):
+    return tool.split(":")[-1]
 
 
 @each_sha
-def test_nothing_the_model_is_shown_changes_with_them_on_any_arm(sha):
+@pytest.mark.parametrize("path", PATHS)
+def test_nothing_the_model_is_shown_changes_with_them_on_any_arm(sha, path):
     surface = RECEIPTS[sha]["surface"]
     assert set(surface) == set(ARMS["arms"])
-    for name, arm in ARMS["arms"].items():
-        row = surface[name]
-        assert row["schemaAccepts"] is True and row["tools"] > 0
+    for arm_name, arm in ARMS["arms"].items():
+        row = surface[arm_name][path]
+        assert surface[arm_name]["schemaAccepts"] is True and row["tools"] > 0
         assert row["withCaps"] == {"tools": row["tools"], "same": True, "toolsSame": True, "promptSame": True, "differing": [], "gone": []}
         assert row["eachCapAlone"] == dict.fromkeys(CAPS, True)
         # The descriptions the arm is scored against are the ones this build shows.
@@ -48,13 +61,31 @@ def test_nothing_the_model_is_shown_changes_with_them_on_any_arm(sha):
 
 
 @each_sha
-def test_the_comparison_sees_a_setting_that_does_change_the_surface(sha):
+def test_the_attempt_path_is_each_arms_own_surface(sha):
+    continuation = {"continue_work", "continue_delegate", "request_compaction"}
+    for arm_name, row in RECEIPTS[sha]["surface"].items():
+        attempt = row["attempt"]
+        assert attempt["mode"] == MODE[arm_name] and attempt["continuationSection"] is True
+        sent = set(attempt["sent"])
+        if MODE[arm_name] == "every tool direct":
+            assert attempt["catalogued"] == 0 and continuation <= sent
+        else:
+            # Code Mode sends its controls and keeps the rest behind them; f9fcd3a5 keeps the continuation tools direct.
+            assert {"exec", "wait"} <= sent and attempt["catalogued"] > 40
+            assert (continuation <= sent) is (sha == ARMS["descriptions"]["f9fcd3a5"]["sha"]) and not (continuation & sent and not continuation <= sent)
+    assert RECEIPTS[sha]["surface"]["A"]["attempt"]["promptHash"] != RECEIPTS[sha]["surface"]["B"]["attempt"]["promptHash"], "the paths see the arms differ"
+
+
+@each_sha
+@pytest.mark.parametrize("path", PATHS)
+def test_the_comparison_sees_a_setting_that_does_change_the_surface(sha, path):
     for row in RECEIPTS[sha]["surface"].values():
-        controls = row["negativeControls"]
+        controls = row[path]["negativeControls"]
         assert {k: v["same"] for k, v in controls.items()} == dict.fromkeys(controls, False) and len(controls) == 3
-        assert controls["tools.swarm.enabled false"]["gone"] == ["agents_wait"] and "sessions_spawn" in controls["tools.swarm.enabled false"]["differing"]
-        assert controls["subagents.allowAgents []"]["differing"] == ["sessions_spawn"]
-        assert controls["tools.deny automations"]["gone"] == ["automations"]
+        swarm, allow, deny = (controls[k] for k in ("tools.swarm.enabled false", "subagents.allowAgents []", "tools.deny automations"))
+        assert [name(t) for t in swarm["gone"]] == ["agents_wait"] and "sessions_spawn" in map(name, swarm["differing"])
+        assert [name(t) for t in allow["differing"]] == ["sessions_spawn"]
+        assert [name(t) for t in deny["gone"]] == ["automations"]
 
 
 @each_sha
@@ -70,6 +101,6 @@ def test_what_the_caps_and_admission_do_through_the_products_code(sha):
     # The residual: these lanes are not one wide, and no setting that leaves the surface alone makes them so.
     assert (lanes["twoSwarmGroups"], lanes["twoAutomationRuns"], lanes["widths"]["cron"]) == (2, 2, 8)
     assert admission["children"] == {"first": "admitted", "secondWhileFirstRuns": "subagents.maxChildrenPerAgent", "childOfAChild": "subagents.maxSpawnDepth"}
-    assert admission["collectors"] == {"firstInAGroup": "admitted", "secondInTheSameGroup": "tools.swarm.maxTotalPerGroup", "firstInEveryOtherGroup": "admitted"}
+    assert admission["collectors"] == {"firstInAGroup": "admitted", "secondInTheSameGroup": "tools.swarm.maxTotalPerGroup"}
     assert (admission["cronSchedulerEnabled"], admission["cronSchedulerEnabledWithoutCaps"]) == (False, True)
     assert (admission["utilityModel"], admission["utilityModelWithoutCaps"]) == ("disabled", "auto")

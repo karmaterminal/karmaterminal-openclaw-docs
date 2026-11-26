@@ -30,6 +30,9 @@ _TOKEN_DELEGATE = re.compile(r"\[\[\s*CONTINUE_DELEGATE:")
 # src/agents/subagents/spawn/subagent-spawn-request.ts:308-314 "forbidden", src/agents/tools/continue-delegate-tool.ts:377-380
 # "rejected" with its guard).
 _REFUSED = ("forbidden", "rejected", "refused", "error", "denied")
+# Tools whose every answer comes from a service a setting switched off: (tool, setting, value, what the record says).
+_SWITCHED_OFF = (("automations", "cron.enabled", False, "answered with the scheduler off"),
+                 ("skill_workshop", "plugins.entries.skill-workshop.config.autonomous.mode", "off", "answered with its review off"))
 # Setting names too common to be read as the reason for a refusal on their own: only their whole path counts.
 _GENERIC_LEAVES = ("enabled", "maxConcurrent", "timeoutSeconds", "runTimeoutSeconds")
 
@@ -241,18 +244,22 @@ def _limitation(name, result, settings):
 
 
 def treatment_limitations(calls, results, settings):
-    """What the run's caps and admission settings showed this turn's model, in call order (README.md, Spend caps).
+    """What the run's caps and admission settings showed this turn's model, in call order (README.md, Spend caps and admission).
 
     A setting limits what runs, not what the model is shown, but a refusal on its account reaches the model as the
-    tool's answer. So does every `automations` answer when cron's scheduler is off: the jobs it lists never fire.
-    Recorded per trial as a treatment limitation, never hidden and never a reason to leave a trial out.
+    tool's answer. So does every answer of a tool whose service a setting switched off: `automations` with cron's scheduler
+    off (its jobs never fire by themselves, and `status` says so), and `skill_workshop` with its review off (`list` says
+    so, extensions/skill-workshop/src/workshop-list.ts:32). Recorded per trial as a treatment limitation, never hidden and
+    never a reason to leave a trial out.
     """
+    switched_off = {tool: (key, status) for tool, key, value, status in _SWITCHED_OFF if settings.get(key) == value}
     out = []
     for index, call in enumerate(calls):
         result = results.get(call["id"]) if call["id"] else None
         found = _limitation(call["name"], result, settings) if result is not None else None
-        if found is None and call["name"] == "automations" and settings.get("cron.enabled") is False:
-            found = {"tool": "automations", "settings": ["cron.enabled"], "status": "answered with the scheduler off"}
+        if found is None and call["name"] in switched_off:
+            key, status = switched_off[call["name"]]
+            found = {"tool": call["name"], "settings": [key], "status": status}
         if found is not None:
             out.append({**found, "call": index})
     return out
@@ -270,34 +277,44 @@ def read_turn(rows, prompt, run_id=None, settings=None):
         raise TranscriptError("no assistant row or tool result in the turn")
     if any((r.get("__openclaw") or {}).get("reason") == "oversized" for r in assistants):
         raise TranscriptError("an assistant row was omitted as oversized: its tool calls are unknown")
-    results = {}
-    for row in turn:
+    results, result_at = {}, {}
+    for index, row in enumerate(turn):
         if role_of(row) == "toolresult" and isinstance(row.get("toolCallId"), str):
             results.setdefault(row["toolCallId"], row)
+            result_at.setdefault(row["toolCallId"], index)
 
     calls, reply, usage, models = [], "", {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}, []
     model_calls = 0
-    by_id, answers = {}, {}
+    by_id, index_of, answers = {}, {}, {}
+    # For each call, the row of the response that decided it, and the row at which its answer reached the model.
+    decided, seen = [], []
 
-    def add(call_id, name, args, via, result):
+    def add(call_id, name, args, via, result, decided_at, seen_at):
         tool = continuation_tool(name)
         answer = unwrap_result(result, tool) if tool and result is not None else None
         call = {"id": call_id, "name": tool or name, "via": via, "args": args, "answered": result is not None,
                 "isError": bool(result and result.get("isError") is True),
                 "status": answer.get("status") if answer and isinstance(answer.get("status"), str) else None}
         calls.append(call)
+        decided.append(decided_at)
+        seen.append(seen_at)
         if call_id:
             by_id[call_id] = call
+            index_of[call_id] = len(calls) - 1
             if result is not None:
                 answers[call_id] = result
 
-    for row in turn:
+    for position, row in enumerate(turn):
         nested = _nested_call(row)
         if nested is not None:
             parent = by_id.get(nested["parent"])
             # Tool Search writes a nested row for the call its dispatcher row already is: one call, not two.
             if not (parent and parent["via"] == "dispatcher"):
-                add(nested["id"], nested["name"], nested["args"], "nested", nested["result"])
+                # A call made inside another (Code Mode's exec) was decided with it, and its answer reached the model
+                # with the outer call's result.
+                outer = index_of.get(nested["parent"])
+                add(nested["id"], nested["name"], nested["args"], "nested", nested["result"],
+                    decided[outer] if outer is not None else position, result_at.get(nested["parent"], position))
             continue
         if role_of(row) != "assistant":
             continue
@@ -306,7 +323,8 @@ def read_turn(rows, prompt, run_id=None, settings=None):
             target = call_target(part)
             if target is not None:
                 call_id = part.get("id") if isinstance(part.get("id"), str) else None
-                add(call_id, target["name"], target["args"], "dispatcher" if target["dispatched"] else "direct", results.get(call_id))
+                add(call_id, target["name"], target["args"], "dispatcher" if target["dispatched"] else "direct", results.get(call_id),
+                    position, result_at.get(call_id, position))
         text = text_of(row)
         if text.strip():
             reply = text
@@ -318,16 +336,20 @@ def read_turn(rows, prompt, run_id=None, settings=None):
         model = served_model(row)
         if model and model not in models:
             models.append(model)
-    # A result whose call row was dropped is still a call.
+    # A result whose call row was dropped is still a call. Its response is the one whose results it sits among.
+    orphans = {call_id for call_id in results if call_id not in by_id}
     for call_id, row in results.items():
-        if call_id not in by_id:
+        if call_id in orphans:
             name, via = _result_tool(row)
             if name:
-                add(call_id, name, {}, via, row)
+                add(call_id, name, {}, via, row, _response_of(turn, result_at[call_id], orphans), result_at[call_id])
 
     elections = [c for c in calls if c["name"] in CONTINUATION_TOOLS]
     first_election = next((i for i, c in enumerate(calls) if c["name"] in CONTINUATION_TOOLS), None)
     limitations = treatment_limitations(calls, answers, settings or {})
+    # An election decided in a later response than the one a limitation was answered to may answer it.
+    shown = min((seen[found["call"]] for found in limitations), default=None)
+    elected_after = shown is not None and any(decided[i] > shown for i, c in enumerate(calls) if c["name"] in CONTINUATION_TOOLS)
     searches = [i for i, c in enumerate(calls) if c["name"] == "tool_search"]
     return {
         "reply": reply,
@@ -347,10 +369,20 @@ def read_turn(rows, prompt, run_id=None, settings=None):
         "modelCalls": model_calls,
         "servedModels": models,
         "limitations": limitations,
-        # An election after something the settings showed the model may answer it: the trial says so.
-        "electedAfterLimitation": bool(limitations) and any(i > limitations[0]["call"] for i, c in enumerate(calls)
-                                                             if c["name"] in CONTINUATION_TOOLS),
+        # An election the model decided after something the settings showed it may answer it: the trial says so.
+        "electedAfterLimitation": elected_after,
     }
+
+
+def _response_of(turn, index, orphans):
+    """Where a response whose row is gone was decided: just before the run of results of calls that no row shows.
+
+    A result of a call a present row does show belongs to that row's response, which did not make this call: this one came
+    after it.
+    """
+    while index > 0 and role_of(turn[index - 1]) == "toolresult" and turn[index - 1].get("toolCallId") in orphans:
+        index -= 1
+    return index - 0.5
 
 
 def _is_nested(row):

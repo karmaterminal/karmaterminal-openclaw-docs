@@ -150,6 +150,20 @@ def test_a_fan_out_of_children_is_refused_at_admission_not_stopped_later(tmp_pat
     assert stop_of(supervision)["rule"] == "run-finished" and supervision.run_stop.reason is None
 
 
+def test_the_fake_admits_children_and_collectors_in_the_products_order_and_words():
+    from openclaw_evalbench.fake_gateway import FakeGateway
+    arms = load_arms()
+    fake = FakeGateway(arms["arms"]["C"], model=arms["model"], descriptions=arms["descriptions"]["f9fcd3a5"]["tools"], plan={})
+    parent = "agent:main:evalprop-c-x"
+    fake.sessions[parent] = fake._new_session()
+    burn = {"callTokens": 1, "callSeconds": 60}
+    answers = [fake._spawn(parent, burn, group, i)["answer"] for i, group in enumerate([None, None, "g1", "g1", "g2"])]
+    assert [a["status"] for a in answers] == ["accepted", "forbidden", "accepted", "forbidden", "accepted"]
+    # child-admission.ts:105-108, then :91-96: a group's lifetime total is checked before its live children.
+    assert answers[1]["error"] == "sessions_spawn has reached max active children for this session (1/1; agents.defaults.subagents.maxChildrenPerAgent)."
+    assert answers[3]["error"] == "sessions_spawn reached tools.swarm.maxTotalPerGroup (1/1)."
+
+
 def test_a_fan_out_over_swarm_groups_is_admitted_and_stopped_before_any_of_its_calls_is_metered(tmp_path):
     # The residual: each swarm group admits its own first collector, and the groups are the turn's. No setting refuses
     # them without changing what the model is shown (probes/receipts), so the supervisor stops them, at its next reading.

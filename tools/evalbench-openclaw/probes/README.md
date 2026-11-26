@@ -12,8 +12,11 @@ the script.
 | --- | --- |
 | `config` | the caps in a configuration file, read back the way `config.get` reads one (`readConfigFileSnapshot`, then `redactConfigSnapshot`): valid, and each cap present as authored and in the effective configuration. A misspelt key is refused, so a valid file is not a vacuous one |
 | `capsBehavior` | the continuation budget after a first election (`cost-capped`) and for a second hop (`chain-capped`), delegates admitted in one turn, the turn and child timeouts |
-| `admission` | the lane widths the gateway sets at start (`resolveGatewayLaneConcurrency`, `applyGatewayLaneConcurrency`), and how many of two tasks the product's own command queue starts at once in each lane, with the caps and without them; child and collector admission (`resolveChildAdmission`); cron's scheduler as the gateway reads it at start; the utility model setting |
-| `surface` | for each arm's settings: the tools (names, descriptions, parameters) and the system prompt the product's `/context` path builds (`resolveCommandsSystemPromptBundle`), with the per-session additions a trial's session gets (`prepareAttemptSystemPromptAdditions`), with no caps, with all of them, and with each alone; and three settings that do change the surface, as controls. The three continuation descriptions are hashed |
+| `admission` | the lane widths the gateway sets at start (`resolveGatewayLaneConcurrency`, `applyGatewayLaneConcurrency`), and how many of two tasks the product's own command queue starts at once in each lane, with the caps and without them; child and collector admission (`resolveChildAdmission`); cron's scheduler as the gateway's own cron state reads it (`createLazyGatewayCronState`); the utility model setting |
+| `config.skillWorkshopReview` | Skill Workshop's review mode as the runtime configuration gives it: `off` with the caps, `auto` without them, and `auto` with the setting but without the migration marker |
+| `surface.<arm>.context` | the tools (names, descriptions, parameters) and the system prompt the product's `/context` path builds (`resolveCommandsSystemPromptBundle`), with the per-session additions a trial's session gets (`prepareAttemptSystemPromptAdditions`) |
+| `surface.<arm>.attempt` | the run's own surface on the firing model: the product's tool-surface runtime (`createAgentHarnessToolSurfaceRuntimeCore`) plans it (Code Mode, Tool Search or every tool direct), builds its controls and compacts the tools into what is sent and what is catalogued; the prompt is built as the attempt builds it (`buildConfiguredAgentSystemPrompt` with the continuation section) |
+| both | with no caps, with all of them, and with each alone; and three settings that do change the surface, as controls. The three continuation descriptions are hashed. Paths of the workspace and of the probe's home are hashed as `<workspace>` and `<home>` |
 
 ## Making a receipt
 
@@ -40,10 +43,16 @@ built gateway imports them. When such a require fails, the hook resolves it agai
 bundled plugins (browser, canvas, codex, memory-core, skill-workshop) don't load and their tools are missing from the
 comparison.
 
+A re-run on the same host gives the same receipt byte for byte. One field depends on the host: the main lane's width without
+the caps, which is 4 per CPU (`admission.lanesWithoutCaps.widths.main`).
+
 ## What it does not show
 
 - **A live gateway.** The probe calls the functions a gateway calls; it does not start one. Preflight's readback on the
   seat is what shows the caps applied by the running process.
+- **The real attempt end to end.** The attempt path calls the product's own planner, runtime and prompt builder, with the
+  inputs a trial's turn would give them; it does not run an attempt, so what an attempt adds from its session and run state
+  (history, delivery facts, sandbox) is not in it. None of that reads a cap.
 - **The seat's own configuration.** The surface is compared on the arms' settings alone. The launcher copies more from the
   seat (tools policy, models, plugins); the caps are compared with and without on the same base, so a difference they make is
   seen whatever that base holds, unless it is a difference only that seat's settings would expose.

@@ -22,7 +22,7 @@ karmaterminal/openclaw#1575 · docs PR #631 · design and statistics in [`README
 | builds | A and B: `ab5a30ea79b776f149e24b1fccab9e79b0a5d299`. C: `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` |
 | what it proves | that the live gateways answer the way the harness reads them: surface, runtime, served model, an election, cleanup, and real token and call counts |
 | what it does not | **no rate.** One trial per prompt says nothing about propensity. Every comparison must print `not reportable` |
-| enforced, whatever the provider or model does | **No number of tokens.** Time: a trial is killed by 480 s and the canary by 1800 s, each + 1 s. Admission, in the product: one turn at a time per gateway, one child per session and none of its own, no scheduled automation, no activity recap. See [Spend](#spend) |
+| enforced, whatever the provider or model does | **No number of tokens.** Time: a trial is killed by 480 s and the canary by 1800 s, each + 1 s. Admission, in the product: one message turn at a time per gateway, one child per session and none of its own, no scheduled automation, no activity recap. See [Spend](#spend) |
 | conditional: estimates, each on a named assumption | **1.98 M** a trial and **6.24 M** the canary at 5 s and 160 k a call; **5.7 M** and **17.5 M** at the product's own per-call limits on this route (500 k in, by its estimate, and 128 k out) and 5 s a call; **18.3 M** and **55 M** at 1 s a call. Each lane a turn opens beyond its one child adds 2.5–8.8 M to its trial, and **nothing bounds how many it opens** |
 | supervision | a process of its own polls every gateway, and kills its unit at a limit. It is launched by `run`, and `run` sends nothing until it is armed |
 
@@ -161,7 +161,7 @@ for p in 20846 20966 21086; do timeout 120 bash -c "until ss -ltnH 'sport = :$p'
 ```
 
 It only reads, so one retry is fine (a gateway can still be starting). Anything else twice: stop. **`caps not in force` is a
-stop too**: every cap and admission setting (one turn at a time, cron's scheduler off, no utility model) has to be in the file,
+stop too**: every cap and admission setting (one message turn at a time, cron's scheduler off, no utility model) has to be in the file,
 in the effective configuration, and in the revision the running gateway says it has applied. The same readback is made before and after every trial, and a trial that fails it is unscored and halts the
 whole canary.
 
@@ -295,7 +295,7 @@ what holds it. **Conditional** is an estimate, beside the assumption it rests on
 | one trial's time | killed by 480 s, + 1 s | the supervisor's own clock, then SIGKILL of the gateway's unit | a turn that spends nothing and never ends |
 | the canary's time | killed by 1800 s, + 1 s; 1860 s if the supervisor and the runner both die | the same clock; then a systemd timer | a run with no trial at all; both processes killed |
 | the kill, once a limit is crossed | within 12.5 s of the last reading under it, whatever the readings do; 4.5 s while every reading is on time | the supervisor: a reading a second on its own connection, its own clock, then the kill until it is proved | fakes that loop, ignore every abort, or stop answering; a real systemd unit |
-| turns at once on one gateway | **1**; a second waits in the queue | `agents.defaults.maxConcurrent: 1`, the main lane's width (`src/gateway/server-lanes.ts:33,75`, `src/config/agent-limits.ts:33-38`) | the product's own queue at both SHAs: two turns start one after the other, and both at once without it (probe) |
+| message turns at once on one gateway (the main lane, where every message's turn runs, `src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`) | **1**; a second waits in the queue | `agents.defaults.maxConcurrent: 1`, the main lane's width (`src/gateway/server-lanes.ts:33,75`, `src/config/agent-limits.ts:33-38`) | the product's own queue at both SHAs: two turns start one after the other, and both at once without it (probe) |
 | children of one session | **1** at a time, none of its own | `subagents.maxChildrenPerAgent`, `maxConcurrent` and `maxSpawnDepth`, 1 each (`src/agents/child-admission.ts:84-109`, `server-lanes.ts:83`) | the probe; a fake that tries six spawns runs one child and is refused five, in the product's words, which the trial records |
 | collectors in one swarm group | **1** | `tools.swarm.*`, 1 each | the probe |
 | automations that fire by themselves | **none**: scheduled, event and watcher fires | `cron.enabled: false` (`src/gateway/server-cron-lazy.ts:23-24`, `src/cron/service/scheduler-actor.ts:138`, `ops-event.ts:80`) | the probe |

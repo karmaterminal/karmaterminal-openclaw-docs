@@ -3,7 +3,7 @@
   "issue": "karmaterminal/openclaw#1575",
   "offline": true,
   "go": null,
-  "started": "2026-11-26T11:11:24+00:00",
+  "started": "2026-11-26T11:38:39+00:00",
   "arms": [
     "A",
     "B",
@@ -12,14 +12,14 @@
   ],
   "model": "openai/gpt-6.1-sol",
   "gatewayUrls": {
-    "A": "ws://127.0.0.1:39297",
-    "B": "ws://127.0.0.1:32797",
-    "C": "ws://127.0.0.1:39149",
-    "D": "ws://127.0.0.1:38799"
+    "A": "ws://127.0.0.1:46563",
+    "B": "ws://127.0.0.1:34511",
+    "C": "ws://127.0.0.1:40611",
+    "D": "ws://127.0.0.1:34113"
   },
   "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
   "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
-  "harnessHead": "d605b1ce0768e6c6475d1109958ffb82e37828b6",
+  "harnessHead": "74a3acc16543ccc0225fd3d21ba1e21ac8fb88e9",
   "harnessDirty": false,
   "numTrials": 5,
   "scenarios": null,
@@ -65,7 +65,7 @@
     "lost": null,
     "receipt": {
       "schema": "openclaw.evalbench.supervision.v1",
-      "run": "3235e26f1303",
+      "run": "b75a9ea02c08",
       "offline": true,
       "limits": {
         "pollSeconds": 0.2,
@@ -83,36 +83,36 @@
         "runSeconds": 14400
       },
       "ended": {
-        "at": "2026-11-26T11:11:40.527+00:00",
+        "at": "2026-11-26T11:38:56.625+00:00",
         "rule": "run-finished",
         "detail": "the runner finished"
       },
-      "seconds": 15.955,
+      "seconds": 16.324,
       "tokens": 13575964,
       "unwrittenRecords": 0,
       "arms": {
         "A": {
           "identity": {
-            "pid": 3273400,
+            "pid": 3885301,
             "fake": true
           },
           "tokens": 3153187,
           "sessions": 2,
-          "readings": 171,
+          "readings": 172,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.204,
+          "longestGapSeconds": 0.223,
           "trials": 90,
           "largestTrialTokens": 84085,
           "longestTrialSeconds": 1.01,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T11:11:40.527+00:00",
+            "at": "2026-11-26T11:38:56.625+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3153187,
             "trial": null,
-            "secondsSinceReading": 0.012,
+            "secondsSinceReading": 0.161,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -129,98 +129,98 @@
         },
         "B": {
           "identity": {
-            "pid": 3273402,
+            "pid": 3885305,
             "fake": true
           },
           "tokens": 3287863,
           "sessions": 2,
-          "readings": 171,
+          "readings": 172,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.204,
+          "longestGapSeconds": 0.223,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.008,
+          "longestTrialSeconds": 1.01,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T11:11:40.527+00:00",
+            "at": "2026-11-26T11:38:56.625+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3287863,
             "trial": null,
-            "secondsSinceReading": 0.013,
+            "secondsSinceReading": 0.162,
             "aborts": null,
             "result": {
               "stopped": true,
               "problems": [],
               "durableUnits": [],
               "strayProcesses": 0,
-              "killSeconds": 0.011,
-              "goneSeconds": 0.011,
-              "seconds": 0.011
+              "killSeconds": 0.01,
+              "goneSeconds": 0.01,
+              "seconds": 0.01
             },
             "abortSeconds": 0.0,
-            "seconds": 0.012
+            "seconds": 0.011
           }
         },
         "C": {
           "identity": {
-            "pid": 3273404,
+            "pid": 3885310,
             "fake": true
           },
           "tokens": 3631333,
-          "sessions": 1,
-          "readings": 171,
+          "sessions": 3,
+          "readings": 172,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.204,
+          "longestGapSeconds": 0.223,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 0.018,
+          "longestTrialSeconds": 0.017,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T11:11:40.527+00:00",
+            "at": "2026-11-26T11:38:56.625+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3631333,
             "trial": null,
-            "secondsSinceReading": 0.013,
+            "secondsSinceReading": 0.162,
             "aborts": null,
             "result": {
               "stopped": true,
               "problems": [],
               "durableUnits": [],
               "strayProcesses": 0,
-              "killSeconds": 0.011,
-              "goneSeconds": 0.011,
-              "seconds": 0.011
+              "killSeconds": 0.01,
+              "goneSeconds": 0.01,
+              "seconds": 0.01
             },
             "abortSeconds": 0.0,
-            "seconds": 0.012
+            "seconds": 0.011
           }
         },
         "D": {
           "identity": {
-            "pid": 3273406,
+            "pid": 3885316,
             "fake": true
           },
           "tokens": 3503581,
-          "sessions": 4,
-          "readings": 171,
+          "sessions": 3,
+          "readings": 172,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.204,
+          "longestGapSeconds": 0.222,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.013,
+          "longestTrialSeconds": 1.009,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T11:11:40.527+00:00",
+            "at": "2026-11-26T11:38:56.625+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3503581,
             "trial": null,
-            "secondsSinceReading": 0.012,
+            "secondsSinceReading": 0.162,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -239,10 +239,10 @@
     },
     "runnerStops": null
   },
-  "ended": "2026-11-26T11:11:40+00:00",
+  "ended": "2026-11-26T11:38:56+00:00",
   "results": {
     "A": {
-      "jobId": "8ddaaaf0-524f-4362-bd7b-1dc6822388a9",
+      "jobId": "1d33b050-3eab-4171-ad83-cdb51f9e71c3",
       "summary": {
         "total": 90,
         "scores": {
@@ -258,7 +258,7 @@
       "meteredTokens": 3153187
     },
     "B": {
-      "jobId": "bf3c4185-4eee-4c20-9185-ba61e0247fea",
+      "jobId": "e9388799-4ea5-473a-959a-10048a96f7a7",
       "summary": {
         "total": 90,
         "scores": {
@@ -274,7 +274,7 @@
       "meteredTokens": 3287863
     },
     "C": {
-      "jobId": "c4ae3b39-0b35-4372-974f-83635a98b8f4",
+      "jobId": "9d35698a-5de4-4337-be0b-0d39b5060f14",
       "summary": {
         "total": 90,
         "scores": {
@@ -290,7 +290,7 @@
       "meteredTokens": 3631333
     },
     "D": {
-      "jobId": "d4174564-0bda-41b4-a801-a1df4cafacd3",
+      "jobId": "4ab9f523-340e-4206-b7d9-484ad004445a",
       "summary": {
         "total": 90,
         "scores": {

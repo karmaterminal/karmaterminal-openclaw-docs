@@ -89,11 +89,11 @@ Metered tokens include cache reads. The spend stop (35,000,000 per arm) is check
 
 Limits: 700,000 metered tokens and 480 s per trial, 150,000 tokens outside a trial, 75,000,000 tokens and 14400 s for the run, 2 active runs per gateway, 10 s without a whole reading, a reading every 0.2 s.
 
-Run: 13,575,964 metered tokens in 15.955 s; ended by run-finished; halted: no; supervisor lost: no.
+Run: 13,575,964 metered tokens in 16.324 s; ended by run-finished; halted: no; supervisor lost: no.
 
 | arm | metered tokens | trials | largest trial | longest trial | readings | longest gap | stopped by | proved stopped | durable units ended |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| A | 3,153,187 | 90 | 84,085 | 1.01 s | 171 | 0.204 s | run-finished | yes | 0 |
-| B | 3,287,863 | 90 | 84,085 | 1.008 s | 171 | 0.204 s | run-finished | yes | 0 |
-| C | 3,631,333 | 90 | 84,085 | 0.018 s | 171 | 0.204 s | run-finished | yes | 0 |
-| D | 3,503,581 | 90 | 84,085 | 1.013 s | 171 | 0.204 s | run-finished | yes | 0 |
+| A | 3,153,187 | 90 | 84,085 | 1.01 s | 172 | 0.223 s | run-finished | yes | 0 |
+| B | 3,287,863 | 90 | 84,085 | 1.01 s | 172 | 0.223 s | run-finished | yes | 0 |
+| C | 3,631,333 | 90 | 84,085 | 0.017 s | 172 | 0.223 s | run-finished | yes | 0 |
+| D | 3,503,581 | 90 | 84,085 | 1.009 s | 172 | 0.222 s | run-finished | yes | 0 |

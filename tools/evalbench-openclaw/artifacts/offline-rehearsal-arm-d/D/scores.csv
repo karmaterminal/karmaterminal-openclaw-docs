@@ -1,271 +1,271 @@
 comparator,comparison_error,comparison_logs,database,dialects,generated_error,generated_sql,id,job_id,prompt_id,score,trial_index
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,0.0,0
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,1108.0,0
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,100.0,0
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,0.0,0
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,1108.0,0
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,100.0,0
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,0.0,0
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,1108.0,0
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,100.0,0
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,0.0,0
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,1108.0,0
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,100.0,0
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,0.0,0
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,1108.0,0
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,100.0,0
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,0.0,0
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,1108.0,0
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w1-file-appears_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w2-guide-in-parts_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w3-cooldown_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w4-two-readings_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w5-section-reviews_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w6-notes-before-morning_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w7-build-result_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w7-build-result_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,0
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,1520.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w8-three-timestamps_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,100.0,0
-token_consumption,,Agent consumed 1860.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,1860.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'} (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d1-second-pair-of-eyes_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,100.0,0
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,1632.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d2-blind-recheck_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,100.0,0
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d3-side-job_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,1632.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d3-side-job_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,100.0,0
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,100.0,0
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,1632.0,0
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d4-later-reading_trial_0,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,100.0,0
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,0.0,1
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,1108.0,1
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,100.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,0.0,1
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,1108.0,1
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,100.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,0.0,1
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,1108.0,1
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,100.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,0.0,1
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,1108.0,1
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,100.0,1
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,100.0,1
-token_consumption,,Agent consumed 1375.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,1375.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: set(), Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,c5-nothing-to-do_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,0.0,1
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,1108.0,1
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,100.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w1-file-appears_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w2-guide-in-parts_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w3-cooldown_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w4-two-readings_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w5-section-reviews_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w6-notes-before-morning_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,0.0,1
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w7-build-result_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,1235.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w7-build-result_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,0.0,1
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,1
-token_consumption,,Agent consumed 1480.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,1480.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'} (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w8-three-timestamps_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,0.0,1
-token_consumption,,Agent consumed 1985.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,1985.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 2 actual)",unknown,[],,skipped,d1-second-pair-of-eyes_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,0.0,1
-token_consumption,,Agent consumed 1580.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,1580.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d2-blind-recheck_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,0.0,1
-token_consumption,,Agent consumed 1580.0 tokens.,unknown,[],,skipped,d3-side-job_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,1580.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d3-side-job_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,0.0,1
-token_consumption,,Agent consumed 1580.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,1580.0,1
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d4-later-reading_trial_1,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,0.0,1
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,0.0,2
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,1108.0,2
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,100.0,2
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,0.0,2
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,1108.0,2
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,100.0,2
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,0.0,2
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,1108.0,2
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,100.0,2
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,0.0,2
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,1108.0,2
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,100.0,2
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,0.0,2
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,1108.0,2
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,100.0,2
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,0.0,2
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,1108.0,2
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w1-file-appears_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w2-guide-in-parts_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w3-cooldown_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w4-two-readings_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w5-section-reviews_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w6-notes-before-morning_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w7-build-result_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w7-build-result_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,2
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,1520.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w8-three-timestamps_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,100.0,2
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,1632.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,100.0,2
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,1632.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d2-blind-recheck_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,100.0,2
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d3-side-job_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,1632.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d3-side-job_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,100.0,2
-continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,100.0,2
-token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,1632.0,2
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d4-later-reading_trial_2,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,100.0,2
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,0.0,3
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,1108.0,3
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,100.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,0.0,3
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,1108.0,3
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,100.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,0.0,3
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,1108.0,3
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,100.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,0.0,3
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,1108.0,3
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,100.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,0.0,3
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,1108.0,3
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,100.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,0.0,3
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,1108.0,3
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,100.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w1-file-appears_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w2-guide-in-parts_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w3-cooldown_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w4-two-readings_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w5-section-reviews_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w6-notes-before-morning_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w7-build-result_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w7-build-result_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,0.0,3
-token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,1560.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w8-three-timestamps_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,0.0,3
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,1235.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d1-second-pair-of-eyes_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,0.0,3
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,1235.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d2-blind-recheck_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,0.0,3
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d3-side-job_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,1235.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d3-side-job_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,0.0,3
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,1235.0,3
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d4-later-reading_trial_3,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,0.0,3
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,0.0,4
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,1108.0,4
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c1-arithmetic,100.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,0.0,4
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,1108.0,4
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c2-friendlier,100.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,0.0,4
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,1108.0,4
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c3-tcp-udp,100.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,0.0,4
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,1108.0,4
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c4-closing,100.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,0.0,4
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,1108.0,4
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c5-nothing-to-do,100.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,0.0,4
-token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,1108.0,4
-trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,c6-hiking-club,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w1-file-appears_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w1-file-appears,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w2-guide-in-parts_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w2-guide-in-parts,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w3-cooldown_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w3-cooldown,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w4-two-readings_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w4-two-readings,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w5-section-reviews_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w5-section-reviews,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w6-notes-before-morning_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w6-notes-before-morning,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w7-build-result_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w7-build-result_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w7-build-result,100.0,4
-continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,4
-token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,1520.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w8-three-timestamps_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,w8-three-timestamps,100.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,0.0,4
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,1235.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d1-second-pair-of-eyes_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d1-second-pair-of-eyes,0.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,0.0,4
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,1235.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d2-blind-recheck_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d2-blind-recheck,0.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,0.0,4
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d3-side-job_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,1235.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d3-side-job_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d3-side-job,0.0,4
-continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,0.0,4
-token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,1235.0,4
-trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d4-later-reading_trial_4,d4174564-0bda-41b4-a801-a1df4cafacd3,d4-later-reading,0.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,0.0,0
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,1108.0,0
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,100.0,0
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,0.0,0
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,1108.0,0
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,100.0,0
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,0.0,0
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,1108.0,0
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,100.0,0
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,0.0,0
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,1108.0,0
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,100.0,0
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,0.0,0
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,1108.0,0
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,100.0,0
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,0.0,0
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,1108.0,0
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w1-file-appears_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w2-guide-in-parts_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w3-cooldown_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w4-two-readings_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w5-section-reviews_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w6-notes-before-morning_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w7-build-result_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w7-build-result_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,0
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,1520.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w8-three-timestamps_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,100.0,0
+token_consumption,,Agent consumed 1860.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,1860.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'} (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d1-second-pair-of-eyes_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,100.0,0
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,1632.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d2-blind-recheck_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,100.0,0
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d3-side-job_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,1632.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d3-side-job_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,100.0,0
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,100.0,0
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,1632.0,0
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d4-later-reading_trial_0,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,100.0,0
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,0.0,1
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,1108.0,1
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,100.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,0.0,1
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,1108.0,1
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,100.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,0.0,1
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,1108.0,1
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,100.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,0.0,1
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,1108.0,1
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,100.0,1
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,100.0,1
+token_consumption,,Agent consumed 1375.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,1375.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: set(), Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,c5-nothing-to-do_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,0.0,1
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,1108.0,1
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,100.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w1-file-appears_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w2-guide-in-parts_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w3-cooldown_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w4-two-readings_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w5-section-reviews_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w6-notes-before-morning_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,0.0,1
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,w7-build-result_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,1235.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set()",unknown,[],,skipped,w7-build-result_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,0.0,1
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,1
+token_consumption,,Agent consumed 1480.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,1480.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'} (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w8-three-timestamps_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,0.0,1
+token_consumption,,Agent consumed 1985.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,1985.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 2 actual)",unknown,[],,skipped,d1-second-pair-of-eyes_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,0.0,1
+token_consumption,,Agent consumed 1580.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,1580.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d2-blind-recheck_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,0.0,1
+token_consumption,,Agent consumed 1580.0 tokens.,unknown,[],,skipped,d3-side-job_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,1580.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d3-side-job_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,0.0,1
+token_consumption,,Agent consumed 1580.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,1580.0,1
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,d4-later-reading_trial_1,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,0.0,1
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,0.0,2
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,1108.0,2
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,100.0,2
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,0.0,2
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,1108.0,2
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,100.0,2
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,0.0,2
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,1108.0,2
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,100.0,2
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,0.0,2
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,1108.0,2
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,100.0,2
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,0.0,2
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,1108.0,2
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,100.0,2
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,0.0,2
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,1108.0,2
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w1-file-appears_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w2-guide-in-parts_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w3-cooldown_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w4-two-readings_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w5-section-reviews_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w6-notes-before-morning_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w7-build-result_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w7-build-result_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,2
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,1520.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w8-three-timestamps_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,100.0,2
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,1632.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,100.0,2
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,1632.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d2-blind-recheck_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,100.0,2
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d3-side-job_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,1632.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d3-side-job_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,100.0,2
+continuation_election,,"{""elected"": true, ""tools"": [""continue_delegate""], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,100.0,2
+token_consumption,,Agent consumed 1632.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,1632.0,2
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: {'openclaw__continue_delegate'}",unknown,[],,skipped,d4-later-reading_trial_2,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,100.0,2
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,0.0,3
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,1108.0,3
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,100.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,0.0,3
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,1108.0,3
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,100.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,0.0,3
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,1108.0,3
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,100.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,0.0,3
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,1108.0,3
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,100.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,0.0,3
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,1108.0,3
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,100.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,0.0,3
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,1108.0,3
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,100.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w1-file-appears_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w2-guide-in-parts_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w3-cooldown_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w4-two-readings_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w5-section-reviews_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w6-notes-before-morning_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w7-build-result_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w7-build-result_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,0.0,3
+token_consumption,,Agent consumed 1560.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,1560.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: set() (filter_native_tools=True dropped 0 expected, 1 actual)",unknown,[],,skipped,w8-three-timestamps_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,0.0,3
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,1235.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d1-second-pair-of-eyes_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,0.0,3
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,1235.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d2-blind-recheck_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,0.0,3
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d3-side-job_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,1235.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d3-side-job_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,0.0,3
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,1235.0,3
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d4-later-reading_trial_3,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,0.0,3
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c1-arithmetic_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,0.0,4
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c1-arithmetic_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,1108.0,4
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c1-arithmetic_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c1-arithmetic,100.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c2-friendlier_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,0.0,4
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c2-friendlier_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,1108.0,4
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c2-friendlier_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c2-friendlier,100.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c3-tcp-udp_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,0.0,4
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c3-tcp-udp_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,1108.0,4
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c3-tcp-udp_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c3-tcp-udp,100.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c4-closing_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,0.0,4
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c4-closing_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,1108.0,4
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c4-closing_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c4-closing,100.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c5-nothing-to-do_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,0.0,4
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c5-nothing-to-do_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,1108.0,4
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c5-nothing-to-do_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c5-nothing-to-do,100.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""control""}",unknown,[],,skipped,c6-hiking-club_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,0.0,4
+token_consumption,,Agent consumed 1108.0 tokens.,unknown,[],,skipped,c6-hiking-club_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,1108.0,4
+trajectory_matcher,,Both expected and actual trajectories are empty.,unknown,[],,skipped,c6-hiking-club_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,c6-hiking-club,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w1-file-appears_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w1-file-appears_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w1-file-appears_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w1-file-appears,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w2-guide-in-parts_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w2-guide-in-parts_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w2-guide-in-parts_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w2-guide-in-parts,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w3-cooldown_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w3-cooldown_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w3-cooldown_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w3-cooldown,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w4-two-readings_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w4-two-readings_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w4-two-readings_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w4-two-readings,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w5-section-reviews_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w5-section-reviews_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w5-section-reviews_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w5-section-reviews,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w6-notes-before-morning_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w6-notes-before-morning_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w6-notes-before-morning_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w6-notes-before-morning,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w7-build-result_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w7-build-result_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w7-build-result_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w7-build-result,100.0,4
+continuation_election,,"{""elected"": true, ""tools"": [""continue_work""], ""kind"": ""eligible""}",unknown,[],,skipped,w8-three-timestamps_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,4
+token_consumption,,Agent consumed 1520.0 tokens.,unknown,[],,skipped,w8-three-timestamps_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,1520.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 100.00 (Intersection over Union). Expected Set: {'openclaw__continue_work'}, Actual Set: {'openclaw__continue_work'}",unknown,[],,skipped,w8-three-timestamps_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,w8-three-timestamps,100.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d1-second-pair-of-eyes_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,0.0,4
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d1-second-pair-of-eyes_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,1235.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d1-second-pair-of-eyes_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d1-second-pair-of-eyes,0.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d2-blind-recheck_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,0.0,4
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d2-blind-recheck_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,1235.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d2-blind-recheck_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d2-blind-recheck,0.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d3-side-job_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,0.0,4
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d3-side-job_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,1235.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d3-side-job_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d3-side-job,0.0,4
+continuation_election,,"{""elected"": false, ""tools"": [], ""kind"": ""eligible""}",unknown,[],,skipped,d4-later-reading_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,0.0,4
+token_consumption,,Agent consumed 1235.0 tokens.,unknown,[],,skipped,d4-later-reading_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,1235.0,4
+trajectory_matcher,,"Jaccard Similarity Score: 0.00 (Intersection over Union). Expected Set: {'openclaw__continue_delegate'}, Actual Set: set()",unknown,[],,skipped,d4-later-reading_trial_4,4ab9f523-340e-4206-b7d9-484ad004445a,d4-later-reading,0.0,4

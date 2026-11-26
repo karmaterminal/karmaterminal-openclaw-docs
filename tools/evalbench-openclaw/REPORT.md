@@ -144,7 +144,7 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 
 | what | result |
 | --- | --- |
-| adapter tests (`./run.sh test`), follow-up 3 | 559 passed, none skipped (on ronan, with a systemd user manager); 490 at `d78d1614` |
+| adapter tests (`./run.sh test`), follow-up 3 | 566 passed, none skipped (on ronan, with a systemd user manager); 490 at `d78d1614` |
 | the caps and admission, through the product's own code at both SHAs (`probes/product-probe.mts`, receipts in `probes/receipts`) | the schema and `config.get`'s own pipeline accept and read back all sixteen, authored and effective (a misspelt key is refused); in the product's command queue two turns start one after the other and so do two children of one session, both at once without the caps, while two swarm groups and two automation runs start together either way; the first child is admitted, a second and a grandchild refused, a second collector in a group refused; the gateway's cron state reads the scheduler off; the utility model `disabled`; Skill Workshop's review `off`, and `auto` without the marker. On every arm, two ways (the `/context` path's 66 tools and prompt; the run's own surface through the product's tool-surface runtime, Code Mode with 6 tools sent and 63 catalogued at ab5a, 9 and 60 at f9fc, every tool direct for B and D, prompt with its continuation section), tools, catalog and prompt are byte for byte the same with and without the caps, each alone and all together; swarm off, an empty `allowAgents` and `automations` denied are each seen to change them. The continuation descriptions hash to `arms.json`'s. A re-run gives the same receipts |
 | a setting the probe found not in force | Skill Workshop's `autonomous.mode: "off"` alone: absent from the effective configuration, because the runtime ignores the plugin's entry until Doctor's migration marker. Set with the marker, and read back with it |
 | negative controls at `d78d1614` (the same six assertions there and here) | at `d78d1614`: a gateway with two main-lane slots, with cron on, with a utility model, or with the agent's own utility model passes preflight (4 × "did not raise"); a refusal the model saw is not in its trial's record; six spawns run six children. Here: all six hold. The new packet tests fail on `d78d1614`'s documents, each for its own reason |
@@ -155,9 +155,9 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 | the supervisor at its real limits, on a real user unit (fakes, no model) | a two-lane loop: 745,240 metered at 30.1 s, gone within 2 ms of the kill. A frozen gateway: killed 10.01 s after its last reading. A durable exec ended with both, all of it proved in 0.5 s |
 | the caps, through the product's own code at both SHAs | its config schema accepts them; `continue_work` and `continue_delegate` answer `scheduled`; the turn-end budget then says `cost-capped`, and `chain-capped` for a second hop; a second child, a child of a child and a second collector are refused; timeouts read 330 s and 120 s (defaults 48 h and none); redaction and defaults keep every cap. 49 tools: names, descriptions and parameters the same with and without the caps, and not with swarm off |
 | the supervisor's frames, through the product's own validators at both SHAs | 5 of 5 valid; the negative controls refused, 4 of 4 |
-| full offline run, D off (archived at `d605b1ce`) | 270 trials, 3 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped, sixteen caps. Rates and comparisons are those of the run before; treatment limitations: 1 trial in A, 2 in B and C, one of them electing after it |
-| full offline run, D on (archived at `d605b1ce`) | 360 trials, 4 jobs, exit 0, the same, and D as B and C |
-| the canary's own shape and limits, offline (at `d605b1ce`) | 9 trials, exit 0, every comparison `not reportable` |
+| full offline run, D off (archived at `74a3acc1`) | 270 trials, 3 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped, sixteen caps. Rates and comparisons are those of the run before; treatment limitations: 1 trial in A, 2 in B and C, one of them electing after it |
+| full offline run, D on (archived at `74a3acc1`) | 360 trials, 4 jobs, exit 0, the same, and D as B and C |
+| the canary's own shape and limits, offline (at `74a3acc1`) | 9 trials, exit 0, every comparison `not reportable` |
 | `tools/k6-proofs/tests` | 583 of 583 |
 
 From the first lane, at `cad3a045`, and not repeated: 35 + 20 mutants; 67 of 67 adapter frames valid against the product's own
@@ -205,6 +205,13 @@ It checked and found correct: every citation the follow-up added; that the ChatG
 tool-result total; that nothing counts calls in a turn; every cap's minimum of 1; all of the conditional arithmetic; that trial
 turns run in the main lane; the probe's readback against `config.get`'s own; and that `automations` keeps its definition whatever
 `cron.enabled` says.
+
+The same reader then re-reviewed the fixes at `762b7357`: both blockers and the three it asked to fix are fixed, the rest
+disclosed; it re-ran the probe at both SHAs (byte for byte the committed receipts) and the tests (559 passed). It found three
+more, fixed since: the migration marker is now refused beside any older Workshop policy it would make take effect (a deny or
+allowlist would remove `skill_workshop`), at overlay and preflight alike; the probe's continuation flag reads the section's
+heading; a child's announce runs in the main lane, and the packet says so. It judged the probe's attempt path faithful for the
+comparison and not the attempt's exact bytes, and the marker safe and honest for a launcher that copies no Workshop policy.
 
 ### The spend bound (follow-up 2)
 

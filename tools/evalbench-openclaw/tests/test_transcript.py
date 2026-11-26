@@ -308,3 +308,24 @@ def test_calls_whose_row_history_dropped_are_placed_in_the_response_their_result
     assert turn["elected"] is True and len(turn["limitations"]) == 1 and turn["electedAfterLimitation"] is False
     apart = rows_of("no-election")[:1] + response(("p1", "sessions_spawn", SPAWN_REFUSED, None)) + response(("c1", "continue_delegate", SCHEDULED, None))[1:]
     assert read_turn(apart + rows_of("no-election")[1:], "the prompt", "run-1", SETTINGS)["electedAfterLimitation"] is True
+
+
+def test_two_scripts_of_one_response_were_written_together():
+    # Two Code Mode scripts in one response: the second's election was written before the first's refusal came back.
+    import json
+    calls = {"role": "assistant", "content": [{"type": "toolCall", "id": i, "name": "exec", "arguments": {}} for i in ("x1", "x2")],
+             "__openclaw": {"runId": "run-1"}}
+    result = lambda i: {"role": "toolResult", "toolCallId": i, "toolName": "exec", "isError": False,
+                        "content": [{"type": "text", "text": json.dumps({"status": "completed"})}], "__openclaw": {"runId": "run-1"}}
+    rows = rows_of("no-election")[:1] + [calls, nested("x1", "n1", "sessions_spawn", SPAWN_REFUSED), result("x1"),
+                                         nested("x2", "n2", "continue_work", SCHEDULED), result("x2")]
+    turn = read_turn(rows, "the prompt", "run-1", SETTINGS)
+    assert turn["elected"] is True and len(turn["limitations"]) == 1 and turn["electedAfterLimitation"] is False
+
+
+def test_a_refused_election_is_not_an_election_after_itself():
+    # Nested rows whose script row history lost: the refused delegate is the limitation, and was decided with it.
+    refused = {"status": "rejected", "guard": "maxDelegatesPerTurn", "reason": "would exceed maxDelegatesPerTurn cap (1/1 already scheduled this turn)"}
+    rows = rows_of("no-election")[:1] + [nested("gone", "n1", "continue_delegate", SCHEDULED), nested("gone", "n2", "continue_delegate", refused)]
+    turn = read_turn(rows, "the prompt", "run-1", SETTINGS)
+    assert [f["tool"] for f in turn["limitations"]] == ["continue_delegate"] and turn["electedAfterLimitation"] is False

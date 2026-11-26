@@ -1,5 +1,5 @@
 metric_name,metric_score,correct_results_count,total_results_count,job_id,run_time
-continuation_election,100.0,34.0,90,59c7f3b9-0d1a-476f-96d9-05c6c5c2d160,2026-11-26 02:04:03.292263
-token_consumption,1360.9,122481.0,90,59c7f3b9-0d1a-476f-96d9-05c6c5c2d160,2026-11-26 02:04:03.292263
-trajectory_matcher,100.0,62.0,90,59c7f3b9-0d1a-476f-96d9-05c6c5c2d160,2026-11-26 02:04:03.292263
-executable,1.0,90.0,90,59c7f3b9-0d1a-476f-96d9-05c6c5c2d160,2026-11-26 02:04:03.292263
+continuation_election,100.0,34.0,90,d4174564-0bda-41b4-a801-a1df4cafacd3,2026-11-26 03:11:35.769225
+token_consumption,1360.9,122481.0,90,d4174564-0bda-41b4-a801-a1df4cafacd3,2026-11-26 03:11:35.769225
+trajectory_matcher,100.0,62.0,90,d4174564-0bda-41b4-a801-a1df4cafacd3,2026-11-26 03:11:35.769225
+executable,1.0,90.0,90,d4174564-0bda-41b4-a801-a1df4cafacd3,2026-11-26 03:11:35.769225

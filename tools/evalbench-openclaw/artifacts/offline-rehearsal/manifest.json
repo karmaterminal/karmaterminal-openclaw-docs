@@ -3,7 +3,7 @@
   "issue": "karmaterminal/openclaw#1575",
   "offline": true,
   "go": null,
-  "started": "2026-11-26T10:03:31+00:00",
+  "started": "2026-11-26T11:11:07+00:00",
   "arms": [
     "A",
     "B",
@@ -11,13 +11,13 @@
   ],
   "model": "openai/gpt-6.1-sol",
   "gatewayUrls": {
-    "A": "ws://127.0.0.1:39553",
-    "B": "ws://127.0.0.1:33541",
-    "C": "ws://127.0.0.1:37167"
+    "A": "ws://127.0.0.1:35253",
+    "B": "ws://127.0.0.1:34375",
+    "C": "ws://127.0.0.1:46419"
   },
   "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
   "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
-  "harnessHead": "93b5096a50a08b1e21f7dc24e213fcf865a81294",
+  "harnessHead": "d605b1ce0768e6c6475d1109958ffb82e37828b6",
   "harnessDirty": false,
   "numTrials": 5,
   "scenarios": null,
@@ -37,10 +37,12 @@
     "tools.swarm.maxChildrenPerGroup": 1,
     "tools.swarm.maxTotalPerGroup": 1,
     "cron.enabled": false,
-    "agents.defaults.utilityModel": ""
+    "agents.defaults.utilityModel": "",
+    "meta.migrations.skillWorkshopPlugin": true,
+    "plugins.entries.skill-workshop.config.autonomous.mode": "off"
   },
   "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
-  "armsSha256": "6ffe3ea0f1991bd414c54c7fd936d3d4d3dc28fdd54ffc60e101261139a58947",
+  "armsSha256": "f5a452c5fc60b03645164cdc31e4d0e70f41066662dd0f0521f1319b5d0a84ec",
   "supervision": {
     "limits": {
       "pollSeconds": 0.2,
@@ -61,7 +63,7 @@
     "lost": null,
     "receipt": {
       "schema": "openclaw.evalbench.supervision.v1",
-      "run": "94aada6816a2",
+      "run": "ffe08090bc58",
       "offline": true,
       "limits": {
         "pollSeconds": 0.2,
@@ -79,36 +81,36 @@
         "runSeconds": 14400
       },
       "ended": {
-        "at": "2026-11-26T10:03:50.223+00:00",
+        "at": "2026-11-26T11:11:23.844+00:00",
         "rule": "run-finished",
         "detail": "the runner finished"
       },
-      "seconds": 17.844,
+      "seconds": 16.002,
       "tokens": 10072383,
       "unwrittenRecords": 0,
       "arms": {
         "A": {
           "identity": {
-            "pid": 3023715,
+            "pid": 3267454,
             "fake": true
           },
           "tokens": 3153187,
-          "sessions": 1,
-          "readings": 180,
+          "sessions": 2,
+          "readings": 171,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.205,
+          "longestGapSeconds": 0.203,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.009,
+          "longestTrialSeconds": 1.007,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T10:03:50.223+00:00",
+            "at": "2026-11-26T11:11:23.844+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3153187,
             "trial": null,
-            "secondsSinceReading": 0.068,
+            "secondsSinceReading": 0.051,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -125,35 +127,35 @@
         },
         "B": {
           "identity": {
-            "pid": 3023750,
+            "pid": 3267473,
             "fake": true
           },
           "tokens": 3287863,
-          "sessions": 4,
-          "readings": 180,
+          "sessions": 2,
+          "readings": 171,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.204,
+          "longestGapSeconds": 0.203,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.012,
+          "longestTrialSeconds": 1.007,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T10:03:50.223+00:00",
+            "at": "2026-11-26T11:11:23.844+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3287863,
             "trial": null,
-            "secondsSinceReading": 0.068,
+            "secondsSinceReading": 0.051,
             "aborts": null,
             "result": {
               "stopped": true,
               "problems": [],
               "durableUnits": [],
               "strayProcesses": 0,
-              "killSeconds": 0.01,
-              "goneSeconds": 0.01,
-              "seconds": 0.01
+              "killSeconds": 0.011,
+              "goneSeconds": 0.011,
+              "seconds": 0.011
             },
             "abortSeconds": 0.0,
             "seconds": 0.011
@@ -161,26 +163,26 @@
         },
         "C": {
           "identity": {
-            "pid": 3023762,
+            "pid": 3267507,
             "fake": true
           },
           "tokens": 3631333,
           "sessions": 2,
-          "readings": 180,
+          "readings": 171,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.204,
+          "longestGapSeconds": 0.203,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 0.042,
+          "longestTrialSeconds": 0.013,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-26T10:03:50.223+00:00",
+            "at": "2026-11-26T11:11:23.844+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3631333,
             "trial": null,
-            "secondsSinceReading": 0.068,
+            "secondsSinceReading": 0.051,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -199,10 +201,10 @@
     },
     "runnerStops": null
   },
-  "ended": "2026-11-26T10:03:50+00:00",
+  "ended": "2026-11-26T11:11:23+00:00",
   "results": {
     "A": {
-      "jobId": "4ce4767d-b92f-49b6-84e9-388e0c4f150b",
+      "jobId": "ea9eb281-3752-4ab5-be6d-8a40037c49e0",
       "summary": {
         "total": 90,
         "scores": {
@@ -218,7 +220,7 @@
       "meteredTokens": 3153187
     },
     "B": {
-      "jobId": "0846be8b-8483-4a89-bfc0-24a7f86d912a",
+      "jobId": "22ac09cc-c1fb-4523-b2dd-2d4414c98fae",
       "summary": {
         "total": 90,
         "scores": {
@@ -234,7 +236,7 @@
       "meteredTokens": 3287863
     },
     "C": {
-      "jobId": "fbc98e3e-b8c3-42bf-b689-5950c708fde1",
+      "jobId": "959986a6-dccb-4a00-9642-457378c32576",
       "summary": {
         "total": 90,
         "scores": {

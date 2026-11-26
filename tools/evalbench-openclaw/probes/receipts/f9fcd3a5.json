@@ -1,0 +1,360 @@
+{
+ "admission": {
+  "children": {
+   "childOfAChild": "subagents.maxSpawnDepth",
+   "first": "admitted",
+   "secondWhileFirstRuns": "subagents.maxChildrenPerAgent"
+  },
+  "collectors": {
+   "firstInAGroup": "admitted",
+   "firstInEveryOtherGroup": "admitted",
+   "secondInTheSameGroup": "tools.swarm.maxTotalPerGroup"
+  },
+  "cronSchedulerEnabled": false,
+  "cronSchedulerEnabledWithoutCaps": true,
+  "lanes": {
+   "twoAutomationRuns": 2,
+   "twoChildrenOfOneSession": 1,
+   "twoSwarmGroups": 2,
+   "twoTurns": 1,
+   "widths": {
+    "cron": 8,
+    "hookDispatch": 0,
+    "main": 1,
+    "subagent": 1
+   }
+  },
+  "lanesWithoutCaps": {
+   "twoAutomationRuns": 2,
+   "twoChildrenOfOneSession": 2,
+   "twoSwarmGroups": 2,
+   "twoTurns": 2,
+   "widths": {
+    "cron": 8,
+    "hookDispatch": 0,
+    "main": 80,
+    "subagent": 8
+   }
+  },
+  "utilityModel": "disabled",
+  "utilityModelWithoutCaps": "auto"
+ },
+ "caps": {
+  "budget": {
+   "firstElectionAfter5kTokens": "cost-capped",
+   "secondHop": "chain-capped"
+  },
+  "childTimeoutSeconds": {
+   "askedFor3600": 3600,
+   "configured": 120
+  },
+  "delegateCallsAdmittedInOneTurn": [
+   true,
+   false
+  ],
+  "turnTimeoutMs": 330000
+ },
+ "config": {
+  "typoIsInvalid": true,
+  "withCaps": {
+   "authoredMissing": [],
+   "effectiveMissing": [],
+   "issues": [],
+   "valid": true
+  }
+ },
+ "model": "openai/gpt-6.1-sol",
+ "node": "v26.9.0",
+ "probeSha256": "73af09e3885aff0c46fed4968f88d85fc1542874b30dee71bcc2038eaaaa5084",
+ "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+ "surface": {
+  "A": {
+   "continuation": {
+    "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+    "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+    "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+   },
+   "eachCapAlone": {
+    "agents.defaults.continuation.costCapTokens": true,
+    "agents.defaults.continuation.maxChainLength": true,
+    "agents.defaults.continuation.maxDelegatesPerTurn": true,
+    "agents.defaults.maxConcurrent": true,
+    "agents.defaults.subagents.maxChildrenPerAgent": true,
+    "agents.defaults.subagents.maxConcurrent": true,
+    "agents.defaults.subagents.maxSpawnDepth": true,
+    "agents.defaults.subagents.runTimeoutSeconds": true,
+    "agents.defaults.timeoutSeconds": true,
+    "agents.defaults.utilityModel": true,
+    "cron.enabled": true,
+    "tools.swarm.maxChildrenPerGroup": true,
+    "tools.swarm.maxConcurrent": true,
+    "tools.swarm.maxTotalPerGroup": true
+   },
+   "negativeControls": {
+    "subagents.allowAgents []": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [],
+     "promptSame": true,
+     "same": false,
+     "tools": 66,
+     "toolsSame": false
+    },
+    "tools.deny automations": {
+     "differing": [
+      "exec",
+      "process"
+     ],
+     "gone": [
+      "automations"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    },
+    "tools.swarm.enabled false": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [
+      "agents_wait"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    }
+   },
+   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "schemaAccepts": true,
+   "tools": 66,
+   "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+   "withCaps": {
+    "differing": [],
+    "gone": [],
+    "promptSame": true,
+    "same": true,
+    "tools": 66,
+    "toolsSame": true
+   }
+  },
+  "B": {
+   "continuation": {
+    "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+    "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+    "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+   },
+   "eachCapAlone": {
+    "agents.defaults.continuation.costCapTokens": true,
+    "agents.defaults.continuation.maxChainLength": true,
+    "agents.defaults.continuation.maxDelegatesPerTurn": true,
+    "agents.defaults.maxConcurrent": true,
+    "agents.defaults.subagents.maxChildrenPerAgent": true,
+    "agents.defaults.subagents.maxConcurrent": true,
+    "agents.defaults.subagents.maxSpawnDepth": true,
+    "agents.defaults.subagents.runTimeoutSeconds": true,
+    "agents.defaults.timeoutSeconds": true,
+    "agents.defaults.utilityModel": true,
+    "cron.enabled": true,
+    "tools.swarm.maxChildrenPerGroup": true,
+    "tools.swarm.maxConcurrent": true,
+    "tools.swarm.maxTotalPerGroup": true
+   },
+   "negativeControls": {
+    "subagents.allowAgents []": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [],
+     "promptSame": true,
+     "same": false,
+     "tools": 66,
+     "toolsSame": false
+    },
+    "tools.deny automations": {
+     "differing": [
+      "exec",
+      "process"
+     ],
+     "gone": [
+      "automations"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    },
+    "tools.swarm.enabled false": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [
+      "agents_wait"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    }
+   },
+   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "schemaAccepts": true,
+   "tools": 66,
+   "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+   "withCaps": {
+    "differing": [],
+    "gone": [],
+    "promptSame": true,
+    "same": true,
+    "tools": 66,
+    "toolsSame": true
+   }
+  },
+  "C": {
+   "continuation": {
+    "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+    "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+    "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+   },
+   "eachCapAlone": {
+    "agents.defaults.continuation.costCapTokens": true,
+    "agents.defaults.continuation.maxChainLength": true,
+    "agents.defaults.continuation.maxDelegatesPerTurn": true,
+    "agents.defaults.maxConcurrent": true,
+    "agents.defaults.subagents.maxChildrenPerAgent": true,
+    "agents.defaults.subagents.maxConcurrent": true,
+    "agents.defaults.subagents.maxSpawnDepth": true,
+    "agents.defaults.subagents.runTimeoutSeconds": true,
+    "agents.defaults.timeoutSeconds": true,
+    "agents.defaults.utilityModel": true,
+    "cron.enabled": true,
+    "tools.swarm.maxChildrenPerGroup": true,
+    "tools.swarm.maxConcurrent": true,
+    "tools.swarm.maxTotalPerGroup": true
+   },
+   "negativeControls": {
+    "subagents.allowAgents []": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [],
+     "promptSame": true,
+     "same": false,
+     "tools": 66,
+     "toolsSame": false
+    },
+    "tools.deny automations": {
+     "differing": [
+      "exec",
+      "process"
+     ],
+     "gone": [
+      "automations"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    },
+    "tools.swarm.enabled false": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [
+      "agents_wait"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    }
+   },
+   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "schemaAccepts": true,
+   "tools": 66,
+   "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+   "withCaps": {
+    "differing": [],
+    "gone": [],
+    "promptSame": true,
+    "same": true,
+    "tools": 66,
+    "toolsSame": true
+   }
+  },
+  "D": {
+   "continuation": {
+    "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+    "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+    "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+   },
+   "eachCapAlone": {
+    "agents.defaults.continuation.costCapTokens": true,
+    "agents.defaults.continuation.maxChainLength": true,
+    "agents.defaults.continuation.maxDelegatesPerTurn": true,
+    "agents.defaults.maxConcurrent": true,
+    "agents.defaults.subagents.maxChildrenPerAgent": true,
+    "agents.defaults.subagents.maxConcurrent": true,
+    "agents.defaults.subagents.maxSpawnDepth": true,
+    "agents.defaults.subagents.runTimeoutSeconds": true,
+    "agents.defaults.timeoutSeconds": true,
+    "agents.defaults.utilityModel": true,
+    "cron.enabled": true,
+    "tools.swarm.maxChildrenPerGroup": true,
+    "tools.swarm.maxConcurrent": true,
+    "tools.swarm.maxTotalPerGroup": true
+   },
+   "negativeControls": {
+    "subagents.allowAgents []": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [],
+     "promptSame": true,
+     "same": false,
+     "tools": 66,
+     "toolsSame": false
+    },
+    "tools.deny automations": {
+     "differing": [
+      "exec",
+      "process"
+     ],
+     "gone": [
+      "automations"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    },
+    "tools.swarm.enabled false": {
+     "differing": [
+      "sessions_spawn"
+     ],
+     "gone": [
+      "agents_wait"
+     ],
+     "promptSame": false,
+     "same": false,
+     "tools": 65,
+     "toolsSame": false
+    }
+   },
+   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "schemaAccepts": true,
+   "tools": 66,
+   "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+   "withCaps": {
+    "differing": [],
+    "gone": [],
+    "promptSame": true,
+    "same": true,
+    "tools": 66,
+    "toolsSame": true
+   }
+  }
+ }
+}

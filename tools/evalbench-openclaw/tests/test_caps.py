@@ -37,8 +37,9 @@ def test_the_caps_bound_every_way_a_trial_can_go_on():
     assert {SET[f"agents.defaults.subagents.{k}"] for k in ("maxSpawnDepth", "maxChildrenPerAgent", "maxConcurrent")} == {1}
     assert {SET[f"tools.swarm.{k}"] for k in ("maxConcurrent", "maxChildrenPerGroup", "maxTotalPerGroup")} == {1}
     assert SET["agents.defaults.timeoutSeconds"] < 600
-    # Automations are the tool an eligible turn might take instead, and switching cron off shows in what it answers.
-    assert not [key for key in SET if key.startswith("cron")]
+    # Admission: one run at a time in the main lane, no scheduled automation, no activity recap after a turn. Each limits
+    # what runs and leaves what the model is shown as it was (probes/receipts); what it can still notice is recorded.
+    assert SET["agents.defaults.maxConcurrent"] == 1 and SET["cron.enabled"] is False and SET["agents.defaults.utilityModel"] == ""
 
 
 def test_every_arm_gets_the_same_caps_and_no_arm_sets_one_of_its_own(arms):

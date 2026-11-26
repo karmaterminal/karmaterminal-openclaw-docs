@@ -89,12 +89,16 @@ def outranking_paths(model):
 
 
 def outranking_cap_paths():
-    """The agent's own swarm settings, which outrank tools.swarm (openclaw ab5a30ea src/agents/subagents/swarm/swarm-config.ts:24-29).
+    """The agent's own settings that outrank a cap's: its swarm limits (openclaw ab5a30ea
+    src/agents/subagents/swarm/swarm-config.ts:24-29) and its utility model (src/agents/utility-model-setting.ts:19-22).
 
-    Only the caps' own keys: an agent's `enabled` is the seat's surface, and is left alone. No other cap has an
-    agent-level form: continuation, subagents.max*, timeoutSeconds and maxConcurrent are read from agents.defaults only.
+    Only the caps' own keys: an agent's swarm `enabled` is the seat's surface, and is left alone. No other cap has an
+    agent-level form: continuation, subagents.max*, timeoutSeconds and maxConcurrent are read from agents.defaults only,
+    and cron.enabled from the root.
     """
-    return tuple(("agents", "entries", AGENT_ID, "tools", "swarm", leaf) for leaf in ("maxConcurrent", "maxChildrenPerGroup", "maxTotalPerGroup"))
+    agent = ("agents", "entries", AGENT_ID)
+    return (*((*agent, "tools", "swarm", leaf) for leaf in ("maxConcurrent", "maxChildrenPerGroup", "maxTotalPerGroup")),
+            (*agent, "utilityModel"))
 
 
 def read_path(config, path):

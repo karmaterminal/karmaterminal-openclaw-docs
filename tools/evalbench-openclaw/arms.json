@@ -83,7 +83,7 @@
   "caps": {
     "set": {
       "agents.defaults.timeoutSeconds": 330,
-      "agents.defaults.maxConcurrent": 2,
+      "agents.defaults.maxConcurrent": 1,
       "agents.defaults.continuation.maxChainLength": 1,
       "agents.defaults.continuation.costCapTokens": 1,
       "agents.defaults.continuation.maxDelegatesPerTurn": 1,
@@ -93,7 +93,9 @@
       "agents.defaults.subagents.runTimeoutSeconds": 120,
       "tools.swarm.maxConcurrent": 1,
       "tools.swarm.maxChildrenPerGroup": 1,
-      "tools.swarm.maxTotalPerGroup": 1
+      "tools.swarm.maxTotalPerGroup": 1,
+      "cron.enabled": false,
+      "agents.defaults.utilityModel": ""
     }
   },
   "supervision": {

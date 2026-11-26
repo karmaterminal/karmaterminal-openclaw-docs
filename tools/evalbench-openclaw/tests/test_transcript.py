@@ -218,6 +218,8 @@ def test_a_second_delegate_refused_by_its_guard_is_one():
     refused = {"status": "rejected", "guard": "maxDelegatesPerTurn", "reason": "would exceed maxDelegatesPerTurn cap (1/1 already scheduled this turn)"}
     turn = read_turn(answered(rows_of("election-delegate"), "continue_delegate", refused, call_id="d2"), "the prompt", "run-1", SETTINGS)
     assert [(f["tool"], f["settings"]) for f in turn["limitations"]] == [("continue_delegate", ["agents.defaults.continuation.maxDelegatesPerTurn"])]
+    # The refused call is itself an election, and the one before it was accepted: nothing was elected after the refusal.
+    assert turn["elected"] is True and turn["electedAfterLimitation"] is False
 
 
 def test_every_automations_answer_is_one_while_cron_is_off():

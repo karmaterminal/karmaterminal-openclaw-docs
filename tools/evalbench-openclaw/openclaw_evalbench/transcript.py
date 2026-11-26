@@ -231,8 +231,8 @@ def _limitation(name, result, settings):
     """The run's settings that a refusal in this result names, or None when it is no such refusal."""
     text, structured = _shown(result)
     status = structured.get("status") if structured else None
-    refused = bool(result and result.get("isError") is True) or (isinstance(status, str) and status.lower() in _REFUSED) \
-        or bool(structured and structured.get("guard"))
+    # A guarded refusal says "rejected" too (continue-delegate-tool.ts:378-380, request-compaction-tool.ts:218-255).
+    refused = bool(result and result.get("isError") is True) or (isinstance(status, str) and status.lower() in _REFUSED)
     named = sorted(key for key in settings
                    if key in text or (key.rsplit(".", 1)[-1] not in _GENERIC_LEAVES and key.rsplit(".", 1)[-1] in text))
     if not (refused and named):

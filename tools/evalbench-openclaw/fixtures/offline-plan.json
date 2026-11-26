@@ -59,7 +59,7 @@
     "no-election"
    ],
    "d1-second-pair-of-eyes": [
-    "spawn-no-election",
+    "spawn-refused-no-election",
     "search-then-delegate",
     "spawn-no-election",
     "no-election",
@@ -187,8 +187,8 @@
     "no-election"
    ],
    "d1-second-pair-of-eyes": [
-    "spawn-no-election",
-    "election-delegate",
+    "spawn-refused-no-election",
+    "spawn-refused-then-delegate",
     "spawn-no-election",
     "no-election",
     "no-election"
@@ -315,8 +315,8 @@
     "election-work"
    ],
    "d1-second-pair-of-eyes": [
-    "election-delegate",
-    "spawn-no-election",
+    "spawn-refused-then-delegate",
+    "spawn-refused-no-election",
     "election-delegate",
     "election-delegate",
     "no-election"
@@ -443,8 +443,8 @@
     "election-work"
    ],
    "d1-second-pair-of-eyes": [
-    "election-delegate",
-    "spawn-no-election",
+    "spawn-refused-then-delegate",
+    "spawn-refused-no-election",
     "election-delegate",
     "no-election",
     "no-election"

@@ -1,0 +1,135 @@
+{
+  "id": "spawn-refused-then-delegate",
+  "describe": "Two sessions_spawn calls at once, the second refused on maxChildrenPerAgent; then a continue_delegate election, accepted. An election after a treatment limitation.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "p1",
+          "name": "sessions_spawn",
+          "arguments": {
+            "task": "Check the first two numbers."
+          }
+        },
+        {
+          "type": "toolCall",
+          "id": "p2",
+          "name": "sessions_spawn",
+          "arguments": {
+            "task": "Check the third number and the total."
+          }
+        }
+      ],
+      "usage": {
+        "input": 1300,
+        "output": 140,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25440
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "p1",
+      "toolName": "sessions_spawn",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"accepted\"\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "p2",
+      "toolName": "sessions_spawn",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"forbidden\",\n  \"error\": \"sessions_spawn has reached max active children for this session (1/1; agents.defaults.subagents.maxChildrenPerAgent).\"\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "c1",
+          "name": "continue_delegate",
+          "arguments": {
+            "task": "Check the third number and the total.",
+            "mode": "silent-wake",
+            "delaySeconds": 600
+          }
+        }
+      ],
+      "usage": {
+        "input": 300,
+        "output": 120,
+        "cacheRead": 25400,
+        "cacheWrite": 0,
+        "totalTokens": 25820
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "c1",
+      "toolName": "continue_delegate",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"scheduled\",\n  \"mode\": \"silent-wake\",\n  \"delaySeconds\": 600\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "children": [
+    {
+      "rows": [
+        {
+          "role": "assistant",
+          "provider": "{{provider}}",
+          "model": "{{model}}",
+          "content": [
+            {
+              "type": "text",
+              "text": "done"
+            }
+          ],
+          "usage": {
+            "input": 900,
+            "output": 100,
+            "cacheRead": 6000,
+            "cacheWrite": 0,
+            "totalTokens": 7000
+          }
+        }
+      ]
+    }
+  ]
+}

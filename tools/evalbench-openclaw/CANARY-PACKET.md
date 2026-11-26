@@ -22,8 +22,8 @@ karmaterminal/openclaw#1575 · docs PR #631 · design and statistics in [`README
 | builds | A and B: `ab5a30ea79b776f149e24b1fccab9e79b0a5d299`. C: `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` |
 | what it proves | that the live gateways answer the way the harness reads them: surface, runtime, served model, an election, cleanup, and real token and call counts |
 | what it does not | **no rate.** One trial per prompt says nothing about propensity. Every comparison must print `not reportable` |
-| enforced, whatever the provider or model does | **No number of tokens.** Time: a trial is killed by 480 s and the canary by 1800 s, each + 1 s. Admission, in the product: one message turn at a time per gateway, one child per session and none of its own, no scheduled automation, no activity recap. See [Spend](#spend) |
-| conditional: estimates, each on a named assumption | **1.98 M** a trial and **6.24 M** the canary at 5 s and 160 k a call; **5.7 M** and **17.5 M** at the product's own per-call limits on this route (500 k in, by its estimate, and 128 k out) and 5 s a call; **18.3 M** and **55 M** at 1 s a call. Each lane a turn opens beyond its one child adds 2.5–8.8 M to its trial, and **nothing bounds how many it opens** |
+| enforced, whatever the provider or model does | **No number of tokens.** Time: a trial is killed by 480 s and the canary by 1800 s, each + 1 s. Admission, in the product: one message turn at a time per gateway, one direct child per session and none of its own, one collector per swarm group, no automation that fires by itself, no activity recap, no Skill Workshop review. See [Spend](#spend) |
+| conditional: estimates, each on a named assumption | **1.98 M** a trial and **6.24 M** the canary at 5 s and 160 k a call; **5.7–18.3 M** and **17.5–55 M** at the product's own per-call limits on this route (500 k in, by its estimate, and 128 k out) and 5 s to 1 s a call; **10.1–33.7 M** and **30.7–101 M** if the estimate is off as far as the provider's window (1.05 M in). Each lane a turn opens beyond its one child adds 2.5–8.8 M to its trial at the product's limits, and **nothing bounds how many it opens** |
 | supervision | a process of its own polls every gateway, and kills its unit at a limit. It is launched by `run`, and `run` sends nothing until it is armed |
 
 Arm D (f9fcd3a5 under B's overlay) is **off**. Turning it on makes this 12 trials on four gateways, and needs 🌻 to say so.
@@ -130,7 +130,7 @@ PORT=21086 bash $L setup $F9FC   $F9FC && PORT=21086 bash $L stop $F9FC   $F9FC
 ```
 
 `setup` starts each gateway once to prove that it boots, and `stop` ends it before the overlay is written. The overlay also
-writes the **spend caps and admission settings**, the same fourteen on every arm ([Product caps](#product-caps)), over
+writes the **spend caps and admission settings**, the same sixteen on every arm ([Product caps](#product-caps)), over
 whatever the seat's own configuration says, and clears the agent's own settings that would outrank them.
 
 ### 3. Sign in, once per gateway (🌻's own account)
@@ -161,8 +161,9 @@ for p in 20846 20966 21086; do timeout 120 bash -c "until ss -ltnH 'sport = :$p'
 ```
 
 It only reads, so one retry is fine (a gateway can still be starting). Anything else twice: stop. **`caps not in force` is a
-stop too**: every cap and admission setting (one message turn at a time, cron's scheduler off, no utility model) has to be in the file,
-in the effective configuration, and in the revision the running gateway says it has applied. The same readback is made before and after every trial, and a trial that fails it is unscored and halts the
+stop too**: every cap and admission setting (one message turn at a time, cron's scheduler off, no utility model, Skill
+Workshop's review off) has to be in the file, in the effective configuration, and in the revision the running gateway says
+it has applied. The same readback is made before and after every trial, and a trial that fails it is unscored and halts the
 whole canary.
 
 ### 5. The nine trials
@@ -295,12 +296,13 @@ what holds it. **Conditional** is an estimate, beside the assumption it rests on
 | one trial's time | killed by 480 s, + 1 s | the supervisor's own clock, then SIGKILL of the gateway's unit | a turn that spends nothing and never ends |
 | the canary's time | killed by 1800 s, + 1 s; 1860 s if the supervisor and the runner both die | the same clock; then a systemd timer | a run with no trial at all; both processes killed |
 | the kill, once a limit is crossed | within 12.5 s of the last reading under it, whatever the readings do; 4.5 s while every reading is on time | the supervisor: a reading a second on its own connection, its own clock, then the kill until it is proved | fakes that loop, ignore every abort, or stop answering; a real systemd unit |
-| message turns at once on one gateway (the main lane, where every message's turn runs, `src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`) | **1**; a second waits in the queue | `agents.defaults.maxConcurrent: 1`, the main lane's width (`src/gateway/server-lanes.ts:33,75`, `src/config/agent-limits.ts:33-38`) | the product's own queue at both SHAs: two turns start one after the other, and both at once without it (probe) |
-| children of one session | **1** at a time, none of its own | `subagents.maxChildrenPerAgent`, `maxConcurrent` and `maxSpawnDepth`, 1 each (`src/agents/child-admission.ts:84-109`, `server-lanes.ts:83`) | the probe; a fake that tries six spawns runs one child and is refused five, in the product's words, which the trial records |
-| collectors in one swarm group | **1** | `tools.swarm.*`, 1 each | the probe |
-| automations that fire by themselves | **none**: scheduled, event and watcher fires, the proactive check among them. It is what heartbeat became: an automation every 30 min on the main session, which setup or onboarding may create (`src/cron/default-proactive-job.ts:26-54`); heartbeat's own config is retired, and the schema refuses it (`src/config/types.agent-defaults.ts:25-26`) | `cron.enabled: false` (`src/gateway/server-cron-lazy.ts:23-24`, `src/cron/service/scheduler-actor.ts:138`, `ops-event.ts:80`) | the probe |
+| message turns at once on one gateway (the main lane, where every message's turn runs, `src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`; other turns run in another lane, [below](#what-nothing-here-bounds)) | **1**; a second waits in the queue | `agents.defaults.maxConcurrent: 1`, the main lane's width (`src/gateway/server-lanes.ts:33,75`, `src/config/agent-limits.ts:33-38`) | the product's own queue at both SHAs: two turns start one after the other, and both at once without it (probe) |
+| direct children of one session (`sessions_spawn` without `collect`, and a delegate with a delay) | **1** at a time, none of its own | `subagents.maxChildrenPerAgent`, `maxConcurrent` and `maxSpawnDepth`, 1 each (`src/agents/child-admission.ts:84-109`, `server-lanes.ts:83`) | the probe; a fake that tries six spawns runs one child and is refused five, in the product's words, which the trial records |
+| collectors in one swarm group | **1** (a turn names as many groups as it likes: [below](#what-nothing-here-bounds)) | `tools.swarm.*`, 1 each | the probe |
+| automations that fire by themselves | **none**: scheduled, event and watcher fires, the proactive check among them. It is what heartbeat became: an automation every 30 min on the main session, which setup or onboarding may create (`src/cron/default-proactive-job.ts:26-54`); heartbeat's own config is retired, and the schema refuses it (`src/config/types.agent-defaults.ts:25-26`) | `cron.enabled: false` (`src/gateway/server-cron-lazy.ts:23-24`, `src/cron/service/scheduler-actor.ts:138`, `ops-event.ts:80`; watchers `src/gateway/server-cron.ts:203,944`) | the probe, through the gateway's own cron state |
 | the activity recap after a turn (a model call of its own) | **none** | `agents.defaults.utilityModel: ""` (`src/agents/utility-model-setting.ts:23-24`, `src/gateway/session-activity-summaries.ts:186-191`) | the probe |
-| what follows the turn | no wake and no delegate without a delay | `continuation.costCapTokens: 1`, `maxChainLength: 1` | the probe: `cost-capped`, then `chain-capped`; a wake in a trial is `caps_mismatch` |
+| Skill Workshop's review of a session, a forked turn of its own | **none** | `plugins.entries.skill-workshop.config.autonomous.mode: "off"`, with `meta.migrations.skillWorkshopPlugin: true`, the marker without which the runtime ignores that entry (`src/config/skill-workshop-plugin-migration.ts:92-121`; `extensions/skill-workshop/src/review-service.ts:44`, `experience-review-scheduler.ts:322`) | the probe: `off` with the marker, `auto` without it |
+| continuations of the turn | no continuation wake, and no delegate without a delay | `continuation.costCapTokens: 1`, `maxChainLength: 1` | the probe: `cost-capped`, then `chain-capped`; a wake in a trial is `caps_mismatch`. Other turns can follow it ([below](#what-nothing-here-bounds)) |
 
 Each setting in it is written by `overlay` on every arm, and read back like the caps: in the file, in the effective
 configuration and in the revision the running gateway has applied, at preflight and before and after every trial. One that
@@ -332,8 +334,16 @@ is not in force halts every arm. They limit what runs and leave what the model i
   - the **tool calls of one response**, which run at once (`packages/agent-core/src/agent-loop.ts:570-591`), so tools that call
     a model themselves (image, pdf, web search through a model, deep research) overlap one another;
   - **media generation** and **deep research** jobs, which run on after their tool returns;
-  - **Skill Workshop's review** of a session that made ten model calls: its off switch is ignored until Doctor records the
-    Workshop migration (`src/config/skill-workshop-plugin-migration.ts:92-121`), so it can't be set here.
+  - **turns that follow the trial's and are no continuation**: an `automations` `wake`, which checks neither cron's switch nor
+    the continuation caps (`src/cron/service/wake.ts:150-158`) and goes to the caller's own session unless it names another
+    (`src/agents/tools/cron-tool.ts:676-697`); the exit notice of a background `exec`, on by default
+    (`src/agents/bash-tools.exec-notify.ts:31-48`, `bash-tools.exec-request-preparation.ts:167`); and a child's completion
+    announce. Each is a turn of its own, after the trial's on its session or beside it on another, in the lane for internal
+    events, 8 wide (`agent-runner-fallback-candidate.ts:110-115`). None writes a `[continuation:wake]` row, so the trial's
+    wake check doesn't see them; the trial's cleanup deletes its session, and the supervisor meters them.
+  - **two collectors spawned into one group at once**: collector admission takes no reservation
+    (`subagent-spawn-request.ts:298-304`), so both may be admitted. The group's lane still runs them one at a time. Not
+    verified.
 
   Closing them would change what the model is shown: swarm off removes `agents_wait` and changes `sessions_spawn`, and
   denying a tool removes it (the probe's negative controls). The supervisor stops a gateway at the first reading that lists a
@@ -355,6 +365,8 @@ The canary: the smaller of nine trials, and the run's limit, 2.40 M, plus the sa
 | the same at 2 s a call | 10.7 M | 32.5 M |
 | the same at 1 s a call | **18.3 M** | **55 M** |
 | for each lane beyond the turn and its child that is open when a limit is crossed | + 2.5 M at 5 s, 5.0 M at 2 s, 8.8 M at 1 s | the same, for each arm |
+| 5 s, and the most the provider takes: its window, 1,050,000 in (`extensions/openai/openclaw.plugin.json:124`), and 128 k out, 1.178 M, if the product's estimate is off that far | 10.1 M | 30.7 M |
+| the same at 1 s a call | **33.7 M** | **101 M** |
 | 5 s and 628 k, while every reading is on time (4.5 s, not 12.5 s) | 3.2 M | 9.9 M |
 
 - **The 3.7 M and 11.4 M were too low for this route.** They took 75 % of the window as the most a call carries before it
@@ -364,6 +376,8 @@ The canary: the smaller of nine trials, and the run's limit, 2.40 M, plus the sa
 - **A call gets there in three.** One response's tool results together may be 1,000,000 characters
   (`src/agents/embedded-agent-runner/tool-result-truncation.ts:433-458`), about 250 k tokens, so 60 k, about 440 k, then the
   budget.
+- **The product's estimate is the only check below the provider's window.** 628 k is what it lets through when it is right;
+  1.178 M is what the provider would take if it were wrong by that much.
 - **Below 1 s a call, and with every lane a turn opens, the numbers grow without limit.**
 - **Expected** is as it was: 0.2 M a trial, 0.47 M for the dearest expected, 1.6 M for the canary, 5–15 min. The supervisor's
   limits are multiples of it: 0.70 M is 1.5 × the dearest trial (6 calls × 60 k × 1.3 = 468 k), and 2.40 M is 1.5 × 1.6 M.
@@ -372,10 +386,12 @@ The canary: the smaller of nine trials, and the run's limit, 2.40 M, plus the sa
 
 ### The residual
 
-For 🌻's risk decision. **Enforced**: time (480 s a trial, 1800 s the canary) and admission (one turn, one child, no automation
-that fires by itself). **Not enforced**: tokens. With the turn and its child, 5.7–18.3 M for one trial and 17.5–55 M for the
-canary at 5 s to 1 s a call; 2.5–8.8 M more for every swarm group, forced automation or other session a turn starts before
-the supervisor's next reading, and how many it starts is the model's choice. What would make it a ceiling is outside this
+For 🌻's risk decision. **Enforced**: time (480 s a trial, 1800 s the canary) and admission (one message turn, one direct
+child, one collector a group, no automation, recap or review that starts by itself). **Not enforced**: tokens. With the turn
+and its child, 5.7–18.3 M for one trial and 17.5–55 M for the canary at 5 s to 1 s a call, if the product's input estimate
+holds, and 10.1–33.7 M and 30.7–101 M if it is off as far as the provider's window; 2.5–8.8 M more for every swarm group,
+forced automation, wake or other session a turn starts before the supervisor's next reading, and how many it starts is the
+model's choice. What would make it a ceiling is outside this
 harness's pinned builds, and each is a decision of its own:
 
 1. **A proxy in front of the provider**, owned by the harness: one request at a time per gateway, a refusal past a token
@@ -423,24 +439,35 @@ product reads from `agents.defaults`, `tools` or `cron`, with the lines that enf
 | `agents.defaults.timeoutSeconds` | 330 | 48 h | a turn. The harness stops it at 300 s, and reads it |
 | `agents.defaults.maxConcurrent` | 1 | 8 or more | **admission**: one turn at a time in the main lane |
 | `cron.enabled` | false | true | **admission**: no automation fires by itself. A forced run still does |
-| `agents.defaults.utilityModel` | `""` | the provider's | **admission**: no activity recap after a turn. The turn's own model, its tools and its prompt don't use it |
+| `agents.defaults.utilityModel` | `""` | the provider's | **admission**: no activity recap after a turn. The turn's tools don't use it, and its prompt only if a progress-card renderer is paired, which an isolated gateway's fresh state has none of (`attempt-system-prompt-additions.ts:56-83`) |
+| `plugins.entries.skill-workshop.config.autonomous.mode`, with `meta.migrations.skillWorkshopPlugin` | `"off"`, `true` | `"auto"`, unset | **admission**: no Skill Workshop review. The marker records what Doctor would: there is no older Workshop setting to move, as the launcher copies none |
 
 `request_compaction` needs no cap: the product refuses it on a session's first turn, and below 70 % of the context after that.
 **No context budget is set**, though `models.providers.openai.models[].contextTokens` would lower the check above: it would also
 move `request_compaction`'s 70 % guard and the context-pressure events that prompt it, and that is one of the choices measured.
 
-**They don't touch what the model is shown.** [`probes/product-probe.mts`](probes/product-probe.mts) runs the product's own code at
-both SHAs ([receipts](probes/receipts)): the config schema and `config.get`'s readback accept every cap and show each, authored and
-effective; and through the product's own `/context` path, the 66 tools it builds (names, descriptions, parameters) and the whole
-system prompt, the per-session additions included, are byte for byte the same with and without them, on every arm, for each cap
-alone and all together. Three settings that would change the surface (swarm off, an empty `allowAgents`, `automations` denied)
-are each seen to. The three continuation descriptions hash to `arms.json`'s at each SHA.
+**They don't touch what the turn's model is shown.** [`probes/product-probe.mts`](probes/product-probe.mts) runs the product's own
+code at both SHAs ([receipts](probes/receipts)): the config schema and `config.get`'s readback accept every cap and show each,
+authored and effective. Then, for each arm, two ways: the `/context` path (the 66 tools the product builds and their prompt),
+and the run's own surface on the firing model, through the product's tool-surface runtime: Code Mode's controls and its
+catalog of the rest for A and C, every tool direct for B and D, and the prompt as the attempt builds it, continuation section
+included. Both are byte for byte the same with and without the caps (names, descriptions, parameters, catalog, prompt), on
+every arm, for each cap alone and all together. Three settings that would change the surface (swarm off, an empty
+`allowAgents`, `automations` denied) are each seen to, in both. The three continuation descriptions hash to `arms.json`'s at
+each SHA. What it does not show is a gateway: preflight's readback is what shows the caps applied.
 
-**What a turn can still notice** is a refusal it earned (a second child while the first runs, a child of a child, a second
-collector in a group, a second delegate in one turn) and, with cron's scheduler off, `automations` answers: `status` says
-`enabled: false`, and a job it adds never fires by itself. Each trial records every such answer as a **treatment limitation**
-(`limitations` in its record: the tool, the setting it named and the answer), and whether an election came after one. The report
-counts them per arm and leaves the rates alone.
+Two exceptions, the same on every arm. A child is shown less: with `maxSpawnDepth: 1` it is a leaf, without the spawn tools
+and with its own depth in its instructions (`src/agents/agent-tools.policy.ts:82-92`). And with one main slot, a child that opens
+with a message of its own (`sessions_spawn` with `visible: true`, `session-create-initial-turn.ts:88-97`) may wait for the
+parent's turn to end, as may a trial's turn for main-lane work the trial before it left. Neither is verified on a gateway.
+
+**What a turn can still notice** is a refusal it earned (a second child while the first runs, a second collector in a group,
+a second delegate in one turn), every `automations` answer with cron's scheduler off (`status` says `enabled: false`, and a job
+it adds never fires by itself), and every `skill_workshop` answer with its review off (`list` says `off`). Each trial records
+these as **treatment limitations** (`limitations` in its record: the tool, the setting its answer named, and the answer's
+status), and whether an election was decided in a later response than one (`electedAfterLimitation`). The report counts them
+per arm and leaves the rates alone. **Not recorded**: a child's own refusals (a grandchild), which are in the child's turn and
+not the trial's; and a child stopped by its 120 s run timeout, whose answer says `timeout` and names no setting.
 
 ## Pass and stop rules
 

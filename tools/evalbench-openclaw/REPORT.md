@@ -12,10 +12,12 @@ of the path was exercised: gRPC, WS, history, scorers, supervision, CSVs and rep
 [`artifacts/offline-rehearsal-arm-d/`](artifacts/offline-rehearsal-arm-d/report.md).
 
 **No number of tokens is enforced, for a trial or for the canary.** What is enforced is time (480 s a trial and 1800 s the
-canary, each + 1 s) and admission in the product (one message turn at a time per gateway, one child per session and none of its own,
-no automation that fires by itself, no activity recap). The token numbers are estimates on named assumptions: 1.98 M a trial
-and 6.24 M the canary at 5 s and 160 k a call, and 5.7–18.3 M and 17.5–55 M at the most a call can carry on this route and 5 s
-to 1 s a call, before the lanes a turn opens itself, which nothing bounds. [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has
+canary, each + 1 s) and admission in the product (one message turn at a time per gateway, one direct child per session and
+none of its own, one collector per swarm group, no automation, activity recap or Skill Workshop review that starts by itself).
+The token numbers are estimates on named assumptions: 1.98 M a trial and 6.24 M the canary at 5 s and 160 k a call;
+5.7–18.3 M and 17.5–55 M at the most the product lets a call carry on this route, at 5 s to 1 s a call; 10.1–33.7 M and
+30.7–101 M if its input estimate is off as far as the provider's window; and more for the lanes a turn opens itself, which
+nothing bounds. [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has
 the two columns, the residual, and what would make it a ceiling.
 
 | ref | value |
@@ -40,22 +42,24 @@ record what the model can see of it; and if the pinned builds can't, bring back 
 | asked for | what it is now |
 | --- | --- |
 | a per-call ceiling, product-enforced, from source at both SHAs | **none can be set.** The ChatGPT route never sends an output limit (`openai-chatgpt-responses-request.ts:48-105`); input is checked against the route's 500 k budget by a characters ÷ 4 estimate with no reserve; nothing counts calls in a turn. A context budget (`models.providers.openai.models[].contextTokens`) would lower the check, and move `request_compaction`'s 70 % guard and the context-pressure events with it: one of the choices measured, so it is not set |
-| admission: at most one model call in flight per gateway | **not reachable by configuration.** Set, the same on every arm and verified like the caps: one message turn at a time in the main lane (`agents.defaults.maxConcurrent: 1`, was 2), no automation that fires by itself (`cron.enabled: false`), no activity recap after a turn (`agents.defaults.utilityModel: ""`). Already set: one child per session, none of its own, one collector per swarm group. Open: a collector in every group a turn names, forced automation runs, `sessions_send` to other sessions, the tool calls of one response (they run at once), media and research jobs. Every child and swarm cap has a minimum of 1 |
-| the surface intact, proved at both SHAs for every new setting | `probes/product-probe.mts` through the product's own code: 66 tool definitions and the whole system prompt byte for byte the same, each setting alone and all together, every arm; three settings that do change it are seen to. Receipts in `probes/receipts`, checked by `tests/test_probes.py` against `arms.json` and the probe's hash |
-| refusals the model sees, recorded per trial | `limitations` in every trial record (a refusal that names a cap, and every `automations` answer with the scheduler off) and `electedAfterLimitation`; the report counts them per arm and leaves the rates alone |
+| admission: at most one model call in flight per gateway | **not reachable by configuration.** Set, the same on every arm and verified like the caps: one message turn at a time in the main lane (`agents.defaults.maxConcurrent: 1`, was 2), no automation that fires by itself (`cron.enabled: false`), no activity recap after a turn (`agents.defaults.utilityModel: ""`), no Skill Workshop review (its `autonomous.mode: "off"`, with the migration marker the runtime needs to read it). Already set: one child per session, none of its own, one collector per swarm group. Open: a collector in every group a turn names, forced automation runs, `sessions_send` to other sessions, the tool calls of one response (they run at once), media and research jobs, and turns that follow a trial's without being continuations (an `automations` wake, a background command's exit notice, a child's announce). Every child and swarm cap has a minimum of 1 |
+| the surface intact, proved at both SHAs for every new setting | `probes/product-probe.mts` through the product's own code, two ways per arm: the `/context` path, and the run's own surface on the firing model through the product's tool-surface runtime (Code Mode's controls and catalog for A and C, every tool direct for B and D, the prompt with its continuation section). Tools, catalog and prompt byte for byte the same, each setting alone and all together, every arm; three settings that do change it are seen to. Receipts in `probes/receipts`, checked by `tests/test_probes.py` against `arms.json` and the probe's hash |
+| refusals the model sees, recorded per trial | `limitations` in every trial record (a refusal that names a cap, and every `automations` and `skill_workshop` answer with its service off) and `electedAfterLimitation` (an election decided in a later response); the report counts them per arm and leaves the rates alone. Not recognized: a child's own refusals, and a child stopped by its timeout |
 | the headline: enforced apart from conditional | the packet's top table and its Spend section: time and admission enforced, no token number; the estimates beside their assumptions; 3.7 M / 11.4 M reconciled (too low: this route admits a call to its whole estimated budget and limits no output, so 628 k a call, not 375 k) |
 | tests: preflight refuses, and a second call is refused, not killed | a gateway whose admission settings aren't authored, effective and applied is refused (each setting, both readings), and so is an agent's own utility model. A fake that tries six spawns runs one child and is refused five in the product's words, recorded as limitations, with nothing for the supervisor to stop. Six swarm groups are six admitted collectors, and the supervisor stops them: the residual, in a test |
 | the residual, for 🌻 | the packet's [The residual](CANARY-PACKET.md#the-residual): what is unbounded, as numbers, and three ways to a ceiling that are outside these pinned builds |
 
 What reading the product for this found:
 
-- **The Skill Workshop setting was not in force.** Its off switch is ignored until Doctor records the Workshop migration
-  (`src/config/skill-workshop-plugin-migration.ts:92-121`). The probe's readback of the effective configuration showed it
-  missing, as preflight would have on a live gateway. It is not set; the review stays open.
+- **The Skill Workshop setting needs the migration marker.** Without it the runtime ignores the plugin's entry
+  (`src/config/skill-workshop-plugin-migration.ts:92-121`); the probe's readback of the effective configuration showed it
+  missing, as preflight would have on a live gateway. With the marker, which records what Doctor would (the launcher copies no
+  older Workshop setting), the review reads `off`.
 - **An activity recap is a model call after every trial's turn**, on the utility model, outside the session's usage. It is off.
 - **Forced automation runs ignore `cron.enabled`**, and the tool waits on one 60 s, or 10 min if asked.
-- **Turns run in the main lane; wakes and other internal events don't** (`agent-runner-fallback-candidate.ts:110-115`), so
-  one main slot holds the turns, and the cost cap still holds the wakes.
+- **Message turns run in the main lane; internal events don't** (`agent-runner-fallback-candidate.ts:110-115`). One main slot
+  holds message turns; the cost cap holds continuation wakes; an `automations` wake, a background command's exit notice and a
+  child's announce are turns that neither holds.
 
 ## What changed for 🌻's spend condition (follow-up 2)
 
@@ -141,8 +145,8 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 | what | result |
 | --- | --- |
 | adapter tests (`./run.sh test`), follow-up 3 | 540 passed, none skipped (on ronan, with a systemd user manager); 490 at `d78d1614` |
-| the caps and admission, through the product's own code at both SHAs (`probes/product-probe.mts`, receipts in `probes/receipts`) | the schema and `config.get`'s own pipeline accept and read back all fourteen, authored and effective (a misspelt key is refused); in the product's command queue two turns start one after the other and so do two children of one session, both at once without the caps, while two swarm groups and two automation runs start together either way; the first child is admitted, a second and a grandchild refused; a collector in each group admitted; cron's scheduler off; the utility model `disabled`. The 66 tools of the `/context` path and the whole system prompt, per-session additions included, are byte for byte the same with and without the caps, each alone and all together, on all four arms; swarm off, an empty `allowAgents` and `automations` denied are each seen to change them. The continuation descriptions hash to `arms.json`'s |
-| a setting the probe found not in force | Skill Workshop's `autonomous.mode: "off"`: absent from the effective configuration, because the runtime ignores the plugin's entry until Doctor's migration marker. Dropped, and disclosed |
+| the caps and admission, through the product's own code at both SHAs (`probes/product-probe.mts`, receipts in `probes/receipts`) | the schema and `config.get`'s own pipeline accept and read back all sixteen, authored and effective (a misspelt key is refused); in the product's command queue two turns start one after the other and so do two children of one session, both at once without the caps, while two swarm groups and two automation runs start together either way; the first child is admitted, a second and a grandchild refused, a second collector in a group refused; the gateway's cron state reads the scheduler off; the utility model `disabled`; Skill Workshop's review `off`, and `auto` without the marker. On every arm, two ways (the `/context` path's 66 tools and prompt; the run's own surface through the product's tool-surface runtime, Code Mode with 6 tools sent and 63 catalogued at ab5a, 9 and 60 at f9fc, every tool direct for B and D, prompt with its continuation section), tools, catalog and prompt are byte for byte the same with and without the caps, each alone and all together; swarm off, an empty `allowAgents` and `automations` denied are each seen to change them. The continuation descriptions hash to `arms.json`'s. A re-run gives the same receipts |
+| a setting the probe found not in force | Skill Workshop's `autonomous.mode: "off"` alone: absent from the effective configuration, because the runtime ignores the plugin's entry until Doctor's migration marker. Set with the marker, and read back with it |
 | negative controls at `d78d1614` (the same six assertions there and here) | at `d78d1614`: a gateway with two main-lane slots, with cron on, with a utility model, or with the agent's own utility model passes preflight (4 × "did not raise"); a refusal the model saw is not in its trial's record; six spawns run six children. Here: all six hold. The new packet tests fail on `d78d1614`'s documents, each for its own reason |
 | mutation checks on follow-up 3 (one mutant at a time, on a copy) | 13 of 14 killed; the one left was a clause that could never decide anything (every guarded refusal in the product also says `rejected`), now removed |
 | adapter tests at follow-up 2 | 490 passed, none skipped (on ronan, with a systemd user manager); also from a clean checkout. The supervisor's and the units' under full CPU load, at an earlier head of this lane. They leave no unit, process or directory behind |
@@ -179,7 +183,30 @@ fixed, each with a test that fails when only that fix is undone, or are disclose
 | Cleanup saw only `spawnedBy` links | fixed: every link the list filter matches |
 | `chat.history` drops some assistant rows with their calls | fixed: a result without its call row is still a call |
 
-### The spend bound (this follow-up)
+### Admission and the residual (follow-up 3)
+
+Another reader, who had not seen the reasoning, reviewed `d78d1614..78f4a621` against both product trees, re-ran the probe at
+both SHAs and the tests, and checked every citation. It found two blockers and seven more, all in what the documents and the
+probe claimed; the code changes held. Each is fixed or disclosed:
+
+| finding | disposition |
+| --- | --- |
+| **blocker:** the probe built only the `/context` surface, without the Code Mode catalog arms A and C send or the prompt's continuation section, so "on every arm" was not shown | fixed: the probe also builds each arm's own surface through the product's tool-surface runtime and the prompt as the attempt builds it; the caps leave that the same too |
+| **blocker:** the Enforced column claimed more than holds: "turns at once: 1", "no wake", "children: 1" | fixed: message turns, continuation wakes, direct children, each so named; the turns that follow without being continuations (`automations` wake, a background command's exit notice, a child's announce) and a collector per group are in the open list |
+| Skill Workshop's review can be switched off without changing the surface | set, with the migration marker the runtime needs; read back, and in the probe |
+| the residual's low end assumed the product's estimate holds | the provider's window case added: 10.1–33.7 M a trial, 30.7–101 M the canary |
+| "elected after a limitation" compared call order, not response order | fixed: a call goes with the response that made it, a Code Mode call with its script, a call whose row is gone with the results it sits among; tested |
+| limitations the detector misses | a refusal inside Code Mode's script is now tested; a child's own refusals and a child stopped by its timeout are disclosed as not recorded |
+| `maxSpawnDepth: 1` makes a child a leaf; `utilityModel: ""` reaches the prompt with a paired card renderer; one main slot can hold a visible child or a later trial | disclosed, the same on every arm; the last not verified on a gateway |
+| nits: cron's switch was the probe's own copy; a check that showed nothing; prompt hashes held temporary paths; the fake checked a group's live children before its total; collectors take no reservation; rehearsals archived before a later change; a test took the supervisor's threshold for the lanes; "the answer" for its status; a citation short of the watchers | fixed (cron read from the gateway's own cron state; receipts reproduce; rehearsals re-run at the final head), or disclosed (the reservation) |
+
+It checked and found correct: every citation the follow-up added; that the ChatGPT route never sends an output limit; the
+500 k budget, the 128 k maximum, the estimate, its missing reserve, the provider's compaction at 90 % and the 1,000,000-character
+tool-result total; that nothing counts calls in a turn; every cap's minimum of 1; all of the conditional arithmetic; that trial
+turns run in the main lane; the probe's readback against `config.get`'s own; and that `automations` keeps its definition whatever
+`cron.enabled` says.
+
+### The spend bound (follow-up 2)
 
 Another reader, who had not seen the design, reviewed `52465362..50e75d40` and then the fixes to it at `09beb28f`, against the
 product, the launcher and systemd, and proved its findings with scripts and mutants of its own.

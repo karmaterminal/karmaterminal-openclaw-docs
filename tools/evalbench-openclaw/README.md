@@ -225,7 +225,9 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
 | `agents.defaults.timeoutSeconds` | 330 | 48 h (`src/agents/timeout.ts:13,25`), per model attempt |
 | `agents.defaults.maxConcurrent` | 1 | 8 or 4 per CPU (`agent-limits.ts:5-6,35`); `server-lanes.ts:33,75`. **Admission**: the main lane, where every turn runs (`src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`), takes one at a time; a second waits in the queue |
 | `cron.enabled` | false | true (`src/config/cron-limits.ts:1`); read once at start (`src/gateway/server-cron-lazy.ts:23-24`): no scheduler lease (`src/cron/service/scheduler-actor.ts:138`), no event fire (`ops-event.ts:80`). **Admission**: no automation fires by itself. A forced run does (below) |
-| `agents.defaults.utilityModel` | `""` | the provider's (`src/agents/utility-model-setting.ts:13-28`: empty is `disabled`). **Admission**: no activity recap, a model call of its own after every turn (`src/gateway/session-activity-summaries.ts:186-191`). An agent's own setting outranks it, so `overlay` clears `agents.entries.main.utilityModel` and preflight refuses it |
+| `agents.defaults.utilityModel` | `""` | the provider's (`src/agents/utility-model-setting.ts:13-28`: empty is `disabled`). **Admission**: no activity recap, a model call of its own after every turn (`src/gateway/session-activity-summaries.ts:186-191`). An agent's own setting outranks it, so `overlay` clears `agents.entries.main.utilityModel` and preflight refuses it. The turn's prompt reads it only if a progress-card renderer is paired (`src/agents/embedded-agent-runner/run/attempt-system-prompt-additions.ts:56-83`), which an isolated gateway's fresh state has none of |
+| `plugins.entries.skill-workshop.config.autonomous.mode` | off | auto (`extensions/skill-workshop/src/config.ts:30`). **Admission**: no Skill Workshop review, a forked turn of its own after a session's tenth model call (`review-service.ts:44`, `experience-review-scheduler.ts:322`) |
+| `meta.migrations.skillWorkshopPlugin` | true | unset. Without this marker the runtime drops `plugins.entries.skill-workshop` and the setting above is ignored (`src/config/skill-workshop-plugin-migration.ts:92-121`). It records what Doctor would: the launcher copies no older Workshop setting, so there is nothing to move |
 
 - **`costCapTokens: 1` is the one that matters.** A continuation tool answers `scheduled` without looking at the budget; the
   budget is read when the turn ends, and by then the turn's own output is over the cap. So the election happens, and is
@@ -250,9 +252,8 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
   (`src/agents/tools/request-compaction-tool.ts:226-238`, `src/auto-reply/reply/agent-runner-execute.ts:311-318`): one of the
   choices measured. No output limit can be set on this route: the ChatGPT request never carries one
   (`packages/ai/src/providers/openai-chatgpt-responses-request.ts:48-105`).
-- **Skill Workshop's review is not switched off.** Its setting is ignored until Doctor records the Workshop migration
-  (`src/config/skill-workshop-plugin-migration.ts:92-121`), and preflight reading it back found it absent from the effective
-  configuration.
+- **Skill Workshop's review needs the migration marker.** Without it the setting is not in the effective configuration at all;
+  the probe's readback showed it missing, as preflight would on a gateway, and its review mode `auto` (`probes/receipts`).
 
 They are tight on purpose, and must limit what **runs** and not what the model is shown: the first election is all that is
 scored. [`probes/product-probe.mts`](probes/product-probe.mts) runs them through the product's own code at both SHAs, and
@@ -264,19 +265,31 @@ and the probe's own hash):
   for a second hop;
 - in the product's own command queue, two turns start one after the other, and so do two children of one session; two
   collectors in two swarm groups, and two automation runs, start together;
-- through the product's `/context` path, the 66 tools it builds (names, descriptions, parameters) and the whole system prompt,
-  the per-session additions included, are byte for byte the same with and without them, on every arm, for each one alone and
-  all together. Swarm off, an empty `allowAgents` and `automations` denied are each seen to change it.
+- the gateway's own cron state reads the scheduler off; the utility model reads `disabled`; Skill Workshop's review reads `off`
+  with the marker and `auto` without it;
+- what the turn's model is shown, two ways on every arm: the product's `/context` path (66 tools and their prompt), and the
+  run's own surface on the firing model through the product's tool-surface runtime (Code Mode's controls and catalog for A and
+  C, every tool direct for B and D, the prompt with its continuation section). Tools, catalog and prompt are byte for byte the
+  same with and without the caps, each one alone and all together. Swarm off, an empty `allowAgents` and `automations` denied
+  are each seen to change them.
 
-**What a turn can still notice** is a refusal it earned (a second child while the first runs, a child of a child, a second
-collector in one group, a second delegate in one turn) and, with the scheduler off, what `automations` answers. Each trial
-records them as **treatment limitations** (`limitations`: the tool, the setting its answer named, the answer), and whether an
-election came after one (`electedAfterLimitation`). The report counts them per arm. They never take a trial out.
+A child is shown less, on every arm: with `maxSpawnDepth: 1` it is a leaf, without the spawn tools
+(`src/agents/agent-tools.policy.ts:82-92`). With one main slot, a child that opens with a message of its own (`visible: true`)
+may wait for its parent's turn to end; not verified on a gateway.
+
+**What a turn can still notice** is a refusal it earned (a second child while the first runs, a second collector in one
+group, a second delegate in one turn) and what `automations` and `skill_workshop` answer with their service off. Each trial
+records them as **treatment limitations** (`limitations`: the tool, the setting its answer named, the answer's status), and
+whether an election was decided in a later response than one (`electedAfterLimitation`: a call goes with the response that
+made it, a Code Mode call with its script). The report counts them per arm. They never take a trial out. Not recorded: a
+child's own refusals, which are in its turn and not the trial's, and a child stopped by its 120 s timeout, whose answer names
+no setting.
 
 **What no setting here bounds**, at either SHA, without changing what the model is shown: tokens in one call, calls in one
-turn, and the lanes a turn opens itself (a collector in each swarm group it names, a forced automation run, `sessions_send` to
-another session, tool calls of one response that run at once). [The packet](CANARY-PACKET.md#what-nothing-here-bounds) has the
-lines.
+turn, the lanes a turn opens itself (a collector in each swarm group it names, a forced automation run, `sessions_send` to
+another session, tool calls of one response that run at once), and the turns that follow it without being continuations (an
+`automations` wake, a background command's exit notice, a child's announce). [The packet](CANARY-PACKET.md#what-nothing-here-bounds)
+has the lines.
 
 ### 2. The supervisor
 

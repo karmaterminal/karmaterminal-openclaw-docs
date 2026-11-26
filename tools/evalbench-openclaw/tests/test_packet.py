@@ -32,6 +32,8 @@ CALL_SECONDS, CALL = 5, 160_000
 # The most one call carries on this route: the 500 k budget its input is checked against (by an estimate), and the model's
 # 128 k of output, which no request limits (CANARY-PACKET.md, What nothing here bounds).
 ROUTE_CALL = 500_000 + 128_000
+# The most the provider itself takes in one call, if the product's estimate were off that far: the model's window, and its output.
+PROVIDER_CALL = 1_050_000 + 128_000
 
 
 def calls(seconds, call_seconds=CALL_SECONDS):
@@ -84,6 +86,8 @@ def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit_one_t
     (trial(ROUTE_CALL, 2), canary(ROUTE_CALL, 2), "| the same at 2 s a call | 10.7 M | 32.5 M |"),
     (trial(ROUTE_CALL, 1), canary(ROUTE_CALL, 1), "| the same at 1 s a call | **18.3 M** | **55 M** |"),
     (trial(ROUTE_CALL, window=POLL), canary(ROUTE_CALL, window=POLL), "| 3.2 M | 9.9 M |"),
+    (trial(PROVIDER_CALL), canary(PROVIDER_CALL), "if the product's estimate is off that far | 10.1 M | 30.7 M |"),
+    (trial(PROVIDER_CALL, 1), canary(PROVIDER_CALL, 1), "| the same at 1 s a call | **33.7 M** | **101 M** |"),
 ])
 def test_the_conditional_numbers_are_arms_jsons_on_their_assumptions(value_trial, value_canary, row):
     shown = [float(n) * M for n in re.findall(r"([\d.]+) M", row)]
@@ -104,11 +108,17 @@ def test_no_number_of_tokens_is_called_enforced():
     assert "| conditional: estimates, each on a named assumption |" in top and "**nothing bounds how many it opens**" in top
     enforced = PACKET.split("### Enforced")[1].split("\n### ")[0]
     bounds = [line.split("|")[2] for line in enforced.splitlines() if line.startswith("| ") and not line.startswith(("| what |", "| --- |"))]
-    assert len(bounds) == 9 and not [b for b in bounds if re.search(r"\d M\b|tokens", b)]
+    assert len(bounds) == 10 and not [b for b in bounds if re.search(r"\d M\b|tokens", b)]
     assert "No number of tokens is enforced." in PACKET and "**No number of tokens is enforced, for a trial or for the canary.**" in REPORT
     for text in (PACKET, README, REPORT):
         flat = " ".join(text.split())
         assert "whatever its readings do" not in flat and "bounded by something that runs" not in flat
+
+
+def test_the_provider_window_case_is_in_the_headline_and_the_residual():
+    for text in (PACKET.split("## Commands")[0], PACKET.split("### The residual")[1]):
+        assert "10.1–33.7 M" in " ".join(text.split()) and "30.7–101 M" in " ".join(text.split())
+    assert "1,050,000 in (`extensions/openai/openclaw.plugin.json:124`)" in " ".join(PACKET.split())
 
 
 def test_the_old_most_context_case_is_reconciled():
@@ -133,7 +143,7 @@ def test_every_cap_is_in_both_documents_with_its_value():
         keys = re.findall(r"`([^`]+)`", cell)
         for key, one in zip(keys, value.strip("`").split(", ") if len(keys) > 1 else [value.strip("` ")]):
             named[key if not key.startswith(".") else keys[0].rsplit(".", 1)[0] + key] = one
-    shown = lambda v: "false" if v is False else '""' if v == "" else str(v)
+    shown = lambda v: "false" if v is False else "true" if v is True else '""' if v == "" else str(v)
     assert {k: v for k, v in named.items() if k in CAPS} == {k: shown(v) for k, v in CAPS.items()}
     section = PACKET.split("### Product caps")[1].split("\n## ")[0]
     assert all(key.rsplit(".", 1)[1] in section for key in CAPS)

@@ -42,3 +42,17 @@ def test_the_rehearsal_is_complete_clean_and_marked_as_one(name, arm_names):
     text = (archive / "report.md").read_text()
     assert "Every number below is scripted" in text and f"Model `{MODEL}`" in text
     assert ("B → D: wording (all tools direct)" in text) is ("D" in arm_names)
+
+
+@archives
+def test_the_rehearsal_showed_the_model_a_refusal_and_recorded_it(name, arm_names):
+    # One turn per arm whose second spawn was refused and that asked automations for its status; one more, past A, that
+    # elected after such a refusal. The rates are what they would be without them.
+    report = json.loads((ROOT / "artifacts" / name / "report.json").read_text())
+    for arm in arm_names:
+        seen = report["arms"][arm]["treatmentLimitations"]
+        refused = 1 if arm == "A" else 2
+        assert seen == {"trials": refused, "bySetting": {"agents.defaults.subagents.maxChildrenPerAgent": refused, "cron.enabled": 1},
+                        "electedAfter": refused - 1}
+    assert "treatment limitations: 2 trial(s) (agents.defaults.subagents.maxChildrenPerAgent 2, cron.enabled 1), elected after one: 1." in \
+        (ROOT / "artifacts" / name / "report.md").read_text()

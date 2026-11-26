@@ -25,9 +25,9 @@ What each comparison is:
 
 ## Surface
 
-- **A**: surface: verified 89, carried 1; description text: none; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 7 direct and 5 deferred 90; contradictions: 0; caps verified: 90; continuation wakes: 0.
-- **B**: surface: verified 89, carried 1; description text: match 270; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 9 direct and 0 deferred 90; contradictions: 0; caps verified: 90; continuation wakes: 0.
-- **C**: surface: verified 90; description text: match 270; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 10 direct and 2 deferred 90; contradictions: 0; caps verified: 90; continuation wakes: 0.
+- **A**: surface: verified 89, carried 1; description text: none; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 7 direct and 5 deferred 90; contradictions: 0; caps verified: 90; continuation wakes: 0; treatment limitations: 1 trial(s) (agents.defaults.subagents.maxChildrenPerAgent 1, cron.enabled 1), elected after one: 0.
+- **B**: surface: verified 89, carried 1; description text: match 270; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 9 direct and 0 deferred 90; contradictions: 0; caps verified: 90; continuation wakes: 0; treatment limitations: 2 trial(s) (agents.defaults.subagents.maxChildrenPerAgent 2, cron.enabled 1), elected after one: 1.
+- **C**: surface: verified 90; description text: match 270; runtime: openclaw 90; served: openai/gpt-6.1-sol 90; tools: 10 direct and 2 deferred 90; contradictions: 0; caps verified: 90; continuation wakes: 0; treatment limitations: 2 trial(s) (agents.defaults.subagents.maxChildrenPerAgent 2, cron.enabled 1), elected after one: 1.
 
 ## What was elected, and how
 
@@ -70,9 +70,9 @@ What each comparison is:
 
 | arm | metered tokens | largest trial | model calls seen | distinct system prompts | extra trials not counted | scratch path present | record problems |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| A | 3,126,982 | 78,072 | 121 | 1 | 0 | 0 | 0 |
-| B | 3,254,330 | 57,880 | 127 | 1 | 0 | 0 | 0 |
-| C | 3,597,800 | 57,880 | 141 | 1 | 0 | 0 | 0 |
+| A | 3,153,187 | 84,085 | 122 | 1 | 0 | 0 | 0 |
+| B | 3,287,863 | 84,085 | 128 | 1 | 0 | 0 | 0 |
+| C | 3,631,333 | 84,085 | 142 | 1 | 0 | 0 | 0 |
 
 Metered tokens include cache reads. The spend stop (35,000,000 per arm) is checked between trials, so it is not a ceiling: what ends a trial that is running is the supervisor.
 
@@ -80,10 +80,10 @@ Metered tokens include cache reads. The spend stop (35,000,000 per arm) is check
 
 Limits: 700,000 metered tokens and 480 s per trial, 150,000 tokens outside a trial, 75,000,000 tokens and 14400 s for the run, 2 active runs per gateway, 10 s without a whole reading, a reading every 0.2 s.
 
-Run: 9,979,112 metered tokens in 16.715 s; ended by run-finished; halted: no; supervisor lost: no.
+Run: 10,072,383 metered tokens in 17.844 s; ended by run-finished; halted: no; supervisor lost: no.
 
 | arm | metered tokens | trials | largest trial | longest trial | readings | longest gap | stopped by | proved stopped | durable units ended |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| A | 3,126,982 | 90 | 78,072 | 1.012 s | 174 | 0.205 s | run-finished | yes | 0 |
-| B | 3,254,330 | 90 | 57,880 | 1.011 s | 174 | 0.204 s | run-finished | yes | 0 |
-| C | 3,597,800 | 90 | 57,880 | 0.016 s | 174 | 0.209 s | run-finished | yes | 0 |
+| A | 3,153,187 | 90 | 84,085 | 1.009 s | 180 | 0.205 s | run-finished | yes | 0 |
+| B | 3,287,863 | 90 | 84,085 | 1.012 s | 180 | 0.204 s | run-finished | yes | 0 |
+| C | 3,631,333 | 90 | 84,085 | 0.042 s | 180 | 0.204 s | run-finished | yes | 0 |

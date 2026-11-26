@@ -7,7 +7,7 @@
     "issue": "karmaterminal/openclaw#1575",
     "offline": true,
     "go": null,
-    "started": "2026-11-25T21:51:21+00:00",
+    "started": "2026-11-26T10:03:31+00:00",
     "arms": [
       "A",
       "B",
@@ -15,13 +15,13 @@
     ],
     "model": "openai/gpt-6.1-sol",
     "gatewayUrls": {
-      "A": "ws://127.0.0.1:40057",
-      "B": "ws://127.0.0.1:46601",
-      "C": "ws://127.0.0.1:35887"
+      "A": "ws://127.0.0.1:39553",
+      "B": "ws://127.0.0.1:33541",
+      "C": "ws://127.0.0.1:37167"
     },
     "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
     "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
-    "harnessHead": "ca274e26394f9a94e54bf460a1cd4e4fd52aa396",
+    "harnessHead": "93b5096a50a08b1e21f7dc24e213fcf865a81294",
     "harnessDirty": false,
     "numTrials": 5,
     "scenarios": null,
@@ -29,7 +29,7 @@
     "tokenBudgetRule": "per arm, checked between trials; not a ceiling, the trial in flight can exceed it",
     "caps": {
       "agents.defaults.timeoutSeconds": 330,
-      "agents.defaults.maxConcurrent": 2,
+      "agents.defaults.maxConcurrent": 1,
       "agents.defaults.continuation.maxChainLength": 1,
       "agents.defaults.continuation.costCapTokens": 1,
       "agents.defaults.continuation.maxDelegatesPerTurn": 1,
@@ -39,10 +39,12 @@
       "agents.defaults.subagents.runTimeoutSeconds": 120,
       "tools.swarm.maxConcurrent": 1,
       "tools.swarm.maxChildrenPerGroup": 1,
-      "tools.swarm.maxTotalPerGroup": 1
+      "tools.swarm.maxTotalPerGroup": 1,
+      "cron.enabled": false,
+      "agents.defaults.utilityModel": ""
     },
     "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
-    "armsSha256": "847ce9e4a4be85b5332693528be9ccc2383030850a2f9eac4c2b10be841bb3c5",
+    "armsSha256": "6ffe3ea0f1991bd414c54c7fd936d3d4d3dc28fdd54ffc60e101261139a58947",
     "supervision": {
       "limits": {
         "pollSeconds": 0.2,
@@ -63,7 +65,7 @@
       "lost": null,
       "receipt": {
         "schema": "openclaw.evalbench.supervision.v1",
-        "run": "dafb1af4289f",
+        "run": "94aada6816a2",
         "offline": true,
         "limits": {
           "pollSeconds": 0.2,
@@ -81,36 +83,36 @@
           "runSeconds": 14400
         },
         "ended": {
-          "at": "2026-11-25T21:51:38.351+00:00",
+          "at": "2026-11-26T10:03:50.223+00:00",
           "rule": "run-finished",
           "detail": "the runner finished"
         },
-        "seconds": 16.715,
-        "tokens": 9979112,
+        "seconds": 17.844,
+        "tokens": 10072383,
         "unwrittenRecords": 0,
         "arms": {
           "A": {
             "identity": {
-              "pid": 1550302,
+              "pid": 3023715,
               "fake": true
             },
-            "tokens": 3126982,
-            "sessions": 5,
-            "readings": 174,
+            "tokens": 3153187,
+            "sessions": 1,
+            "readings": 180,
             "aggregateReadings": 0,
             "aggregateFailures": 0,
             "longestGapSeconds": 0.205,
             "trials": 90,
-            "largestTrialTokens": 78072,
-            "longestTrialSeconds": 1.012,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 1.009,
             "sweptUnits": 0,
             "stop": {
-              "at": "2026-11-25T21:51:38.351+00:00",
+              "at": "2026-11-26T10:03:50.223+00:00",
               "rule": "run-finished",
               "detail": "the runner finished",
-              "tokens": 3126982,
+              "tokens": 3153187,
               "trial": null,
-              "secondsSinceReading": 0.162,
+              "secondsSinceReading": 0.068,
               "aborts": null,
               "result": {
                 "stopped": true,
@@ -127,89 +129,89 @@
           },
           "B": {
             "identity": {
-              "pid": 1550361,
+              "pid": 3023750,
               "fake": true
             },
-            "tokens": 3254330,
+            "tokens": 3287863,
             "sessions": 4,
-            "readings": 174,
+            "readings": 180,
             "aggregateReadings": 0,
             "aggregateFailures": 0,
             "longestGapSeconds": 0.204,
             "trials": 90,
-            "largestTrialTokens": 57880,
-            "longestTrialSeconds": 1.011,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 1.012,
             "sweptUnits": 0,
             "stop": {
-              "at": "2026-11-25T21:51:38.351+00:00",
+              "at": "2026-11-26T10:03:50.223+00:00",
               "rule": "run-finished",
               "detail": "the runner finished",
-              "tokens": 3254330,
+              "tokens": 3287863,
               "trial": null,
-              "secondsSinceReading": 0.163,
+              "secondsSinceReading": 0.068,
               "aborts": null,
               "result": {
                 "stopped": true,
                 "problems": [],
                 "durableUnits": [],
                 "strayProcesses": 0,
-                "killSeconds": 0.011,
-                "goneSeconds": 0.011,
-                "seconds": 0.011
+                "killSeconds": 0.01,
+                "goneSeconds": 0.01,
+                "seconds": 0.01
               },
               "abortSeconds": 0.0,
-              "seconds": 0.012
+              "seconds": 0.011
             }
           },
           "C": {
             "identity": {
-              "pid": 1550370,
+              "pid": 3023762,
               "fake": true
             },
-            "tokens": 3597800,
-            "sessions": 0,
-            "readings": 174,
+            "tokens": 3631333,
+            "sessions": 2,
+            "readings": 180,
             "aggregateReadings": 0,
             "aggregateFailures": 0,
-            "longestGapSeconds": 0.209,
+            "longestGapSeconds": 0.204,
             "trials": 90,
-            "largestTrialTokens": 57880,
-            "longestTrialSeconds": 0.016,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 0.042,
             "sweptUnits": 0,
             "stop": {
-              "at": "2026-11-25T21:51:38.351+00:00",
+              "at": "2026-11-26T10:03:50.223+00:00",
               "rule": "run-finished",
               "detail": "the runner finished",
-              "tokens": 3597800,
+              "tokens": 3631333,
               "trial": null,
-              "secondsSinceReading": 0.162,
+              "secondsSinceReading": 0.068,
               "aborts": null,
               "result": {
                 "stopped": true,
                 "problems": [],
                 "durableUnits": [],
                 "strayProcesses": 0,
-                "killSeconds": 0.011,
-                "goneSeconds": 0.011,
-                "seconds": 0.011
+                "killSeconds": 0.01,
+                "goneSeconds": 0.01,
+                "seconds": 0.01
               },
               "abortSeconds": 0.0,
-              "seconds": 0.012
+              "seconds": 0.011
             }
           }
         }
       },
       "runnerStops": null
     },
-    "ended": "2026-11-25T21:51:38+00:00",
+    "ended": "2026-11-26T10:03:50+00:00",
     "results": {
       "A": {
-        "jobId": "9f7422c4-5973-491f-ae32-b211953677b0",
+        "jobId": "4ce4767d-b92f-49b6-84e9-388e0c4f150b",
         "summary": {
           "total": 90,
           "scores": {
             "continuation_election": 3,
-            "token_consumption": 129282,
+            "token_consumption": 129687,
             "trajectory_matcher": 33,
             "executable": 90
           }
@@ -217,15 +219,15 @@
         "error": null,
         "trials": 90,
         "halted": null,
-        "meteredTokens": 3126982
+        "meteredTokens": 3153187
       },
       "B": {
-        "jobId": "91266935-01ea-40e9-b86e-65f84f95ba44",
+        "jobId": "0846be8b-8483-4a89-bfc0-24a7f86d912a",
         "summary": {
           "total": 90,
           "scores": {
             "continuation_election": 23,
-            "token_consumption": 119030,
+            "token_consumption": 119663,
             "trajectory_matcher": 51,
             "executable": 90
           }
@@ -233,15 +235,15 @@
         "error": null,
         "trials": 90,
         "halted": null,
-        "meteredTokens": 3254330
+        "meteredTokens": 3287863
       },
       "C": {
-        "jobId": "51547eae-c622-473d-9c1e-daabefbb4f59",
+        "jobId": "fbc98e3e-b8c3-42bf-b689-5950c708fde1",
         "summary": {
           "total": 90,
           "scores": {
             "continuation_election": 48,
-            "token_consumption": 122400,
+            "token_consumption": 123033,
             "trajectory_matcher": 72,
             "executable": 90
           }
@@ -249,7 +251,7 @@
         "error": null,
         "trials": 90,
         "halted": null,
-        "meteredTokens": 3597800
+        "meteredTokens": 3631333
       }
     },
     "failures": []
@@ -302,6 +304,14 @@
       "scratchPresent": 0,
       "capsVerified": 90,
       "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 1,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 1,
+          "cron.enabled": 1
+        },
+        "electedAfter": 0
+      },
       "eligibleIfUnreadableDeadlinesDidNotElect": {
         "elected": 3,
         "scored": 60,
@@ -328,7 +338,8 @@
       },
       "otherTools": {
         "sessions_spawn": 8,
-        "exec": 8
+        "exec": 8,
+        "automations": 1
       },
       "runtimes": {
         "openclaw": 90
@@ -337,9 +348,9 @@
         "openai/gpt-6.1-sol": 90
       },
       "distinctSystemPrompts": 1,
-      "meteredTokens": 3126982,
-      "largestTrialTokens": 78072,
-      "modelCalls": 121,
+      "meteredTokens": 3153187,
+      "largestTrialTokens": 84085,
+      "modelCalls": 122,
       "perPrompt": {
         "c1-arithmetic": {
           "kind": "control",
@@ -566,6 +577,14 @@
       "scratchPresent": 0,
       "capsVerified": 90,
       "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 2,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 2,
+          "cron.enabled": 1
+        },
+        "electedAfter": 1
+      },
       "eligibleIfUnreadableDeadlinesDidNotElect": {
         "elected": 22,
         "scored": 60,
@@ -587,7 +606,8 @@
       },
       "otherTools": {
         "exec": 9,
-        "sessions_spawn": 6
+        "sessions_spawn": 7,
+        "automations": 1
       },
       "runtimes": {
         "openclaw": 90
@@ -596,9 +616,9 @@
         "openai/gpt-6.1-sol": 90
       },
       "distinctSystemPrompts": 1,
-      "meteredTokens": 3254330,
-      "largestTrialTokens": 57880,
-      "modelCalls": 127,
+      "meteredTokens": 3287863,
+      "largestTrialTokens": 84085,
+      "modelCalls": 128,
       "perPrompt": {
         "c1-arithmetic": {
           "kind": "control",
@@ -844,6 +864,14 @@
       "scratchPresent": 0,
       "capsVerified": 90,
       "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 2,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 2,
+          "cron.enabled": 1
+        },
+        "electedAfter": 1
+      },
       "eligibleIfUnreadableDeadlinesDidNotElect": {
         "elected": 45,
         "scored": 60,
@@ -864,7 +892,8 @@
         "continue_delegate": 0
       },
       "otherTools": {
-        "sessions_spawn": 4
+        "sessions_spawn": 5,
+        "automations": 1
       },
       "runtimes": {
         "openclaw": 90
@@ -873,9 +902,9 @@
         "openai/gpt-6.1-sol": 90
       },
       "distinctSystemPrompts": 1,
-      "meteredTokens": 3597800,
-      "largestTrialTokens": 57880,
-      "modelCalls": 141,
+      "meteredTokens": 3631333,
+      "largestTrialTokens": 84085,
+      "modelCalls": 142,
       "perPrompt": {
         "c1-arithmetic": {
           "kind": "control",

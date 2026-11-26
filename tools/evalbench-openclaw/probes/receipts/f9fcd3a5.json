@@ -39,7 +39,7 @@
   "utilityModel": "disabled",
   "utilityModelWithoutCaps": "auto"
  },
- "caps": {
+ "capsBehavior": {
   "budget": {
    "firstElectionAfter5kTokens": "cost-capped",
    "secondHop": "chain-capped"
@@ -65,8 +65,24 @@
  },
  "model": "openai/gpt-6.1-sol",
  "node": "v26.9.0",
- "probeSha256": "73af09e3885aff0c46fed4968f88d85fc1542874b30dee71bcc2038eaaaa5084",
+ "probeSha256": "df4d7908a29a0f8f9f3a73b62c82abb08f8b9095f4bc1d3bb242310247654a95",
  "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+ "settings": {
+  "agents.defaults.continuation.costCapTokens": 1,
+  "agents.defaults.continuation.maxChainLength": 1,
+  "agents.defaults.continuation.maxDelegatesPerTurn": 1,
+  "agents.defaults.maxConcurrent": 1,
+  "agents.defaults.subagents.maxChildrenPerAgent": 1,
+  "agents.defaults.subagents.maxConcurrent": 1,
+  "agents.defaults.subagents.maxSpawnDepth": 1,
+  "agents.defaults.subagents.runTimeoutSeconds": 120,
+  "agents.defaults.timeoutSeconds": 330,
+  "agents.defaults.utilityModel": "",
+  "cron.enabled": false,
+  "tools.swarm.maxChildrenPerGroup": 1,
+  "tools.swarm.maxConcurrent": 1,
+  "tools.swarm.maxTotalPerGroup": 1
+ },
  "surface": {
   "A": {
    "continuation": {
@@ -127,7 +143,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "promptHash": "78fb42813e0d7995f8a53bad5c76620e0f54b795d13414d7e554e19aa7463897",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
@@ -199,7 +215,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "promptHash": "78fb42813e0d7995f8a53bad5c76620e0f54b795d13414d7e554e19aa7463897",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
@@ -271,7 +287,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "promptHash": "78fb42813e0d7995f8a53bad5c76620e0f54b795d13414d7e554e19aa7463897",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
@@ -343,7 +359,7 @@
      "toolsSame": false
     }
    },
-   "promptHash": "1cfd892f1867f979fffe6fc3c1ab7477ff2aceb8a099433ab78f678736c2bb72",
+   "promptHash": "78fb42813e0d7995f8a53bad5c76620e0f54b795d13414d7e554e19aa7463897",
    "schemaAccepts": true,
    "tools": 66,
    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",

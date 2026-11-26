@@ -127,17 +127,32 @@ def test_a_loop_that_ignores_aborts_is_stopped_within_its_cap(tmp_path):
 
 
 def test_children_that_loop_are_stopped_within_the_trials_cap(tmp_path):
-    # The turn itself ends at once and is read; its children then spend through the trial's cleanup.
+    # The turn itself ends at once and is read; the child the product admitted then spends through the trial's cleanup.
     record, it, supervision, fake = run_one(tmp_path, "runaway-children")
     stop = stop_of(supervision)
     assert stop["rule"] in ("trial-tokens", "idle-spend") and gone(fake) and stop["result"]["stopped"]
     assert record["status"] == "supervisor_stopped" and record["elected"] is None
     assert record["cleanup"]["ok"] is False
-    cap, rate = 700_000, 2 * CALL / 0.1
+    # The second child was refused at admission, and the model was shown why: a treatment limitation.
+    assert [f["settings"] for f in record["limitations"]] == [["agents.defaults.subagents.maxChildrenPerAgent"]]
+    cap, rate = 700_000, CALL / 0.1
     assert stop["tokens"] <= cap + rate * (QUICK["pollSeconds"] + 0.5), stop
 
 
-def test_a_fan_out_is_stopped_before_any_of_its_calls_is_metered(tmp_path):
+def test_a_fan_out_of_children_is_refused_at_admission_not_stopped_later(tmp_path):
+    # Six spawns at once: the product admits one, as maxChildrenPerAgent says, and refuses five before they run.
+    record, it, supervision, fake = run_one(tmp_path, "fan-out-refused")
+    assert record["status"] == "ok" and record["cleanup"]["ok"] is True
+    assert record["metered"]["childSessions"] == 1, "one child ever ran"
+    assert len(record["limitations"]) == 5 and {f["status"] for f in record["limitations"]} == {"forbidden"}
+    assert {s for f in record["limitations"] for s in f["settings"]} == {"agents.defaults.subagents.maxChildrenPerAgent"}
+    # Nothing was left for the supervisor to stop: the run ended it, at its end.
+    assert stop_of(supervision)["rule"] == "run-finished" and supervision.run_stop.reason is None
+
+
+def test_a_fan_out_over_swarm_groups_is_admitted_and_stopped_before_any_of_its_calls_is_metered(tmp_path):
+    # The residual: each swarm group admits its own first collector, and the groups are the turn's. No setting refuses
+    # them without changing what the model is shown (probes/receipts), so the supervisor stops them, at its next reading.
     record, it, supervision, fake = run_one(tmp_path, "runaway-fan-out")
     stop = assert_stopped(record, it, supervision, fake, "active-runs")
     assert stop["trial"]["tokens"] < CALL and stop["trial"]["seconds"] < 5

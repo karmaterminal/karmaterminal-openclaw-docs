@@ -98,6 +98,44 @@ def test_the_agents_own_swarm_limits_outrank_the_caps_so_they_are_refused_and_cl
     assert fixed["agents"]["entries"]["main"]["tools"]["swarm"] == {"enabled": False}, "the seat's switch is its surface"
 
 
+# Admission: what runs at once on a gateway, the same on every arm. Each is in force only where all three readings say so.
+ADMISSION = {"agents.defaults.maxConcurrent": 1, "cron.enabled": False, "agents.defaults.utilityModel": ""}
+
+
+def test_the_admission_settings_are_caps():
+    assert {k: SET[k] for k in ADMISSION} == ADMISSION
+
+
+@pytest.mark.parametrize("where", ["sourceConfig", "config"])
+@pytest.mark.parametrize("key, seat", [("agents.defaults.maxConcurrent", 2), ("agents.defaults.maxConcurrent", None),
+                                       ("cron.enabled", True), ("cron.enabled", None),
+                                       ("agents.defaults.utilityModel", "openai/gpt-6.1-mini"), ("agents.defaults.utilityModel", None)])
+def test_a_gateway_whose_admission_is_not_in_force_is_refused(arms, key, seat, where):
+    # What a seat's own configuration would leave there if the overlay had not written it.
+    broken = payload(arms["arms"]["C"])
+    put(broken[where], key, seat)
+    with pytest.raises(A.CapsMismatch, match=f"caps not in force: {'authored' if where == 'sourceConfig' else 'effective'} {key} is "):
+        A.check_caps(CAPS, broken)
+
+
+def test_the_agents_own_utility_model_outranks_the_default_so_it_is_refused_and_cleared(arms):
+    arm = arms["arms"]["A"]
+    broken = payload(arm)
+    broken["sourceConfig"]["agents"]["entries"] = {"main": {"utilityModel": "openai/gpt-6.1-mini", "name": "kept"}}
+    with pytest.raises(A.CapsMismatch, match="agents.entries.main.utilityModel must be unset"):
+        A.check_caps(CAPS, broken)
+    fixed = A.apply_overlay(arm, MODEL, CAPS, broken["sourceConfig"], LOG)
+    assert fixed["agents"]["entries"]["main"] == {"name": "kept"}
+    assert A.check_caps(CAPS, {**payload(arm), "sourceConfig": fixed, "config": fixed})["verdict"] == "verified"
+
+
+def test_the_overlay_writes_admission_over_what_the_seat_had(arms):
+    seat = {"cron": {"enabled": True, "maxConcurrentRuns": 4}, "agents": {"defaults": {"maxConcurrent": 8, "utilityModel": {"primary": "x/y"}}}}
+    out = A.apply_overlay(arms["arms"]["B"], MODEL, CAPS, seat, LOG)
+    assert out["cron"] == {"enabled": False, "maxConcurrentRuns": 4}, "and nothing beside it"
+    assert out["agents"]["defaults"]["maxConcurrent"] == 1 and out["agents"]["defaults"]["utilityModel"] == ""
+
+
 @pytest.mark.parametrize("switch", [True, False])
 def test_a_bare_swarm_switch_keeps_its_meaning(arms, switch):
     out = A.apply_overlay(arms["arms"]["A"], MODEL, CAPS, {"tools": {"swarm": switch}}, LOG)

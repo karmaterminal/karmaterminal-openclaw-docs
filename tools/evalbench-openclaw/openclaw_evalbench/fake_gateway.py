@@ -6,7 +6,9 @@ picked by a plan (prompt -> one fixture per trial). Every value in a fixture is 
 
 A turn may also run away: its "runaway" entry says how fast the session and its children spend, and which of abort,
 delete and answering at all the gateway no longer does (_Burn). It can run as a process of its own, which the supervisor
-can kill as it would a real gateway's.
+can kill as it would a real gateway's. The children a runaway starts are admitted as the product admits them under the
+configuration this gateway serves: past maxChildrenPerAgent a spawn is refused with the product's words, and each swarm
+group admits its own first collector (_spawn).
 """
 
 import asyncio
@@ -21,7 +23,7 @@ import uuid
 
 from websockets.asyncio.server import serve
 
-from .arms import AGENT_ID, CONTINUATION_TOOLS, ROOT, apply_overlay, load_arms, load_scenarios
+from .arms import AGENT_ID, CONTINUATION_TOOLS, ROOT, apply_overlay, load_arms, load_scenarios, read_path
 from .gateway import REQUIRED_METHODS
 from .meter import timeseries_tokens
 
@@ -44,6 +46,9 @@ PARAMS = {
 READ = {"config.get", "chat.history", "sessions.describe", "sessions.usage", "sessions.usage.timeseries", "sessions.list"}
 UNADVERTISED = {"sessions.usage", "sessions.usage.timeseries"}
 HISTORY_DEFAULT_LIMIT = 200
+# The product's defaults when the configuration sets none (openclaw ab5a30ea src/config/agent-limits.ts:21,
+# src/agents/subagents/swarm/swarm-config.ts:7).
+DEFAULT_CHILDREN_PER_AGENT, DEFAULT_CHILDREN_PER_GROUP = 5, 50
 
 
 def load_turns(path=None):
@@ -185,14 +190,22 @@ class FakeGateway:
             raise _Refusal("INVALID_REQUEST", f"session not found: {key}")
         return self.sessions[key]
 
-    def _config_get(self, _params):
+    def _source(self):
         source = {"agents": {"defaults": {"model": {"primary": self.model, "fallbacks": []},
                                           "continuation": {"enabled": True}}},
                   "tools": {}, "plugins": {"entries": {"codex": {"config": {"codexDynamicToolsLoading": "searchable"}}}}}
         source = apply_overlay(self.arm, self.model, self.caps, source, "/fake/state/gateway.log")
         source.update(self.overrides.get("config", {}))
+        return source
+
+    def _config_get(self, _params):
+        source = self._source()
         return {"valid": True, "sourceConfig": source, "config": source, "configRevisionHash": self.overrides.get("configRevisionHash", "fake"),
                 "appliedConfigHash": self.overrides.get("appliedConfigHash", "fake")}
+
+    def _limit(self, key, default):
+        value = read_path(self._source(), key)
+        return value if isinstance(value, int) and not isinstance(value, bool) else default
 
     def _new_session(self, **fields):
         return {"rows": [], "runId": None, "spawnedBy": None, "archived": False, "fixture": None, "settled": False, "burn": None, "sessionId": uuid.uuid4().hex, **fields}
@@ -231,13 +244,49 @@ class FakeGateway:
 
     def _run_away(self, session, key, spec):
         session["burn"] = _Burn(spec) if spec.get("callTokens") else None
-        for _ in range(spec.get("children", 0)):
-            # A child with no link to the trial is one the harness's own cleanup never finds.
-            link = {} if spec.get("orphans") else {"spawnedBy": key}
-            self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = self._new_session(settled=True, burn=_Burn({**spec, **spec.get("child", {})}), **link)
+        child = {**spec, **spec.get("child", {})}
+        if spec.get("orphans"):
+            # A child with no link to the trial, which the harness's own cleanup never finds: a session another path
+            # started, so no admission of the trial's counted it.
+            for _ in range(spec.get("children", 0)):
+                self.sessions[f"agent:main:subagent:{uuid.uuid4().hex}"] = self._new_session(settled=True, burn=_Burn(child))
+        else:
+            calls = [self._spawn(key, child, None, i) for i in range(spec.get("children", 0))]
+            calls += [self._spawn(key, child, f"group-{i}", i) for i in range(spec.get("groups", 0))]
+            if calls:
+                run = {"runId": session["runId"]}
+                session["rows"].append({"role": "assistant", "provider": self.model.split("/")[0], "model": self.model.split("/")[1],
+                                        "content": [{"type": "toolCall", "id": c["id"], "name": "sessions_spawn", "arguments": c["args"]} for c in calls],
+                                        "__openclaw": run})
+                session["rows"] += [{"role": "toolResult", "toolCallId": c["id"], "toolName": "sessions_spawn", "isError": False,
+                                     "content": [{"type": "text", "text": json.dumps(c["answer"])}], "details": c["answer"], "__openclaw": run} for c in calls]
         if "freezeSeconds" in spec:
             self.frozen_at = time.monotonic() + spec["freezeSeconds"]
             self.thaws_at = self.frozen_at + spec.get("frozenSeconds", 1e6)
+
+    def _spawn(self, parent, burn, group, index):
+        """One sessions_spawn the runaway turn makes, admitted or refused as the product would (openclaw ab5a30ea
+        src/agents/child-admission.ts:84-109, src/agents/spawn-plan.ts:302-329; counts are per swarm group,
+        src/agents/subagents/spawn/subagent-spawn-request.ts:241-247,262-276)."""
+        links = ("spawnedBy", "parentSessionKey", "controlOwnerSessionKey")
+        # Admission counts the children still running, from the moment they are admitted.
+        children = [s for s in self.sessions.values() if parent in [s.get(n) for n in links]
+                    and ((s["burn"] is not None and s["burn"].ended is None) or (self.runs.get(s["runId"]) or {}).get("status") == "never")]
+        if group is None:
+            active, limit = sum(s.get("group") is None for s in children), self._limit("agents.defaults.subagents.maxChildrenPerAgent", DEFAULT_CHILDREN_PER_AGENT)
+            refusal = (f"sessions_spawn has reached max active children for this session ({active}/{limit}; "
+                       "agents.defaults.subagents.maxChildrenPerAgent).")
+            args = {"task": f"part {index + 1}"}
+        else:
+            active, limit = sum(s.get("group") == group for s in children), self._limit("tools.swarm.maxChildrenPerGroup", DEFAULT_CHILDREN_PER_GROUP)
+            refusal = f"sessions_spawn reached tools.swarm.maxChildrenPerGroup ({active}/{limit})."
+            args = {"task": f"part {index + 1}", "collect": True, "groupId": group}
+        call = {"id": f"spawn-{uuid.uuid4().hex[:8]}", "args": args}
+        if active >= limit:
+            return {**call, "answer": {"status": "forbidden", "error": refusal}}
+        child_key = f"agent:main:subagent:{uuid.uuid4().hex}"
+        self.sessions[child_key] = self._new_session(settled=True, burn=_Burn(burn), spawnedBy=parent, group=group)
+        return {**call, "answer": {"status": "accepted", "childSessionKey": child_key, "runId": uuid.uuid4().hex}}
 
     def _stubborn(self, session, what):
         runaway = (session["fixture"] or {}).get("runaway") or next(

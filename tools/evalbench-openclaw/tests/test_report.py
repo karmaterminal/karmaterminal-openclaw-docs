@@ -245,3 +245,20 @@ def test_arm_d_is_reported_like_any_arm_and_splits_the_composite(tmp_path):
 @pytest.mark.parametrize("manifest, shown", [({"offline": True}, True), ({"offline": False}, False), (None, False)])
 def test_only_a_rehearsal_says_so(tmp_path, manifest, shown):
     assert ("Offline rehearsal" in render(report_for(tmp_path, arm_trials({}), arm_trials({}), manifest=manifest))) is shown
+
+
+def test_treatment_limitations_are_counted_and_printed_and_leave_the_rates_alone(tmp_path):
+    from openclaw_evalbench.report import render
+    a = arm_trials({"e1": 2})
+    spawn = {"tool": "sessions_spawn", "settings": ["agents.defaults.subagents.maxChildrenPerAgent"], "status": "forbidden", "call": 0}
+    cron = {"tool": "automations", "settings": ["cron.enabled"], "status": "answered with the scheduler off", "call": 1}
+    a[0]["meta"].update(limitations=[spawn, cron], electedAfterLimitation=True)   # e1, elected
+    a[7]["meta"].update(limitations=[spawn], electedAfterLimitation=False)
+    plain = report_for(tmp_path / "plain", arm_trials({"e1": 2}), arm_trials({}))
+    out = report_for(tmp_path, a, arm_trials({}))
+    assert out["arms"]["A"]["treatmentLimitations"] == {
+        "trials": 2, "bySetting": {"agents.defaults.subagents.maxChildrenPerAgent": 2, "cron.enabled": 1}, "electedAfter": 1}
+    assert out["arms"]["B"]["treatmentLimitations"] == {"trials": 0, "bySetting": {}, "electedAfter": 0}
+    assert out["arms"]["A"]["eligible"] == plain["arms"]["A"]["eligible"], "recorded, never a reason to leave a trial out"
+    assert ("treatment limitations: 2 trial(s) (agents.defaults.subagents.maxChildrenPerAgent 2, cron.enabled 1), "
+            "elected after one: 1.") in render(out)

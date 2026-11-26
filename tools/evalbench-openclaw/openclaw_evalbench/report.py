@@ -98,6 +98,7 @@ def _arm(trials, scenarios, repetitions):
     via, surfaces, text, shapes = Counter(), Counter(), Counter(), Counter()
     queries, runtimes, others, served, prompts_hash = Counter(), Counter(), Counter(), Counter(), set()
     tokens, largest, calls, accepted, problems, mismatches, capped, wakes = 0, 0, 0, 0, [], 0, 0, 0
+    limited, limited_by, elected_after_limit = 0, Counter(), 0
     for trial in trials:
         meta, prompt = trial["meta"], trial["promptId"]
         if trial["problem"]:
@@ -126,6 +127,10 @@ def _arm(trials, scenarios, repetitions):
         entry["scored"] += 1
         totals[kind][1] += 1
         capped += ((meta.get("gateway") or {}).get("caps") or {}).get("verdict") == "verified"
+        limitations = meta.get("limitations") or []
+        limited += bool(limitations)
+        limited_by.update({key for found in limitations for key in found["settings"]})
+        elected_after_limit += bool(meta.get("electedAfterLimitation"))
         deadline += meta["status"] == "deadline"
         runtimes[str(meta.get("runtime"))] += 1
         served.update(meta.get("servedModels") or [])
@@ -164,6 +169,8 @@ def _arm(trials, scenarios, repetitions):
         "electedVia": dict(via), "extraTrials": extra, "surfaces": dict(surfaces), "descriptionText": dict(text),
         "surfaceShapes": dict(shapes),
         "scratchPresent": scratch, "capsVerified": capped, "continuationWakes": wakes,
+        # Scored trials whose model was shown a cap or admission setting (a refusal, or automations with cron off).
+        "treatmentLimitations": {"trials": limited, "bySetting": dict(limited_by.most_common()), "electedAfter": elected_after_limit},
         # Turns stopped at the deadline whose history could not be read: the eligible rate if none of them elected.
         "eligibleIfUnreadableDeadlinesDidNotElect": _rate(totals["eligible"][0], totals["eligible"][1] + unreadable_eligible),
         "discovery": {"observableTrials": observable, "searched": searched, "searchBeforeElection": searched_first,
@@ -283,7 +290,9 @@ def render(report):
         lines.append(f"- **{name}**: surface: {_counts(arm['surfaces'])}; description text: {_counts(arm['descriptionText'])}; "
                      f"runtime: {_counts(arm['runtimes'])}; served: {_counts(arm['servedModels'])}; "
                      f"tools: {_counts(arm['surfaceShapes'])}; contradictions: {arm['surfaceMismatches']}; "
-                     f"caps verified: {arm['capsVerified']}; continuation wakes: {arm['continuationWakes']}.")
+                     f"caps verified: {arm['capsVerified']}; continuation wakes: {arm['continuationWakes']}; "
+                     f"treatment limitations: {arm['treatmentLimitations']['trials']} trial(s) "
+                     f"({_counts(arm['treatmentLimitations']['bySetting'])}), elected after one: {arm['treatmentLimitations']['electedAfter']}.")
     lines += ["", "## What was elected, and how", "",
               "| arm | tools elected (trials) | fitting tool | accepted | how it was called | bracket form (not counted) | deadline | eligible rate if unreadable deadlines did not elect |",
               "| --- | --- | --- | --- | --- | --- | --- | --- |"]

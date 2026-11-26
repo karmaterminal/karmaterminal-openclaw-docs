@@ -46,7 +46,7 @@ const negatives: Record<string, Record<string, unknown>> = {
 // The tree's commit is the caller's to name (an archive has no .git); the probe's own bytes are hashed, so a receipt names
 // the probe that made it.
 const probeSha256 = sha(readFileSync(new URL(import.meta.url)));
-const out: any = { productSha: process.env.PROBE_PRODUCT_SHA ?? null, probeSha256, node: process.version, model: arms.model, caps };
+const out: any = { productSha: process.env.PROBE_PRODUCT_SHA ?? null, probeSha256, node: process.version, model: arms.model, settings: caps };
 
 // --- 1. config.get: the file as authored, the runtime configuration, both after redaction -----------------------------
 {
@@ -84,7 +84,7 @@ setRuntimeConfigSnapshot(cfg, cfg);
   resetContinueDelegateTurnBudget("s");
   const { resolveAgentTimeoutMs } = await src("agents/timeout.ts");
   const { resolveConfiguredSubagentRunTimeoutSeconds } = await src("agents/subagents/spawn/subagent-spawn-plan.ts");
-  out.caps = {
+  out.capsBehavior = {
     budget: { firstElectionAfter5kTokens: budget(0, 5000), secondHop: budget(1, 0) },
     delegateCallsAdmittedInOneTurn: slots,
     turnTimeoutMs: resolveAgentTimeoutMs({ cfg }),

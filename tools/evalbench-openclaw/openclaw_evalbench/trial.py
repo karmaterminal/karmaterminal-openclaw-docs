@@ -136,7 +136,7 @@ async def _trial_on(client, record, arm, descriptions, model, caps, prompt, veri
         rows = await _history(client, key)
         record["continuationWakes"] = continuation_wakes(rows)
         try:
-            turn = read_turn(rows, prompt, run_id)
+            turn = read_turn(rows, prompt, run_id, caps["set"])
         except TranscriptError as error:
             if wait is None:
                 # Not an outcome, and not an ordinary failure either: report.py shows these on their own.
@@ -144,7 +144,8 @@ async def _trial_on(client, record, arm, descriptions, model, caps, prompt, veri
                 return
             raise InfraError(failure if failed else str(error)) from None
         record.update({k: turn[k] for k in ("elected", "elections", "calls", "reply", "discovery", "tokenForm",
-                                           "otherTools", "usage", "modelCalls", "servedModels")})
+                                           "otherTools", "usage", "modelCalls", "servedModels", "limitations",
+                                           "electedAfterLimitation")})
         described = (await client.call("sessions.describe", {"key": key})).get("session") or {}
         runtime = described.get("agentRuntime") if isinstance(described.get("agentRuntime"), dict) else {}
         record["runtime"] = runtime.get("id")

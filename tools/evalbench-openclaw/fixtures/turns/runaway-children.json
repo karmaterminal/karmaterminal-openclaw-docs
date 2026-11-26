@@ -1,6 +1,6 @@
 {
   "id": "runaway-children",
-  "describe": "A turn that ends at once and leaves two children looping, deaf to aborts and deletes.",
+  "describe": "A turn that ends at once and tries to leave two children looping, deaf to aborts and deletes. The product admits one; the second spawn is refused.",
   "rows": [
     {
       "role": "assistant",

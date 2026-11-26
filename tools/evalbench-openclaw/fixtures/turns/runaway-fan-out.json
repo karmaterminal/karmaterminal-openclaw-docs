@@ -1,6 +1,6 @@
 {
   "id": "runaway-fan-out",
-  "describe": "A turn that starts six children at once; none has finished a call yet.",
+  "describe": "A turn that starts six collectors, one in each of six swarm groups of its own naming. The product admits the first collector of every group, so all six run; none has finished a call yet.",
   "rows": [
     {
       "role": "assistant",
@@ -32,7 +32,7 @@
     "status": "never"
   },
   "runaway": {
-    "children": 6,
+    "groups": 6,
     "child": {
       "callTokens": 60000,
       "callSeconds": 60

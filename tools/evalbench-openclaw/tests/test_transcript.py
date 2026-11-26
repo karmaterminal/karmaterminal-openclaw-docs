@@ -179,3 +179,70 @@ def test_an_omitted_assistant_row_is_refused():
     rows[1]["__openclaw"] = {"truncated": True, "reason": "oversized"}
     with pytest.raises(TranscriptError, match="oversized"):
         read_turn(rows, "the prompt", "run-1")
+
+
+# --- what the run's settings showed the model ------------------------------------------------------------------------------------
+
+SETTINGS = __import__("openclaw_evalbench.arms", fromlist=["load_arms"]).load_arms()["caps"]["set"]
+
+
+def answered(rows, name, answer, is_error=False, call_id="x1"):
+    """`rows` with one more call of `name`, answered with `answer` (a dict, as a tool's structured answer)."""
+    import json
+    rows = copy.deepcopy(rows)
+    rows.append({"role": "assistant", "content": [{"type": "toolCall", "id": call_id, "name": name, "arguments": {}}], "__openclaw": {"runId": "run-1"}})
+    rows.append({"role": "toolResult", "toolCallId": call_id, "toolName": name, "isError": is_error,
+                 "content": [{"type": "text", "text": json.dumps(answer)}], "__openclaw": {"runId": "run-1"}})
+    return rows
+
+
+SPAWN_REFUSED = {"status": "forbidden", "error": "sessions_spawn has reached max active children for this session (1/1; agents.defaults.subagents.maxChildrenPerAgent)."}
+
+
+def test_a_refusal_on_a_caps_account_is_a_treatment_limitation():
+    turn = read_turn(answered(rows_of("no-election"), "sessions_spawn", SPAWN_REFUSED), "the prompt", "run-1", SETTINGS)
+    assert turn["limitations"] == [{"tool": "sessions_spawn", "settings": ["agents.defaults.subagents.maxChildrenPerAgent"], "status": "forbidden", "call": 0}]
+    assert turn["electedAfterLimitation"] is False and turn["elected"] is False, "recorded, and the outcome is the turn's"
+
+
+def test_an_election_after_a_limitation_says_so():
+    rows = answered(rows_of("no-election")[:1], "sessions_spawn", SPAWN_REFUSED) + rows_of("election-work")[1:]
+    turn = read_turn(rows, "the prompt", "run-1", SETTINGS)
+    assert turn["elected"] is True and len(turn["limitations"]) == 1 and turn["electedAfterLimitation"] is True
+    # Control: the election first, then the refusal.
+    later = answered(rows_of("election-work"), "sessions_spawn", SPAWN_REFUSED)
+    assert read_turn(later, "the prompt", "run-1", SETTINGS)["electedAfterLimitation"] is False
+
+
+def test_a_second_delegate_refused_by_its_guard_is_one():
+    refused = {"status": "rejected", "guard": "maxDelegatesPerTurn", "reason": "would exceed maxDelegatesPerTurn cap (1/1 already scheduled this turn)"}
+    turn = read_turn(answered(rows_of("election-delegate"), "continue_delegate", refused, call_id="d2"), "the prompt", "run-1", SETTINGS)
+    assert [(f["tool"], f["settings"]) for f in turn["limitations"]] == [("continue_delegate", ["agents.defaults.continuation.maxDelegatesPerTurn"])]
+
+
+def test_every_automations_answer_is_one_while_cron_is_off():
+    rows = answered(rows_of("no-election"), "automations", {"enabled": False, "jobs": 0})
+    assert [f["settings"] for f in read_turn(rows, "the prompt", "run-1", SETTINGS)["limitations"]] == [["cron.enabled"]]
+    # Control: with cron on, an automations answer is just an answer.
+    assert read_turn(rows, "the prompt", "run-1", {**SETTINGS, "cron.enabled": True})["limitations"] == []
+
+
+@pytest.mark.parametrize("name, answer, is_error", [
+    ("exec", {"stdout": "agents.defaults.subagents.maxChildrenPerAgent: 1"}, False),       # it names a setting, and refused nothing
+    ("sessions_spawn", {"status": "forbidden", "error": "sessions_spawn is not allowed in a sandbox."}, False),   # refused, for no setting of the run's
+    ("sessions_spawn", {"status": "accepted", "childSessionKey": "k"}, False),
+    ("web_fetch", {"error": "timed out after maxConcurrent requests"}, True),             # a generic word is not the setting
+])
+def test_what_is_not_a_limitation(name, answer, is_error):
+    assert read_turn(answered(rows_of("no-election"), name, answer, is_error), "the prompt", "run-1", SETTINGS)["limitations"] == []
+
+
+def test_a_refusal_through_the_dispatcher_is_read_from_its_envelope():
+    envelope = {"tool": {"id": "openclaw:core:sessions_spawn", "name": "sessions_spawn", "source": "openclaw"},
+                "result": {"content": [{"type": "text", "text": __import__("json").dumps(SPAWN_REFUSED)}]}}
+    turn = read_turn(answered(rows_of("no-election"), "dispatch_action", envelope), "the prompt", "run-1", SETTINGS)
+    assert [f["settings"] for f in turn["limitations"]] == [["agents.defaults.subagents.maxChildrenPerAgent"]]
+
+
+def test_without_the_runs_settings_nothing_is_read_as_one():
+    assert read_turn(answered(rows_of("no-election"), "sessions_spawn", SPAWN_REFUSED), "the prompt", "run-1")["limitations"] == []

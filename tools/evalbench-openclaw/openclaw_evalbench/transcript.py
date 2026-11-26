@@ -26,6 +26,12 @@ NESTED_TOOL_ROW = "openclaw.nested-tool.v1"
 # The bracket form (src/agents/system-prompt-continuation.ts): the end of the reply. Never counted as an election.
 _TOKEN_WORK = re.compile(r"(?:^|\n)\s*CONTINUE_WORK(?::\d+)?\s*$")
 _TOKEN_DELEGATE = re.compile(r"\[\[\s*CONTINUE_DELEGATE:")
+# What a refusal looks like in a tool's structured answer: the product's own words for it (openclaw ab5a30ea
+# src/agents/subagents/spawn/subagent-spawn-request.ts:308-314 "forbidden", src/agents/tools/continue-delegate-tool.ts:377-380
+# "rejected" with its guard).
+_REFUSED = ("forbidden", "rejected", "refused", "error", "denied")
+# Setting names too common to be read as the reason for a refusal on their own: only their whole path counts.
+_GENERIC_LEAVES = ("enabled", "maxConcurrent", "timeoutSeconds", "runTimeoutSeconds")
 
 
 class TranscriptError(Exception):
@@ -210,8 +216,54 @@ def continuation_wakes(rows):
     return sum(role_of(r) == "user" and text_of(r).lstrip().startswith("[continuation:wake]") for r in rows)
 
 
-def read_turn(rows, prompt, run_id=None):
-    """Everything the eval records about one turn. Raises TranscriptError when the rows can't show it."""
+def _shown(result):
+    """What one tool result showed the model: its text, and its structured answer."""
+    if not isinstance(result, dict):
+        return "", None
+    structured = _structured(result)
+    if _is_envelope(structured):
+        # Tool Search's dispatcher: the answer is the dispatched tool's.
+        structured = _structured(structured["result"]) or structured
+    return "\n".join(filter(None, [text_of(result), json.dumps(structured, sort_keys=True) if structured else ""])), structured
+
+
+def _limitation(name, result, settings):
+    """The run's settings that a refusal in this result names, or None when it is no such refusal."""
+    text, structured = _shown(result)
+    status = structured.get("status") if structured else None
+    refused = bool(result and result.get("isError") is True) or (isinstance(status, str) and status.lower() in _REFUSED) \
+        or bool(structured and structured.get("guard"))
+    named = sorted(key for key in settings
+                   if key in text or (key.rsplit(".", 1)[-1] not in _GENERIC_LEAVES and key.rsplit(".", 1)[-1] in text))
+    if not (refused and named):
+        return None
+    return {"tool": name, "settings": named, "status": status if isinstance(status, str) else "error"}
+
+
+def treatment_limitations(calls, results, settings):
+    """What the run's caps and admission settings showed this turn's model, in call order (README.md, Spend caps).
+
+    A setting limits what runs, not what the model is shown, but a refusal on its account reaches the model as the
+    tool's answer. So does every `automations` answer when cron's scheduler is off: the jobs it lists never fire.
+    Recorded per trial as a treatment limitation, never hidden and never a reason to leave a trial out.
+    """
+    out = []
+    for index, call in enumerate(calls):
+        result = results.get(call["id"]) if call["id"] else None
+        found = _limitation(call["name"], result, settings) if result is not None else None
+        if found is None and call["name"] == "automations" and settings.get("cron.enabled") is False:
+            found = {"tool": "automations", "settings": ["cron.enabled"], "status": "answered with the scheduler off"}
+        if found is not None:
+            out.append({**found, "call": index})
+    return out
+
+
+def read_turn(rows, prompt, run_id=None, settings=None):
+    """Everything the eval records about one turn. Raises TranscriptError when the rows can't show it.
+
+    `settings` are the run's caps and admission settings (arms.json caps.set): what they showed the model is
+    `limitations`.
+    """
     turn = turn_rows(rows, prompt, run_id)
     assistants = [r for r in turn if role_of(r) == "assistant"]
     if not any(role_of(r) in ("assistant", "toolresult") or _is_nested(r) for r in turn):
@@ -225,7 +277,7 @@ def read_turn(rows, prompt, run_id=None):
 
     calls, reply, usage, models = [], "", {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}, []
     model_calls = 0
-    by_id = {}
+    by_id, answers = {}, {}
 
     def add(call_id, name, args, via, result):
         tool = continuation_tool(name)
@@ -236,6 +288,8 @@ def read_turn(rows, prompt, run_id=None):
         calls.append(call)
         if call_id:
             by_id[call_id] = call
+            if result is not None:
+                answers[call_id] = result
 
     for row in turn:
         nested = _nested_call(row)
@@ -273,6 +327,7 @@ def read_turn(rows, prompt, run_id=None):
 
     elections = [c for c in calls if c["name"] in CONTINUATION_TOOLS]
     first_election = next((i for i, c in enumerate(calls) if c["name"] in CONTINUATION_TOOLS), None)
+    limitations = treatment_limitations(calls, answers, settings or {})
     searches = [i for i, c in enumerate(calls) if c["name"] == "tool_search"]
     return {
         "reply": reply,
@@ -291,6 +346,10 @@ def read_turn(rows, prompt, run_id=None):
         "usage": {**usage, "total": sum(usage.values())},
         "modelCalls": model_calls,
         "servedModels": models,
+        "limitations": limitations,
+        # An election after something the settings showed the model may answer it: the trial says so.
+        "electedAfterLimitation": bool(limitations) and any(i > limitations[0]["call"] for i, c in enumerate(calls)
+                                                             if c["name"] in CONTINUATION_TOOLS),
     }
 
 

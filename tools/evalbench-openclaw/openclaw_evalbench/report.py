@@ -170,7 +170,8 @@ def _arm(trials, scenarios, repetitions):
         "surfaceShapes": dict(shapes),
         "scratchPresent": scratch, "capsVerified": capped, "continuationWakes": wakes,
         # Scored trials whose model was shown a cap or admission setting (a refusal, or automations with cron off).
-        "treatmentLimitations": {"trials": limited, "bySetting": dict(limited_by.most_common()), "electedAfter": elected_after_limit},
+        "treatmentLimitations": {"trials": limited, "bySetting": dict(sorted(limited_by.items(), key=lambda kv: (-kv[1], kv[0]))),
+                                 "electedAfter": elected_after_limit},
         # Turns stopped at the deadline whose history could not be read: the eligible rate if none of them elected.
         "eligibleIfUnreadableDeadlinesDidNotElect": _rate(totals["eligible"][0], totals["eligible"][1] + unreadable_eligible),
         "discovery": {"observableTrials": observable, "searched": searched, "searchBeforeElection": searched_first,

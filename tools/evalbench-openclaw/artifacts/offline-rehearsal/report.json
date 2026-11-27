@@ -7,21 +7,23 @@
     "issue": "karmaterminal/openclaw#1575",
     "offline": true,
     "go": null,
-    "started": "2026-11-26T11:38:22+00:00",
+    "started": "2026-11-27T18:52:30+00:00",
     "arms": [
       "A",
       "B",
-      "C"
+      "C",
+      "E"
     ],
     "model": "openai/gpt-6.1-sol",
     "gatewayUrls": {
-      "A": "ws://127.0.0.1:43383",
-      "B": "ws://127.0.0.1:45289",
-      "C": "ws://127.0.0.1:42259"
+      "A": "ws://127.0.0.1:36527",
+      "B": "ws://127.0.0.1:39329",
+      "C": "ws://127.0.0.1:42583",
+      "E": "ws://127.0.0.1:34825"
     },
     "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
     "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
-    "harnessHead": "74a3acc16543ccc0225fd3d21ba1e21ac8fb88e9",
+    "harnessHead": "8abedd4a1947b02dbdb3f0dd7c0a5bafe0e29df5",
     "harnessDirty": false,
     "numTrials": 5,
     "scenarios": null,
@@ -46,7 +48,13 @@
       "plugins.entries.skill-workshop.config.autonomous.mode": "off"
     },
     "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
-    "armsSha256": "f5a452c5fc60b03645164cdc31e4d0e70f41066662dd0f0521f1319b5d0a84ec",
+    "armsSha256": "d847170f25f75db503f87514fd924464514919f5622697940b1c6afb0e20b9b7",
+    "awareness": {
+      "prompt": "judges/awareness.md",
+      "sha256": "6228df6f5f31617726960ccd9b7463facd11ea0107f0c815fa8629a8e7c3caeb",
+      "seed": 1575,
+      "perPrompt": 1
+    },
     "supervision": {
       "limits": {
         "pollSeconds": 0.2,
@@ -67,7 +75,7 @@
       "lost": null,
       "receipt": {
         "schema": "openclaw.evalbench.supervision.v1",
-        "run": "29fd5a152a09",
+        "run": "8659222ec822",
         "offline": true,
         "limits": {
           "pollSeconds": 0.2,
@@ -85,36 +93,108 @@
           "runSeconds": 14400
         },
         "ended": {
-          "at": "2026-11-26T11:38:39.620+00:00",
+          "at": "2026-11-27T18:52:47.492+00:00",
           "rule": "run-finished",
           "detail": "the runner finished"
         },
-        "seconds": 16.48,
-        "tokens": 10072383,
+        "seconds": 16.494,
+        "tokens": 13748598,
         "unwrittenRecords": 0,
         "arms": {
           "A": {
             "identity": {
-              "pid": 3882393,
+              "pid": 3302060,
               "fake": true
             },
             "tokens": 3153187,
-            "sessions": 1,
+            "sessions": 2,
             "readings": 173,
             "aggregateReadings": 0,
             "aggregateFailures": 0,
-            "longestGapSeconds": 0.203,
+            "longestGapSeconds": 0.205,
             "trials": 90,
             "largestTrialTokens": 84085,
-            "longestTrialSeconds": 1.011,
+            "longestTrialSeconds": 1.009,
             "sweptUnits": 0,
             "stop": {
-              "at": "2026-11-26T11:38:39.620+00:00",
+              "at": "2026-11-27T18:52:47.492+00:00",
               "rule": "run-finished",
               "detail": "the runner finished",
               "tokens": 3153187,
               "trial": null,
-              "secondsSinceReading": 0.129,
+              "secondsSinceReading": 0.159,
+              "aborts": null,
+              "result": {
+                "stopped": true,
+                "problems": [],
+                "durableUnits": [],
+                "strayProcesses": 0,
+                "killSeconds": 0.011,
+                "goneSeconds": 0.011,
+                "seconds": 0.011
+              },
+              "abortSeconds": 0.0,
+              "seconds": 0.012
+            }
+          },
+          "B": {
+            "identity": {
+              "pid": 3302078,
+              "fake": true
+            },
+            "tokens": 3287863,
+            "sessions": 2,
+            "readings": 173,
+            "aggregateReadings": 0,
+            "aggregateFailures": 0,
+            "longestGapSeconds": 0.204,
+            "trials": 90,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 1.014,
+            "sweptUnits": 0,
+            "stop": {
+              "at": "2026-11-27T18:52:47.492+00:00",
+              "rule": "run-finished",
+              "detail": "the runner finished",
+              "tokens": 3287863,
+              "trial": null,
+              "secondsSinceReading": 0.153,
+              "aborts": null,
+              "result": {
+                "stopped": true,
+                "problems": [],
+                "durableUnits": [],
+                "strayProcesses": 0,
+                "killSeconds": 0.01,
+                "goneSeconds": 0.01,
+                "seconds": 0.01
+              },
+              "abortSeconds": 0.0,
+              "seconds": 0.011
+            }
+          },
+          "C": {
+            "identity": {
+              "pid": 3302093,
+              "fake": true
+            },
+            "tokens": 3631333,
+            "sessions": 2,
+            "readings": 173,
+            "aggregateReadings": 0,
+            "aggregateFailures": 0,
+            "longestGapSeconds": 0.205,
+            "trials": 90,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 0.016,
+            "sweptUnits": 0,
+            "stop": {
+              "at": "2026-11-27T18:52:47.492+00:00",
+              "rule": "run-finished",
+              "detail": "the runner finished",
+              "tokens": 3631333,
+              "trial": null,
+              "secondsSinceReading": 0.158,
               "aborts": null,
               "result": {
                 "stopped": true,
@@ -129,64 +209,28 @@
               "seconds": 0.011
             }
           },
-          "B": {
+          "E": {
             "identity": {
-              "pid": 3882420,
+              "pid": 3302104,
               "fake": true
             },
-            "tokens": 3287863,
+            "tokens": 3676215,
             "sessions": 4,
             "readings": 173,
             "aggregateReadings": 0,
             "aggregateFailures": 0,
-            "longestGapSeconds": 0.203,
+            "longestGapSeconds": 0.204,
             "trials": 90,
             "largestTrialTokens": 84085,
-            "longestTrialSeconds": 1.006,
+            "longestTrialSeconds": 1.011,
             "sweptUnits": 0,
             "stop": {
-              "at": "2026-11-26T11:38:39.620+00:00",
+              "at": "2026-11-27T18:52:47.492+00:00",
               "rule": "run-finished",
               "detail": "the runner finished",
-              "tokens": 3287863,
+              "tokens": 3676215,
               "trial": null,
-              "secondsSinceReading": 0.129,
-              "aborts": null,
-              "result": {
-                "stopped": true,
-                "problems": [],
-                "durableUnits": [],
-                "strayProcesses": 0,
-                "killSeconds": 0.012,
-                "goneSeconds": 0.012,
-                "seconds": 0.012
-              },
-              "abortSeconds": 0.0,
-              "seconds": 0.012
-            }
-          },
-          "C": {
-            "identity": {
-              "pid": 3882449,
-              "fake": true
-            },
-            "tokens": 3631333,
-            "sessions": 1,
-            "readings": 173,
-            "aggregateReadings": 0,
-            "aggregateFailures": 0,
-            "longestGapSeconds": 0.203,
-            "trials": 90,
-            "largestTrialTokens": 84085,
-            "longestTrialSeconds": 0.015,
-            "sweptUnits": 0,
-            "stop": {
-              "at": "2026-11-26T11:38:39.620+00:00",
-              "rule": "run-finished",
-              "detail": "the runner finished",
-              "tokens": 3631333,
-              "trial": null,
-              "secondsSinceReading": 0.129,
+              "secondsSinceReading": 0.153,
               "aborts": null,
               "result": {
                 "stopped": true,
@@ -205,10 +249,10 @@
       },
       "runnerStops": null
     },
-    "ended": "2026-11-26T11:38:39+00:00",
+    "ended": "2026-11-27T18:52:47+00:00",
     "results": {
       "A": {
-        "jobId": "eb2bfcaf-e65d-4f5b-a362-b590692168a7",
+        "jobId": "10f59f3b-8edb-491c-83b1-82204100dcf9",
         "summary": {
           "total": 90,
           "scores": {
@@ -224,7 +268,7 @@
         "meteredTokens": 3153187
       },
       "B": {
-        "jobId": "5d593a44-6037-428c-8951-ab6691ddf558",
+        "jobId": "b78e5c05-f704-42be-a34d-548cd8044b4f",
         "summary": {
           "total": 90,
           "scores": {
@@ -240,7 +284,7 @@
         "meteredTokens": 3287863
       },
       "C": {
-        "jobId": "1a07ee40-bf72-44cb-a809-a5d64801a332",
+        "jobId": "58da36a9-5dcd-44a4-8f60-0fcb08102060",
         "summary": {
           "total": 90,
           "scores": {
@@ -254,12 +298,31 @@
         "trials": 90,
         "halted": null,
         "meteredTokens": 3631333
+      },
+      "E": {
+        "jobId": "1e26b392-497c-488b-ae54-9b6de994207a",
+        "summary": {
+          "total": 90,
+          "scores": {
+            "continuation_election": 50,
+            "token_consumption": 123915,
+            "trajectory_matcher": 78,
+            "executable": 90
+          }
+        },
+        "error": null,
+        "trials": 90,
+        "halted": null,
+        "meteredTokens": 3676215
       }
     },
     "failures": []
   },
   "arms": {
     "A": {
+      "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "descriptions": "ab5a30ea",
+      "continuationTools": "deferred",
       "eligible": {
         "elected": 3,
         "scored": 60,
@@ -353,6 +416,17 @@
       "meteredTokens": 3153187,
       "largestTrialTokens": 84085,
       "modelCalls": 122,
+      "directTools": {
+        "values": [
+          7
+        ],
+        "names": [
+          "78a58f0672db0f09"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": false
+      },
       "perPrompt": {
         "c1-arithmetic": {
           "kind": "control",
@@ -531,6 +605,9 @@
       }
     },
     "B": {
+      "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "descriptions": "ab5a30ea",
+      "continuationTools": "direct",
       "eligible": {
         "elected": 22,
         "scored": 60,
@@ -574,7 +651,7 @@
         "match": 270
       },
       "surfaceShapes": {
-        "9 direct and 0 deferred": 90
+        "66 direct and 0 deferred": 90
       },
       "scratchPresent": 0,
       "capsVerified": 90,
@@ -621,6 +698,17 @@
       "meteredTokens": 3287863,
       "largestTrialTokens": 84085,
       "modelCalls": 128,
+      "directTools": {
+        "values": [
+          66
+        ],
+        "names": [
+          "fb6db0b02b778dfa"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": true
+      },
       "perPrompt": {
         "c1-arithmetic": {
           "kind": "control",
@@ -819,6 +907,9 @@
       }
     },
     "C": {
+      "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+      "descriptions": "f9fcd3a5",
+      "continuationTools": "direct",
       "eligible": {
         "elected": 45,
         "scored": 60,
@@ -907,6 +998,17 @@
       "meteredTokens": 3631333,
       "largestTrialTokens": 84085,
       "modelCalls": 142,
+      "directTools": {
+        "values": [
+          10
+        ],
+        "names": [
+          "2cd7b0a1e3355b2c"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": false
+      },
       "perPrompt": {
         "c1-arithmetic": {
           "kind": "control",
@@ -1105,6 +1207,308 @@
           }
         }
       }
+    },
+    "E": {
+      "productSha": "de55f3505d930427538359fdfeb256874486ed9f",
+      "descriptions": "de55f350",
+      "continuationTools": "direct",
+      "eligible": {
+        "elected": 49,
+        "scored": 60,
+        "rate": 0.8166666666666667,
+        "wilson95": [
+          0.7008024625353194,
+          0.8944220311080237
+        ]
+      },
+      "control": {
+        "elected": 1,
+        "scored": 30,
+        "rate": 0.03333333333333333,
+        "wilson95": [
+          0.005908590381612455,
+          0.16670390991409173
+        ]
+      },
+      "trials": 90,
+      "scored": 90,
+      "unscored": {},
+      "deadline": 1,
+      "promptsBelowRepetitions": [],
+      "surfaceMismatches": 0,
+      "problems": [],
+      "electedTool": {
+        "continue_work": 35,
+        "continue_delegate": 15
+      },
+      "electedExpectedTool": 49,
+      "electedAccepted": 50,
+      "electedVia": {
+        "direct": 50
+      },
+      "extraTrials": 0,
+      "surfaces": {
+        "verified": 89,
+        "carried": 1
+      },
+      "descriptionText": {
+        "match": 270
+      },
+      "surfaceShapes": {
+        "10 direct and 2 deferred": 90
+      },
+      "scratchPresent": 0,
+      "capsVerified": 90,
+      "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 2,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 2,
+          "cron.enabled": 1
+        },
+        "electedAfter": 1
+      },
+      "eligibleIfUnreadableDeadlinesDidNotElect": {
+        "elected": 49,
+        "scored": 60,
+        "rate": 0.8166666666666667,
+        "wilson95": [
+          0.7008024625353194,
+          0.8944220311080237
+        ]
+      },
+      "discovery": {
+        "observableTrials": 90,
+        "searched": 0,
+        "searchBeforeElection": 0,
+        "queries": {}
+      },
+      "tokenForm": {
+        "continue_work": 0,
+        "continue_delegate": 0
+      },
+      "otherTools": {
+        "sessions_spawn": 4,
+        "exec": 2,
+        "automations": 1
+      },
+      "runtimes": {
+        "openclaw": 90
+      },
+      "servedModels": {
+        "openai/gpt-6.1-sol": 90
+      },
+      "distinctSystemPrompts": 1,
+      "meteredTokens": 3676215,
+      "largestTrialTokens": 84085,
+      "modelCalls": 144,
+      "directTools": {
+        "values": [
+          10
+        ],
+        "names": [
+          "2cd7b0a1e3355b2c"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": false
+      },
+      "perPrompt": {
+        "c1-arithmetic": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c2-friendlier": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c3-tcp-udp": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c4-closing": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c5-nothing-to-do": {
+          "kind": "control",
+          "expected": [],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 1
+          }
+        },
+        "c6-hiking-club": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w1-file-appears": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 5,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 5
+          }
+        },
+        "w2-guide-in-parts": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w3-cooldown": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w4-two-readings": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w5-section-reviews": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 5,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 5
+          }
+        },
+        "w6-notes-before-morning": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w7-build-result": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w8-three-timestamps": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "d1-second-pair-of-eyes": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 4
+          }
+        },
+        "d2-blind-recheck": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 4
+          }
+        },
+        "d3-side-job": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 4
+          }
+        },
+        "d4-later-reading": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 3
+          }
+        }
+      }
     }
   },
   "comparisons": [
@@ -1155,6 +1559,30 @@
       }
     },
     {
+      "id": "settled-wording",
+      "label": "settled wording (same placement)",
+      "from": "C",
+      "to": "E",
+      "primary": true,
+      "note": "the same fleet-default config and direct-only placement on both, and the settled text on E. On the embedded runtime only the text the model is shown differs (the probe): the three descriptions, the parameter descriptions of continue_work and continue_delegate, and five prompt lines, the delegate's tooling line and the continuation section's wake, self-elected-turn and compaction lines and its sessions_yield caveat. On the Codex harness de55f350 also adds the whole continuation section to the harness prompt, which f9fcd3a5's lacks, so there it is more than wording.",
+      "holdsDirectTools": true,
+      "difference": 0.06666666666666665,
+      "newcombe95": [
+        -0.08142711261810184,
+        0.21160889838809802
+      ],
+      "bootstrap95": [
+        0.0,
+        0.13333333333333341
+      ],
+      "reading": "no effect shown",
+      "blockers": [],
+      "controlRates": {
+        "C": 0.1,
+        "E": 0.03333333333333333
+      }
+    },
+    {
       "id": "deploy",
       "label": "deploy of f9fcd3a5",
       "from": "A",
@@ -1175,6 +1603,134 @@
         "A": 0.0,
         "C": 0.1
       }
+    },
+    {
+      "id": "settled-deploy",
+      "label": "placement + settled wording",
+      "from": "A",
+      "to": "E",
+      "primary": false,
+      "note": "deploy of de55f350 over ab5a30ea: the continuation tools move from deferred to direct-only and the text becomes the settled one. On the same trials A \u2192 B, B \u2192 C and C \u2192 E add up to it.",
+      "difference": 0.7666666666666666,
+      "newcombe95": [
+        0.6217721792128241,
+        0.8510766892200061
+      ],
+      "bootstrap95": [
+        0.7000000000000001,
+        0.8333333333333333
+      ],
+      "reading": "effect",
+      "blockers": [],
+      "controlRates": {
+        "A": 0.0,
+        "E": 0.03333333333333333
+      }
     }
-  ]
+  ],
+  "awareness": {
+    "prompt": "judges/awareness.md",
+    "promptSha256": "6228df6f5f31617726960ccd9b7463facd11ea0107f0c815fa8629a8e7c3caeb",
+    "seed": 1575,
+    "perPrompt": 1,
+    "labelsGiven": true,
+    "judges": [
+      "scripted stand-in (offline rehearsal; no model)"
+    ],
+    "arms": {
+      "A": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 0,
+        "unclear": 1,
+        "unaware": 17,
+        "elected": {
+          "sampled": 2,
+          "aware": 0
+        },
+        "notElected": {
+          "sampled": 16,
+          "aware": 0
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.17587922364665765
+          ]
+        }
+      },
+      "B": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 1,
+        "unclear": 0,
+        "unaware": 17,
+        "elected": {
+          "sampled": 3,
+          "aware": 0
+        },
+        "notElected": {
+          "sampled": 15,
+          "aware": 1
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.05555555555555555,
+          "wilson95": [
+            0.009875190978303097,
+            0.25757300781872594
+          ]
+        }
+      },
+      "C": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 0,
+        "unclear": 0,
+        "unaware": 18,
+        "elected": {
+          "sampled": 8,
+          "aware": 0
+        },
+        "notElected": {
+          "sampled": 10,
+          "aware": 0
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.17587922364665765
+          ]
+        }
+      },
+      "E": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 2,
+        "unclear": 0,
+        "unaware": 16,
+        "elected": {
+          "sampled": 11,
+          "aware": 1
+        },
+        "notElected": {
+          "sampled": 7,
+          "aware": 1
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.1111111111111111,
+          "wilson95": [
+            0.03101952264561239,
+            0.32799765130178804
+          ]
+        }
+      }
+    },
+    "problems": []
+  }
 }

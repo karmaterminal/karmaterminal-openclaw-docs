@@ -1,21 +1,21 @@
 job_id,run_time,config,value
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,db_configs,[]
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.dataset_config,datasets/continuation-propensity.evalset.json
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.dataset_format,agent-format
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.experiment_name,openclaw-continuation-propensity-B
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.model_config,/tmp/claude-1000/cp-fix3c/reh5-abc/config/model_arm_b.yaml
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.num_trials,5
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.orchestrator,agent
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.reporting.csv.output_directory,/tmp/claude-1000/cp-fix3c/reh5-abc/results
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.scorers.continuation_election.script_path,scorers/continuation_election.py
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.scorers.continuation_election.type,python_scorer
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.simulated_user_model_config,configs/simulated_user_noop.yaml
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.session_id,evalprop-B-c6c6faa735814019a5f8c1f19270e7b0
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,experiment_config.agent_out_queue,<queue.Queue object at 0xfbb823592060>
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.generator,agent_grpc_proxy
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.generator_class,openclaw_evalbench.generator:OpenClawProxyGenerator
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.timeout_seconds,900.0
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.env.OPENCLAW_EVAL_ARM,B
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.env.OPENCLAW_EVAL_GATEWAY_URL,ws://127.0.0.1:45289
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.env.OPENCLAW_EVAL_MODEL,openai/gpt-6.1-sol
-5d593a44-6037-428c-8951-ab6691ddf558,2026-11-26 03:38:34.968365,model_config.agent_version,openclaw-arm-B
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,db_configs,[]
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.dataset_config,datasets/continuation-propensity.evalset.json
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.dataset_format,agent-format
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.experiment_name,openclaw-continuation-propensity-B
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.model_config,/home/figs/.cache/evalbench-arm-e/rehearsals/offline-8abedd4a/config/model_arm_b.yaml
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.num_trials,5
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.orchestrator,agent
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.reporting.csv.output_directory,/home/figs/.cache/evalbench-arm-e/rehearsals/offline-8abedd4a/results
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.scorers.continuation_election.script_path,scorers/continuation_election.py
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.scorers.continuation_election.type,python_scorer
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.simulated_user_model_config,configs/simulated_user_noop.yaml
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.session_id,evalprop-B-26f1ee6df280428791a2100f1ef791f4
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,experiment_config.agent_out_queue,<queue.Queue object at 0xfbee514bc440>
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.generator,agent_grpc_proxy
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.generator_class,openclaw_evalbench.generator:OpenClawProxyGenerator
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.timeout_seconds,900.0
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.env.OPENCLAW_EVAL_ARM,B
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.env.OPENCLAW_EVAL_GATEWAY_URL,ws://127.0.0.1:39329
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.env.OPENCLAW_EVAL_MODEL,openai/gpt-6.1-sol
+b78e5c05-f704-42be-a34d-548cd8044b4f,2026-11-27 10:52:42.475920,model_config.agent_version,openclaw-arm-B

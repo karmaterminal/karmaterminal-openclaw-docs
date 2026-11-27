@@ -1,0 +1,5 @@
+arm,product_sha,descriptions,continuation_tools,direct_tools,crowded,eligible_elected,eligible_scored,eligible_rate,eligible_wilson95_low,eligible_wilson95_high,control_elected,control_scored,control_rate,control_wilson95_low,control_wilson95_high,unscored,awareness,awareness_sampled,awareness_judged,awareness_aware
+A,ab5a30ea79b776f149e24b1fccab9e79b0a5d299,ab5a30ea,deferred,7,no,3,60,0.0500,0.0171,0.1370,0,30,0.0000,0.0000,0.1135,,judged,18,18,0
+B,ab5a30ea79b776f149e24b1fccab9e79b0a5d299,ab5a30ea,direct,66,yes,22,60,0.3667,0.2562,0.4932,1,30,0.0333,0.0059,0.1667,,judged,18,18,1
+C,f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306,f9fcd3a5,direct,10,no,45,60,0.7500,0.6277,0.8422,3,30,0.1000,0.0346,0.2562,,judged,18,18,0
+E,de55f3505d930427538359fdfeb256874486ed9f,de55f350,direct,10,no,49,60,0.8167,0.7008,0.8944,1,30,0.0333,0.0059,0.1667,,judged,18,18,2

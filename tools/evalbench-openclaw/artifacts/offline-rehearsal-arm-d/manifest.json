@@ -3,7 +3,7 @@
   "issue": "karmaterminal/openclaw#1575",
   "offline": true,
   "go": null,
-  "started": "2026-11-27T18:52:47+00:00",
+  "started": "2026-11-27T19:18:39+00:00",
   "arms": [
     "A",
     "B",
@@ -13,15 +13,15 @@
   ],
   "model": "openai/gpt-6.1-sol",
   "gatewayUrls": {
-    "A": "ws://127.0.0.1:45959",
-    "B": "ws://127.0.0.1:40291",
-    "C": "ws://127.0.0.1:41509",
-    "D": "ws://127.0.0.1:40087",
-    "E": "ws://127.0.0.1:34635"
+    "A": "ws://127.0.0.1:38369",
+    "B": "ws://127.0.0.1:44965",
+    "C": "ws://127.0.0.1:45445",
+    "D": "ws://127.0.0.1:34123",
+    "E": "ws://127.0.0.1:44197"
   },
   "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
   "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
-  "harnessHead": "8abedd4a1947b02dbdb3f0dd7c0a5bafe0e29df5",
+  "harnessHead": "92a3a7ec07cedb6a53997fcd12e6b70d26bda3c6",
   "harnessDirty": false,
   "numTrials": 5,
   "scenarios": null,
@@ -46,10 +46,10 @@
     "plugins.entries.skill-workshop.config.autonomous.mode": "off"
   },
   "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
-  "armsSha256": "d847170f25f75db503f87514fd924464514919f5622697940b1c6afb0e20b9b7",
+  "armsSha256": "7b540cd147a93a71932007dbf9f304fe4cbc8b715fc84db881f989e384edbbe0",
   "awareness": {
     "prompt": "judges/awareness.md",
-    "sha256": "6228df6f5f31617726960ccd9b7463facd11ea0107f0c815fa8629a8e7c3caeb",
+    "sha256": "eae15f84feefb24b93385627e4d44b643ac61451c8cc3a886a5e3997272592b3",
     "seed": 1575,
     "perPrompt": 1
   },
@@ -73,7 +73,7 @@
     "lost": null,
     "receipt": {
       "schema": "openclaw.evalbench.supervision.v1",
-      "run": "cea7254aba6e",
+      "run": "427a48b35f7e",
       "offline": true,
       "limits": {
         "pollSeconds": 0.2,
@@ -91,36 +91,36 @@
         "runSeconds": 14400
       },
       "ended": {
-        "at": "2026-11-27T18:53:05.183+00:00",
+        "at": "2026-11-27T19:18:51.226+00:00",
         "rule": "run-finished",
         "detail": "the runner finished"
       },
-      "seconds": 16.722,
+      "seconds": 10.864,
       "tokens": 17252179,
       "unwrittenRecords": 0,
       "arms": {
         "A": {
           "identity": {
-            "pid": 3313351,
+            "pid": 307649,
             "fake": true
           },
           "tokens": 3153187,
-          "sessions": 6,
-          "readings": 174,
+          "sessions": 5,
+          "readings": 145,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
           "longestGapSeconds": 0.203,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.013,
+          "longestTrialSeconds": 1.01,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-27T18:53:05.183+00:00",
+            "at": "2026-11-27T19:18:51.226+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3153187,
             "trial": null,
-            "secondsSinceReading": 0.149,
+            "secondsSinceReading": 0.154,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -137,26 +137,26 @@
         },
         "B": {
           "identity": {
-            "pid": 3313406,
+            "pid": 307682,
             "fake": true
           },
           "tokens": 3287863,
-          "sessions": 4,
-          "readings": 174,
+          "sessions": 5,
+          "readings": 145,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
           "longestGapSeconds": 0.203,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.009,
+          "longestTrialSeconds": 1.014,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-27T18:53:05.183+00:00",
+            "at": "2026-11-27T19:18:51.226+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3287863,
             "trial": null,
-            "secondsSinceReading": 0.149,
+            "secondsSinceReading": 0.155,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -173,26 +173,26 @@
         },
         "C": {
           "identity": {
-            "pid": 3313459,
+            "pid": 307692,
             "fake": true
           },
           "tokens": 3631333,
-          "sessions": 1,
-          "readings": 174,
+          "sessions": 0,
+          "readings": 145,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.203,
+          "longestGapSeconds": 0.204,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 0.022,
+          "longestTrialSeconds": 0.021,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-27T18:53:05.183+00:00",
+            "at": "2026-11-27T19:18:51.226+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3631333,
             "trial": null,
-            "secondsSinceReading": 0.15,
+            "secondsSinceReading": 0.155,
             "aborts": null,
             "result": {
               "stopped": true,
@@ -202,91 +202,91 @@
               "killSeconds": 0.011,
               "goneSeconds": 0.011,
               "seconds": 0.011
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.011
+          }
+        },
+        "D": {
+          "identity": {
+            "pid": 307716,
+            "fake": true
+          },
+          "tokens": 3503581,
+          "sessions": 4,
+          "readings": 145,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.203,
+          "trials": 90,
+          "largestTrialTokens": 84085,
+          "longestTrialSeconds": 1.017,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-27T19:18:51.226+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3503581,
+            "trial": null,
+            "secondsSinceReading": 0.154,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.01,
+              "goneSeconds": 0.01,
+              "seconds": 0.01
             },
             "abortSeconds": 0.0,
             "seconds": 0.012
           }
         },
-        "D": {
-          "identity": {
-            "pid": 3313488,
-            "fake": true
-          },
-          "tokens": 3503581,
-          "sessions": 2,
-          "readings": 174,
-          "aggregateReadings": 0,
-          "aggregateFailures": 0,
-          "longestGapSeconds": 0.203,
-          "trials": 90,
-          "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.011,
-          "sweptUnits": 0,
-          "stop": {
-            "at": "2026-11-27T18:53:05.183+00:00",
-            "rule": "run-finished",
-            "detail": "the runner finished",
-            "tokens": 3503581,
-            "trial": null,
-            "secondsSinceReading": 0.15,
-            "aborts": null,
-            "result": {
-              "stopped": true,
-              "problems": [],
-              "durableUnits": [],
-              "strayProcesses": 0,
-              "killSeconds": 0.011,
-              "goneSeconds": 0.011,
-              "seconds": 0.011
-            },
-            "abortSeconds": 0.0,
-            "seconds": 0.022
-          }
-        },
         "E": {
           "identity": {
-            "pid": 3313520,
+            "pid": 307728,
             "fake": true
           },
           "tokens": 3676215,
-          "sessions": 4,
-          "readings": 174,
+          "sessions": 2,
+          "readings": 145,
           "aggregateReadings": 0,
           "aggregateFailures": 0,
-          "longestGapSeconds": 0.203,
+          "longestGapSeconds": 0.204,
           "trials": 90,
           "largestTrialTokens": 84085,
-          "longestTrialSeconds": 1.011,
+          "longestTrialSeconds": 1.012,
           "sweptUnits": 0,
           "stop": {
-            "at": "2026-11-27T18:53:05.183+00:00",
+            "at": "2026-11-27T19:18:51.226+00:00",
             "rule": "run-finished",
             "detail": "the runner finished",
             "tokens": 3676215,
             "trial": null,
-            "secondsSinceReading": 0.149,
+            "secondsSinceReading": 0.154,
             "aborts": null,
             "result": {
               "stopped": true,
               "problems": [],
               "durableUnits": [],
               "strayProcesses": 0,
-              "killSeconds": 0.011,
-              "goneSeconds": 0.011,
-              "seconds": 0.011
+              "killSeconds": 0.012,
+              "goneSeconds": 0.012,
+              "seconds": 0.012
             },
             "abortSeconds": 0.0,
-            "seconds": 0.021
+            "seconds": 0.012
           }
         }
       }
     },
     "runnerStops": null
   },
-  "ended": "2026-11-27T18:53:05+00:00",
+  "ended": "2026-11-27T19:18:51+00:00",
   "results": {
     "A": {
-      "jobId": "43d1f386-67be-4045-b3a3-651fa04b3430",
+      "jobId": "deef915c-f4dc-4589-8861-27ec3bd1c402",
       "summary": {
         "total": 90,
         "scores": {
@@ -302,7 +302,7 @@
       "meteredTokens": 3153187
     },
     "B": {
-      "jobId": "fe390ff2-d9f7-45eb-bf32-290d64caee81",
+      "jobId": "4af2fe27-ab4c-4cec-8767-ab5dadd48047",
       "summary": {
         "total": 90,
         "scores": {
@@ -318,7 +318,7 @@
       "meteredTokens": 3287863
     },
     "C": {
-      "jobId": "a528ce85-18f0-4241-b66a-829e69365e45",
+      "jobId": "ef306de2-9669-4c12-a950-cdb8bb019e64",
       "summary": {
         "total": 90,
         "scores": {
@@ -334,7 +334,7 @@
       "meteredTokens": 3631333
     },
     "D": {
-      "jobId": "f891732b-bc18-4938-83c8-19604297bb07",
+      "jobId": "4838c039-2e15-4c18-9aee-ccee6aa89e3c",
       "summary": {
         "total": 90,
         "scores": {
@@ -350,7 +350,7 @@
       "meteredTokens": 3503581
     },
     "E": {
-      "jobId": "346241de-3dd6-4baf-92a8-37ebfa6255da",
+      "jobId": "da10b7e9-4e95-4e6a-8ec7-3bd92d287d75",
       "summary": {
         "total": 90,
         "scores": {

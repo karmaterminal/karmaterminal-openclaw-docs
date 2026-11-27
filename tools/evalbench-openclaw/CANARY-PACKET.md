@@ -313,7 +313,7 @@ what holds it. **Conditional** is an estimate, beside the assumption it rests on
 | one trial's time | killed by 480 s, + 1 s | the supervisor's own clock, then SIGKILL of the gateway's unit | a turn that spends nothing and never ends |
 | the canary's time | killed by 1800 s, + 1 s; 1860 s if the supervisor and the runner both die | the same clock; then a systemd timer | a run with no trial at all; both processes killed |
 | the kill, once a limit is crossed | within 12.5 s of the last reading under it, whatever the readings do; 4.5 s while every reading is on time | the supervisor: a reading a second on its own connection, its own clock, then the kill until it is proved | fakes that loop, ignore every abort, or stop answering; a real systemd unit |
-| message turns at once on one gateway (the main lane, where every message's turn runs, `src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`; other turns run in another lane, [below](#what-nothing-here-bounds)) | **1**; a second waits in the queue | `agents.defaults.maxConcurrent: 1`, the main lane's width (`src/gateway/server-lanes.ts:33,75`, `src/config/agent-limits.ts:33-38`) | the product's own queue at both SHAs: two turns start one after the other, and both at once without it (probe) |
+| message turns at once on one gateway (the main lane, where every message's turn runs, `src/auto-reply/reply/agent-runner-fallback-candidate.ts:110-115`; other turns run in another lane, [below](#what-nothing-here-bounds)) | **1**; a second waits in the queue | `agents.defaults.maxConcurrent: 1`, the main lane's width (`src/gateway/server-lanes.ts:33,75`, `src/config/agent-limits.ts:33-38`) | the product's own queue at all three SHAs: two turns start one after the other, and both at once without it (probe) |
 | direct children of one session (`sessions_spawn` without `collect`, and a delegate with a delay) | **1** at a time, none of its own | `subagents.maxChildrenPerAgent`, `maxConcurrent` and `maxSpawnDepth`, 1 each (`src/agents/child-admission.ts:84-109`, `server-lanes.ts:83`) | the probe; a fake that tries six spawns runs one child and is refused five, in the product's words, which the trial records |
 | collectors in one swarm group | **1** (a turn names as many groups as it likes: [below](#what-nothing-here-bounds)) | `tools.swarm.*`, 1 each | the probe |
 | automations that fire by themselves | **none**: scheduled, event and watcher fires, the proactive check among them. It is what heartbeat became: an automation every 30 min on the main session, which setup or onboarding may create (`src/cron/default-proactive-job.ts:26-54`); heartbeat's own config is retired, and the schema refuses it (`src/config/types.agent-defaults.ts:25-26`) | `cron.enabled: false` (`src/gateway/server-cron-lazy.ts:23-24`, `src/cron/service/scheduler-actor.ts:138`, `ops-event.ts:80`; watchers `src/gateway/server-cron.ts:203,944`) | the probe, through the gateway's own cron state |
@@ -398,10 +398,11 @@ The canary: the smaller of twelve trials, and the run's limit, 2.40 M, plus the 
 - **The product's estimate is the only check below the provider's window.** 628 k is what it lets through when it is right;
   1.178 M is what the provider would take if it were wrong by that much.
 - **Below 1 s a call, and with every lane a turn opens, the numbers grow without limit.**
-- **Expected**: 0.2 M a trial, 0.47 M for the dearest expected, 2.13 M for the canary with four arms (1.6 M with three),
-  5–15 min. The supervisor's limits are multiples of it: 0.70 M is 1.5 × the dearest trial (6 calls × 60 k × 1.3 = 468 k), and
-  2.40 M was set at 1.5 × the three arms' 1.6 M. **The enforced limits are kept as they were** with arm E added, so 2.40 M is
-  now 1.125 × the four arms' 2.13 M: a canary that spends a little over its estimate reaches it, is stopped, and fails. Raising
+- **Expected**: 0.2 M a trial, 0.47 M for the dearest expected, 0.54 M an arm (a control and two eligible trials: 8.3 calls ×
+  48 k × 1.35), so 2.15 M for the canary with four arms (1.6 M with three), 5–15 min. The supervisor's limits are multiples of
+  it: 0.70 M is 1.5 × the dearest trial (6 calls × 60 k × 1.3 = 468 k), and 2.40 M was set at 1.5 × the three arms' 1.6 M.
+  **The enforced limits are kept as they were** with arm E added, so 2.40 M is now 1.12 × the four arms' 2.15 M: a canary that
+  spends a little over its estimate reaches it, is stopped, and fails. Raising
   it is the seat owner's decision at the go (`--run-token-cap`), not this packet's. `--token-budget 800000` is the per-arm
   stop checked between trials (1.5 × 0.54 M): it starts no further trial and is not a ceiling.
 

@@ -336,6 +336,8 @@ def _awareness(report):
         lines.append(f"- **{name}**: {counts} of {arm['judged']} judged: aware {_pct(rate['rate'])} (Wilson 95 % {_interval(rate['wilson95'])}); "
                      f"among the sampled trials that elected {arm['elected']['aware']} of {arm['elected']['sampled']}, "
                      f"that did not {arm['notElected']['aware']} of {arm['notElected']['sampled']}.")
+    if summary.get("promptProblem"):
+        lines += ["", f"Judge prompt: {summary['promptProblem']}."]
     if summary["judges"]:
         lines += ["", f"Judge: {', '.join(summary['judges'])}."]
     if summary["problems"]:

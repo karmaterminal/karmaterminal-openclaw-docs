@@ -64,12 +64,14 @@ def lane(call, call_seconds):
 
 
 def test_the_limits_are_the_multiples_the_packet_gives():
-    # The run's limit was set at 1.5 × the three-arm canary's 1.6 M, and is kept with arm E: 1.13 × the four arms' 2.1 M.
+    # The run's limit was set at 1.5 × the three-arm canary's 1.6 M, and is kept with arm E: 1.12 × the four arms' 2.15 M.
     assert (ARMS_IN_CANARY, TRIALS_IN_CANARY) == (4, 12)
     assert TRIAL == pytest.approx(1.5 * 6 * 60_000 * 1.3, rel=0.01) and RUN == pytest.approx(1.5 * 1.6 * M)
-    assert RUN / (1.6 * M * ARMS_IN_CANARY / 3) == pytest.approx(1.125)
+    per_arm = (1.3 + 2 * 3.5) * 48_000 * 1.35          # REPORT's central calls and tokens: a control and two eligible trials
+    assert round(per_arm / M, 2) == 0.54 and round(3 * per_arm / M, 1) == 1.6 and round(ARMS_IN_CANARY * per_arm / M, 2) == 2.15
+    assert round(RUN / (ARMS_IN_CANARY * per_arm), 2) == 1.12
     flat = " ".join(PACKET.split())
-    assert "2.13 M for the canary with four arms (1.6 M with three)" in flat and "now 1.125 × the four arms' 2.13 M" in flat
+    assert "so 2.15 M for the canary with four arms (1.6 M with three)" in flat and "now 1.12 × the four arms' 2.15 M" in flat
     assert "**The enforced limits are kept as they were** with arm E added" in flat
     assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4.5, 12.5, 2, 4)
     flat = " ".join(PACKET.split())

@@ -1,0 +1,154 @@
+{
+  "id": "spawn-refused-no-election",
+  "describe": "Two sessions_spawn calls at once: the product admits one child and refuses the second on maxChildrenPerAgent. Then automations status, answered by a gateway whose scheduler is off. No election. Two treatment limitations.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "p1",
+          "name": "sessions_spawn",
+          "arguments": {
+            "task": "Check the first two numbers."
+          }
+        },
+        {
+          "type": "toolCall",
+          "id": "p2",
+          "name": "sessions_spawn",
+          "arguments": {
+            "task": "Check the third number and the total."
+          }
+        }
+      ],
+      "usage": {
+        "input": 1300,
+        "output": 140,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25440
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "p1",
+      "toolName": "sessions_spawn",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"accepted\"\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "p2",
+      "toolName": "sessions_spawn",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"forbidden\",\n  \"error\": \"sessions_spawn has reached max active children for this session (1/1; agents.defaults.subagents.maxChildrenPerAgent).\"\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "a1",
+          "name": "automations",
+          "arguments": {
+            "action": "status"
+          }
+        }
+      ],
+      "usage": {
+        "input": 300,
+        "output": 30,
+        "cacheRead": 25400,
+        "cacheWrite": 0,
+        "totalTokens": 25730
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "a1",
+      "toolName": "automations",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"enabled\": false,\n  \"triggersEnabled\": true,\n  \"jobs\": 0,\n  \"nextWakeAtMs\": null\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "One of them is on it; I'll do the rest myself."
+        }
+      ],
+      "usage": {
+        "input": 200,
+        "output": 15,
+        "cacheRead": 25700,
+        "cacheWrite": 0,
+        "totalTokens": 25915
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "children": [
+    {
+      "rows": [
+        {
+          "role": "assistant",
+          "provider": "{{provider}}",
+          "model": "{{model}}",
+          "content": [
+            {
+              "type": "text",
+              "text": "done"
+            }
+          ],
+          "usage": {
+            "input": 900,
+            "output": 100,
+            "cacheRead": 6000,
+            "cacheWrite": 0,
+            "totalTokens": 7000
+          }
+        }
+      ]
+    }
+  ]
+}

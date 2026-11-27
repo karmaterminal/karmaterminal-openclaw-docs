@@ -1,0 +1,67 @@
+{
+  "id": "search-no-election",
+  "describe": "tool_search, then a reply that elects nothing.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "s1",
+          "name": "tool_search",
+          "arguments": {
+            "query": "reminder"
+          }
+        }
+      ],
+      "usage": {
+        "input": 900,
+        "output": 40,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 24940
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "s1",
+      "toolName": "tool_search",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "[\n  {\n    \"id\": \"openclaw:core:continue_work\",\n    \"source\": \"openclaw\",\n    \"sourceName\": \"core\",\n    \"name\": \"continue_work\",\n    \"description\": \"synthetic\"\n  }\n]"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "I can't set that up, so please ping me when it's ready."
+        }
+      ],
+      "usage": {
+        "input": 1500,
+        "output": 30,
+        "cacheRead": 24900,
+        "cacheWrite": 0,
+        "totalTokens": 26430
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

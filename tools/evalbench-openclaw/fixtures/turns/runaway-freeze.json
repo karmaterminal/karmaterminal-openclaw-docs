@@ -1,0 +1,41 @@
+{
+  "id": "runaway-freeze",
+  "describe": "A turn whose gateway stops answering, with the socket still open.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "e1",
+          "name": "exec",
+          "arguments": {
+            "command": "sleep 900; ls /tmp/evalprop"
+          }
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 40,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25240
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "wait": {
+    "status": "never"
+  },
+  "runaway": {
+    "freezeSeconds": 0.3,
+    "ignores": [
+      "abort",
+      "delete"
+    ]
+  }
+}

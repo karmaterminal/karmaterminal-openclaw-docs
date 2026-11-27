@@ -1,0 +1,8 @@
+{
+  "id": "deadline-no-rows",
+  "describe": "Nothing in history when the turn was stopped.",
+  "rows": [],
+  "wait": {
+    "status": "never"
+  }
+}

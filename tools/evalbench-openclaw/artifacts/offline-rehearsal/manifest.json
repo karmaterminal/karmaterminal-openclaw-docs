@@ -1,0 +1,316 @@
+{
+  "schema": "openclaw.evalbench.run.v1",
+  "issue": "karmaterminal/openclaw#1575",
+  "offline": true,
+  "go": null,
+  "started": "2026-11-27T19:18:28+00:00",
+  "arms": [
+    "A",
+    "B",
+    "C",
+    "E"
+  ],
+  "model": "openai/gpt-6.1-sol",
+  "gatewayUrls": {
+    "A": "ws://127.0.0.1:40585",
+    "B": "ws://127.0.0.1:33387",
+    "C": "ws://127.0.0.1:35767",
+    "E": "ws://127.0.0.1:43863"
+  },
+  "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
+  "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
+  "harnessHead": "92a3a7ec07cedb6a53997fcd12e6b70d26bda3c6",
+  "harnessDirty": false,
+  "numTrials": 5,
+  "scenarios": null,
+  "tokenBudgetPerArm": 35000000,
+  "tokenBudgetRule": "per arm, checked between trials; not a ceiling, the trial in flight can exceed it",
+  "caps": {
+    "agents.defaults.timeoutSeconds": 330,
+    "agents.defaults.maxConcurrent": 1,
+    "agents.defaults.continuation.maxChainLength": 1,
+    "agents.defaults.continuation.costCapTokens": 1,
+    "agents.defaults.continuation.maxDelegatesPerTurn": 1,
+    "agents.defaults.subagents.maxSpawnDepth": 1,
+    "agents.defaults.subagents.maxChildrenPerAgent": 1,
+    "agents.defaults.subagents.maxConcurrent": 1,
+    "agents.defaults.subagents.runTimeoutSeconds": 120,
+    "tools.swarm.maxConcurrent": 1,
+    "tools.swarm.maxChildrenPerGroup": 1,
+    "tools.swarm.maxTotalPerGroup": 1,
+    "cron.enabled": false,
+    "agents.defaults.utilityModel": "",
+    "meta.migrations.skillWorkshopPlugin": true,
+    "plugins.entries.skill-workshop.config.autonomous.mode": "off"
+  },
+  "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
+  "armsSha256": "7b540cd147a93a71932007dbf9f304fe4cbc8b715fc84db881f989e384edbbe0",
+  "awareness": {
+    "prompt": "judges/awareness.md",
+    "sha256": "eae15f84feefb24b93385627e4d44b643ac61451c8cc3a886a5e3997272592b3",
+    "seed": 1575,
+    "perPrompt": 1
+  },
+  "supervision": {
+    "limits": {
+      "pollSeconds": 0.2,
+      "readSeconds": 1.5,
+      "blindSeconds": 10,
+      "abortSeconds": 0.5,
+      "silentSeconds": 15,
+      "aggregateSeconds": 30,
+      "aggregateFailures": 4,
+      "trialTokens": 700000,
+      "trialSeconds": 480,
+      "idleTokens": 150000,
+      "maxActiveRuns": 2,
+      "runTokens": 75000000,
+      "runSeconds": 14400
+    },
+    "halted": null,
+    "lost": null,
+    "receipt": {
+      "schema": "openclaw.evalbench.supervision.v1",
+      "run": "5bbfbbccb398",
+      "offline": true,
+      "limits": {
+        "pollSeconds": 0.2,
+        "readSeconds": 1.5,
+        "blindSeconds": 10,
+        "abortSeconds": 0.5,
+        "silentSeconds": 15,
+        "aggregateSeconds": 30,
+        "aggregateFailures": 4,
+        "trialTokens": 700000,
+        "trialSeconds": 480,
+        "idleTokens": 150000,
+        "maxActiveRuns": 2,
+        "runTokens": 75000000,
+        "runSeconds": 14400
+      },
+      "ended": {
+        "at": "2026-11-27T19:18:39.514+00:00",
+        "rule": "run-finished",
+        "detail": "the runner finished"
+      },
+      "seconds": 10.712,
+      "tokens": 13748598,
+      "unwrittenRecords": 0,
+      "arms": {
+        "A": {
+          "identity": {
+            "pid": 300044,
+            "fake": true
+          },
+          "tokens": 3153187,
+          "sessions": 1,
+          "readings": 145,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.203,
+          "trials": 90,
+          "largestTrialTokens": 84085,
+          "longestTrialSeconds": 1.007,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-27T19:18:39.514+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3153187,
+            "trial": null,
+            "secondsSinceReading": 0.01,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.01,
+              "goneSeconds": 0.01,
+              "seconds": 0.01
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.011
+          }
+        },
+        "B": {
+          "identity": {
+            "pid": 300099,
+            "fake": true
+          },
+          "tokens": 3287863,
+          "sessions": 1,
+          "readings": 145,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.203,
+          "trials": 90,
+          "largestTrialTokens": 84085,
+          "longestTrialSeconds": 1.009,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-27T19:18:39.514+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3287863,
+            "trial": null,
+            "secondsSinceReading": 0.009,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.012,
+              "goneSeconds": 0.012,
+              "seconds": 0.012
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.012
+          }
+        },
+        "C": {
+          "identity": {
+            "pid": 300128,
+            "fake": true
+          },
+          "tokens": 3631333,
+          "sessions": 1,
+          "readings": 145,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.203,
+          "trials": 90,
+          "largestTrialTokens": 84085,
+          "longestTrialSeconds": 0.016,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-27T19:18:39.514+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3631333,
+            "trial": null,
+            "secondsSinceReading": 0.009,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.011,
+              "goneSeconds": 0.011,
+              "seconds": 0.011
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.011
+          }
+        },
+        "E": {
+          "identity": {
+            "pid": 300157,
+            "fake": true
+          },
+          "tokens": 3676215,
+          "sessions": 2,
+          "readings": 145,
+          "aggregateReadings": 0,
+          "aggregateFailures": 0,
+          "longestGapSeconds": 0.203,
+          "trials": 90,
+          "largestTrialTokens": 84085,
+          "longestTrialSeconds": 1.012,
+          "sweptUnits": 0,
+          "stop": {
+            "at": "2026-11-27T19:18:39.514+00:00",
+            "rule": "run-finished",
+            "detail": "the runner finished",
+            "tokens": 3676215,
+            "trial": null,
+            "secondsSinceReading": 0.009,
+            "aborts": null,
+            "result": {
+              "stopped": true,
+              "problems": [],
+              "durableUnits": [],
+              "strayProcesses": 0,
+              "killSeconds": 0.011,
+              "goneSeconds": 0.011,
+              "seconds": 0.011
+            },
+            "abortSeconds": 0.0,
+            "seconds": 0.012
+          }
+        }
+      }
+    },
+    "runnerStops": null
+  },
+  "ended": "2026-11-27T19:18:39+00:00",
+  "results": {
+    "A": {
+      "jobId": "6701ffbb-86f6-4b4e-a21c-3b2ce6630615",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 3,
+          "token_consumption": 129687,
+          "trajectory_matcher": 33,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3153187
+    },
+    "B": {
+      "jobId": "5081a859-91a6-4500-b6d3-7a4ffbb0c46f",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 23,
+          "token_consumption": 119663,
+          "trajectory_matcher": 51,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3287863
+    },
+    "C": {
+      "jobId": "463a095d-ad3d-4955-ae62-840f2e1cf18e",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 48,
+          "token_consumption": 123033,
+          "trajectory_matcher": 72,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3631333
+    },
+    "E": {
+      "jobId": "cc951dd4-3f75-48c4-831c-73551751adb1",
+      "summary": {
+        "total": 90,
+        "scores": {
+          "continuation_election": 50,
+          "token_consumption": 123915,
+          "trajectory_matcher": 78,
+          "executable": 90
+        }
+      },
+      "error": null,
+      "trials": 90,
+      "halted": null,
+      "meteredTokens": 3676215
+    }
+  },
+  "failures": []
+}

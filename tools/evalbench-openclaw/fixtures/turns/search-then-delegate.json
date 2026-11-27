@@ -1,0 +1,118 @@
+{
+  "id": "search-then-delegate",
+  "describe": "A batch tool_search, then continue_delegate through the dispatcher by bare name, accepted.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "s1",
+          "name": "tool_search",
+          "arguments": {
+            "queries": [
+              {
+                "query": "run work in another session"
+              },
+              {
+                "query": "delay a task"
+              }
+            ]
+          }
+        }
+      ],
+      "usage": {
+        "input": 900,
+        "output": 50,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 24950
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "s1",
+      "toolName": "tool_search",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"results\": []\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "c1",
+          "name": "dispatch_action",
+          "arguments": {
+            "id": "continue_delegate",
+            "args": {
+              "task": "Check the sum.",
+              "mode": "silent-wake"
+            }
+          }
+        }
+      ],
+      "usage": {
+        "input": 1500,
+        "output": 110,
+        "cacheRead": 24900,
+        "cacheWrite": 0,
+        "totalTokens": 26510
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "c1",
+      "toolName": "dispatch_action",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\"tool\":{\"id\":\"openclaw:core:continue_delegate\",\"name\":\"continue_delegate\",\"source\":\"openclaw\"},\"result\":{\"content\":[{\"type\":\"text\",\"text\":\"{\\n  \\\"status\\\": \\\"scheduled\\\",\\n  \\\"mode\\\": \\\"silent-wake\\\",\\n  \\\"delaySeconds\\\": 0\\n}\"}]}}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "It's set up."
+        }
+      ],
+      "usage": {
+        "input": 200,
+        "output": 12,
+        "cacheRead": 26400,
+        "cacheWrite": 0,
+        "totalTokens": 26612
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

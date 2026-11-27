@@ -1,0 +1,5 @@
+metric_name,metric_score,correct_results_count,total_results_count,job_id,run_time
+continuation_election,100.0,34.0,90,4838c039-2e15-4c18-9aee-ccee6aa89e3c,2026-11-27 11:18:46.324521
+token_consumption,1360.9,122481.0,90,4838c039-2e15-4c18-9aee-ccee6aa89e3c,2026-11-27 11:18:46.324521
+trajectory_matcher,100.0,62.0,90,4838c039-2e15-4c18-9aee-ccee6aa89e3c,2026-11-27 11:18:46.324521
+executable,1.0,90.0,90,4838c039-2e15-4c18-9aee-ccee6aa89e3c,2026-11-27 11:18:46.324521

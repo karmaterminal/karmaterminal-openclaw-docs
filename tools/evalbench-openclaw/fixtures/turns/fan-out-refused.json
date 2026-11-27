@@ -1,0 +1,37 @@
+{
+  "id": "fan-out-refused",
+  "describe": "A turn that ends at once after trying six children of its own. The product admits one and refuses the other five with its own words; the one it admitted is slow and ends when its session is deleted.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "It isn't there yet. I'll keep an eye on it and let you know."
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 35,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25235
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ],
+  "wait": {
+    "status": "ok"
+  },
+  "runaway": {
+    "children": 6,
+    "child": {
+      "callTokens": 60000,
+      "callSeconds": 60
+    }
+  }
+}

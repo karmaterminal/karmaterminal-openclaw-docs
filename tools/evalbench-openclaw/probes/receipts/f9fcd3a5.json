@@ -1,0 +1,1073 @@
+{
+ "admission": {
+  "children": {
+   "childOfAChild": "subagents.maxSpawnDepth",
+   "first": "admitted",
+   "secondWhileFirstRuns": "subagents.maxChildrenPerAgent"
+  },
+  "collectors": {
+   "firstInAGroup": "admitted",
+   "secondInTheSameGroup": "tools.swarm.maxTotalPerGroup"
+  },
+  "cronSchedulerEnabled": false,
+  "cronSchedulerEnabledWithoutCaps": true,
+  "lanes": {
+   "twoAutomationRuns": 2,
+   "twoChildrenOfOneSession": 1,
+   "twoSwarmGroups": 2,
+   "twoTurns": 1,
+   "widths": {
+    "cron": 8,
+    "hookDispatch": 0,
+    "main": 1,
+    "subagent": 1
+   }
+  },
+  "lanesWithoutCaps": {
+   "twoAutomationRuns": 2,
+   "twoChildrenOfOneSession": 2,
+   "twoSwarmGroups": 2,
+   "twoTurns": 2,
+   "widths": {
+    "cron": 8,
+    "hookDispatch": 0,
+    "main": 80,
+    "subagent": 8
+   }
+  },
+  "utilityModel": "disabled",
+  "utilityModelWithoutCaps": "auto"
+ },
+ "capsBehavior": {
+  "budget": {
+   "firstElectionAfter5kTokens": "cost-capped",
+   "secondHop": "chain-capped"
+  },
+  "childTimeoutSeconds": {
+   "askedFor3600": 3600,
+   "configured": 120
+  },
+  "delegateCallsAdmittedInOneTurn": [
+   true,
+   false
+  ],
+  "turnTimeoutMs": 330000
+ },
+ "config": {
+  "skillWorkshopReview": {
+   "modeWithoutTheMarker": "auto",
+   "withCaps": "off",
+   "withoutCaps": "auto"
+  },
+  "typoIsInvalid": true,
+  "withCaps": {
+   "authoredMissing": [],
+   "effectiveMissing": [],
+   "issues": [],
+   "valid": true
+  }
+ },
+ "model": "openai/gpt-6.1-sol",
+ "node": "v26.9.0",
+ "probeSha256": "876b8ee275b52a84d2ef5c059f8949536a02e05893ce4bcbd94f82ae6f1cbfb0",
+ "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+ "settings": {
+  "agents.defaults.continuation.costCapTokens": 1,
+  "agents.defaults.continuation.maxChainLength": 1,
+  "agents.defaults.continuation.maxDelegatesPerTurn": 1,
+  "agents.defaults.maxConcurrent": 1,
+  "agents.defaults.subagents.maxChildrenPerAgent": 1,
+  "agents.defaults.subagents.maxConcurrent": 1,
+  "agents.defaults.subagents.maxSpawnDepth": 1,
+  "agents.defaults.subagents.runTimeoutSeconds": 120,
+  "agents.defaults.timeoutSeconds": 330,
+  "agents.defaults.utilityModel": "",
+  "cron.enabled": false,
+  "meta.migrations.skillWorkshopPlugin": true,
+  "plugins.entries.skill-workshop.config.autonomous.mode": "off",
+  "tools.swarm.maxChildrenPerGroup": 1,
+  "tools.swarm.maxConcurrent": 1,
+  "tools.swarm.maxTotalPerGroup": 1
+ },
+ "surface": {
+  "A": {
+   "attempt": {
+    "catalogued": 60,
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "continuationSection": true,
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "mode": "code mode",
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 69,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "catalog:openclaw:core:exec",
+       "catalog:openclaw:core:process"
+      ],
+      "gone": [
+       "catalog:openclaw:core:automations"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [
+       "catalog:openclaw:core:agents_wait"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "c01e365f9082e06273e4a07ac3319085b7bbd214091b63ec7df260598a82397b",
+    "sent": [
+     "computer",
+     "continue_delegate",
+     "continue_work",
+     "exec",
+     "message",
+     "openclaw",
+     "request_compaction",
+     "sessions_yield",
+     "wait"
+    ],
+    "tools": 69,
+    "toolsHash": "95854618e4a1a4478c41d7a8272ecff577367ca13a68d228e539b79acaff31ea",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 69,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "3ce3bbf34fbe3a71b39d99c5558878dbbcdc1821287468799b38679699936743",
+     "tools": 66,
+     "toolsHash": "0b5163f8ca1fc8b7bf7d0798554bf5b837c473aa5555928a456eb11773b333d0"
+    }
+   },
+   "context": {
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "schemaAccepts": true
+  },
+  "B": {
+   "attempt": {
+    "catalogued": 0,
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "continuationSection": true,
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "mode": "every tool direct",
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "54ebaee9a216e6eeae05a8cd059d1db3881eda09ec918a4fa9245abc1835be9d",
+    "sent": [
+     "agents_list",
+     "agents_wait",
+     "apply_patch",
+     "ask_user",
+     "automations",
+     "browser",
+     "canvas",
+     "codex_plugins",
+     "computer",
+     "continue_delegate",
+     "continue_work",
+     "conversations_list",
+     "conversations_send",
+     "conversations_turn",
+     "create_goal",
+     "dashboard",
+     "deep_research",
+     "dir_fetch",
+     "dir_list",
+     "edit",
+     "exec",
+     "file_fetch",
+     "file_write",
+     "gateway",
+     "get_goal",
+     "github_read",
+     "github_search",
+     "google_meet",
+     "intent",
+     "ls",
+     "memory_get",
+     "memory_search",
+     "message",
+     "mobile_ui",
+     "node_inference",
+     "nodes",
+     "openclaw",
+     "plugins",
+     "portal",
+     "presence",
+     "process",
+     "progress_card",
+     "read",
+     "request_compaction",
+     "secrets",
+     "session_status",
+     "sessions",
+     "sessions_create",
+     "sessions_history",
+     "sessions_list",
+     "sessions_search",
+     "sessions_send",
+     "sessions_spawn",
+     "sessions_yield",
+     "skill_workshop",
+     "subagents",
+     "talk_voice",
+     "teams_meetings",
+     "terminal",
+     "theme",
+     "transcripts",
+     "tts",
+     "update_goal",
+     "web_fetch",
+     "write",
+     "zoom_meetings"
+    ],
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "4b2f1ad7222f06557ee4838e528f6ff9aef8d82c55d1ff3d7dc8871bf3567a81",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "context": {
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "schemaAccepts": true
+  },
+  "C": {
+   "attempt": {
+    "catalogued": 60,
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "continuationSection": true,
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "mode": "code mode",
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 69,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "catalog:openclaw:core:exec",
+       "catalog:openclaw:core:process"
+      ],
+      "gone": [
+       "catalog:openclaw:core:automations"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [
+       "catalog:openclaw:core:agents_wait"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "c01e365f9082e06273e4a07ac3319085b7bbd214091b63ec7df260598a82397b",
+    "sent": [
+     "computer",
+     "continue_delegate",
+     "continue_work",
+     "exec",
+     "message",
+     "openclaw",
+     "request_compaction",
+     "sessions_yield",
+     "wait"
+    ],
+    "tools": 69,
+    "toolsHash": "95854618e4a1a4478c41d7a8272ecff577367ca13a68d228e539b79acaff31ea",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 69,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "3ce3bbf34fbe3a71b39d99c5558878dbbcdc1821287468799b38679699936743",
+     "tools": 66,
+     "toolsHash": "0b5163f8ca1fc8b7bf7d0798554bf5b837c473aa5555928a456eb11773b333d0"
+    }
+   },
+   "context": {
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "schemaAccepts": true
+  },
+  "D": {
+   "attempt": {
+    "catalogued": 0,
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "continuationSection": true,
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "mode": "every tool direct",
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "54ebaee9a216e6eeae05a8cd059d1db3881eda09ec918a4fa9245abc1835be9d",
+    "sent": [
+     "agents_list",
+     "agents_wait",
+     "apply_patch",
+     "ask_user",
+     "automations",
+     "browser",
+     "canvas",
+     "codex_plugins",
+     "computer",
+     "continue_delegate",
+     "continue_work",
+     "conversations_list",
+     "conversations_send",
+     "conversations_turn",
+     "create_goal",
+     "dashboard",
+     "deep_research",
+     "dir_fetch",
+     "dir_list",
+     "edit",
+     "exec",
+     "file_fetch",
+     "file_write",
+     "gateway",
+     "get_goal",
+     "github_read",
+     "github_search",
+     "google_meet",
+     "intent",
+     "ls",
+     "memory_get",
+     "memory_search",
+     "message",
+     "mobile_ui",
+     "node_inference",
+     "nodes",
+     "openclaw",
+     "plugins",
+     "portal",
+     "presence",
+     "process",
+     "progress_card",
+     "read",
+     "request_compaction",
+     "secrets",
+     "session_status",
+     "sessions",
+     "sessions_create",
+     "sessions_history",
+     "sessions_list",
+     "sessions_search",
+     "sessions_send",
+     "sessions_spawn",
+     "sessions_yield",
+     "skill_workshop",
+     "subagents",
+     "talk_voice",
+     "teams_meetings",
+     "terminal",
+     "theme",
+     "transcripts",
+     "tts",
+     "update_goal",
+     "web_fetch",
+     "write",
+     "zoom_meetings"
+    ],
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "4b2f1ad7222f06557ee4838e528f6ff9aef8d82c55d1ff3d7dc8871bf3567a81",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "context": {
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "schemaAccepts": true
+  },
+  "E": {
+   "attempt": {
+    "catalogued": 60,
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "continuationSection": true,
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "mode": "code mode",
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 69,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "catalog:openclaw:core:exec",
+       "catalog:openclaw:core:process"
+      ],
+      "gone": [
+       "catalog:openclaw:core:automations"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [
+       "catalog:openclaw:core:agents_wait"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "c01e365f9082e06273e4a07ac3319085b7bbd214091b63ec7df260598a82397b",
+    "sent": [
+     "computer",
+     "continue_delegate",
+     "continue_work",
+     "exec",
+     "message",
+     "openclaw",
+     "request_compaction",
+     "sessions_yield",
+     "wait"
+    ],
+    "tools": 69,
+    "toolsHash": "95854618e4a1a4478c41d7a8272ecff577367ca13a68d228e539b79acaff31ea",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 69,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "3ce3bbf34fbe3a71b39d99c5558878dbbcdc1821287468799b38679699936743",
+     "tools": 66,
+     "toolsHash": "0b5163f8ca1fc8b7bf7d0798554bf5b837c473aa5555928a456eb11773b333d0"
+    }
+   },
+   "context": {
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "schemaAccepts": true
+  }
+ }
+}

@@ -1,0 +1,1737 @@
+{
+  "schema": "openclaw.evalbench.propensity-report.v1",
+  "repetitions": 5,
+  "model": "openai/gpt-6.1-sol",
+  "manifest": {
+    "schema": "openclaw.evalbench.run.v1",
+    "issue": "karmaterminal/openclaw#1575",
+    "offline": true,
+    "go": null,
+    "started": "2026-11-27T19:18:28+00:00",
+    "arms": [
+      "A",
+      "B",
+      "C",
+      "E"
+    ],
+    "model": "openai/gpt-6.1-sol",
+    "gatewayUrls": {
+      "A": "ws://127.0.0.1:40585",
+      "B": "ws://127.0.0.1:33387",
+      "C": "ws://127.0.0.1:35767",
+      "E": "ws://127.0.0.1:43863"
+    },
+    "evalbenchPin": "86730417fe7b3f8ae01bc5159369293f60baa306",
+    "evalbenchHead": "86730417fe7b3f8ae01bc5159369293f60baa306",
+    "harnessHead": "92a3a7ec07cedb6a53997fcd12e6b70d26bda3c6",
+    "harnessDirty": false,
+    "numTrials": 5,
+    "scenarios": null,
+    "tokenBudgetPerArm": 35000000,
+    "tokenBudgetRule": "per arm, checked between trials; not a ceiling, the trial in flight can exceed it",
+    "caps": {
+      "agents.defaults.timeoutSeconds": 330,
+      "agents.defaults.maxConcurrent": 1,
+      "agents.defaults.continuation.maxChainLength": 1,
+      "agents.defaults.continuation.costCapTokens": 1,
+      "agents.defaults.continuation.maxDelegatesPerTurn": 1,
+      "agents.defaults.subagents.maxSpawnDepth": 1,
+      "agents.defaults.subagents.maxChildrenPerAgent": 1,
+      "agents.defaults.subagents.maxConcurrent": 1,
+      "agents.defaults.subagents.runTimeoutSeconds": 120,
+      "tools.swarm.maxConcurrent": 1,
+      "tools.swarm.maxChildrenPerGroup": 1,
+      "tools.swarm.maxTotalPerGroup": 1,
+      "cron.enabled": false,
+      "agents.defaults.utilityModel": "",
+      "meta.migrations.skillWorkshopPlugin": true,
+      "plugins.entries.skill-workshop.config.autonomous.mode": "off"
+    },
+    "evalsetSha256": "d259ffd6ebc48718ad403219478ef6ba5a807c18f4f28411702c35c468db51ec",
+    "armsSha256": "7b540cd147a93a71932007dbf9f304fe4cbc8b715fc84db881f989e384edbbe0",
+    "awareness": {
+      "prompt": "judges/awareness.md",
+      "sha256": "eae15f84feefb24b93385627e4d44b643ac61451c8cc3a886a5e3997272592b3",
+      "seed": 1575,
+      "perPrompt": 1
+    },
+    "supervision": {
+      "limits": {
+        "pollSeconds": 0.2,
+        "readSeconds": 1.5,
+        "blindSeconds": 10,
+        "abortSeconds": 0.5,
+        "silentSeconds": 15,
+        "aggregateSeconds": 30,
+        "aggregateFailures": 4,
+        "trialTokens": 700000,
+        "trialSeconds": 480,
+        "idleTokens": 150000,
+        "maxActiveRuns": 2,
+        "runTokens": 75000000,
+        "runSeconds": 14400
+      },
+      "halted": null,
+      "lost": null,
+      "receipt": {
+        "schema": "openclaw.evalbench.supervision.v1",
+        "run": "5bbfbbccb398",
+        "offline": true,
+        "limits": {
+          "pollSeconds": 0.2,
+          "readSeconds": 1.5,
+          "blindSeconds": 10,
+          "abortSeconds": 0.5,
+          "silentSeconds": 15,
+          "aggregateSeconds": 30,
+          "aggregateFailures": 4,
+          "trialTokens": 700000,
+          "trialSeconds": 480,
+          "idleTokens": 150000,
+          "maxActiveRuns": 2,
+          "runTokens": 75000000,
+          "runSeconds": 14400
+        },
+        "ended": {
+          "at": "2026-11-27T19:18:39.514+00:00",
+          "rule": "run-finished",
+          "detail": "the runner finished"
+        },
+        "seconds": 10.712,
+        "tokens": 13748598,
+        "unwrittenRecords": 0,
+        "arms": {
+          "A": {
+            "identity": {
+              "pid": 300044,
+              "fake": true
+            },
+            "tokens": 3153187,
+            "sessions": 1,
+            "readings": 145,
+            "aggregateReadings": 0,
+            "aggregateFailures": 0,
+            "longestGapSeconds": 0.203,
+            "trials": 90,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 1.007,
+            "sweptUnits": 0,
+            "stop": {
+              "at": "2026-11-27T19:18:39.514+00:00",
+              "rule": "run-finished",
+              "detail": "the runner finished",
+              "tokens": 3153187,
+              "trial": null,
+              "secondsSinceReading": 0.01,
+              "aborts": null,
+              "result": {
+                "stopped": true,
+                "problems": [],
+                "durableUnits": [],
+                "strayProcesses": 0,
+                "killSeconds": 0.01,
+                "goneSeconds": 0.01,
+                "seconds": 0.01
+              },
+              "abortSeconds": 0.0,
+              "seconds": 0.011
+            }
+          },
+          "B": {
+            "identity": {
+              "pid": 300099,
+              "fake": true
+            },
+            "tokens": 3287863,
+            "sessions": 1,
+            "readings": 145,
+            "aggregateReadings": 0,
+            "aggregateFailures": 0,
+            "longestGapSeconds": 0.203,
+            "trials": 90,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 1.009,
+            "sweptUnits": 0,
+            "stop": {
+              "at": "2026-11-27T19:18:39.514+00:00",
+              "rule": "run-finished",
+              "detail": "the runner finished",
+              "tokens": 3287863,
+              "trial": null,
+              "secondsSinceReading": 0.009,
+              "aborts": null,
+              "result": {
+                "stopped": true,
+                "problems": [],
+                "durableUnits": [],
+                "strayProcesses": 0,
+                "killSeconds": 0.012,
+                "goneSeconds": 0.012,
+                "seconds": 0.012
+              },
+              "abortSeconds": 0.0,
+              "seconds": 0.012
+            }
+          },
+          "C": {
+            "identity": {
+              "pid": 300128,
+              "fake": true
+            },
+            "tokens": 3631333,
+            "sessions": 1,
+            "readings": 145,
+            "aggregateReadings": 0,
+            "aggregateFailures": 0,
+            "longestGapSeconds": 0.203,
+            "trials": 90,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 0.016,
+            "sweptUnits": 0,
+            "stop": {
+              "at": "2026-11-27T19:18:39.514+00:00",
+              "rule": "run-finished",
+              "detail": "the runner finished",
+              "tokens": 3631333,
+              "trial": null,
+              "secondsSinceReading": 0.009,
+              "aborts": null,
+              "result": {
+                "stopped": true,
+                "problems": [],
+                "durableUnits": [],
+                "strayProcesses": 0,
+                "killSeconds": 0.011,
+                "goneSeconds": 0.011,
+                "seconds": 0.011
+              },
+              "abortSeconds": 0.0,
+              "seconds": 0.011
+            }
+          },
+          "E": {
+            "identity": {
+              "pid": 300157,
+              "fake": true
+            },
+            "tokens": 3676215,
+            "sessions": 2,
+            "readings": 145,
+            "aggregateReadings": 0,
+            "aggregateFailures": 0,
+            "longestGapSeconds": 0.203,
+            "trials": 90,
+            "largestTrialTokens": 84085,
+            "longestTrialSeconds": 1.012,
+            "sweptUnits": 0,
+            "stop": {
+              "at": "2026-11-27T19:18:39.514+00:00",
+              "rule": "run-finished",
+              "detail": "the runner finished",
+              "tokens": 3676215,
+              "trial": null,
+              "secondsSinceReading": 0.009,
+              "aborts": null,
+              "result": {
+                "stopped": true,
+                "problems": [],
+                "durableUnits": [],
+                "strayProcesses": 0,
+                "killSeconds": 0.011,
+                "goneSeconds": 0.011,
+                "seconds": 0.011
+              },
+              "abortSeconds": 0.0,
+              "seconds": 0.012
+            }
+          }
+        }
+      },
+      "runnerStops": null
+    },
+    "ended": "2026-11-27T19:18:39+00:00",
+    "results": {
+      "A": {
+        "jobId": "6701ffbb-86f6-4b4e-a21c-3b2ce6630615",
+        "summary": {
+          "total": 90,
+          "scores": {
+            "continuation_election": 3,
+            "token_consumption": 129687,
+            "trajectory_matcher": 33,
+            "executable": 90
+          }
+        },
+        "error": null,
+        "trials": 90,
+        "halted": null,
+        "meteredTokens": 3153187
+      },
+      "B": {
+        "jobId": "5081a859-91a6-4500-b6d3-7a4ffbb0c46f",
+        "summary": {
+          "total": 90,
+          "scores": {
+            "continuation_election": 23,
+            "token_consumption": 119663,
+            "trajectory_matcher": 51,
+            "executable": 90
+          }
+        },
+        "error": null,
+        "trials": 90,
+        "halted": null,
+        "meteredTokens": 3287863
+      },
+      "C": {
+        "jobId": "463a095d-ad3d-4955-ae62-840f2e1cf18e",
+        "summary": {
+          "total": 90,
+          "scores": {
+            "continuation_election": 48,
+            "token_consumption": 123033,
+            "trajectory_matcher": 72,
+            "executable": 90
+          }
+        },
+        "error": null,
+        "trials": 90,
+        "halted": null,
+        "meteredTokens": 3631333
+      },
+      "E": {
+        "jobId": "cc951dd4-3f75-48c4-831c-73551751adb1",
+        "summary": {
+          "total": 90,
+          "scores": {
+            "continuation_election": 50,
+            "token_consumption": 123915,
+            "trajectory_matcher": 78,
+            "executable": 90
+          }
+        },
+        "error": null,
+        "trials": 90,
+        "halted": null,
+        "meteredTokens": 3676215
+      }
+    },
+    "failures": []
+  },
+  "arms": {
+    "A": {
+      "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "descriptions": "ab5a30ea",
+      "continuationTools": "deferred",
+      "eligible": {
+        "elected": 3,
+        "scored": 60,
+        "rate": 0.05,
+        "wilson95": [
+          0.01714950216439568,
+          0.1370051647634852
+        ]
+      },
+      "control": {
+        "elected": 0,
+        "scored": 30,
+        "rate": 0.0,
+        "wilson95": [
+          0.0,
+          0.11351339317396876
+        ]
+      },
+      "trials": 90,
+      "scored": 90,
+      "unscored": {},
+      "deadline": 1,
+      "promptsBelowRepetitions": [],
+      "surfaceMismatches": 0,
+      "problems": [],
+      "electedTool": {
+        "continue_work": 2,
+        "continue_delegate": 1
+      },
+      "electedExpectedTool": 3,
+      "electedAccepted": 3,
+      "electedVia": {
+        "dispatcher": 3
+      },
+      "extraTrials": 0,
+      "surfaces": {
+        "verified": 89,
+        "carried": 1
+      },
+      "descriptionText": {},
+      "surfaceShapes": {
+        "7 direct and 5 deferred": 90
+      },
+      "scratchPresent": 0,
+      "capsVerified": 90,
+      "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 1,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 1,
+          "cron.enabled": 1
+        },
+        "electedAfter": 0
+      },
+      "eligibleIfUnreadableDeadlinesDidNotElect": {
+        "elected": 3,
+        "scored": 60,
+        "rate": 0.05,
+        "wilson95": [
+          0.01714950216439568,
+          0.1370051647634852
+        ]
+      },
+      "discovery": {
+        "observableTrials": 90,
+        "searched": 13,
+        "searchBeforeElection": 3,
+        "queries": {
+          "reminder": 10,
+          "schedule my own follow-up turn later": 2,
+          "run work in another session": 1,
+          "delay a task": 1
+        }
+      },
+      "tokenForm": {
+        "continue_work": 1,
+        "continue_delegate": 0
+      },
+      "otherTools": {
+        "sessions_spawn": 8,
+        "exec": 8,
+        "automations": 1
+      },
+      "runtimes": {
+        "openclaw": 90
+      },
+      "servedModels": {
+        "openai/gpt-6.1-sol": 90
+      },
+      "distinctSystemPrompts": 1,
+      "meteredTokens": 3153187,
+      "largestTrialTokens": 84085,
+      "modelCalls": 122,
+      "directTools": {
+        "values": [
+          7
+        ],
+        "names": [
+          "78a58f0672db0f09"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": false
+      },
+      "perPrompt": {
+        "c1-arithmetic": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c2-friendlier": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c3-tcp-udp": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c4-closing": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c5-nothing-to-do": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c6-hiking-club": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w1-file-appears": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 1
+          }
+        },
+        "w2-guide-in-parts": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w3-cooldown": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 1
+          }
+        },
+        "w4-two-readings": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w5-section-reviews": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w6-notes-before-morning": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w7-build-result": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w8-three-timestamps": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "d1-second-pair-of-eyes": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 1
+          }
+        },
+        "d2-blind-recheck": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "d3-side-job": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "d4-later-reading": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        }
+      }
+    },
+    "B": {
+      "productSha": "ab5a30ea79b776f149e24b1fccab9e79b0a5d299",
+      "descriptions": "ab5a30ea",
+      "continuationTools": "direct",
+      "eligible": {
+        "elected": 22,
+        "scored": 60,
+        "rate": 0.36666666666666664,
+        "wilson95": [
+          0.25620916687225426,
+          0.49316999369896963
+        ]
+      },
+      "control": {
+        "elected": 1,
+        "scored": 30,
+        "rate": 0.03333333333333333,
+        "wilson95": [
+          0.005908590381612455,
+          0.16670390991409173
+        ]
+      },
+      "trials": 90,
+      "scored": 90,
+      "unscored": {},
+      "deadline": 1,
+      "promptsBelowRepetitions": [],
+      "surfaceMismatches": 0,
+      "problems": [],
+      "electedTool": {
+        "continue_work": 18,
+        "continue_delegate": 5
+      },
+      "electedExpectedTool": 22,
+      "electedAccepted": 22,
+      "electedVia": {
+        "direct": 23
+      },
+      "extraTrials": 0,
+      "surfaces": {
+        "verified": 89,
+        "carried": 1
+      },
+      "descriptionText": {
+        "match": 270
+      },
+      "surfaceShapes": {
+        "66 direct and 0 deferred": 90
+      },
+      "scratchPresent": 0,
+      "capsVerified": 90,
+      "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 2,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 2,
+          "cron.enabled": 1
+        },
+        "electedAfter": 1
+      },
+      "eligibleIfUnreadableDeadlinesDidNotElect": {
+        "elected": 22,
+        "scored": 60,
+        "rate": 0.36666666666666664,
+        "wilson95": [
+          0.25620916687225426,
+          0.49316999369896963
+        ]
+      },
+      "discovery": {
+        "observableTrials": 0,
+        "searched": 0,
+        "searchBeforeElection": 0,
+        "queries": {}
+      },
+      "tokenForm": {
+        "continue_work": 0,
+        "continue_delegate": 0
+      },
+      "otherTools": {
+        "exec": 9,
+        "sessions_spawn": 7,
+        "automations": 1
+      },
+      "runtimes": {
+        "openclaw": 90
+      },
+      "servedModels": {
+        "openai/gpt-6.1-sol": 90
+      },
+      "distinctSystemPrompts": 1,
+      "meteredTokens": 3287863,
+      "largestTrialTokens": 84085,
+      "modelCalls": 128,
+      "directTools": {
+        "values": [
+          66
+        ],
+        "names": [
+          "fb6db0b02b778dfa"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": true
+      },
+      "perPrompt": {
+        "c1-arithmetic": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c2-friendlier": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c3-tcp-udp": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c4-closing": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c5-nothing-to-do": {
+          "kind": "control",
+          "expected": [],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 1
+          }
+        },
+        "c6-hiking-club": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w1-file-appears": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w2-guide-in-parts": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w3-cooldown": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w4-two-readings": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w5-section-reviews": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w6-notes-before-morning": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w7-build-result": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "w8-three-timestamps": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 3
+          }
+        },
+        "d1-second-pair-of-eyes": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 1
+          }
+        },
+        "d2-blind-recheck": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 1
+          }
+        },
+        "d3-side-job": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 1
+          }
+        },
+        "d4-later-reading": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 2
+          }
+        }
+      }
+    },
+    "C": {
+      "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
+      "descriptions": "f9fcd3a5",
+      "continuationTools": "direct",
+      "eligible": {
+        "elected": 45,
+        "scored": 60,
+        "rate": 0.75,
+        "wilson95": [
+          0.6276792992295218,
+          0.8422347746994333
+        ]
+      },
+      "control": {
+        "elected": 3,
+        "scored": 30,
+        "rate": 0.1,
+        "wilson95": [
+          0.03459988874733419,
+          0.25621082579184085
+        ]
+      },
+      "trials": 90,
+      "scored": 90,
+      "unscored": {},
+      "deadline": 0,
+      "promptsBelowRepetitions": [],
+      "surfaceMismatches": 0,
+      "problems": [],
+      "electedTool": {
+        "continue_work": 36,
+        "continue_delegate": 12
+      },
+      "electedExpectedTool": 45,
+      "electedAccepted": 48,
+      "electedVia": {
+        "direct": 48
+      },
+      "extraTrials": 0,
+      "surfaces": {
+        "verified": 90
+      },
+      "descriptionText": {
+        "match": 270
+      },
+      "surfaceShapes": {
+        "10 direct and 2 deferred": 90
+      },
+      "scratchPresent": 0,
+      "capsVerified": 90,
+      "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 2,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 2,
+          "cron.enabled": 1
+        },
+        "electedAfter": 1
+      },
+      "eligibleIfUnreadableDeadlinesDidNotElect": {
+        "elected": 45,
+        "scored": 60,
+        "rate": 0.75,
+        "wilson95": [
+          0.6276792992295218,
+          0.8422347746994333
+        ]
+      },
+      "discovery": {
+        "observableTrials": 90,
+        "searched": 0,
+        "searchBeforeElection": 0,
+        "queries": {}
+      },
+      "tokenForm": {
+        "continue_work": 0,
+        "continue_delegate": 0
+      },
+      "otherTools": {
+        "sessions_spawn": 5,
+        "automations": 1
+      },
+      "runtimes": {
+        "openclaw": 90
+      },
+      "servedModels": {
+        "openai/gpt-6.1-sol": 90
+      },
+      "distinctSystemPrompts": 1,
+      "meteredTokens": 3631333,
+      "largestTrialTokens": 84085,
+      "modelCalls": 142,
+      "directTools": {
+        "values": [
+          10
+        ],
+        "names": [
+          "2cd7b0a1e3355b2c"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": false
+      },
+      "perPrompt": {
+        "c1-arithmetic": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c2-friendlier": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c3-tcp-udp": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c4-closing": {
+          "kind": "control",
+          "expected": [],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 1
+          }
+        },
+        "c5-nothing-to-do": {
+          "kind": "control",
+          "expected": [],
+          "elected": 2,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 2
+          }
+        },
+        "c6-hiking-club": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w1-file-appears": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w2-guide-in-parts": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w3-cooldown": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w4-two-readings": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w5-section-reviews": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w6-notes-before-morning": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w7-build-result": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 5,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 5
+          }
+        },
+        "w8-three-timestamps": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "d1-second-pair-of-eyes": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 3
+          }
+        },
+        "d2-blind-recheck": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 3
+          }
+        },
+        "d3-side-job": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 3
+          }
+        },
+        "d4-later-reading": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 3
+          }
+        }
+      }
+    },
+    "E": {
+      "productSha": "de55f3505d930427538359fdfeb256874486ed9f",
+      "descriptions": "de55f350",
+      "continuationTools": "direct",
+      "eligible": {
+        "elected": 49,
+        "scored": 60,
+        "rate": 0.8166666666666667,
+        "wilson95": [
+          0.7008024625353194,
+          0.8944220311080237
+        ]
+      },
+      "control": {
+        "elected": 1,
+        "scored": 30,
+        "rate": 0.03333333333333333,
+        "wilson95": [
+          0.005908590381612455,
+          0.16670390991409173
+        ]
+      },
+      "trials": 90,
+      "scored": 90,
+      "unscored": {},
+      "deadline": 1,
+      "promptsBelowRepetitions": [],
+      "surfaceMismatches": 0,
+      "problems": [],
+      "electedTool": {
+        "continue_work": 35,
+        "continue_delegate": 15
+      },
+      "electedExpectedTool": 49,
+      "electedAccepted": 50,
+      "electedVia": {
+        "direct": 50
+      },
+      "extraTrials": 0,
+      "surfaces": {
+        "verified": 89,
+        "carried": 1
+      },
+      "descriptionText": {
+        "match": 270
+      },
+      "surfaceShapes": {
+        "10 direct and 2 deferred": 90
+      },
+      "scratchPresent": 0,
+      "capsVerified": 90,
+      "continuationWakes": 0,
+      "treatmentLimitations": {
+        "trials": 2,
+        "bySetting": {
+          "agents.defaults.subagents.maxChildrenPerAgent": 2,
+          "cron.enabled": 1
+        },
+        "electedAfter": 1
+      },
+      "eligibleIfUnreadableDeadlinesDidNotElect": {
+        "elected": 49,
+        "scored": 60,
+        "rate": 0.8166666666666667,
+        "wilson95": [
+          0.7008024625353194,
+          0.8944220311080237
+        ]
+      },
+      "discovery": {
+        "observableTrials": 90,
+        "searched": 0,
+        "searchBeforeElection": 0,
+        "queries": {}
+      },
+      "tokenForm": {
+        "continue_work": 0,
+        "continue_delegate": 0
+      },
+      "otherTools": {
+        "sessions_spawn": 4,
+        "exec": 2,
+        "automations": 1
+      },
+      "runtimes": {
+        "openclaw": 90
+      },
+      "servedModels": {
+        "openai/gpt-6.1-sol": 90
+      },
+      "distinctSystemPrompts": 1,
+      "meteredTokens": 3676215,
+      "largestTrialTokens": 84085,
+      "modelCalls": 144,
+      "directTools": {
+        "values": [
+          10
+        ],
+        "names": [
+          "2cd7b0a1e3355b2c"
+        ],
+        "trials": 90,
+        "crowdedAbove": 30,
+        "crowded": false
+      },
+      "perPrompt": {
+        "c1-arithmetic": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c2-friendlier": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c3-tcp-udp": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c4-closing": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "c5-nothing-to-do": {
+          "kind": "control",
+          "expected": [],
+          "elected": 1,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 1
+          }
+        },
+        "c6-hiking-club": {
+          "kind": "control",
+          "expected": [],
+          "elected": 0,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {}
+        },
+        "w1-file-appears": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 5,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 5
+          }
+        },
+        "w2-guide-in-parts": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w3-cooldown": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w4-two-readings": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w5-section-reviews": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 5,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 5
+          }
+        },
+        "w6-notes-before-morning": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w7-build-result": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "w8-three-timestamps": {
+          "kind": "eligible",
+          "expected": [
+            "continue_work"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_work": 4
+          }
+        },
+        "d1-second-pair-of-eyes": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 4
+          }
+        },
+        "d2-blind-recheck": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 4
+          }
+        },
+        "d3-side-job": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 4,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 4
+          }
+        },
+        "d4-later-reading": {
+          "kind": "eligible",
+          "expected": [
+            "continue_delegate"
+          ],
+          "elected": 3,
+          "scored": 5,
+          "unscored": 0,
+          "tools": {
+            "continue_delegate": 3
+          }
+        }
+      }
+    }
+  },
+  "comparisons": [
+    {
+      "id": "visibility",
+      "label": "visibility (all tools direct)",
+      "from": "A",
+      "to": "B",
+      "primary": true,
+      "note": "same build and text. B makes every tool direct, not only the continuation tools, so this is the effect of an all-direct surface.",
+      "difference": 0.31666666666666665,
+      "newcombe95": [
+        0.1760581393422052,
+        0.44736573689399783
+      ],
+      "bootstrap95": [
+        0.2333333333333333,
+        0.4
+      ],
+      "reading": "effect",
+      "blockers": [],
+      "controlRates": {
+        "A": 0.0,
+        "B": 0.03333333333333333
+      }
+    },
+    {
+      "id": "composite",
+      "label": "composite: new text + direct-set narrowing",
+      "from": "B",
+      "to": "C",
+      "primary": true,
+      "note": "not the wording effect. C has the new text, and it also narrows the direct set: B makes every tool direct, while C adds only the three continuation tools to the fleet default's direct set. Arm D separates the two.",
+      "difference": 0.38333333333333336,
+      "newcombe95": [
+        0.20736332001509025,
+        0.5272364706330039
+      ],
+      "bootstrap95": [
+        0.33333333333333326,
+        0.4333333333333334
+      ],
+      "reading": "effect",
+      "blockers": [],
+      "controlRates": {
+        "B": 0.03333333333333333,
+        "C": 0.1
+      }
+    },
+    {
+      "id": "settled-wording",
+      "label": "settled wording (same placement)",
+      "from": "C",
+      "to": "E",
+      "primary": true,
+      "note": "the same fleet-default config and direct-only placement on both, and the settled text on E. On the embedded runtime only the text the model is shown differs (the probe): the three descriptions, the parameter descriptions of continue_work and continue_delegate, and five prompt lines, the delegate's tooling line and the continuation section's wake, self-elected-turn and compaction lines and its sessions_yield caveat. On the Codex harness de55f350 also adds the whole continuation section to the harness prompt, which f9fcd3a5's lacks, so there it is more than wording.",
+      "holdsDirectTools": true,
+      "difference": 0.06666666666666665,
+      "newcombe95": [
+        -0.08142711261810184,
+        0.21160889838809802
+      ],
+      "bootstrap95": [
+        0.0,
+        0.13333333333333341
+      ],
+      "reading": "no effect shown",
+      "blockers": [],
+      "controlRates": {
+        "C": 0.1,
+        "E": 0.03333333333333333
+      }
+    },
+    {
+      "id": "deploy",
+      "label": "deploy of f9fcd3a5",
+      "from": "A",
+      "to": "C",
+      "primary": false,
+      "difference": 0.7,
+      "newcombe95": [
+        0.5498925300576214,
+        0.7979102082109024
+      ],
+      "bootstrap95": [
+        0.6166666666666666,
+        0.7833333333333333
+      ],
+      "reading": "effect",
+      "blockers": [],
+      "controlRates": {
+        "A": 0.0,
+        "C": 0.1
+      }
+    },
+    {
+      "id": "settled-deploy",
+      "label": "placement + settled wording",
+      "from": "A",
+      "to": "E",
+      "primary": false,
+      "note": "deploy of de55f350 over ab5a30ea: the continuation tools move from deferred to direct-only and the text becomes the settled one. On the same trials A \u2192 B, B \u2192 C and C \u2192 E add up to it.",
+      "difference": 0.7666666666666666,
+      "newcombe95": [
+        0.6217721792128241,
+        0.8510766892200061
+      ],
+      "bootstrap95": [
+        0.7000000000000001,
+        0.8333333333333333
+      ],
+      "reading": "effect",
+      "blockers": [],
+      "controlRates": {
+        "A": 0.0,
+        "E": 0.03333333333333333
+      }
+    }
+  ],
+  "awareness": {
+    "prompt": "judges/awareness.md",
+    "promptSha256": "eae15f84feefb24b93385627e4d44b643ac61451c8cc3a886a5e3997272592b3",
+    "seed": 1575,
+    "perPrompt": 1,
+    "labelsGiven": true,
+    "judges": [
+      "scripted stand-in (offline rehearsal; no model)"
+    ],
+    "arms": {
+      "A": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 0,
+        "unclear": 1,
+        "unaware": 17,
+        "elected": {
+          "sampled": 1,
+          "aware": 0
+        },
+        "notElected": {
+          "sampled": 17,
+          "aware": 0
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.17587922364665765
+          ]
+        }
+      },
+      "B": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 1,
+        "unclear": 0,
+        "unaware": 17,
+        "elected": {
+          "sampled": 3,
+          "aware": 0
+        },
+        "notElected": {
+          "sampled": 15,
+          "aware": 1
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.05555555555555555,
+          "wilson95": [
+            0.009875190978303097,
+            0.25757300781872594
+          ]
+        }
+      },
+      "C": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 0,
+        "unclear": 0,
+        "unaware": 18,
+        "elected": {
+          "sampled": 9,
+          "aware": 0
+        },
+        "notElected": {
+          "sampled": 9,
+          "aware": 0
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.0,
+          "wilson95": [
+            0.0,
+            0.17587922364665765
+          ]
+        }
+      },
+      "E": {
+        "sampled": 18,
+        "judged": 18,
+        "aware": 2,
+        "unclear": 0,
+        "unaware": 16,
+        "elected": {
+          "sampled": 12,
+          "aware": 1
+        },
+        "notElected": {
+          "sampled": 6,
+          "aware": 1
+        },
+        "reading": "judged",
+        "aware95": {
+          "rate": 0.1111111111111111,
+          "wilson95": [
+            0.03101952264561239,
+            0.32799765130178804
+          ]
+        }
+      }
+    },
+    "problems": [],
+    "promptProblem": null
+  }
+}

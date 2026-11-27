@@ -1,0 +1,645 @@
+{
+ "note": "Scripted outcomes for the offline rehearsal: one fixture turn per trial. The rates are made up to exercise the report.",
+ "arms": {
+  "A": {
+   "w1-file-appears": [
+    "search-then-work-with-nested-row",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "deadline-no-election"
+   ],
+   "w2-guide-in-parts": [
+    "no-election",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "no-election"
+   ],
+   "w3-cooldown": [
+    "no-election",
+    "search-then-work",
+    "no-election",
+    "no-election",
+    "token-form"
+   ],
+   "w4-two-readings": [
+    "no-election",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "no-election"
+   ],
+   "w5-section-reviews": [
+    "no-election",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "no-election"
+   ],
+   "w6-notes-before-morning": [
+    "no-election",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "no-election"
+   ],
+   "w7-build-result": [
+    "no-election",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "no-election"
+   ],
+   "w8-three-timestamps": [
+    "no-election",
+    "exec-no-election",
+    "no-election",
+    "search-no-election",
+    "no-election"
+   ],
+   "d1-second-pair-of-eyes": [
+    "spawn-refused-no-election",
+    "search-then-delegate",
+    "spawn-no-election",
+    "no-election",
+    "no-election"
+   ],
+   "d2-blind-recheck": [
+    "spawn-no-election",
+    "no-election",
+    "spawn-no-election",
+    "no-election",
+    "search-no-election"
+   ],
+   "d3-side-job": [
+    "spawn-no-election",
+    "no-election",
+    "spawn-no-election",
+    "no-election",
+    "search-no-election"
+   ],
+   "d4-later-reading": [
+    "spawn-no-election",
+    "no-election",
+    "spawn-no-election",
+    "no-election",
+    "search-no-election"
+   ],
+   "c1-arithmetic": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c2-friendlier": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c3-tcp-udp": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c4-closing": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c5-nothing-to-do": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c6-hiking-club": [
+    "control-unclear",
+    "control-unclear",
+    "control-unclear",
+    "control-unclear",
+    "control-unclear"
+   ]
+  },
+  "B": {
+   "w1-file-appears": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w2-guide-in-parts": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w3-cooldown": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w4-two-readings": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w5-section-reviews": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w6-notes-before-morning": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w7-build-result": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "w8-three-timestamps": [
+    "election-work",
+    "deadline-after-election",
+    "election-work",
+    "exec-no-election",
+    "no-election"
+   ],
+   "d1-second-pair-of-eyes": [
+    "spawn-refused-no-election",
+    "spawn-refused-then-delegate",
+    "spawn-no-election",
+    "no-election",
+    "no-election"
+   ],
+   "d2-blind-recheck": [
+    "spawn-no-election",
+    "election-delegate",
+    "spawn-no-election",
+    "no-election",
+    "no-election"
+   ],
+   "d3-side-job": [
+    "spawn-no-election",
+    "election-delegate",
+    "spawn-no-election",
+    "no-election",
+    "no-election"
+   ],
+   "d4-later-reading": [
+    "election-refused",
+    "election-delegate",
+    "no-election",
+    "no-election",
+    "no-election"
+   ],
+   "c1-arithmetic": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c2-friendlier": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c3-tcp-udp": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c4-closing": [
+    "control-aware",
+    "control-aware",
+    "control-aware",
+    "control-aware",
+    "control-aware"
+   ],
+   "c5-nothing-to-do": [
+    "control-clean",
+    "control-false-election",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c6-hiking-club": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ]
+  },
+  "C": {
+   "w1-file-appears": [
+    "election-work",
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work"
+   ],
+   "w2-guide-in-parts": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work",
+    "election-work"
+   ],
+   "w3-cooldown": [
+    "election-work",
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work"
+   ],
+   "w4-two-readings": [
+    "election-work",
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work"
+   ],
+   "w5-section-reviews": [
+    "election-work",
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work"
+   ],
+   "w6-notes-before-morning": [
+    "election-work",
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work"
+   ],
+   "w7-build-result": [
+    "election-work",
+    "election-work",
+    "commentary-row-dropped",
+    "election-work",
+    "election-work"
+   ],
+   "w8-three-timestamps": [
+    "election-work",
+    "election-work",
+    "no-election",
+    "election-work",
+    "election-work"
+   ],
+   "d1-second-pair-of-eyes": [
+    "spawn-refused-then-delegate",
+    "spawn-refused-no-election",
+    "election-delegate",
+    "election-delegate",
+    "no-election"
+   ],
+   "d2-blind-recheck": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "election-delegate",
+    "no-election"
+   ],
+   "d3-side-job": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "election-delegate",
+    "no-election"
+   ],
+   "d4-later-reading": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "election-delegate",
+    "no-election"
+   ],
+   "c1-arithmetic": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c2-friendlier": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c3-tcp-udp": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c4-closing": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-false-election",
+    "control-clean"
+   ],
+   "c5-nothing-to-do": [
+    "control-false-election",
+    "control-clean",
+    "control-false-election",
+    "control-clean",
+    "control-clean"
+   ],
+   "c6-hiking-club": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ]
+  },
+  "D": {
+   "w1-file-appears": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w2-guide-in-parts": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w3-cooldown": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w4-two-readings": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w5-section-reviews": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w6-notes-before-morning": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w7-build-result": [
+    "election-work",
+    "no-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "w8-three-timestamps": [
+    "election-work",
+    "deadline-after-election",
+    "election-work",
+    "exec-no-election",
+    "election-work"
+   ],
+   "d1-second-pair-of-eyes": [
+    "spawn-refused-then-delegate",
+    "spawn-refused-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "d2-blind-recheck": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "d3-side-job": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "d4-later-reading": [
+    "election-delegate",
+    "spawn-no-election",
+    "election-delegate",
+    "no-election",
+    "no-election"
+   ],
+   "c1-arithmetic": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c2-friendlier": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c3-tcp-udp": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c4-closing": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c5-nothing-to-do": [
+    "control-clean",
+    "control-false-election",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c6-hiking-club": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ]
+  },
+  "E": {
+   "w1-file-appears": [
+    "election-work-aware",
+    "election-work-aware",
+    "election-work-aware",
+    "election-work-aware",
+    "election-work-aware"
+   ],
+   "w2-guide-in-parts": [
+    "election-work",
+    "election-work",
+    "election-work",
+    "election-work",
+    "no-election"
+   ],
+   "w3-cooldown": [
+    "election-work",
+    "election-work",
+    "election-work",
+    "election-work",
+    "no-election"
+   ],
+   "w4-two-readings": [
+    "election-work",
+    "election-work",
+    "election-work",
+    "election-work",
+    "no-election"
+   ],
+   "w5-section-reviews": [
+    "election-work",
+    "election-work",
+    "election-work",
+    "election-work",
+    "election-work"
+   ],
+   "w6-notes-before-morning": [
+    "election-work",
+    "election-work",
+    "election-work",
+    "election-work",
+    "exec-no-election"
+   ],
+   "w7-build-result": [
+    "election-work",
+    "election-work",
+    "commentary-row-dropped",
+    "election-work",
+    "no-election"
+   ],
+   "w8-three-timestamps": [
+    "election-work",
+    "deadline-after-election",
+    "election-work",
+    "election-work",
+    "no-election"
+   ],
+   "d1-second-pair-of-eyes": [
+    "spawn-refused-then-delegate",
+    "spawn-refused-no-election",
+    "election-delegate",
+    "election-delegate",
+    "election-delegate"
+   ],
+   "d2-blind-recheck": [
+    "election-delegate",
+    "election-delegate",
+    "election-delegate",
+    "election-delegate",
+    "no-election"
+   ],
+   "d3-side-job": [
+    "election-delegate",
+    "election-delegate",
+    "election-delegate",
+    "election-delegate",
+    "spawn-no-election"
+   ],
+   "d4-later-reading": [
+    "election-delegate",
+    "election-delegate",
+    "election-delegate",
+    "spawn-no-election",
+    "no-election"
+   ],
+   "c1-arithmetic": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c2-friendlier": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c3-tcp-udp": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c4-closing": [
+    "control-aware",
+    "control-aware",
+    "control-aware",
+    "control-aware",
+    "control-aware"
+   ],
+   "c5-nothing-to-do": [
+    "control-false-election",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ],
+   "c6-hiking-club": [
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean",
+    "control-clean"
+   ]
+  }
+ }
+}

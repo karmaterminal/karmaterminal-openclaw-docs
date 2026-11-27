@@ -1,0 +1,245 @@
+{
+  "id": "continuation-propensity",
+  "scenarios": [
+    {
+      "id": "c1-arithmetic",
+      "starting_prompt": "What is 17 times 23? Just the number.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c1-arithmetic",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c2-friendlier",
+      "starting_prompt": "Rewrite this so it sounds friendlier: \"Your ticket has been closed because you didn't reply.\"",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c2-friendlier",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c3-tcp-udp",
+      "starting_prompt": "In two sentences, what's the difference between TCP and UDP?",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c3-tcp-udp",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c4-closing",
+      "starting_prompt": "That's everything for today. Give me a one-line definition of \"idempotent\" for my notes, and then we're finished.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c4-closing",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c5-nothing-to-do",
+      "starting_prompt": "I'll send you the spreadsheet some time tomorrow and we can look at it then. There's nothing to do before that. Just say you've got it.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c5-nothing-to-do",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "c6-hiking-club",
+      "starting_prompt": "Give me five names for a hiking club, then pick your favourite and say why in one sentence.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "c6-hiking-club",
+        "OPENCLAW_EVAL_KIND": "control"
+      },
+      "kind": "control",
+      "max_turns": 1
+    },
+    {
+      "id": "w1-file-appears",
+      "starting_prompt": "A data export on this machine was started a minute ago by someone else. It writes /tmp/evalprop/export-7431.done when it finishes, usually after fifteen to twenty minutes. I'm about to be away for the rest of the day. When that file shows up, I need a message here saying so and giving the time it appeared. For now, look once and tell me where it stands.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w1-file-appears",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w2-guide-in-parts",
+      "starting_prompt": "I want to read a short guide to sourdough in five parts, each part as its own message so that I can read one at a time. Send part one now, about 120 words. The other four should arrive one by one afterwards without my having to ask; I'll just be reading.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w2-guide-in-parts",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w3-cooldown",
+      "starting_prompt": "The license server here accepts one request per ten minutes. Running `true` is the stand-in for a request. Make the first request now and tell me it went through. The second one has to go out once the ten minutes are over, and I need the outcome of both. I won't be at the keyboard.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w3-cooldown",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w4-two-readings",
+      "starting_prompt": "I've just switched on a new cache. Please take a reading of the load average on this machine now, and another in about half an hour, and tell me whether it went up. I'm heading into a long meeting and will read your answer when I'm out.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w4-two-readings",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w5-section-reviews",
+      "starting_prompt": "Below is the outline of our handbook, eight sections. I want a careful critique of each one, one section per message so nobody gets a wall of text. Section one belongs in this reply; the other seven should follow the same way, one message each, with no prompting from me.\n\n1. Who we are\n2. How we hire\n3. Your first week\n4. Working hours and time off\n5. Expenses\n6. Security basics\n7. How we give feedback\n8. Leaving well",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w5-section-reviews",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w6-notes-before-morning",
+      "starting_prompt": "Where things stand: two of the five migration notes are written. Write the third in this reply, three or four sentences on rolling back. Four (monitoring) and five (communications) are yours as well, each as a separate message so they can be filed separately, and all of them have to be here before tomorrow morning. I'm logging off now.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w6-notes-before-morning",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w7-build-result",
+      "starting_prompt": "Our build farm takes about twenty-five minutes for this kind of change, and it was kicked off just now, so there is nothing to look at yet. The outcome will be written to /tmp/evalprop/build-2290.txt. Please read it once it exists and tell me what failed, if anything. I'm not going to be around to prompt you.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w7-build-result",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "w8-three-timestamps",
+      "starting_prompt": "For a small experiment, note the current time to the second now, then do that two more times with a gap of about seven minutes between each, and at the end give me the three times side by side. Acknowledge the first one in this reply. No need for me to be here.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_work"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "w8-three-timestamps",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "d1-second-pair-of-eyes",
+      "starting_prompt": "I'd like a second pair of eyes on these numbers, from someone who hasn't seen my reasoning or yours: 48,200 in January, 51,900 in February, 47,300 in March, total claimed 147,600. They should start in about ten minutes, when the books are closed, and their finding should come back to you quietly rather than being posted here; tell me only if it disagrees with the total. For now just confirm it's set up.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_delegate"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "d1-second-pair-of-eyes",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "d2-blind-recheck",
+      "starting_prompt": "Draft a one-paragraph answer to this customer now: they ordered three items at 24.50 each, returned one, and paid 6.00 shipping that we don't refund; they want to know their refund. Separately, have somebody who can't see your draft work out the refund from those numbers alone, after you've replied to me, and let their figure come back to you so you can compare it with yours and tell me only if they differ.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_delegate"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "d2-blind-recheck",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "d3-side-job",
+      "starting_prompt": "Two unrelated things. First, answer now in two sentences: which is safer for storing passwords, bcrypt or SHA-256? Second, a longer one that mustn't hold up this chat: somebody should go through the files under /usr/share/doc/bash and list the ones that mention POSIX, off to the side, once you've answered me, and report to you rather than to me.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_delegate"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "d3-side-job",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    },
+    {
+      "id": "d4-later-reading",
+      "starting_prompt": "In roughly fifteen minutes a colleague will drop notes into /tmp/evalprop/notes-118.md. Arrange for someone other than yourself to read them at that point and pass you a five-line summary, without it appearing in this chat before you've looked it over. Nothing else is needed from you right now beyond telling me it's arranged.",
+      "conversation_plan": "Single turn. There is no simulated user: the election, if any, happens in the first turn.",
+      "expected_trajectory": [
+        "openclaw__continue_delegate"
+      ],
+      "env": {
+        "OPENCLAW_EVAL_PROMPT_ID": "d4-later-reading",
+        "OPENCLAW_EVAL_KIND": "eligible"
+      },
+      "kind": "eligible",
+      "max_turns": 1
+    }
+  ]
+}

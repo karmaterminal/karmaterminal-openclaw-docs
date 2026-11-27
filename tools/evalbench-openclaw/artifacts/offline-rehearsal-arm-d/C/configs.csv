@@ -1,0 +1,21 @@
+job_id,run_time,config,value
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,db_configs,[]
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.dataset_config,datasets/continuation-propensity.evalset.json
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.dataset_format,agent-format
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.experiment_name,openclaw-continuation-propensity-C
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.model_config,/home/figs/.cache/evalbench-arm-e/rehearsals/offline-d-92a3a7ec/config/model_arm_c.yaml
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.num_trials,5
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.orchestrator,agent
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.reporting.csv.output_directory,/home/figs/.cache/evalbench-arm-e/rehearsals/offline-d-92a3a7ec/results
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.scorers.continuation_election.script_path,scorers/continuation_election.py
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.scorers.continuation_election.type,python_scorer
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.simulated_user_model_config,configs/simulated_user_noop.yaml
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.session_id,evalprop-C-4ee8c7e3786a47ae8bf4203b2414ce13
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,experiment_config.agent_out_queue,<queue.Queue object at 0xfe7074135b50>
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.generator,agent_grpc_proxy
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.generator_class,openclaw_evalbench.generator:OpenClawProxyGenerator
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.timeout_seconds,900.0
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.env.OPENCLAW_EVAL_ARM,C
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.env.OPENCLAW_EVAL_GATEWAY_URL,ws://127.0.0.1:45445
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.env.OPENCLAW_EVAL_MODEL,openai/gpt-6.1-sol
+ef306de2-9669-4c12-a950-cdb8bb019e64,2026-11-27 11:18:46.332249,model_config.agent_version,openclaw-arm-C

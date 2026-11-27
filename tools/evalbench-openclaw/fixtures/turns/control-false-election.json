@@ -1,0 +1,72 @@
+{
+  "id": "control-false-election",
+  "describe": "A control answered, and continue_work elected anyway.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "Got it."
+        },
+        {
+          "type": "toolCall",
+          "id": "c1",
+          "name": "continue_work",
+          "arguments": {
+            "reason": "wait for the spreadsheet",
+            "delaySeconds": 86400
+          }
+        }
+      ],
+      "usage": {
+        "input": 1100,
+        "output": 60,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25160
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "toolResult",
+      "toolCallId": "c1",
+      "toolName": "continue_work",
+      "isError": false,
+      "content": [
+        {
+          "type": "text",
+          "text": "{\n  \"status\": \"scheduled\",\n  \"delaySeconds\": 86400\n}"
+        }
+      ],
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "Got it. I'll check back tomorrow."
+        }
+      ],
+      "usage": {
+        "input": 200,
+        "output": 15,
+        "cacheRead": 25000,
+        "cacheWrite": 0,
+        "totalTokens": 25215
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    }
+  ]
+}

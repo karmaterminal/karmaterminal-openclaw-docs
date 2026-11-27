@@ -1,0 +1,61 @@
+{
+  "id": "woke-before-read",
+  "describe": "The armed wake ran before history was read: the second turn's call is not this turn's.",
+  "rows": [
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "text",
+          "text": "Part one. The rest follows."
+        }
+      ],
+      "usage": {
+        "input": 1200,
+        "output": 200,
+        "cacheRead": 24000,
+        "cacheWrite": 0,
+        "totalTokens": 25400
+      },
+      "__openclaw": {
+        "runId": "{{runId}}"
+      }
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "[continuation:wake] Turn 1/200. Prior reason: \"part two\""
+        }
+      ]
+    },
+    {
+      "role": "assistant",
+      "provider": "{{provider}}",
+      "model": "{{model}}",
+      "content": [
+        {
+          "type": "toolCall",
+          "id": "c9",
+          "name": "continue_work",
+          "arguments": {
+            "reason": "part three"
+          }
+        }
+      ],
+      "usage": {
+        "input": 100,
+        "output": 20,
+        "cacheRead": 25000,
+        "cacheWrite": 0,
+        "totalTokens": 25120
+      },
+      "__openclaw": {
+        "runId": "another-run"
+      }
+    }
+  ]
+}

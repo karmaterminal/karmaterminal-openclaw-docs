@@ -41,6 +41,39 @@ tools/k6-proofs/
 
 ## Usage
 
+### One-command proof-set entrypoint
+
+The wrapper is independent of the caller's working directory (invoke it by
+absolute path when outside the repo) and delegates live/dry matrices to the
+existing `scripts/run-proofs.sh` gates.
+
+```bash
+./tools/k6-proofs/proofs.sh list
+./tools/k6-proofs/proofs.sh list --live-suite
+./tools/k6-proofs/proofs.sh check
+./tools/k6-proofs/proofs.sh smoke
+./tools/k6-proofs/proofs.sh dry R-CW-2 <40-char-candidate-sha>
+```
+
+`check` runs the catalog validators, skill integrity check, and offline
+golden-path test. `smoke` writes a candidate-only fixture under a fresh
+temporary directory and prints its artifact path. `dry` exercises the selected
+matrix without gateway traffic. Add `--out-dir DIR` to `smoke`, `dry`, or
+`live` to choose an artifact root; otherwise each gets a fresh temporary root.
+
+For a live row, export the explicit target, token, seat, unit, session, and depth
+bindings described below, then use an approved committed docs ref:
+
+```bash
+./tools/k6-proofs/proofs.sh live R-CW-2 <40-char-candidate-sha> \
+  --docs-ref <40-char-docs-sha> --out-dir /tmp/p81-r-cw-2
+```
+
+The wrapper does not infer target authority, credentials, or a docs ref.
+`run-proofs.sh` still verifies the exact committed harness and signed seat
+readiness before firing. All generated artifacts remain review-required
+candidates; this command does not fold a proof.
+
 ### R-CW-5: isolated typed-tool fixture
 
 `continue_work` is deliberately unavailable through the gateway/MCP loopback,

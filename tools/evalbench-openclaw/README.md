@@ -264,9 +264,9 @@ scripted stand-in has labelled anything, in the offline rehearsals.
 
 `run` and `offline` refuse to start if `judges/awareness.md` is not the declared prompt. A run writes the sample
 (`private/awareness-sample.jsonl`, the key) and the judge's input (`private/awareness-judge-input.jsonl`, mode 600: it holds
-replies); if that fails, the rates are written anyway and the run's failures say why. An offline rehearsal also labels it with the scripted stand-in (`awareness-labels.jsonl`), which
-reads only what a judge would and finds the fixtures' own phrases: it measures nothing, and its labels are refused on a run
-that was not a rehearsal. Judging a live run is a step of its own, with its own go: about 72 judge calls of 1–4 k tokens
+replies); if that fails, the rates are written anyway and the run's failures say why. An offline rehearsal also labels it
+with the scripted stand-in (`awareness-labels.jsonl`), which reads only what a judge would and finds the fixtures' own
+phrases: it measures nothing, and its labels are refused on a run that was not a rehearsal. Judging a live run is a step of its own, with its own go: about 72 judge calls of 1–4 k tokens
 each, 0.07–0.3 M tokens on the judge's model. Its labels then go to `report --awareness`.
 
 ## Spend caps and admission

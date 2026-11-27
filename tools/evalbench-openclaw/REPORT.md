@@ -181,6 +181,14 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 
 | what | result |
 | --- | --- |
+| adapter tests (`./run.sh test`), follow-up 4 | **648 passed, none skipped**, on ronan with a systemd user manager, after a fresh `./bootstrap.sh` into an empty `OPENCLAW_EVALBENCH_HOME`; 566 at `8c430fc9` on the same install |
+| the probe at all three SHAs, follow-up 4 | receipts at ab5a30ea, f9fcd3a5 and de55f350, each with every arm's settings (E's are C's). At de55f350 the caps hold as at the others (`cost-capped`, `chain-capped`, one turn and one child at a time, cron off, no utility model, Workshop review `off`), and change nothing the model is shown, on any arm, either path. E's continuation descriptions hash to `arms.json`'s, which were read from source by an extractor that reproduces ab5a30ea's and f9fcd3a5's byte for byte. On the attempt path the rest of the surface outside the continuation text is the same for B → D and C → E and not for B → C. Two extracts of f9fcd3a5 at two paths gave byte-identical receipts; the independent reviewer's re-run at de55f350 did too |
+| the direct-tool check, pre-fix control at `8c430fc9` | `direct_tool_gaps` on `8c430fc9`'s own archived reports: "the rates table has no direct tools column beside the arm", for both; `test_every_arms_rates_row_carries_its_direct_tool_count` fails there. Here it passes on a fresh five-arm report and on both archives |
+| mutation checks on follow-up 4 (one mutant at a time, on a git copy of the head, with an unmutated copy as the control) | MUTATION |
+| full offline run, D off (archived at `92a3a7ec`) | 360 trials on A, B, C and E, 4 jobs, exit 0 in 11 s, harnessDirty false, no failures, every gateway proved stopped. Scripted rates: eligible A 3/60, B 22/60, C 45/60, E 49/60; direct tools 7, 66 (crowded), 10, 10; C → E +6.7 pp, "no effect shown". The scripted stand-in judged all 72 sampled transcripts: A unclear 1, B aware 1, C none, E aware 2 (one of them elected), as the fixtures say |
+| full offline run, D on (archived at `92a3a7ec`) | 450 trials, 5 jobs, exit 0, the same, D with 66 direct tools (crowded) |
+| the canary's own shape and limits, offline (at `92a3a7ec`) | 12 trials on A, B, C and E, exit 0, every comparison `not reportable` |
+| the first rehearsal with E (at `91222dd7`, not archived) | exit 0, and it showed a defect: arm E's elected turn that said it suspected an evaluation before its call read unaware, because the record kept only the turn's last text. Fixed at `230c3dbc` (every text kept, in order) |
 | adapter tests (`./run.sh test`), follow-up 3 | 566 passed, none skipped (on ronan, with a systemd user manager); 490 at `d78d1614` |
 | the caps and admission, through the product's own code at both SHAs (`probes/product-probe.mts`, receipts in `probes/receipts`) | the schema and `config.get`'s own pipeline accept and read back all sixteen, authored and effective (a misspelt key is refused); in the product's command queue two turns start one after the other and so do two children of one session, both at once without the caps, while two swarm groups and two automation runs start together either way; the first child is admitted, a second and a grandchild refused, a second collector in a group refused; the gateway's cron state reads the scheduler off; the utility model `disabled`; Skill Workshop's review `off`, and `auto` without the marker. On every arm, two ways (the `/context` path's 66 tools and prompt; the run's own surface through the product's tool-surface runtime, Code Mode with 6 tools sent and 63 catalogued at ab5a, 9 and 60 at f9fc, every tool direct for B and D, prompt with its continuation section), tools, catalog and prompt are byte for byte the same with and without the caps, each alone and all together; swarm off, an empty `allowAgents` and `automations` denied are each seen to change them. The continuation descriptions hash to `arms.json`'s. A re-run gives the same receipts |
 | a setting the probe found not in force | Skill Workshop's `autonomous.mode: "off"` alone: absent from the effective configuration, because the runtime ignores the plugin's entry until Doctor's migration marker. Set with the marker, and read back with it |
@@ -195,7 +203,7 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
 | full offline run, D off (archived at `74a3acc1`) | 270 trials, 3 jobs, exit 0, no session left on any fake gateway, every gateway proved stopped, sixteen caps. Rates and comparisons are those of the run before; treatment limitations: 1 trial in A, 2 in B and C, one of them electing after it |
 | full offline run, D on (archived at `74a3acc1`) | 360 trials, 4 jobs, exit 0, the same, and D as B and C |
 | the canary's own shape and limits, offline (at `74a3acc1`) | 9 trials, exit 0, every comparison `not reportable` |
-| `tools/k6-proofs/tests` | 583 of 583 |
+| `tools/k6-proofs/tests` | 583 of 583, at follow-up 4 as before (nothing under `tools/k6-proofs` changed) |
 
 From the first lane, at `cad3a045`, and not repeated: 35 + 20 mutants; 67 of 67 adapter frames valid against the product's own
 protocol validators at both SHAs (the trial's own frames have not changed since); `tools/k6-proofs/scripts` (nothing under `tools/k6-proofs` changed).
@@ -203,6 +211,35 @@ protocol validators at both SHAs (the trial's own frames have not changed since)
 CI path: **focused-only** (local). The docs repo has no PR checks, and nothing here touches openclaw.
 
 ## Independent review
+
+### Arm E, direct tools and awareness (follow-up 4)
+
+Another reader, who had not seen the reasoning, reviewed `8c430fc9..230c3dbc` against all three product trees, re-ran the probe
+at de55f350 (byte for byte the committed receipt), the tests and a rehearsal, and proved its findings with mutants of its own.
+It then re-reviewed the fixes at `8abedd4a`. Every finding is fixed or disclosed:
+
+| finding | disposition |
+| --- | --- |
+| the documents described archives and validation rows that did not exist yet | archived at `92a3a7ec`; the rows above |
+| a judge prompt that was not the declared one was found only after every trial, and then no report was written | `run` and `offline` refuse it before anything; a finished run writes its rates whatever the awareness files do, and lists the failure |
+| the judge can tell surfaces apart by the calls (a `tool_search` call, Code Mode's `exec`), which README denied | disclosed in README: the calls stay, as they hold the assistant's own words; the judge is told no arm, build or model |
+| the judge rule was weaker than README said (case, versions, a suffix), and a one-letter quote counted | the refused names are declared in `arms.json` beside the model and matched in any case, with a tripwire test; a quote is two words and eight characters, found whole |
+| earlier texts could push the reply out of the CSV's 8,000 characters | the reply is always kept |
+| six mutants survived: the CSV's crowded column, a live run labelling itself, the judge input's mode and fields, counting from every trial, an arm with no count | a test for each |
+| "both SHAs", "both builds", the fake's counts (7, 10, 10 against the probe's 6, 9, 9), a ratio, a claim about thinking | corrected or stated |
+| a contrast that holds the surface compared counts, not which tools | it compares a hash of the names too |
+| re-review: the pinned prompt asked for "the shortest" quote, which the checker refused | the prompt asks for two words, and was pinned again before anything was judged |
+| re-review: the two-word minimum had no test; a quote across two texts was checked unlike the judge saw it; a one-letter model family would refuse every judge; the canary's 2.13 M against 0.54 M an arm; a prompt problem among the label problems | each fixed and tested |
+
+The reviewer disclosed one step outside its brief: to check the new refusal it ran `./run.sh run` once, on its own scratch copy
+with the judge prompt changed. It refused at the judge-prompt check, before any gateway URL, token or output directory; nothing
+was contacted and no model was called.
+
+It checked and found correct: E's entry against C's, the probe at de55f350, C → E text-only on the embedded runtime and more on
+Codex, every product citation the follow-up added, all the four- and five-arm arithmetic, that no enforced cap changed, the
+Anthropic quote, the sample's independence from outcomes, and the packet's arm set and twelve trials.
+
+### The harness (first lane)
 
 A second reader compared the code with both product SHAs and did not see this report. It proved ten findings. All are
 fixed, each with a test that fails when only that fix is undone, or are disclosed in README.

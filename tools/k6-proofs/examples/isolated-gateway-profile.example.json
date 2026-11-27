@@ -1,0 +1,29 @@
+{
+  "schema": "openclaw.k6.isolated-gateway-profile.v1",
+  "model": "sparkrun-local/example-model",
+  "altModel": "sparkrun-local/example-alt-model",
+  "models": {
+    "providers": {
+      "sparkrun-local": {
+        "baseUrl": "http://127.0.0.1:8000/v1",
+        "api": "openai-completions",
+        "auth": "token",
+        "apiKey": "${SPARKRUN_LOCAL_API_KEY}",
+        "models": [
+          { "id": "example-model", "name": "example-model", "reasoning": false, "input": ["text"], "contextWindow": 131072, "maxTokens": 8192 },
+          { "id": "example-alt-model", "name": "example-alt-model", "reasoning": false, "input": ["text"], "contextWindow": 131072, "maxTokens": 8192 }
+        ]
+      }
+    }
+  },
+  "environmentFile": "~/.config/openclaw-k6-baseline/provider.env",
+  "continuation": {
+    "maxChainLength": 10,
+    "maxDelegatesPerTurn": 5,
+    "costCapTokens": 500000
+  },
+  "maxSpawnDepth": 2,
+  "otel": {
+    "endpoint": "http://otel.dandelion.cult:4318"
+  }
+}

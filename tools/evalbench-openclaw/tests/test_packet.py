@@ -7,7 +7,7 @@ import pytest
 from conftest import ROOT
 
 from openclaw_evalbench import __main__ as cli
-from openclaw_evalbench.arms import load_arms, load_scenarios
+from openclaw_evalbench.arms import default_arms, load_arms, load_scenarios
 from openclaw_evalbench.trial import TURN_DEADLINE_SECONDS
 
 PACKET, README, REPORT = ((ROOT / name).read_text() for name in ("CANARY-PACKET.md", "README.md", "REPORT.md"))
@@ -46,7 +46,9 @@ POLL = 2 * S["readSeconds"] + S["pollSeconds"] + S["abortSeconds"]
 BLIND = S["readSeconds"] + S["blindSeconds"] + S["abortSeconds"] + 0.5     # 0.5 s for the tick and the kill
 # The turn and its one child: what the product's admission leaves a trial (probes/receipts). The supervisor stops a third.
 LANES = ARMS["caps"]["set"]["agents.defaults.maxConcurrent"] + ARMS["caps"]["set"]["agents.defaults.subagents.maxChildrenPerAgent"]
-TRIAL, RUN, ARMS_IN_CANARY = S["trialTokens"], S["canary"]["tokens"], 3
+# The canary runs every default arm (A, B, C, E) on three prompts; all of them can be in flight when a limit is crossed.
+TRIAL, RUN, ARMS_IN_CANARY = S["trialTokens"], S["canary"]["tokens"], len(default_arms(ARMS))
+TRIALS_IN_CANARY = 3 * ARMS_IN_CANARY
 
 
 def trial(call, call_seconds=CALL_SECONDS, window=BLIND):
@@ -54,7 +56,7 @@ def trial(call, call_seconds=CALL_SECONDS, window=BLIND):
 
 
 def canary(call, call_seconds=CALL_SECONDS, window=BLIND):
-    return min(9 * trial(call, call_seconds, window), RUN + ARMS_IN_CANARY * LANES * calls(window, call_seconds) * call)
+    return min(TRIALS_IN_CANARY * trial(call, call_seconds, window), RUN + ARMS_IN_CANARY * LANES * calls(window, call_seconds) * call)
 
 
 def lane(call, call_seconds):
@@ -62,7 +64,13 @@ def lane(call, call_seconds):
 
 
 def test_the_limits_are_the_multiples_the_packet_gives():
+    # The run's limit was set at 1.5 × the three-arm canary's 1.6 M, and is kept with arm E: 1.13 × the four arms' 2.1 M.
+    assert (ARMS_IN_CANARY, TRIALS_IN_CANARY) == (4, 12)
     assert TRIAL == pytest.approx(1.5 * 6 * 60_000 * 1.3, rel=0.01) and RUN == pytest.approx(1.5 * 1.6 * M)
+    assert RUN / (1.6 * M * ARMS_IN_CANARY / 3) == pytest.approx(1.125)
+    flat = " ".join(PACKET.split())
+    assert "2.1 M for the canary with four arms (1.6 M with three)" in flat and "now 1.13 × the four arms' 2.1 M" in flat
+    assert "**The enforced limits are kept as they were** with arm E added" in flat
     assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4.5, 12.5, 2, 4)
     flat = " ".join(PACKET.split())
     assert "within 12.5 s of the last reading under it, whatever the readings do; 4.5 s while every reading is on time" in flat
@@ -80,14 +88,14 @@ def test_160k_a_call_is_the_largest_call_of_a_trial_that_reaches_its_limit_one_t
 
 
 @pytest.mark.parametrize("value_trial, value_canary, row", [
-    (trial(CALL), canary(CALL), "| 5 s and 160 k a call (the packet at `d78d1614`) | 1.98 M | 6.24 M |"),
-    (trial(375_000), canary(375_000), "| 3.7 M | 11.4 M |"),
-    (trial(ROUTE_CALL), canary(ROUTE_CALL), "| **5.7 M** | **17.5 M** |"),
-    (trial(ROUTE_CALL, 2), canary(ROUTE_CALL, 2), "| the same at 2 s a call | 10.7 M | 32.5 M |"),
-    (trial(ROUTE_CALL, 1), canary(ROUTE_CALL, 1), "| the same at 1 s a call | **18.3 M** | **55 M** |"),
-    (trial(ROUTE_CALL, window=POLL), canary(ROUTE_CALL, window=POLL), "| 3.2 M | 9.9 M |"),
-    (trial(PROVIDER_CALL), canary(PROVIDER_CALL), "if the product's estimate is off that far | 10.1 M | 30.7 M |"),
-    (trial(PROVIDER_CALL, 1), canary(PROVIDER_CALL, 1), "| the same at 1 s a call | **33.7 M** | **101 M** |"),
+    (trial(CALL), canary(CALL), "| 1.98 M | 7.52 M |"),
+    (trial(375_000), canary(375_000), "| 3.7 M | 14.4 M |"),
+    (trial(ROUTE_CALL), canary(ROUTE_CALL), "| **5.7 M** | **22.5 M** |"),
+    (trial(ROUTE_CALL, 2), canary(ROUTE_CALL, 2), "| the same at 2 s a call | 10.7 M | 42.6 M |"),
+    (trial(ROUTE_CALL, 1), canary(ROUTE_CALL, 1), "| the same at 1 s a call | **18.3 M** | **72.7 M** |"),
+    (trial(ROUTE_CALL, window=POLL), canary(ROUTE_CALL, window=POLL), "| 3.2 M | 12.4 M |"),
+    (trial(PROVIDER_CALL), canary(PROVIDER_CALL), "if the product's estimate is off that far | 10.1 M | 40.1 M |"),
+    (trial(PROVIDER_CALL, 1), canary(PROVIDER_CALL, 1), "| the same at 1 s a call | **33.7 M** | **134 M** |"),
 ])
 def test_the_conditional_numbers_are_arms_jsons_on_their_assumptions(value_trial, value_canary, row):
     shown = [float(n) * M for n in re.findall(r"([\d.]+) M", row)]
@@ -98,7 +106,7 @@ def test_each_lane_a_turn_opens_adds_what_the_packet_says():
     assert [round(lane(ROUTE_CALL, s) / M, 1) for s in (5, 2, 1)] == [2.5, 5.0, 8.8]
     assert "+ 2.5 M at 5 s, 5.0 M at 2 s, 8.8 M at 1 s" in PACKET and "adds 2.5–8.8 M to its trial" in PACKET
     residual = PACKET.split("### The residual")[1].split("\n### ")[0]
-    assert "5.7–18.3 M for one trial and 17.5–55 M for the" in " ".join(residual.split())
+    assert "5.7–18.3 M for one trial and 22.5–72.7 M for the" in " ".join(residual.split())
 
 
 def test_no_number_of_tokens_is_called_enforced():
@@ -117,13 +125,13 @@ def test_no_number_of_tokens_is_called_enforced():
 
 def test_the_provider_window_case_is_in_the_headline_and_the_residual():
     for text in (PACKET.split("## Commands")[0], PACKET.split("### The residual")[1]):
-        assert "10.1–33.7 M" in " ".join(text.split()) and "30.7–101 M" in " ".join(text.split())
+        assert "10.1–33.7 M" in " ".join(text.split()) and "40.1–134 M" in " ".join(text.split())
     assert "1,050,000 in (`extensions/openai/openclaw.plugin.json:124`)" in " ".join(PACKET.split())
 
 
 def test_the_old_most_context_case_is_reconciled():
     flat = " ".join(PACKET.split())
-    assert "The 3.7 M and 11.4 M were too low for this route." in flat and "So 628 k replaces 375 k." in flat
+    assert "The 3.7 M and 11.4 M (three arms) were too low for this route." in flat and "So 628 k replaces 375 k." in flat
     assert ROUTE_CALL == 628_000 and "128,000 (`extensions/openai/openclaw.plugin.json:126`)" in flat
     assert "500,000 (`extensions/openai/model-route-contract.ts:2`)" in flat
 
@@ -170,11 +178,12 @@ def parsed(words, monkeypatch, command="cmd_run"):
     return seen[0]
 
 
-def test_the_packets_run_is_nine_trials_at_the_canarys_limits(monkeypatch):
+def test_the_packets_run_is_twelve_trials_at_the_canarys_limits(monkeypatch):
     (words,) = commands(PACKET, "run")
     args = parsed(["run", *words], monkeypatch)
     assert (args.run_token_cap, args.run_seconds, args.token_budget) == (RUN, S["canary"]["seconds"], 800_000)
-    assert args.arms == ["A", "B", "C"] and args.num_trials == 1 and len(args.scenarios) == 3
+    assert args.arms == ["A", "B", "C", "E"] == default_arms(ARMS) and args.num_trials == 1 and len(args.scenarios) == 3
+    assert len(args.arms) * len(args.scenarios) == TRIALS_IN_CANARY and "**12**: arms A, B, C, E" in PACKET
     kinds = {s["id"]: s["kind"] for s in load_scenarios()}
     assert sorted(kinds[s] for s in args.scenarios) == ["control", "eligible", "eligible"]
 
@@ -189,7 +198,7 @@ def test_a_run_told_nothing_has_the_canarys_limits_and_the_fires_are_said(monkey
 
 def test_the_emergency_stop_names_every_default_arms_unit():
     block = next(b for b in blocks(PACKET) if "kill --signal=SIGKILL" in b)
-    for name in "ABC":
+    for name in default_arms(ARMS):
         assert ARMS["arms"][name]["unit"] in block and ARMS["arms"][name]["unit"].rsplit("-", 1)[1] in block.split("\n", 1)[1]
 
 
@@ -211,9 +220,9 @@ def test_step_6_removes_a_gateway_the_supervisor_stopped_and_keeps_its_receipts(
     (tmp_path / "proof-gw/comp-ab5a30ea/supervisor-stop.json").write_text('{"rule": "trial-tokens"}')
     (tmp_path / "L").write_text(LAUNCHER)
     (tmp_path / "rec").mkdir()
-    script = function + 'finish A 20846 ab5a30ea x; finish B 20966 706a2c56 x; finish C 21086 f9fcd3a5 x\n'
+    script = function + 'finish A 20846 ab5a30ea x; finish B 20966 706a2c56 x; finish C 21086 f9fcd3a5 x; finish E 21326 de55f350 x\n'
     done = subprocess.run(["bash"], input=script, capture_output=True, text=True, check=False, env={"PATH": "/usr/bin:/bin", "HOME": str(tmp_path), "REC": str(tmp_path / "rec"), "L": str(tmp_path / "L")})
-    assert done.stdout.splitlines() == ["A: removed", "B: removed", "C: no gateway"], done.stderr
+    assert done.stdout.splitlines() == ["A: removed", "B: removed", "C: no gateway", "E: no gateway"], done.stderr
     assert not (tmp_path / "proof-gw/comp-ab5a30ea").exists() and not (tmp_path / "proof-gw/comp-706a2c56").exists()
     assert (tmp_path / "rec/supervisor-stop-A.json").exists() and not (tmp_path / "rec/supervisor-stop-B.json").exists()
     assert (tmp_path / "rec/receipts-A/identity.json").exists() and not (tmp_path / "rec/receipts-A/login.log").exists()
@@ -228,3 +237,21 @@ def test_the_ci_hand_off_links_the_receipts_and_waits_on_the_cut():
         assert f"[{run}](https://github.com/karmaterminal/openclaw-bootstrap/actions/runs/{run})" in section
     assert "issuecomment-7170483613" in section and ARMS["arms"]["C"]["productSha"] in section
     assert "waits on 🌊's cut decision" in section and not re.search(r"\b(green|passed|clean|no reds|0 candidate)\b", section, re.I)
+
+
+def test_every_default_arm_is_set_up_signed_in_preflighted_and_finished_in_the_packet():
+    text = "\n".join(blocks(PACKET))
+    for name in default_arms(ARMS):
+        arm = ARMS["arms"][name]
+        port, short = arm["gatewayPort"], arm["unit"].rsplit("-", 1)[1]
+        for step in (f"PORT={port} bash $L setup", f"PORT={port} bash $L login ", f"PORT={port} bash $L login-finish",
+                     f"./run.sh overlay {name} ~/proof-gw/comp-{short}/openclaw.json", f"OPENCLAW_EVAL_TOKEN_FILE_{name}=~/proof-gw/comp-{short}/gateway.token",
+                     f"finish {name} {port} "):
+            assert step in text, (name, step)
+        assert all(str(port) in line for line in text.splitlines() if line.startswith("for p in 20846"))
+
+
+def test_the_packet_says_it_is_not_a_go_and_whose_call_it_is():
+    top = " ".join(PACKET.split("## What it is")[0].split())
+    assert "**This packet is not a go.** Live fire is 🌻's call on elliott, or any seat owner's on their own seat" in top
+    assert "**The arm set is A, B, C and E**, with D off" in top

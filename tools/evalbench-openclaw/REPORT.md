@@ -1,36 +1,71 @@
 # Report: continuation propensity on EvalBench
 
-Bound to karmaterminal/openclaw#1575. **No live fire was run, and no number here is about a model.** The design and the
-firing steps are in [`README.md`](README.md).
+Bound to karmaterminal/openclaw#1575, and since follow-up 4 to #1577, gate 6 ("cause, not just count"). **No live fire was
+run, no model was called, and no number here is about a model.** The design and the firing steps are in
+[`README.md`](README.md).
 
 ## Result
 
 The harness is built on EvalBench at the pin. EvalBench was workable, so the k6 fallback was not built. Two complete
-offline rehearsals ran against fake gateways, under the supervisor: 270 trials with arm D off, and 360 with it on. Every stage
-of the path was exercised: gRPC, WS, history, scorers, supervision, CSVs and report. The CSVs are in
-[`artifacts/offline-rehearsal/`](artifacts/offline-rehearsal/report.md) and
+offline rehearsals ran against fake gateways, under the supervisor: 360 trials on A, B, C and E with arm D off, and 450 with it
+on. Every stage of the path was exercised: gRPC, WS, history, scorers, supervision, CSVs, report, and the awareness sample
+with its scripted stand-in judge. The CSVs are in [`artifacts/offline-rehearsal/`](artifacts/offline-rehearsal/report.md) and
 [`artifacts/offline-rehearsal-arm-d/`](artifacts/offline-rehearsal-arm-d/report.md).
 
 **No number of tokens is enforced, for a trial or for the canary.** What is enforced is time (480 s a trial and 1800 s the
 canary, each + 1 s) and admission in the product (one message turn at a time per gateway, one direct child per session and
 none of its own, one collector per swarm group, no automation, activity recap or Skill Workshop review that starts by itself).
-The token numbers are estimates on named assumptions: 1.98 M a trial and 6.24 M the canary at 5 s and 160 k a call;
-5.7–18.3 M and 17.5–55 M at the most the product lets a call carry on this route, at 5 s to 1 s a call; 10.1–33.7 M and
-30.7–101 M if its input estimate is off as far as the provider's window; and more for the lanes a turn opens itself, which
+The token numbers are estimates on named assumptions: 1.98 M a trial and 7.52 M the four-arm canary at 5 s and 160 k a call;
+5.7–18.3 M and 22.5–72.7 M at the most the product lets a call carry on this route, at 5 s to 1 s a call; 10.1–33.7 M and
+40.1–134 M if its input estimate is off as far as the provider's window; and more for the lanes a turn opens itself, which
 nothing bounds. [`CANARY-PACKET.md`](CANARY-PACKET.md#spend) has
 the two columns, the residual, and what would make it a ceiling.
 
 | ref | value |
 | --- | --- |
-| docs base | `main` at `07f70cb98eec70a341952f11eff02d71d19ff08d` (local = tracking = server) |
+| docs base | `main` at `07f70cb98eec70a341952f11eff02d71d19ff08d` (local = tracking = server); `main` was `2c98daa75faaf5207bc878b78e62a39d9758752a` at follow-up 4, not merged in |
+| follow-up 4 | from PR #631's head `8c430fc97a47aafb1dc8b6f9931a97cdeb602f21` (`codeagent/cont-propensity-evalbench`), on lane branch `codeagent/evalbench-arm-e` (final SHA in the PR) |
 | reviewed heads this follows up | `d78d1614adc2e9f288715301cffbb6ee19448d4f` (🌻's read of the spend bound and `supervisor.py`, room 22:22Z, message 1575275397732630690; the constraint, 22:23Z, 1575275641740333060); before it `52465362d18b761e5b0eab61026dbf8f39776413` (🌻's read of the packet, room 19:34Z, message 1575233154115969149) and `cad3a0456f2426907b89caa1964d575bf047e42a` (🌿's review, 🌻's three conditions) |
 | lane branch | `codeagent/cont-propensity-evalbench` (final SHA in the PR) |
 | product, arms A and B | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` (server: `frond/1321-sovereign-loader-ab5a` and others) |
 | product, arms C and D | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` (server: `gloss/1575-continuation-surface`) |
+| product, arm E | `de55f3505d930427538359fdfeb256874486ed9f` (server: `codeagent/cont-v6`), the fleet line's build with the settled text; f9fcd3a5 and ab5a30ea are its ancestors, and all three share one lockfile |
+| GATES, text only | `4a26193872818aa98945b379d7043113f581df1a` (server: `codeagent/gates-continuation-prose`): read for its continuation text, which is de55f350's; never an arm |
 | EvalBench | `86730417fe7b3f8ae01bc5159369293f60baa306` (release 1.22.0) |
 | frond-scribe launcher read | `composite-launcher.sh` as of `67370bd94f19f9a0f89493d4f2b6360d5928183f` |
 | openclaw-bootstrap workflow read | `main` at `51546ce6ac213d9e2f62c58a318248652a45e7e7` |
 | CI / presentation | N/A / N/A |
+
+## What changed for #1577, gate 6 (follow-up 4)
+
+The arms predated the text the three authors settled (seven seams, #1575). The fleet line carries it at de55f350. A count is
+not a cause, and this is how a cause gets measured.
+
+| asked for | what it is now |
+| --- | --- |
+| arm E: de55f350, the fleet default, with the settled text, exactly like arm C | in `arms.json` (port 21326, unit `openclaw-proof-comp-de55f350`, C's config and placement, its own descriptions), `configs/model_arm_e.yaml`, preflight, scoring, the report, the fake gateway's plan and the probe. On by default: the arms are A, B, C and E, and D stays optional and off. Its three descriptions were read from source, rebuilt by the product's own code in the probe, and hash to the same sha256 both ways; the same extractor reproduces `arms.json`'s ab5a30ea and f9fcd3a5 texts byte for byte, and GATES' 4a261938 gives de55f350's |
+| what each contrast isolates | README's arm and contrast tables: C → E is the settled wording at the same placement, the three continuation tools direct-only on both; A → E is placement plus wording, descriptive, and A → B, B → C and C → E add up to it. On the embedded runtime the probe shows C → E is the text and nothing else (below); on the Codex harness it is not, and README says why |
+| `direct tools: N` beside every arm's rates, in the report and the CSV | every arm's rates row in `report.md` and a new `report.csv` (one row per arm) carry the direct tools its counted trials measured, and **crowded** past 30, with Anthropic's tool search documentation cited as vendor guidance, about Claude. By the probe: A 6, B 66, C 9, D 66, E 9. A contrast that holds the surface (B → D, C → E) is not reportable when its arms measured different counts. A test fails if any arm's row lacks its count, on a fresh report and on both archives |
+| an awareness label: a pre-declared judge step, offline only | `judges/awareness.md` (sha256 pinned in `arms.json`), a seeded sample of one counted trial per prompt and arm, a blind judge input, labels that must quote the assistant and may not come from the firing model, and "not judged" until labelled, never zero. Wired into every run (the sample and the judge input, privately) and into the rehearsal path, where a scripted stand-in labels it. No model was called |
+| costs and stop rules with E | 360 trials (18 × 5 × 4), 65 M expected (22–130 M); D on, 450 and 80 M (27–165 M). The supervisor's enforced caps are unchanged: 0.70 M and 480 s a trial, 75 M and 4 h the fire, 2.40 M and 1800 s the canary. The canary is now twelve trials on four gateways, and its conditional numbers grow by the fourth arm in flight. CANARY-PACKET names the arm set and says again that it is not a go |
+| tests, and the rehearsal again with E | below, in Validation |
+
+What reading the product for this found:
+
+- **On the embedded runtime C → E is the text and nothing else.** The probe's attempt path at both builds: the same 9 tools
+  sent and 60 catalogued, every other definition the same, every prompt line outside the continuation section that names no
+  continuation tool the same. The differences are the three descriptions, the parameter descriptions of `continue_work` and
+  `continue_delegate`, and five prompt lines (README). B → D holds the same way, and B → C does not (the negative control).
+  `tests/test_probes.py` pins all three from the receipts.
+- **On the Codex harness C → E is more than wording.** de55f350 adds the delegate hint and the continuation section to the
+  harness base prompt, which Codex builds its prompt from and f9fcd3a5's lacks, and a Codex turn that meets a busy thread now
+  waits for it. Runtimes are never compared, so it changes no reading on elliott; it would on ronan, cael or rune.
+- **The probe's `/context` prompt hash depended on where the tree was extracted.** That prompt lists each skill's location in
+  the tree. Re-running the probe from another directory changed only that hash, on every arm alike, so no comparison was
+  wrong; the README's "byte for byte" held only for the same path. The tree's path is now written as `<tree>`, and two
+  extracts of f9fcd3a5 at two paths give byte-identical receipts.
+- **GATES' continuation text is de55f350's.** The three tools' files, the continuation section and the continuation tooling
+  lines differ only outside their strings (types and a comment); other tools' tooling lines do differ there.
 
 ## What changed for 🌻's admission condition (follow-up 3)
 
@@ -139,6 +174,8 @@ Each trap has a test that shows EvalBench's stock behaviour beside ours (`tests/
    runtime, and the report compares nothing across runtimes.
 4. **The firing model follows the firing seat.** elliott's turns are `openai/gpt-6.1-sol`. ronan's live primary is
    `openai/gpt-6-sol`, so a fire there is a different question. Preflight refuses any other primary or any fallback.
+5. **At de55f350 the Codex harness's prompt carries the continuation section** (`src/agents/system-prompt-harness-base.ts:59,93-97`),
+   so item 2 holds for f9fcd3a5 and not for de55f350. On the embedded runtime C → E is the settled text alone (follow-up 4).
 
 ## Validation
 
@@ -255,7 +292,7 @@ and the documents:
 
 ## Cost of one full fire
 
-270 trials: 3 arms × 18 prompts × 5. Per arm, 60 eligible and 30 control. With arm D, 360.
+360 trials: 4 arms (A, B, C, E) × 18 prompts × 5. Per arm, 60 eligible and 30 control. With arm D, 450.
 
 | | low | central | high |
 | --- | --- | --- | --- |
@@ -264,14 +301,15 @@ and the documents:
 | metered tokens per call (cache reads included) | 30 k | 48 k | 60 k |
 | later turns and children before cleanup | none | +35 % | +30 % |
 | per arm | 5.4 M | 16 M | 33 M |
-| **three arms** | **16 M** | **≈ 50 M** | **≈ 100 M** |
-| **with arm D** | **22 M** | **≈ 65 M** | **≈ 130 M** |
+| **four arms (A, B, C, E)** | **22 M** | **≈ 65 M** | **≈ 130 M** |
+| **with arm D** | **27 M** | **≈ 80 M** | **≈ 165 M** |
 
 48 k per call is what the token-budget work metered on emeric at ab5a, on another model and with that seat's own workspace.
 An isolated gateway has an empty one, and arms B and D carry every tool's schema, so both ends are open. The calls per trial
 are assumptions. The canary gives the first real ones. Wall time is about 1.5–3 hours with the arms in parallel, more if
-turns run to the 300 s deadline. **Arm D's own cost** is one more arm: 90 trials, 16 M (5.4–33 M), nearer the high column
-with B, and another sign-in, gateway and state dir. It runs beside the others, so it adds little wall time.
+turns run to the 300 s deadline. **Arm E's own cost** is one more arm like C: 90 trials, 16 M (5.4–33 M), with C's 9 direct
+tools, and another sign-in, gateway and state dir. **Arm D's** is the same again, nearer the high column with B. Each runs beside
+the others, so it adds little wall time, unless the shared provider account's rate limit holds them back.
 
 ### One trial's maximum
 
@@ -284,12 +322,12 @@ with B, and another sign-in, gateway and state dir. It runs beside the others, s
 | conditional: the supervisor's 0.70 M, and what the turn and its child spend until the kill | | 1.98 M at 5 s and 160 k a call; 5.7 M at 5 s and 628 k, the most this route lets a call carry; 18.3 M at 1 s. More for every lane the turn opens |
 | before follow-up 2: a loop for 600 s, or that and five children | 120, 720 | 15 M, 90 M, enforced by nothing |
 
-| the 270-trial fire | three arms | with D |
+| the 360-trial fire | four arms (A, B, C, E) | with D |
 | --- | --- | --- |
-| expected (low – high) | 50 M (16 – 100 M) | 65 M (22 – 130 M) |
+| expected (low – high) | 65 M (22 – 130 M) | 80 M (27 – 165 M) |
 | **enforced** | 4 h (`--run-seconds 14400`), + 1 s; no token number | the same |
-| conditional: where the supervisor stops it, `--run-token-cap 75000000`, plus what the arms in flight spend until the kill | 79 M at 5 s and 160 k a call; 90 M at 628 k; 128 M at 1 s a call | a cap of its own |
-| the 35 M stop per arm, checked between trials | 105 M | 140 M |
+| conditional: where the supervisor stops it, `--run-token-cap 75000000` (unchanged), plus what the arms in flight spend until the kill | 80 M at 5 s and 160 k a call; 95 M at 628 k; 145 M at 1 s a call. The high estimate is past the stop: such a fire ends there, every arm with it | a cap of its own, the seat owner's: 80 M is past 75 M |
+| the 35 M stop per arm, checked between trials | 140 M | 175 M |
 
 5 s a call is an assumption about a model whose reasoning can't be turned off, and 160 k a call is one full-size tool result per
 call. Neither is enforced: the packet's [Conditional](CANARY-PACKET.md#conditional) table gives the numbers at the most a call
@@ -312,6 +350,9 @@ canary puts measured numbers beside the assumptions. They stay assumptions about
 - The real seconds per call, which the worst case above assumes.
 - Two eligible prompts (w2, w5) could be answered whole in one reply against the user's wish. That counts as no
   election, in every arm alike.
+- Whether a live prompt report counts the direct tools the probe does (A 6, B 66, C 9, E 9). The launcher copies the seat's
+  tools policy, models and plugins, which the probe leaves out; they would move every arm alike.
+- Whether any transcript of a live run is ever judged for awareness. Until it is, every arm reads `not judged`.
 
 ## Commands
 
@@ -319,9 +360,10 @@ canary puts measured numbers beside the assumptions. They stay assumptions about
 cd tools/evalbench-openclaw
 ./bootstrap.sh && ./run.sh test
 ./run.sh offline --out /tmp/evalprop-offline
-./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D
+./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D,E
 ./run.sh offline --out /tmp/evalprop-offline-canary --num-trials 1 --token-budget 800000 --run-token-cap 2400000 --run-seconds 1800 \
   --scenarios c1-arithmetic,w1-file-appears,d1-second-pair-of-eyes
-./run.sh report --job A=artifacts/offline-rehearsal/A --job B=artifacts/offline-rehearsal/B --job C=artifacts/offline-rehearsal/C
+A=artifacts/offline-rehearsal; ./run.sh report --job A=$A/A --job B=$A/B --job C=$A/C --job E=$A/E --manifest $A/manifest.json \
+  --awareness $A/awareness-labels.jsonl --csv /tmp/evalprop-report.csv
 node --test ../k6-proofs/tests/*.test.mjs
 ```

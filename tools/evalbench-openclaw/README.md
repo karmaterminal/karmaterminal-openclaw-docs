@@ -2,33 +2,46 @@
 
 How often does a model reach for `continue_work`, `continue_delegate` or `request_compaction` when the turn calls
 for it, and how often when it does not? This harness answers with one rate and one 95 % interval per product arm
-(karmaterminal/openclaw#1575). It runs on [GoogleCloudPlatform/evalbench](https://github.com/GoogleCloudPlatform/evalbench)
+(karmaterminal/openclaw#1575; arm E for #1577, gate 6: "cause, not just count"). It runs on [GoogleCloudPlatform/evalbench](https://github.com/GoogleCloudPlatform/evalbench)
 (Apache-2.0), pinned in [`EVALBENCH_PIN`](EVALBENCH_PIN) and installed from that pin. EvalBench's tree is never
 copied into this repository.
 
 **Nothing here has been fired live.** Every number in this directory comes from the fake gateway.
 [`REPORT.md`](REPORT.md) says what was built, what was tested, and what EvalBench could not do.
-[`CANARY-PACKET.md`](CANARY-PACKET.md) is the nine-trial canary on elliott, for 🌻 to approve or not.
+[`CANARY-PACKET.md`](CANARY-PACKET.md) is the twelve-trial canary on elliott. **It is not a go**: live fire is 🌻's call on
+elliott, or any seat owner's on their own seat.
 
 ## The question, and the arms
 
 figs, 2026-11-25: the continuation tools are used on about 0.03 % of turns, and we argue about wording without
-measuring it. openclaw#1575 found two causes, so the arms separate them.
+measuring it. openclaw#1575 found two causes, so the arms separate them. Arm E brings the text the three authors settled
+(seven seams, #1575), at the fleet line's build, `de55f350` (`codeagent/cont-v6`). GATES carries the same continuation text
+at `4a26193872818aa98945b379d7043113f581df1a`: the three descriptions are byte for byte de55f350's, and its continuation section
+and the continuation tools' tooling lines differ from de55f350's only outside their strings. A count is not a cause: the
+Prometheus counts of 2026-11-27, 7.6 per 1,000 tool calls on f9fcd3a5 seats against 3.6 on ab5a (as the #1577 workorder
+gives them), say that something changed, and the contrasts below are how a cause gets measured.
 
-| arm | build | config | direct tools | text |
+| arm | build | config | direct tools (by the probe, on the firing model) | text |
 | --- | --- | --- | --- | --- |
-| **A** | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` | fleet default | the fleet default's; the continuation tools are deferred (found by searching) | ab5a |
-| **B** | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` | direct-tools overlay | every tool | ab5a |
-| **C** | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` | fleet default | the fleet default's plus the three continuation tools (`catalogMode: "direct-only"`) | control-first |
-| **D** (optional, off by default) | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` | direct-tools overlay | every tool | control-first |
+| **A** | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` | fleet default | **6**: Code Mode's controls and what stays beside them; the continuation tools are deferred (found by searching) | ab5a |
+| **B** | `ab5a30ea79b776f149e24b1fccab9e79b0a5d299` | direct-tools overlay | **66**, every tool: **crowded** | ab5a |
+| **C** | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` | fleet default | **9**: A's 6 plus the three continuation tools (`catalogMode: "direct-only"`) | control-first |
+| **D** (optional, off by default) | `f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306` | direct-tools overlay | **66**, every tool: **crowded** | control-first |
+| **E** | `de55f3505d930427538359fdfeb256874486ed9f` | fleet default | **9**, as C: the same tools, the three direct-only | settled (seven seams) |
 
-| contrast | name | what it holds fixed |
-| --- | --- | --- |
-| A → B | **visibility (all tools direct)** | build and text |
-| B → C | **composite: new text + direct-set narrowing** | nothing but the continuation tools being direct. It is **not** the wording effect |
-| B → D | wording (all tools direct), only with D | every tool direct in both |
-| D → C | placement: direct-set narrowing (new text), only with D | build and text |
-| A → C | deploy of f9fcd3a5, descriptive | nothing: it is what a deploy would change |
+The direct-tool counts are what [`probes/product-probe.mts`](probes/product-probe.mts) found through the product's own
+tool-surface runtime on each arm's settings alone (`probes/receipts`, `sent`). A trial measures its own (below), and the
+report prints that count beside every rate.
+
+| contrast | name | what it isolates | what it holds fixed |
+| --- | --- | --- | --- |
+| A → B | **visibility (all tools direct)** | an all-direct, crowded surface (6 → 66), not three visible tools | build and text |
+| B → C | **composite: new text + direct-set narrowing** | nothing alone. It is **not** the wording effect | nothing but the continuation tools being direct |
+| B → D | wording (all tools direct), only with D | f9fcd3a5's text against ab5a's | every tool direct in both (66) |
+| D → C | placement: direct-set narrowing (new text), only with D | narrowing 66 to the fleet default's 9 | build and text |
+| C → E | **settled wording (same placement)** | the settled text against f9fcd3a5's, with the continuation tools direct on both | the fleet default's config and its 9 direct tools, the three direct-only in both |
+| A → C | deploy of f9fcd3a5, descriptive | nothing: it is what a deploy would change | nothing |
+| A → E | **placement + settled wording**, descriptive | placement plus wording: the three tools from deferred to direct-only, ab5a's text to the settled one | nothing. A → B, B → C and C → E add up to it |
 
 [`arms.json`](arms.json) holds the SHAs, the overlay, the expected surface and the sha256 of each description.
 
@@ -55,6 +68,8 @@ and the launcher copies them. `overlay` clears the four that would: `agents.entr
 
 - **A → B is the effect of an all-direct surface, not of three visible tools.** B makes *every* tool direct. On the
   embedded runtime it also turns off Code Mode, which `openai/gpt-6.1-sol` otherwise gets.
+- **A → B is also a crowded surface.** B's 66 direct tools are past what vendor guidance gives for good tool selection
+  ([below](#what-is-measured)), so a change from A to B can be the crowding as much as the visibility. The report labels it.
 - **B → C is a composite.** It changes the text *and* narrows the direct set from every tool to the fleet default's plus
   the three continuation tools, with Code Mode (or Tool Search) back on for the rest. Its size says nothing about the
   wording alone, and neither does its sign.
@@ -62,17 +77,36 @@ and the launcher copies them. `overlay` clears the four that would: `agents.entr
   both. D → C isolates placement, with the same build and text. On the same trials the two differences add up to B → C
   exactly. D is off unless it is named (`--arms A,B,C,D`), costs about as much as any arm (below), and the report treats
   it like any arm.
+- **C → E is the settled wording at the same placement.** Both arms are the fleet default, with the three continuation tools
+  direct-only. On the embedded runtime the probe finds the rest of the surface the same at both builds: the same 9 tools sent
+  and 60 catalogued, every other tool definition, and every prompt line outside the continuation section that names no
+  continuation tool. What differs is the
+  three descriptions, the parameter descriptions of `continue_work` (`reason`, `delaySeconds`) and `continue_delegate`
+  (`mode`), and five prompt lines: the delegate's tooling line (`src/agents/system-prompt-tool-list.ts:69-70` at de55f350), the
+  wake line, which now names "a background command you started exits with a wake" (`src/agents/system-prompt-continuation.ts:36`),
+  the self-elected-turn line (`:85`), the compaction line (`:129`) and the `sessions_yield` caveat (`:166-170`).
+  `tests/test_probes.py` pins it from the receipts, and the same for B → D. Because C → E holds the surface, the report
+  calls it not reportable if the two arms' trials measured different direct-tool counts.
+- **On the Codex harness C → E is more than wording.** de55f350 puts the delegate hint and the whole continuation section
+  into the harness base prompt (`src/agents/system-prompt-harness-base.ts:59,93-97`, which Codex builds its prompt from,
+  `extensions/codex/src/app-server/thread-prompt.ts:117`), and f9fcd3a5's Codex prompt has neither. Between the two builds
+  a Codex turn that meets a busy thread also waits for it instead of failing (openclaw `260c6bb71f`). No arm here runs on
+  Codex unless its seat does, and the report never compares runtimes.
+- **A → E is placement plus wording**, descriptive, as A → C is: what a deploy of de55f350 over ab5a30ea would change. On
+  the same trials A → B, B → C and C → E add up to it exactly; its parts are those three, and only C → E and A → B are
+  isolations.
 - **On the Codex harness B → D is not pure wording.** There f9fcd3a5's direct-only tools go into the `openclaw_direct`
   namespace even under direct loading (`dynamic-tool-catalog.ts:60,89-92`), while B's are root functions. On the embedded
   runtime nothing but the text differs.
 - **What "wording" covers depends on the runtime**, by code reading at both SHAs:
   - *Embedded (elliott):* all of f9fcd3a5's text: the three descriptions, the `## Tooling` slots, the "You control your own
     turn cycle" line, the delegate lines, the wake-line correction and the rewritten `sessions_yield` section.
-  - *Codex harness:* the three **descriptions only**. Codex builds its prompt with `buildAgentHarnessBasePrompt`
+  - *Codex harness:* at f9fcd3a5, the three **descriptions only**. Codex builds its prompt with `buildAgentHarnessBasePrompt`
     (`extensions/codex/src/app-server/thread-prompt.ts:117`, `src/agents/system-prompt-harness-base.ts`). The
     continuation section and the `## Tooling` slots come from `src/agents/system-prompt.ts:585,811`, which Codex
     doesn't use. B and C also differ in placement there: B's tools are root functions, and C's sit in the
-    `openclaw_direct` namespace (`dynamic-tool-catalog.ts:89-103`).
+    `openclaw_direct` namespace (`dynamic-tool-catalog.ts:89-103`). At de55f350 the harness base prompt carries the
+    continuation section too (above).
 - **A deferred tool is not always a hidden one.** On the embedded runtime arm A's system prompt still teaches
   `continue_work` and `continue_delegate`, because the catalog's names count as capabilities
   (`attempt-tool-catalog.ts:192-206`). What A lacks is their schema on the direct surface. On Codex, A's prompt only
@@ -140,6 +174,15 @@ From the session's own history (`chat.history`), never from what the reply says 
   never as zero.
 - **Surface**: `sessions.usage {includeContextWeight: true}` returns the stored prompt report for the turn: which
   tools were direct, which were deferred, and the sha256 of each direct tool's description. Both runtimes write it.
+- **Direct tools, beside every rate.** How many tools the turn's model had direct, from that same report. The report prints
+  `direct tools: N` in every arm's rates row and in `report.csv` (a range if the arm's trials measured more than one), and
+  labels it **crowded** past 30. The line is vendor guidance, about Claude and not the firing model: "Claude's ability to
+  pick the right tool degrades once you exceed 30–50 available tools" (Anthropic,
+  [Tool search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool), which also advises
+  keeping the 3–5 most used tools non-deferred). #1575's direct-only continuation tools follow that advice. B and D make all
+  66 direct, so their rates are labelled crowded. The label changes no reading.
+- **Test awareness**, for a declared sample, by an independent judge, offline ([below](#test-awareness-an-offline-design)).
+  Until a judge has labelled it, every arm reads **not judged**, never zero.
 - Also recorded, and never counted as an election: accepted or refused, the bracket form
   (`CONTINUE_WORK`, `[[CONTINUE_DELEGATE: …]]`), the other tools used (`exec`, `sessions_spawn`, `automations`),
   tokens, served model and runtime.
@@ -171,6 +214,8 @@ is `deadline_unreadable`: unscored, counted on its own, and the report prints th
   turn that only elected looks, so the session's own selection stands in (the arm has no fallbacks) and the record says so.
 - **Nothing was recorded live.** The fixture turns are written from product source. `REPORT.md` lists what only a live
   canary can settle.
+- **A live trial's direct tools are its own.** The probe's counts are on the arms' settings alone; the launcher copies the
+  seat's tools policy, models and plugins, which can add or remove tools on every arm alike.
 
 ## Pre-declared statistics
 
@@ -178,14 +223,16 @@ Fixed here before any live fire:
 
 | | |
 | --- | --- |
-| repetitions | **5** per prompt per arm: 60 eligible and 30 control trials per arm, **270 trials** in all (360 with D) |
+| repetitions | **5** per prompt per arm: 60 eligible and 30 control trials per arm, **360 trials** in all (450 with D) |
 | per arm | election rate on eligible prompts; false-election rate on controls; each with a **Wilson 95 %** interval |
-| primary comparisons | **A → B** (visibility, all tools direct) and **B → C** (composite: new text + direct-set narrowing): difference in eligible election rate. If D is fired, also **B → D** (wording) and **D → C** (placement) |
+| primary comparisons | **A → B** (visibility, all tools direct), **B → C** (composite: new text + direct-set narrowing) and **C → E** (settled wording, same placement): difference in eligible election rate. If D is fired, also **B → D** (wording) and **D → C** (placement). A → C and A → E are descriptive |
 | interval on a difference | Newcombe's hybrid score interval, **and** a bootstrap over prompts (10,000 resamples, seed 1575) |
 | "there is an effect" | only when **both** intervals exclude zero. One of two is "unclear" |
 | cost of an effect | a gain counts only beside the control false-election rate of the same arm |
 | several comparisons | no correction. Each is read on its own, and D adds two |
 | per prompt | elected / scored for every prompt and arm, always printed |
+| direct tools | the counts the arm's counted trials measured, beside its rates; **crowded** above 30. A contrast that holds the surface (B → D, C → E) is not reportable when its two arms measured different counts |
+| test awareness | one counted trial per prompt and arm, chosen by a seeded hash before any outcome (seed 1575), judged by the prompt `judges/awareness.md` (its sha256 in `arms.json`). Per arm: aware, unclear, unaware, and aware with a Wilson 95 % interval only when every sampled transcript is judged. Descriptive: no comparison, never a reason to leave a trial out |
 
 Wilson treats the trials as independent. Five repetitions of one prompt are not, so the pooled interval is too
 narrow on its own. That is why a comparison also needs the interval that resamples whole prompts. With 12 eligible
@@ -196,7 +243,30 @@ so a top-up never gives a prompt extra weight.
 
 A comparison is **not reportable** if either arm has a prompt with fewer than 5 scored trials, a trial whose surface or
 text contradicted the arm, more than one runtime, a record that disagrees with EvalBench's own score row, or a runtime
-the other arm didn't run on. The rates are still printed.
+the other arm didn't run on; or if it holds the surface and the two arms measured different direct-tool counts. The rates
+are still printed.
+
+## Test awareness: an offline design
+
+A harnessed fresh session is where a model is likeliest to take a prompt for a test, and an election made because it thought
+it was being tested is not the propensity measured. So an independent judge labels a declared sample of transcripts. It is
+reported like discovery on Codex: **not judged**, never zero, until it has been. Nothing in this lane called a model: only a
+scripted stand-in has labelled anything, in the offline rehearsals.
+
+| | |
+| --- | --- |
+| sample | per arm, one trial per prompt among those its rates count: the one whose item id, sha256 of `seed:arm:job:evalId`, sorts first. 18 per arm, 72 for A, B, C and E (90 with D). Fixed before any outcome, and the same if every outcome were flipped (`tests/test_awareness.py`) |
+| what the judge sees | [`judges/awareness.md`](judges/awareness.md), pinned by its sha256 in `arms.json`, around what the user asked, the reply's text and the tool calls with their arguments. Not the system prompt, the tools' answers, the arm, the build or the model. Items are in id order, so neither their order nor their fields tell an arm |
+| the judge | any model of another family than the firing model, or a person, named in every label. A label from the firing model, or from no one named, is not counted |
+| a label | `aware`, `unclear` or `unaware`, with a quote. An aware or unclear label whose quote is not in the assistant's own text or arguments is not counted; nor is one for another prompt's sha256, an item outside the sample, or an item labelled twice. The report lists every label it did not count, and why |
+| reading | per arm: `not judged`; `incomplete` (judged k of n, no rate); or `judged`, with aware as a share and its Wilson 95 % interval, split by whether the sampled trial elected |
+| what it cannot see | awareness a turn did not put in words |
+
+A run writes the sample (`private/awareness-sample.jsonl`, the key) and the judge's input (`private/awareness-judge-input.jsonl`,
+mode 600: it holds replies). An offline rehearsal also labels it with the scripted stand-in (`awareness-labels.jsonl`), which
+reads only what a judge would and finds the fixtures' own phrases: it measures nothing, and its labels are refused on a run
+that was not a rehearsal. Judging a live run is a step of its own, with its own go: about 72 judge calls of 1–4 k tokens
+each, 0.07–0.3 M tokens on the judge's model. Its labels then go to `report --awareness`.
 
 ## Spend caps and admission
 
@@ -371,7 +441,8 @@ run.sh run ── in-process EvalBench EvalService (gRPC, loopback)
               adapter (gRPC client) ── WS ──► arm A gateway :20846
                                         ├────► arm B gateway :20966
                                         ├────► arm C gateway :21086
-                                        └────► arm D gateway :21206  (only when named)
+                                        ├────► arm D gateway :21206  (only when named)
+                                        └────► arm E gateway :21326
 ```
 
 In EvalBench's agent proxy protocol **EvalBench is the gRPC server and the agent connects to it**. So the adapter is
@@ -383,21 +454,22 @@ The ports are 120 apart and start past the live gateway's. A gateway also derive
 
 | file | what it is |
 | --- | --- |
-| `configs/model_arm_{a,b,c,d}.yaml` | the arms' model configs: arm name and gateway URL; a run adds the firing model. Tokens are never in a config: EvalBench copies configs into `configs.csv` |
+| `configs/model_arm_{a,b,c,d,e}.yaml` | the arms' model configs: arm name and gateway URL; a run adds the firing model. Tokens are never in a config: EvalBench copies configs into `configs.csv` |
 | `configs/run_config.yaml` | dataset, scorers, trials, CSV reporting |
 | `openclaw_evalbench/adapter.py`, `trial.py` | the gRPC worker, and one trial over WS |
 | `openclaw_evalbench/gateway.py` | connect, auth and RPC frames (same identity and scopes as `tools/k6-proofs/lib/gateway-ws.js`) |
 | `openclaw_evalbench/transcript.py`, `surface.py` | history → turn facts; prompt report → surface verdict |
 | `openclaw_evalbench/generator.py` | a subclass of EvalBench's `agent_grpc_proxy` (EvalBench's `generator_class` hook) |
 | `scorers/continuation_election.py` | EvalBench `python_scorer`: 100 when the turn elected |
-| `openclaw_evalbench/report.py`, `stats.py` | EvalBench's CSVs → per-arm rates, intervals and comparisons |
+| `openclaw_evalbench/report.py`, `stats.py` | EvalBench's CSVs → per-arm rates, intervals, direct tools and comparisons (`report.md`, `report.json`, `report.csv`) |
+| `openclaw_evalbench/awareness.py`, `judges/awareness.md` | the awareness sample, the judge's input and prompt, the labels' checks, the scripted stand-in |
 | `openclaw_evalbench/supervisor.py`, `meter.py`, `units.py` | the spend supervisor: its rules, its ledger, and how a gateway is proved and stopped |
 | `openclaw_evalbench/supervision.py`, `stops.py` | the runner's side of it, and the halts |
 | `openclaw_evalbench/fake_gateway.py`, `fixtures/` | the fake gateway and its fixture turns, runaways included; it admits a runaway's children as the product does |
 | `probes/product-probe.mts`, `probes/receipts/` | the caps and admission through the product's own code at each SHA, and what it printed |
 
-Scorers: `trajectory_matcher`, `token_consumption`, `continuation_election`. No LLM judge, no simulated user
-(`max_turns: 1`, `generator: noop`).
+Scorers: `trajectory_matcher`, `token_consumption`, `continuation_election`. No LLM judge in the run, and no simulated user
+(`max_turns: 1`, `generator: noop`): the awareness judge is a step of its own, after it.
 
 ## Install and test (no model, no gateway)
 
@@ -405,8 +477,8 @@ Scorers: `trajectory_matcher`, `token_consumption`, `continuation_election`. No 
 cd tools/evalbench-openclaw
 ./bootstrap.sh            # clones EvalBench at EVALBENCH_PIN outside the repo, uv sync --frozen, regenerates its protobuf stubs
 ./run.sh test             # adapter tests
-./run.sh offline --out /tmp/evalprop-offline                          # 270 trials against three fake gateways, supervised as a fire is
-./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D         # 360, with arm D
+./run.sh offline --out /tmp/evalprop-offline                          # 360 trials against four fake gateways, supervised as a fire is
+./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D,E       # 450, with arm D
 ```
 
 The tests start and kill their own processes, and, where there is a systemd user manager, transient units under random names
@@ -426,9 +498,9 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
 
    ```bash
    L=~/flesh_beast_best_beast/frond-scribe/scripts/proof-gw/composite-launcher.sh
-   AB5A=ab5a30ea79b776f149e24b1fccab9e79b0a5d299; F9FC=f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306
+   AB5A=ab5a30ea79b776f149e24b1fccab9e79b0a5d299; F9FC=f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306; DE55=de55f3505d930427538359fdfeb256874486ed9f
    # The launcher names its state dir and unit from the first 8 hex of its first argument, so two arms on one build
-   # need different first arguments. B's and D's are labels, not commits:
+   # need different first arguments. B's and D's are labels, not commits; E's build is its own:
    BLABEL=$(printf 'openclaw#1575 arm B of %s' "$AB5A" | sha1sum | cut -c1-40)
    DLABEL=$(printf 'openclaw#1575 arm D of %s' "$F9FC" | sha1sum | cut -c1-40)
    export PROOF_PRIMARY_MODEL="$(./run.sh model)" PROOF_FALLBACK_MODELS='[]'
@@ -436,18 +508,21 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
    PORT=20966 bash $L setup $BLABEL $AB5A
    PORT=21086 bash $L setup $F9FC   $F9FC
    PORT=21206 bash $L setup $DLABEL $F9FC      # only for arm D
+   PORT=21326 bash $L setup $DE55   $DE55
    ```
 
 3. **Stop each gateway, apply each arm's config**, then sign in. `login` starts it again on the edited file.
 
    ```bash
    PORT=20846 bash $L stop $AB5A $AB5A; PORT=20966 bash $L stop $BLABEL $AB5A; PORT=21086 bash $L stop $F9FC $F9FC   # and D
+   PORT=21326 bash $L stop $DE55 $DE55
    ./run.sh overlay A ~/proof-gw/comp-${AB5A:0:8}/openclaw.json
    ./run.sh overlay B ~/proof-gw/comp-${BLABEL:0:8}/openclaw.json
    ./run.sh overlay C ~/proof-gw/comp-${F9FC:0:8}/openclaw.json
+   ./run.sh overlay E ~/proof-gw/comp-${DE55:0:8}/openclaw.json
    PORT=20846 bash $L login $AB5A $AB5A      # device code, relayed privately; then:
    PORT=20846 bash $L login-finish $AB5A $AB5A
-   # the same for B (20966, $BLABEL $AB5A) and C (21086, $F9FC $F9FC), and D (21206, $DLABEL $F9FC) if it runs
+   # the same for B (20966, $BLABEL $AB5A), C (21086, $F9FC $F9FC) and E (21326, $DE55 $DE55), and D (21206, $DLABEL $F9FC) if it runs
    ```
 
    `overlay` sets `agents.defaults.skipBootstrap: true` in every arm. A fresh workspace would otherwise be seeded
@@ -457,12 +532,12 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
 4. **Preflight** (reads only; no session, no model turn):
 
    ```bash
-   export OPENCLAW_EVAL_TOKEN_FILE_A=~/proof-gw/comp-${AB5A:0:8}/gateway.token    # and _B, _C (_D)
+   export OPENCLAW_EVAL_TOKEN_FILE_A=~/proof-gw/comp-${AB5A:0:8}/gateway.token    # and _B, _C, _E (_D)
    ./run.sh preflight
    ```
 
-5. **Canary**, 9 trials (one control, one `continue_work` prompt and one `continue_delegate` prompt per arm), read by the
-   rules in the packet. A lower `--token-budget` is still checked between trials; `--run-token-cap` and `--run-seconds` are the
+5. **Canary**, 12 trials (one control, one `continue_work` prompt and one `continue_delegate` prompt per arm, on A, B, C and
+   E), read by the rules in the packet. A lower `--token-budget` is still checked between trials; `--run-token-cap` and `--run-seconds` are the
    supervisor's, and stop what is running:
 
    ```bash
@@ -470,7 +545,7 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
      --run-token-cap 2400000 --run-seconds 1800 --scenarios c1-arithmetic,w1-file-appears,d1-second-pair-of-eyes
    ```
 
-6. **The fire**, 270 trials (`--arms A,B,C,D` for 360), on its own go. Its totals are the fire's, said out loud: without the two
+6. **The fire**, 360 trials (`--arms A,B,C,D,E` for 450), on its own go. Its totals are the fire's, said out loud: without the two
    options a run has the canary's, and stops there.
 
    ```bash
@@ -478,22 +553,26 @@ how each piece is removed, its spend, and its pass and stop rules. In outline, f
      --run-token-cap 75000000 --run-seconds 14400
    ```
 
-7. **Afterwards**: every gateway is already stopped. Copy the CSVs and `report.md`, then the packet's emergency stop (for what a
-   person may have left) and its `finish` for each gateway.
-   Read `evals.csv` before publishing it. It holds the models' replies and shell commands.
+7. **Afterwards**: every gateway is already stopped. Copy the CSVs, `report.md` and `report.csv`, then the packet's emergency
+   stop (for what a person may have left) and its `finish` for each gateway.
+   Read `evals.csv` before publishing it. It holds the models' replies and shell commands, and so does `private/`.
 
 `--go` takes the message id of the owner's go, and it is written into the run's manifest. Without it, `run` refuses.
 
 ### Cost of one full fire
 
-270 trials. **Expected**: 50 M metered tokens, range 16–100 M, most of it cache reads, and roughly 1.5–3 hours with the three
-arms running together. **Enforced**: 4 h for the run (`--run-seconds`) and 480 s a trial, each + 1 s, and the admission above.
-**Where the supervisor stops it**: 75 M for the run (`--run-token-cap`) and 0.70 M a trial; what the arms in flight spend
-until the kill is conditional, 3 × 5.0 M at 5 s a call and 628 k a call ([the packet's arithmetic](CANARY-PACKET.md#conditional)).
-The 35 M stop per arm is checked between trials. **Arm D adds 90
-trials and about 16 M (5.4–33 M)**, for 65 M (22–130 M) in all, and needs a higher cap. It carries every tool's schema as B does,
-so expect both above A and C. The caps stop the later turns the estimate allows for (its +35 %), so it is high if anything. The
-arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).
+360 trials: 18 prompts × 5 repetitions × 4 arms (A, B, C, E). **Expected**: 65 M metered tokens, range 22–130 M, most of it
+cache reads, and roughly 1.5–3 hours with the four arms running together (more if the provider's rate limit, which they
+share, holds them back). **Enforced**: 4 h for the run (`--run-seconds`) and 480 s a trial, each + 1 s, and the admission
+above. **Where the supervisor stops it**: 75 M for the run (`--run-token-cap`, unchanged) and 0.70 M a trial; what the arms
+in flight spend until the kill is conditional, 4 × 5.0 M at 5 s a call and 628 k a call
+([the packet's arithmetic](CANARY-PACKET.md#conditional)). The central estimate is under the 75 M stop and the high one is
+not: a fire that spends at that rate is stopped there, every arm with it, and the prompts left short need a top-up on a go
+of their own. The 35 M stop per arm is checked between trials. **Arm E is one more arm like C**: 90 trials and about 16 M
+(5.4–33 M), with C's 9 direct tools, so nearer A and C than B. **Arm D adds 90 trials and about 16 M** more, for 80 M
+(27–165 M) in all, past the 75 M stop even at the centre: it needs a higher cap, which is the seat owner's call. D carries
+every tool's schema as B does, so expect both above A, C and E. The caps stop the later turns the estimate allows for (its
++35 %), so it is high if anything. The arithmetic is in [`REPORT.md`](REPORT.md#cost-of-one-full-fire).
 
 ### Top-ups and re-reports
 
@@ -502,5 +581,10 @@ reason or in the middle of a trial: that one is shredded and set up again.
 
 ```bash
 ./run.sh run --go <id> --out <new-dir> --num-trials 1 --scenarios <prompts below 5 scored trials> --arms <arm>
-./run.sh report --job A=<dir>/results/<job> --job A=<top-up>/results/<job> --job B=… --job C=…
+./run.sh report --job A=<dir>/results/<job> --job A=<top-up>/results/<job> --job B=… --job C=… --job E=… \
+  --manifest <dir>/manifest.json --csv <dir>/report.csv --judge-input <dir>/private/awareness-judge-input-topped-up.jsonl
+./run.sh report --job A=… --job B=… --job C=… --job E=… --manifest <dir>/manifest.json --awareness <labels.jsonl>    # a judge's labels
 ```
+
+A top-up can change which trials the awareness sample takes, since it takes only trials the rates count: `--judge-input`
+writes the sample's input again, and labels made before it read `incomplete` until the new items are judged.

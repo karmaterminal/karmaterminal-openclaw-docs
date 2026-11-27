@@ -1,9 +1,9 @@
 # The product probe
 
 [`product-probe.mts`](product-probe.mts) runs the run's caps and admission settings (`arms.json` `caps`) through the product's
-own code at one SHA, and prints what it found. [`receipts/`](receipts) holds what it printed at both SHAs the arms run, and
-`tests/test_probes.py` checks each receipt against `arms.json` and against this probe's own sha256, so a receipt is never
-older than the probe or the caps.
+own code at one SHA, and prints what it found. [`receipts/`](receipts) holds what it printed at each of the three SHAs the arms
+run (ab5a30ea, f9fcd3a5, de55f350), every arm's settings at each, and `tests/test_probes.py` checks each receipt against
+`arms.json` and against this probe's own sha256, so a receipt is never older than the probe, the caps or the arms.
 
 It reads a product tree and starts nothing: no gateway, no model, no network. Every product function it calls is named in
 the script.
@@ -16,7 +16,8 @@ the script.
 | `config.skillWorkshopReview` | Skill Workshop's review mode as the runtime configuration gives it: `off` with the caps, `auto` without them, and `auto` with the setting but without the migration marker |
 | `surface.<arm>.context` | the tools (names, descriptions, parameters) and the system prompt the product's `/context` path builds (`resolveCommandsSystemPromptBundle`), with the per-session additions a trial's session gets (`prepareAttemptSystemPromptAdditions`) |
 | `surface.<arm>.attempt` | the run's own surface on the firing model: the product's tool-surface runtime (`createAgentHarnessToolSurfaceRuntimeCore`) plans it (Code Mode, Tool Search or every tool direct), builds its controls and compacts the tools into what is sent and what is catalogued; the prompt is built as the attempt builds it (`buildConfiguredAgentSystemPrompt` with the continuation section) |
-| both | with no caps, with all of them, and with each alone; and three settings that do change the surface, as controls. The three continuation descriptions are hashed. Paths of the workspace and of the probe's home are hashed as `<workspace>` and `<home>` |
+| `surface.<arm>.<path>.withoutContinuation` | the rest of the surface without the continuation text: the prompt without the `## Continuation & Delegation` section and without any other line that names a continuation tool or its bracket form, and every tool definition but the three, hashed. Two arms with the same rest show the model other continuation text and nothing else; `tests/test_probes.py` pins that for B → D and C → E on the attempt path, and that B → C's rest differs |
+| both | with no caps, with all of them, and with each alone; and three settings that do change the surface, as controls. The three continuation descriptions are hashed. Paths of the product tree, the workspace and the probe's home are written as `<tree>`, `<workspace>` and `<home>` before anything is hashed |
 
 ## Making a receipt
 
@@ -27,7 +28,7 @@ at the SHA. Nothing is written to the tree; `node_modules` links are read only.
 H=$PWD/tools/evalbench-openclaw                     # this harness
 R=~/flesh_beast_best_beast/source/openclaw           # a clone that has the commit
 N=~/flesh_beast_best_beast/source/WORKTREES/openclaw-cont-composite   # an install at the same lockfile
-SHA=ab5a30ea79b776f149e24b1fccab9e79b0a5d299         # or f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306
+SHA=ab5a30ea79b776f149e24b1fccab9e79b0a5d299         # or f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306, or de55f3505d930427538359fdfeb256874486ed9f
 T=$(mktemp -d); git -C $R archive $SHA | tar -x -C $T
 ln -s $N/node_modules $T/node_modules
 for d in $(cd $N && ls -d packages/*/node_modules extensions/*/node_modules); do [ -d $T/$(dirname $d) ] && ln -s $N/$d $T/$d; done
@@ -43,8 +44,10 @@ built gateway imports them. When such a require fails, the hook resolves it agai
 bundled plugins (browser, canvas, codex, memory-core, skill-workshop) don't load and their tools are missing from the
 comparison.
 
-A re-run on the same host gives the same receipt byte for byte. One field depends on the host: the main lane's width without
-the caps, which is 4 per CPU (`admission.lanesWithoutCaps.widths.main`).
+A re-run on the same host gives the same receipt byte for byte, wherever the tree was extracted: the `/context` prompt lists
+each skill's location inside the tree, which is why the tree's own path is written as `<tree>` (two extracts of f9fcd3a5 at two
+paths gave byte-identical receipts; before that, the prompt hash followed the path). One field depends on the host: the main
+lane's width without the caps, which is 4 per CPU (`admission.lanesWithoutCaps.widths.main`).
 
 ## What it does not show
 

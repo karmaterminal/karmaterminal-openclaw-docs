@@ -179,6 +179,7 @@ const RENDERED_DELEGATE_TEMPLATES = {
   'R-CD-3': /renderRowTaskTemplate\(manifest\?\.invocation\?\.promptTemplate \|\| DEFAULT_LIFEBOAT_TEMPLATE, rowNonce\)/,
   'R-CD-MODEL-DEFAULT': /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/,
   'R-CD-MODEL-TOOL': /renderRowTaskTemplate\(inv\.promptTemplate \|\| DEFAULTS\.promptTemplate, rowNonce\)/,
+  'R-CD-RECIPIENT-AUTHORITY': /renderRowTaskTemplate\(manifest\?\.invocation\?\.promptTemplate \|\| DEFAULT_TASK_TEMPLATE, rowNonce\)/,
 };
 
 async function traceRequiredRows(tool) {
@@ -258,6 +259,7 @@ test('every trace-required continue_delegate row persists the safe fingerprint c
     'R-CD-MODEL-DEFAULT',
     'R-CD-MODEL-TOKEN',
     'R-CD-MODEL-TOOL',
+    'R-CD-RECIPIENT-AUTHORITY',
     'R-CD-SILENT',
     'R-CD-TOKEN',
     'R-CW-DELEGATE-SELF-CONTINUATION',

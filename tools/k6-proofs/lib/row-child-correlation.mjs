@@ -6,7 +6,7 @@
 const DIRECT_ROW_IDENTITY_FIELDS = ['task', 'text', 'title'];
 const TASK_RECORD_FIELDS = ['task'];
 const TASK_RECORD_COLLECTION_FIELDS = ['tasks', 'records'];
-const TASK_IDENTITY_NONCE_SUFFIX_CHARS = 16;
+export const TASK_IDENTITY_NONCE_SUFFIX_CHARS = 16;
 
 export function compactTaskIdentityToken(prefix, rowNonce) {
   if (!/^[A-Z0-9-]{1,8}$/.test(String(prefix || '')) ||

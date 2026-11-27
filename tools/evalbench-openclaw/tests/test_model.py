@@ -52,15 +52,17 @@ def test_the_documents_name_the_parameters_model(name):
 
 def test_every_arms_config_carries_it_into_configs_csv(tmp_path):
     c = "c1-arithmetic"
-    plans = {n: {c: ["control-clean"]} for n in "ABCD"}
+    plans = {n: {c: ["control-clean"]} for n in "ABCDE"}
     results, left, _, report, code = run_offline(tmp_path, plans, num_trials=1, scenarios=[c])
-    assert code == 0 and left == dict.fromkeys("ABCD", 0) and report["model"] == MODEL
-    for name in "ABCD":
+    assert code == 0 and left == dict.fromkeys("ABCDE", 0) and report["model"] == MODEL
+    for name in "ABCDE":
         recorded = {r["config"]: r["value"] for r in rows(tmp_path / "results" / results[name]["jobId"] / "configs.csv")}
         assert MODEL in "".join(v for k, v in recorded.items() if k.endswith("OPENCLAW_EVAL_MODEL")), name
         assert report["arms"][name]["servedModels"] == {MODEL: 1}
-    shapes = {n: report["arms"][n]["surfaceShapes"] for n in "ABCD"}
-    assert shapes == {"A": {"7 direct and 5 deferred": 1}, "B": {"9 direct and 0 deferred": 1}, "C": {"10 direct and 2 deferred": 1}, "D": {"9 direct and 0 deferred": 1}}
+    shapes = {n: report["arms"][n]["surfaceShapes"] for n in "ABCDE"}
+    # Under the direct-tools overlay the fake reports every tool the product sends at that build (probes/receipts).
+    assert shapes == {"A": {"7 direct and 5 deferred": 1}, "B": {"66 direct and 0 deferred": 1}, "C": {"10 direct and 2 deferred": 1},
+                      "D": {"66 direct and 0 deferred": 1}, "E": {"10 direct and 2 deferred": 1}}
 
 
 def test_changing_the_parameter_alone_moves_the_whole_run(tmp_path):

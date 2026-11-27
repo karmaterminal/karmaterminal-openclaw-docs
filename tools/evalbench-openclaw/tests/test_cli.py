@@ -10,7 +10,7 @@ from openclaw_evalbench.adapter import read_token
 
 @pytest.fixture
 def tokens(tmp_path, monkeypatch):
-    for name in "ABCD":
+    for name in "ABCDE":
         path = tmp_path / f"token-{name}"
         path.write_text(f"token-{name}\n")
         monkeypatch.setenv(f"OPENCLAW_EVAL_TOKEN_FILE_{name}", str(path))
@@ -125,10 +125,10 @@ def test_arm_d_runs_only_when_named(tokens, monkeypatch):
     monkeypatch.setattr(cli, "run_jobs", jobs)
     monkeypatch.setattr(cli, "_supervised", unsupervised)
     monkeypatch.setenv("XDG_RUNTIME_DIR", str(tokens))
-    for index, argv in enumerate(([], ["--arms", "A,B,C,D"])):
+    for index, argv in enumerate(([], ["--arms", "A,B,C,D,E"])):
         with pytest.raises(SystemExit, match="enough"):
             cli.main(["run", "--go", "1573086211386384495", "--out", str(tokens / f"out{index}"), *argv])
-    assert seen == [["A", "B", "C"], ["A", "B", "C", "D"]]
+    assert seen == [["A", "B", "C", "E"], ["A", "B", "C", "D", "E"]]
 
 
 @pytest.mark.parametrize("command", ["run", "offline"])

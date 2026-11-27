@@ -174,8 +174,10 @@ setRuntimeConfigSnapshot(cfg, cfg);
   const { createAgentHarnessToolSurfaceRuntimeCore } = await src("agents/harness/tool-surface-bridge.ts");
   const { buildConfiguredAgentSystemPrompt } = await src("agents/system-prompt-config.ts");
   const workspaceDir = mkdtempSync(path.join(tmpdir(), "product-probe-ws-"));
-  // A prompt names the workspace and the probe's own home; neither is a setting, so a receipt hashes them away.
-  const stable = (text: string) => text.split(workspaceDir).join("<workspace>").split(process.env.HOME!).join("<home>");
+  // A prompt names the workspace, the probe's own home and the tree it reads (the /context path lists each skill's
+  // location in it); none is a setting, so a receipt hashes them away, and two extracts of one SHA give one receipt.
+  const tree = path.resolve(root);
+  const stable = (text: string) => text.split(tree).join("<tree>").split(workspaceDir).join("<workspace>").split(process.env.HOME!).join("<home>");
   const [provider, ...rest] = String(arms.model).split("/");
   const model = rest.join("/");
   // The firing model as the run sees it: the ChatGPT route, which prefers Code Mode (extensions/openai/openclaw.plugin.json:142).
@@ -219,6 +221,21 @@ setRuntimeConfigSnapshot(cfg, cfg);
     return { mode, prompt: stable(String(prompt)), defs: [...defsOf(sent), ...catalog.map((c: any) => ({ ...c, name: `catalog:${c.name}` }))],
              sent: sent.map((t: any) => t.name).sort(), catalogued: catalog.length };
   };
+  // The rest of a surface without the continuation text: the prompt without the continuation section (its heading to the
+  // next `## `) and without any other line that names a continuation tool or its bracket form, and every tool definition but
+  // the three. Two surfaces with the same rest show the model different continuation text and nothing else.
+  const continuationTools = ["continue_work", "continue_delegate", "request_compaction"];
+  const namesContinuation = /continue_work|continue_delegate|request_compaction|CONTINUE_WORK|CONTINUE_DELEGATE/;
+  const withoutContinuation = (reference: any) => {
+    const kept: string[] = [];
+    let inSection = false;
+    for (const line of reference.prompt.split("\n")) {
+      if (line.startsWith("## ")) inSection = line === "## Continuation & Delegation";
+      if (!inSection && !namesContinuation.test(line)) kept.push(line);
+    }
+    const others = reference.defs.filter((d: any) => !continuationTools.includes(d.name.split(":").pop()));
+    return { promptHash: sha(kept.join("\n")), toolsHash: sha(JSON.stringify(others)), tools: others.length };
+  };
   const compare = (reference: any, seen: any) => {
     const byName = new Map(reference.defs.map((d: any) => [d.name, d]));
     const differing = seen.defs.filter((d: any) => { const r: any = byName.get(d.name); return !r || r.description !== d.description || r.parameters !== d.parameters; }).map((d: any) => d.name);
@@ -233,6 +250,7 @@ setRuntimeConfigSnapshot(cfg, cfg);
       const reference: any = await build(armBase);
       const part: any = {
         tools: reference.defs.length, toolsHash: sha(JSON.stringify(reference.defs)), promptHash: sha(reference.prompt),
+        withoutContinuation: withoutContinuation(reference),
         // A catalogued tool is named by its catalog id, `catalog:openclaw:core:<tool>`.
         continuation: Object.fromEntries(reference.defs.map((d: any) => [d.name.split(":").pop(), d] as const)
           .filter(([n]: any) => ["continue_work", "continue_delegate", "request_compaction"].includes(n)).map(([n, d]: any) => [n, sha(d.description)])),
@@ -242,7 +260,7 @@ setRuntimeConfigSnapshot(cfg, cfg);
       };
       if (path_ === "attempt") {
         Object.assign(part, { mode: reference.mode, sent: reference.sent, catalogued: reference.catalogued,
-          // The section's own heading (src/agents/system-prompt-continuation.ts:27 at ab5a, :40 at f9fc); the tool names alone
+          // The section's own heading (src/agents/system-prompt-continuation.ts:27 at ab5a, :40 at f9fc, :72 at de55); the tool names alone
           // also appear elsewhere in the prompt.
           continuationSection: reference.prompt.includes("## Continuation & Delegation") });
       }

@@ -345,7 +345,7 @@ def test_an_interrupt_stops_every_gateway_at_once_and_the_run_ends_in_order(tmp_
     _, err = process.communicate(timeout=60)
     stops = [json.loads(line) for line in events.read_text().splitlines() if '"stopped"' in line]
     assert process.returncode == 1 and "stopping every gateway" in err
-    assert sorted(s["arm"] for s in stops) == ["A", "B", "C"] and all(s["result"]["stopped"] for s in stops)
+    assert sorted(s["arm"] for s in stops) == ["A", "B", "C", "E"] and all(s["result"]["stopped"] for s in stops)
     manifest = json.loads((out / "manifest.json").read_text())
     assert manifest["supervision"]["halted"].startswith("interrupted: SIGINT") and manifest["supervision"]["receipt"]["ended"]["rule"] == "interrupted"
     assert any("interrupted" in f for f in manifest["failures"]) and (out / "report.md").exists()

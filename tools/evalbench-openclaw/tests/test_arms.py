@@ -56,11 +56,14 @@ def test_the_model_configs_name_their_own_arm_and_port_and_no_secret(arms):
 
 
 def test_descriptions_match_their_pinned_hash_and_differ_between_the_texts(arms):
-    for version in arms["descriptions"].values():
+    for key, version in arms["descriptions"].items():
+        assert version["sha"].startswith(key) and list(version["tools"]) == list(A.CONTINUATION_TOOLS)
         for tool in version["tools"].values():
             assert hashlib.sha256(tool["text"].strip().encode()).hexdigest() == tool["sha256"]
-    old, new = (arms["descriptions"][k]["tools"] for k in ("ab5a30ea", "f9fcd3a5"))
-    assert all(old[t]["sha256"] != new[t]["sha256"] for t in A.CONTINUATION_TOOLS)
+    texts = [arms["descriptions"][k]["tools"] for k in ("ab5a30ea", "f9fcd3a5", "de55f350")]
+    for tool in A.CONTINUATION_TOOLS:
+        assert len({version[tool]["sha256"] for version in texts}) == 3, f"{tool}: each build's text is its own"
+    assert {a["descriptions"] for a in arms["arms"].values()} == set(arms["descriptions"]), "every text is an arm's, and no arm's is missing"
 
 
 def test_the_arms_separate_one_cause_each(arms):
@@ -72,18 +75,37 @@ def test_the_arms_separate_one_cause_each(arms):
     d = arms["arms"]["D"]
     assert (d["productSha"], d["descriptions"], d["surface"]) == (c["productSha"], c["descriptions"], c["surface"]), "D is C's build and text"
     assert d["config"] == b["config"], "under B's overlay"
+    e = arms["arms"]["E"]
+    assert e["productSha"] != c["productSha"] and e["descriptions"] not in (a["descriptions"], c["descriptions"])
+    assert (e["surface"], e["config"]) == (c["surface"], c["config"]), "E is C's placement and config, with the settled text"
+    assert e["unit"] == f"openclaw-proof-comp-{e['productSha'][:8]}" and e["descriptions"] == e["productSha"][:8]
 
 
 def test_only_arm_d_is_off_by_default(arms):
-    assert list(arms["arms"]) == ["A", "B", "C", "D"] and A.default_arms(arms) == ["A", "B", "C"]
+    assert list(arms["arms"]) == ["A", "B", "C", "D", "E"] and A.default_arms(arms) == ["A", "B", "C", "E"]
 
 
 def test_the_contrasts_are_named_for_what_they_are(arms):
     named = {(c["from"], c["to"]): c for c in arms["comparisons"]}
     assert named["A", "B"]["label"] == "visibility (all tools direct)"
     assert named["B", "C"]["label"] == "composite: new text + direct-set narrowing" and "not the wording effect" in named["B", "C"]["note"]
-    assert [pair for pair, c in named.items() if "wording" in c["label"]] == [("B", "D")], "only D against B isolates the wording"
+    # Wording alone: two builds' text on one surface. D against B with every tool direct, E against C at the fleet default's.
+    alone = [pair for pair, c in named.items() if "wording" in c["label"] and not c["label"].startswith("placement")]
+    assert alone == [("B", "D"), ("C", "E")] and all(named[pair].get("holdsDirectToolCount") is True for pair in alone)
+    assert named["C", "E"]["label"] == "settled wording (same placement)" and named["C", "E"]["primary"] is True
+    assert "Codex harness" in named["C", "E"]["note"], "where it is more than wording, it says so"
+    assert named["A", "E"]["label"] == "placement + settled wording" and named["A", "E"]["primary"] is False
+    assert [c["id"] for c in arms["comparisons"] if c.get("holdsDirectToolCount")] == ["wording", "settled-wording"]
     assert all(c["note"] for c in arms["comparisons"] if c["primary"])
+
+
+def test_the_crowding_line_and_the_awareness_design_are_declared(arms):
+    crowding = arms["surfaceCrowding"]
+    assert crowding["crowdedAboveDirectTools"] == 30 and crowding["source"].startswith("https://platform.claude.com/docs/")
+    assert "vendor guidance" in crowding["rule"] and "not the firing model" in crowding["rule"]
+    declared = arms["awareness"]
+    assert hashlib.sha256((A.ROOT / declared["prompt"]).read_bytes()).hexdigest() == declared["sha256"], "the judge prompt is the declared one"
+    assert (declared["seed"], declared["perPrompt"]) == (1575, 1)
 
 
 @pytest.mark.parametrize("server, ok", [

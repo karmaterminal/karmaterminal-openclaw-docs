@@ -1,4 +1,4 @@
-"""The product probe's receipts (probes/receipts) are of these caps, this probe and both SHAs, and say what the documents say."""
+"""The product probe's receipts (probes/receipts) are of these caps, this probe and every arm's SHA, and say what the documents say."""
 import hashlib
 import json
 
@@ -15,7 +15,7 @@ each_sha = pytest.mark.parametrize("sha", SHAS)
 
 
 def test_there_is_a_receipt_for_each_build_and_no_other():
-    assert len(SHAS) == 2 and sorted(p.stem for p in (ROOT / "probes" / "receipts").glob("*.json")) == [s[:8] for s in SHAS]
+    assert len(SHAS) == 3 and sorted(p.stem for p in (ROOT / "probes" / "receipts").glob("*.json")) == [s[:8] for s in SHAS]
 
 
 @each_sha
@@ -36,9 +36,11 @@ def test_the_caps_are_valid_and_config_get_reads_every_one_back(sha):
 
 
 PATHS = ("context", "attempt")
-# Each arm as the run plans it on the firing model: Code Mode for the fleet default (A, C), every tool direct under the
+# Each arm as the run plans it on the firing model: Code Mode for the fleet default (A, C, E), every tool direct under the
 # direct-tools overlay (B, D).
-MODE = {"A": "code mode", "B": "every tool direct", "C": "code mode", "D": "every tool direct"}
+MODE = {"A": "code mode", "B": "every tool direct", "C": "code mode", "D": "every tool direct", "E": "code mode"}
+# The builds whose continuation tools are `catalogMode: "direct-only"`: Code Mode leaves them on the direct surface.
+DIRECT_ONLY = {ARMS["arms"][name]["productSha"] for name in ("C", "E")}
 
 
 def name(tool):
@@ -70,10 +72,40 @@ def test_the_attempt_path_is_each_arms_own_surface(sha):
         if MODE[arm_name] == "every tool direct":
             assert attempt["catalogued"] == 0 and continuation <= sent
         else:
-            # Code Mode sends its controls and keeps the rest behind them; f9fcd3a5 keeps the continuation tools direct.
+            # Code Mode sends its controls and keeps the rest behind them; f9fcd3a5 and de55f350 keep the continuation tools direct.
             assert {"exec", "wait"} <= sent and attempt["catalogued"] > 40
-            assert (continuation <= sent) is (sha == ARMS["descriptions"]["f9fcd3a5"]["sha"]) and not (continuation & sent and not continuation <= sent)
+            assert (continuation <= sent) is (sha in DIRECT_ONLY) and not (continuation & sent and not continuation <= sent)
     assert RECEIPTS[sha]["surface"]["A"]["attempt"]["promptHash"] != RECEIPTS[sha]["surface"]["B"]["attempt"]["promptHash"], "the paths see the arms differ"
+
+
+def surface_of(arm, sha=None):
+    """An arm's attempt surface at its own build, or at another build of the receipts."""
+    return RECEIPTS[sha or ARMS["arms"][arm]["productSha"]]["surface"][arm]["attempt"]
+
+
+@pytest.mark.parametrize("contrast", ["wording", "settled-wording"])
+def test_a_wording_contrast_shows_the_model_other_continuation_text_and_nothing_else(contrast):
+    # The rest of the surface, without the continuation section, the other lines that name a continuation tool, and the three
+    # tools' definitions, is the same on both arms of the contrast; the whole surface is not (the probe's withoutContinuation).
+    spec = next(c for c in ARMS["comparisons"] if c["id"] == contrast)
+    before, after = surface_of(spec["from"]), surface_of(spec["to"])
+    assert ARMS["arms"][spec["from"]]["productSha"] != ARMS["arms"][spec["to"]]["productSha"]
+    assert before["withoutContinuation"] == after["withoutContinuation"] and before["sent"] == after["sent"]
+    assert before["promptHash"] != after["promptHash"] and before["toolsHash"] != after["toolsHash"]
+    assert spec.get("holdsDirectToolCount") is True and len(before["sent"]) == len(after["sent"])
+
+
+def test_the_rest_of_the_surface_tells_a_placement_contrast_apart():
+    # Negative control: B → C narrows the direct set, so its rest differs; A → C moves only the three tools, so it does not.
+    assert surface_of("B")["withoutContinuation"] != surface_of("C")["withoutContinuation"]
+    assert surface_of("A")["withoutContinuation"] == surface_of("C")["withoutContinuation"]
+
+
+@pytest.mark.parametrize("arm, direct", [("A", 6), ("B", 66), ("C", 9), ("D", 66), ("E", 9)])
+def test_the_direct_tool_counts_the_readme_gives_are_the_probes(arm, direct):
+    assert len(surface_of(arm)["sent"]) == direct
+    crowded = direct > ARMS["surfaceCrowding"]["crowdedAboveDirectTools"]
+    assert crowded is (arm in "BD"), "only the direct-tools overlay crowds the surface"
 
 
 @each_sha

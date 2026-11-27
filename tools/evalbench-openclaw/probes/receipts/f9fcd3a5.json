@@ -69,7 +69,7 @@
  },
  "model": "openai/gpt-6.1-sol",
  "node": "v26.9.0",
- "probeSha256": "df5e4c034c265a2a759d16be519264ccdafa54d585c0032359fcc3605acd7d72",
+ "probeSha256": "876b8ee275b52a84d2ef5c059f8949536a02e05893ce4bcbd94f82ae6f1cbfb0",
  "productSha": "f9fcd3a5dd9c1c0eb6ad55c5b8e09fe62b0de306",
  "settings": {
   "agents.defaults.continuation.costCapTokens": 1,
@@ -176,6 +176,11 @@
      "same": true,
      "tools": 69,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "3ce3bbf34fbe3a71b39d99c5558878dbbcdc1821287468799b38679699936743",
+     "tools": 66,
+     "toolsHash": "0b5163f8ca1fc8b7bf7d0798554bf5b837c473aa5555928a456eb11773b333d0"
     }
    },
    "context": {
@@ -239,7 +244,7 @@
       "toolsSame": false
      }
     },
-    "promptHash": "90b3e721d96eedbd4c5c33610079e8f745c133cf0c9f9cb04863327d5b832382",
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
     "tools": 66,
     "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
     "withCaps": {
@@ -249,6 +254,11 @@
      "same": true,
      "tools": 66,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
     }
    },
    "schemaAccepts": true
@@ -396,6 +406,11 @@
      "same": true,
      "tools": 66,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "4b2f1ad7222f06557ee4838e528f6ff9aef8d82c55d1ff3d7dc8871bf3567a81",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
     }
    },
    "context": {
@@ -459,7 +474,7 @@
       "toolsSame": false
      }
     },
-    "promptHash": "90b3e721d96eedbd4c5c33610079e8f745c133cf0c9f9cb04863327d5b832382",
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
     "tools": 66,
     "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
     "withCaps": {
@@ -469,6 +484,11 @@
      "same": true,
      "tools": 66,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
     }
    },
    "schemaAccepts": true
@@ -559,6 +579,11 @@
      "same": true,
      "tools": 69,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "3ce3bbf34fbe3a71b39d99c5558878dbbcdc1821287468799b38679699936743",
+     "tools": 66,
+     "toolsHash": "0b5163f8ca1fc8b7bf7d0798554bf5b837c473aa5555928a456eb11773b333d0"
     }
    },
    "context": {
@@ -622,7 +647,7 @@
       "toolsSame": false
      }
     },
-    "promptHash": "90b3e721d96eedbd4c5c33610079e8f745c133cf0c9f9cb04863327d5b832382",
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
     "tools": 66,
     "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
     "withCaps": {
@@ -632,6 +657,11 @@
      "same": true,
      "tools": 66,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
     }
    },
    "schemaAccepts": true
@@ -779,6 +809,11 @@
      "same": true,
      "tools": 66,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "4b2f1ad7222f06557ee4838e528f6ff9aef8d82c55d1ff3d7dc8871bf3567a81",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
     }
    },
    "context": {
@@ -842,7 +877,7 @@
       "toolsSame": false
      }
     },
-    "promptHash": "90b3e721d96eedbd4c5c33610079e8f745c133cf0c9f9cb04863327d5b832382",
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
     "tools": 66,
     "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
     "withCaps": {
@@ -852,6 +887,184 @@
      "same": true,
      "tools": 66,
      "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
+    }
+   },
+   "schemaAccepts": true
+  },
+  "E": {
+   "attempt": {
+    "catalogued": 60,
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "continuationSection": true,
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "mode": "code mode",
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 69,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "catalog:openclaw:core:exec",
+       "catalog:openclaw:core:process"
+      ],
+      "gone": [
+       "catalog:openclaw:core:automations"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "catalog:openclaw:core:sessions_spawn"
+      ],
+      "gone": [
+       "catalog:openclaw:core:agents_wait"
+      ],
+      "promptSame": true,
+      "same": false,
+      "tools": 68,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "c01e365f9082e06273e4a07ac3319085b7bbd214091b63ec7df260598a82397b",
+    "sent": [
+     "computer",
+     "continue_delegate",
+     "continue_work",
+     "exec",
+     "message",
+     "openclaw",
+     "request_compaction",
+     "sessions_yield",
+     "wait"
+    ],
+    "tools": 69,
+    "toolsHash": "95854618e4a1a4478c41d7a8272ecff577367ca13a68d228e539b79acaff31ea",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 69,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "3ce3bbf34fbe3a71b39d99c5558878dbbcdc1821287468799b38679699936743",
+     "tools": 66,
+     "toolsHash": "0b5163f8ca1fc8b7bf7d0798554bf5b837c473aa5555928a456eb11773b333d0"
+    }
+   },
+   "context": {
+    "continuation": {
+     "continue_delegate": "add65af23845ded4453d1fae8982f38a43ab8355af059ef4923346e0c790339a",
+     "continue_work": "4758286ecc91796d4483bf223457eb46ceef11a601d823772749e5c79108d366",
+     "request_compaction": "abbd27935469e6b32821c2b1171034212d166e7ed0f7306afd3b0b497ca35f95"
+    },
+    "eachCapAlone": {
+     "agents.defaults.continuation.costCapTokens": true,
+     "agents.defaults.continuation.maxChainLength": true,
+     "agents.defaults.continuation.maxDelegatesPerTurn": true,
+     "agents.defaults.maxConcurrent": true,
+     "agents.defaults.subagents.maxChildrenPerAgent": true,
+     "agents.defaults.subagents.maxConcurrent": true,
+     "agents.defaults.subagents.maxSpawnDepth": true,
+     "agents.defaults.subagents.runTimeoutSeconds": true,
+     "agents.defaults.timeoutSeconds": true,
+     "agents.defaults.utilityModel": true,
+     "cron.enabled": true,
+     "meta.migrations.skillWorkshopPlugin": true,
+     "plugins.entries.skill-workshop.config.autonomous.mode": true,
+     "tools.swarm.maxChildrenPerGroup": true,
+     "tools.swarm.maxConcurrent": true,
+     "tools.swarm.maxTotalPerGroup": true
+    },
+    "negativeControls": {
+     "subagents.allowAgents []": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [],
+      "promptSame": true,
+      "same": false,
+      "tools": 66,
+      "toolsSame": false
+     },
+     "tools.deny automations": {
+      "differing": [
+       "exec",
+       "process"
+      ],
+      "gone": [
+       "automations"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     },
+     "tools.swarm.enabled false": {
+      "differing": [
+       "sessions_spawn"
+      ],
+      "gone": [
+       "agents_wait"
+      ],
+      "promptSame": false,
+      "same": false,
+      "tools": 65,
+      "toolsSame": false
+     }
+    },
+    "promptHash": "65022731519b5cec5460931c3d6185da6e9cedfd39d6e9eb24d8a39b3b7580b4",
+    "tools": 66,
+    "toolsHash": "bdfae6a485cc3652be5906741baf04f208c2bb6b3579a404e2b8496a83f35373",
+    "withCaps": {
+     "differing": [],
+     "gone": [],
+     "promptSame": true,
+     "same": true,
+     "tools": 66,
+     "toolsSame": true
+    },
+    "withoutContinuation": {
+     "promptHash": "a99abf1ff42f4d4de1a112e3a10e0458bcb056d8adb0bba29523581f287a04c1",
+     "tools": 63,
+     "toolsHash": "1d5fb88cb1dfdbc3e2da259ced5ecaef6c5f1eb7a6cbdedc48cafdf38ffecd42"
     }
    },
    "schemaAccepts": true

@@ -13,6 +13,7 @@ group admits its own first collector (_spawn).
 
 import asyncio
 import contextlib
+import functools
 import json
 import os
 import pathlib
@@ -61,6 +62,16 @@ def load_turns(path=None):
 
 def load_plan(path=None):
     return json.loads(pathlib.Path(path or ROOT / "fixtures/offline-plan.json").read_text())
+
+
+@functools.lru_cache(maxsize=None)
+def _every_tool_direct(sha):
+    """The tools the product sends on the firing model when every tool is direct, at this build (probes/receipts), or None."""
+    receipt = ROOT / "probes" / "receipts" / f"{sha[:8]}.json"
+    if not receipt.is_file():
+        return None
+    rows = json.loads(receipt.read_text())["surface"].values()
+    return next((row["attempt"]["sent"] for row in rows if row["attempt"]["mode"] == "every tool direct"), None)
 
 
 def _fill(value, mapping):
@@ -342,11 +353,16 @@ class FakeGateway:
 
     def _report(self):
         surface = self.overrides.get("surface", self.arm["surface"])
-        entries = [{"name": n, "summaryChars": 10, "summaryHash": "0" * 64, "schemaChars": 10} for n in ("read", "exec", "message", "sessions_yield")]
-        deferred = []
-        # The rest of the tool list: direct under the direct-tools overlay, behind a search otherwise.
+        # The rest of the tool list: direct under the direct-tools overlay, behind a search otherwise. Under the overlay it is
+        # every tool the product sends at the arm's build, as the probe found them (probes/receipts), so a rehearsal reports
+        # the product's own count of direct tools there.
         every_tool_direct = self.arm["config"]["set"].get("tools.toolSearch") is False
-        for tool in ("sessions_spawn", "automations"):
+        base, rest = ("read", "exec", "message", "sessions_yield"), ("sessions_spawn", "automations")
+        if every_tool_direct and (probed := _every_tool_direct(self.arm["productSha"])):
+            base, rest = tuple(n for n in probed if n not in CONTINUATION_TOOLS), ()
+        entries = [{"name": n, "summaryChars": 10, "summaryHash": "0" * 64, "schemaChars": 10} for n in base]
+        deferred = []
+        for tool in rest:
             if every_tool_direct:
                 entries.append({"name": tool, "summaryChars": 10, "summaryHash": "0" * 64, "schemaChars": 10})
             else:

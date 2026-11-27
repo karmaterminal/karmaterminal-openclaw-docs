@@ -6,11 +6,13 @@ envelope's `openclaw`); scores.csv's continuation_election is only checked again
 """
 
 import csv
+import io
 import json
 import pathlib
 import sys
 from collections import Counter, defaultdict
 
+from . import awareness as awareness_module
 from . import stats
 from .arms import load_arms, load_scenarios
 from .stops import charge
@@ -65,8 +67,13 @@ def read_job(job_dir, arm_name=None, model=None, caps=None):
                 problem = f"{row['eval_id']}: continuation_election did not run"
             elif (float(score_row["score"]) == 100.0) != meta["elected"] or "FAIL" in (score_row.get("comparison_logs") or ""):
                 problem = f"{row['eval_id']}: continuation_election scored {score_row['score']}, the trial says {meta['elected']}"
+        # What the turn showed, for the awareness sample: the prompt EvalBench sent, the reply and the calls with their arguments.
+        transcript = {"user": row.get("prompt") or "", "reply": envelope.get("response") or "",
+                      "toolCalls": [{"name": awareness_module.bare_tool_name(str(c.get("tool_name") or "")), "arguments": str(c.get("parameters") or "")}
+                                    for c in envelope.get("tool_calls") or [] if isinstance(c, dict)]}
         trials.append({"evalId": row["eval_id"], "promptId": prompt_id, "scored": scored, "status": status,
-                       "reason": reason, "meta": meta, "problem": problem})
+                       "reason": reason, "meta": meta, "problem": problem, "job": row.get("job_id") or job_dir.name,
+                       "transcript": transcript})
     return trials
 
 
@@ -89,7 +96,20 @@ def _first_repetitions(trials, repetitions):
     return out
 
 
-def _arm(trials, scenarios, repetitions):
+def counted(trials, scenarios):
+    """The trials an arm's rates count: scored, of this evalset, and within each prompt's declared repetitions."""
+    known = {s["id"] for s in scenarios}
+    return [t for t in trials if t["scored"] and not t["extra"] and t["promptId"] in known]
+
+
+def _direct_tools(trials, crowded_above):
+    """The direct-tool counts the counted trials measured (surface.directTools), and whether any is past the crowding line."""
+    values = sorted({(t["meta"].get("surface") or {}).get("directTools") for t in trials} - {None})
+    return {"values": values, "trials": sum((t["meta"].get("surface") or {}).get("directTools") is not None for t in trials),
+            "crowdedAbove": crowded_above, "crowded": bool(values) and max(values) > crowded_above}
+
+
+def _arm(trials, scenarios, repetitions, crowded_above):
     kinds = {s["id"]: s["kind"] for s in scenarios}
     per_prompt = {s["id"]: {"kind": s["kind"], "expected": [t.split("__")[-1] for t in s["expected_trajectory"]],
                             "elected": 0, "scored": 0, "unscored": 0, "tools": Counter()} for s in scenarios}
@@ -179,6 +199,8 @@ def _arm(trials, scenarios, repetitions):
         "tokenForm": dict(token_form), "otherTools": dict(others.most_common()), "runtimes": dict(runtimes),
         "servedModels": dict(served), "distinctSystemPrompts": len(prompts_hash - {None}),
         "meteredTokens": tokens, "largestTrialTokens": largest, "modelCalls": calls,
+        # Beside every rate: how many tools the turn's model had direct, as each counted trial measured its own surface.
+        "directTools": _direct_tools(counted(trials, scenarios), crowded_above),
         "perPrompt": {p: {**e, "tools": dict(e["tools"])} for p, e in per_prompt.items()},
     }
 
@@ -201,17 +223,19 @@ def _compare(arms_out, spec):
             blockers.append(f"arm {name}: trials ran on more than one runtime ({', '.join(sorted(arm['runtimes']))})")
     if len(a["runtimes"]) == 1 and len(b["runtimes"]) == 1 and set(a["runtimes"]) != set(b["runtimes"]):
         blockers.append(f"arms {spec['from']} and {spec['to']} ran on different runtimes")
+    seen = a["directTools"]["values"], b["directTools"]["values"]
+    if spec.get("holdsDirectToolCount") and all(seen) and seen[0] != seen[1]:
+        blockers.append(f"it holds the surface fixed, and arm {spec['from']} measured {_counted_tools(seen[0])} direct tools, "
+                        f"arm {spec['to']} {_counted_tools(seen[1])}")
     return {**spec, "difference": None if newcombe is None else eb["rate"] - ea["rate"],
             "newcombe95": list(newcombe) if newcombe else None, "bootstrap95": list(bootstrap) if bootstrap else None,
             "reading": "not reportable" if blockers else stats.effect(newcombe, bootstrap), "blockers": blockers,
             "controlRates": {spec["from"]: a["control"]["rate"], spec["to"]: b["control"]["rate"]}}
 
 
-def build_report(jobs, *, arms=None, scenarios=None, manifest=None):
-    """`jobs` maps arm name -> list of EvalBench job directories (a top-up job adds to the same arm)."""
-    arms, scenarios = arms or load_arms(), scenarios or load_scenarios()
-    out = {}
-    used = {}
+def _read(jobs, arms):
+    """{arm: trials, each prompt's surplus marked}, refusing a job given twice."""
+    used, read = {}, {}
     for name, dirs in jobs.items():
         for directory in dirs:
             path = pathlib.Path(directory).resolve()
@@ -219,10 +243,34 @@ def build_report(jobs, *, arms=None, scenarios=None, manifest=None):
                 raise ValueError(f"job {path.name} was given twice (arm {used[path]} and arm {name})")
             used[path] = name
         trials = [t for d in dirs for t in read_job(d, name, arms["model"], arms.get("caps"))]
-        out[name] = _arm(_first_repetitions(trials, arms["repetitions"]), scenarios, arms["repetitions"])
+        read[name] = _first_repetitions(trials, arms["repetitions"])
+    return read
+
+
+def awareness_items(jobs, *, arms=None, scenarios=None):
+    """The declared awareness sample of these jobs (awareness.py): the items a judge is given."""
+    arms, scenarios = arms or load_arms(), scenarios or load_scenarios()
+    kinds = {s["id"]: s["kind"] for s in scenarios}
+    return awareness_module.sample({n: counted(t, scenarios) for n, t in _read(jobs, arms).items()}, arms, kinds)
+
+
+def build_report(jobs, *, arms=None, scenarios=None, manifest=None, awareness=None):
+    """`jobs` maps arm name -> list of EvalBench job directories (a top-up job adds to the same arm). `awareness` is the
+    judge's labels for the sample, or None: then every arm reads "not judged"."""
+    arms, scenarios = arms or load_arms(), scenarios or load_scenarios()
+    crowded_above = arms["surfaceCrowding"]["crowdedAboveDirectTools"]
+    read = _read(jobs, arms)
+    out = {}
+    for name, trials in read.items():
+        declared = arms["arms"].get(name) or {}
+        out[name] = {"productSha": declared.get("productSha"), "descriptions": declared.get("descriptions"),
+                     "continuationTools": declared.get("surface"), **_arm(trials, scenarios, arms["repetitions"], crowded_above)}
     comparisons = [_compare(out, c) for c in arms["comparisons"] if c["from"] in out and c["to"] in out]
+    kinds = {s["id"]: s["kind"] for s in scenarios}
+    items = awareness_module.sample({n: counted(t, scenarios) for n, t in read.items()}, arms, kinds)
+    judged = awareness_module.summary(items, awareness, arms, offline=bool((manifest or {}).get("offline")), wilson=stats.wilson)
     return {"schema": REPORT_SCHEMA, "repetitions": arms["repetitions"], "model": arms["model"],
-            "manifest": manifest, "arms": out, "comparisons": comparisons}
+            "manifest": manifest, "arms": out, "comparisons": comparisons, "awareness": judged}
 
 
 def _pct(value):
@@ -237,6 +285,49 @@ def _interval(ci, points=False):
 
 def _counts(counter):
     return ", ".join(f"{k} {v}" for k, v in counter.items()) or "none"
+
+
+def _counted_tools(values):
+    return "not measured" if not values else str(values[0]) if len(values) == 1 else f"{values[0]}–{values[-1]}"
+
+
+def _direct(arm):
+    """`direct tools: N` as the rates table prints it: the measured count, labelled when it is past the crowding line."""
+    tools = arm["directTools"]
+    return _counted_tools(tools["values"]) + (" (crowded)" if tools["crowded"] else "")
+
+
+def _awareness(report):
+    """The awareness section: "not judged" until there are labels, never zero."""
+    summary = report.get("awareness")
+    if not summary:
+        return []
+    lines = ["", "## Test awareness (independent judge, sampled)", "",
+             f"One counted trial per prompt and arm, picked by seed {summary['seed']} before any outcome; judge prompt "
+             f"`{summary['prompt']}` (sha256 `{summary['promptSha256'][:12]}…`). A judge can label only awareness the turn put in "
+             "words; awareness it kept to itself is not observable. Descriptive: no comparison, and never a reason to leave a trial out.", ""]
+    for name in report["arms"]:
+        arm = summary["arms"].get(name)
+        if not arm:
+            lines.append(f"- **{name}**: no transcript to judge.")
+            continue
+        if arm["reading"] == "not judged":
+            lines.append(f"- **{name}**: not judged ({arm['sampled']} transcripts sampled).")
+            continue
+        counts = f"aware {arm['aware']}, unclear {arm['unclear']}, unaware {arm['unaware']}"
+        if arm["reading"] == "incomplete":
+            lines.append(f"- **{name}**: judged {arm['judged']} of {arm['sampled']} ({arm['sampled'] - arm['judged']} unjudged): {counts}; "
+                         "no rate until every sampled transcript is judged.")
+            continue
+        rate = arm["aware95"]
+        lines.append(f"- **{name}**: {counts} of {arm['judged']} judged: aware {_pct(rate['rate'])} (Wilson 95 % {_interval(rate['wilson95'])}); "
+                     f"among the sampled trials that elected {arm['elected']['aware']} of {arm['elected']['sampled']}, "
+                     f"that did not {arm['notElected']['aware']} of {arm['notElected']['sampled']}.")
+    if summary["judges"]:
+        lines += ["", f"Judge: {', '.join(summary['judges'])}."]
+    if summary["problems"]:
+        lines += ["", "Labels not counted:", ""] + [f"- {p}" for p in summary["problems"]]
+    return lines
 
 
 def _supervision(summary):
@@ -268,18 +359,25 @@ def render(report):
     lines += [f"Model `{report['model']}`, no fallbacks; a trial any other model served is unscored. "
               f"{report['repetitions']} repetitions per prompt and arm. "
               "Rates are trials whose turn called a continuation tool, over scored trials.", "",
-              "| arm | eligible: elected | rate | Wilson 95 % | control: elected | rate | Wilson 95 % | unscored |",
-              "| --- | --- | --- | --- | --- | --- | --- | --- |"]
+              "| arm | direct tools | eligible: elected | rate | Wilson 95 % | control: elected | rate | Wilson 95 % | unscored |",
+              "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
     for name, arm in report["arms"].items():
         e, c = arm["eligible"], arm["control"]
-        lines.append(f"| {name} | {e['elected']}/{e['scored']} | {_pct(e['rate'])} | {_interval(e['wilson95'])} | "
+        lines.append(f"| {name} | {_direct(arm)} | {e['elected']}/{e['scored']} | {_pct(e['rate'])} | {_interval(e['wilson95'])} | "
                      f"{c['elected']}/{c['scored']} | {_pct(c['rate'])} | {_interval(c['wilson95'])} | {_counts(arm['unscored'])} |")
+    above = next(iter(report["arms"].values()))["directTools"]["crowdedAbove"] if report["arms"] else None
+    if above is not None:
+        lines += ["", f"Direct tools are what each counted trial measured on its own surface. **Crowded** is more than {above}: "
+                  "vendor guidance (Anthropic's tool search documentation, about Claude) says tool selection degrades past 30–50 tools. "
+                  "The label changes no reading."]
     lines += ["", "## Comparisons (eligible election rate)", "",
-              "| comparison | difference | Newcombe 95 % | prompt bootstrap 95 % | reading |", "| --- | --- | --- | --- | --- |"]
+              "| comparison | difference | Newcombe 95 % | prompt bootstrap 95 % | reading | direct tools |",
+              "| --- | --- | --- | --- | --- | --- |"]
     for c in report["comparisons"]:
         label = f"{c['from']} → {c['to']}: {c['label']}" + ("" if c["primary"] else " (descriptive)")
         diff = "n/a" if c["difference"] is None else f"{100 * c['difference']:+.1f} pp"
-        lines.append(f"| {label} | {diff} | {_interval(c['newcombe95'], True)} | {_interval(c['bootstrap95'], True)} | {c['reading']} |")
+        tools = f"{_direct(report['arms'][c['from']])} → {_direct(report['arms'][c['to']])}"
+        lines.append(f"| {label} | {diff} | {_interval(c['newcombe95'], True)} | {_interval(c['bootstrap95'], True)} | {c['reading']} | {tools} |")
     notes = [f"- **{c['from']} → {c['to']}**: {c['note']}" for c in report["comparisons"] if c.get("note")]
     if notes:
         lines += ["", "What each comparison is:", ""] + notes
@@ -324,8 +422,39 @@ def render(report):
     budget = manifest.get("tokenBudgetPerArm")
     lines += ["", f"Metered tokens include cache reads. The spend stop{f' ({budget:,} per arm)' if budget else ''} is checked between trials, "
               "so it is not a ceiling: what ends a trial that is running is the supervisor."]
+    lines += _awareness(report)
     lines += _supervision(manifest.get("supervision"))
     problems = [f"- {name}: {p}" for name, arm in report["arms"].items() for p in arm["problems"]]
     if problems:
         lines += [""] + problems
     return "\n".join(lines) + "\n"
+
+
+CSV_COLUMNS = ("arm", "product_sha", "descriptions", "continuation_tools", "direct_tools", "crowded",
+               "eligible_elected", "eligible_scored", "eligible_rate", "eligible_wilson95_low", "eligible_wilson95_high",
+               "control_elected", "control_scored", "control_rate", "control_wilson95_low", "control_wilson95_high",
+               "unscored", "awareness", "awareness_sampled", "awareness_judged", "awareness_aware")
+
+
+def render_csv(report):
+    """One row per arm: its rates with their intervals, beside the direct tools its trials measured and its awareness reading."""
+    out = io.StringIO()
+    writer = csv.DictWriter(out, CSV_COLUMNS, lineterminator="\n")
+    writer.writeheader()
+    judged = (report.get("awareness") or {}).get("arms") or {}
+    for name, arm in report["arms"].items():
+        row = {"arm": name, "product_sha": arm.get("productSha") or "", "descriptions": arm.get("descriptions") or "",
+               "continuation_tools": arm.get("continuationTools") or "", "direct_tools": _counted_tools(arm["directTools"]["values"]),
+               "crowded": "yes" if arm["directTools"]["crowded"] else "no" if arm["directTools"]["values"] else "",
+               "unscored": "; ".join(f"{k} {v}" for k, v in arm["unscored"].items())}
+        for kind in ("eligible", "control"):
+            rate = arm[kind]
+            low, high = rate["wilson95"] or ("", "")
+            row.update({f"{kind}_elected": rate["elected"], f"{kind}_scored": rate["scored"],
+                        f"{kind}_rate": "" if rate["rate"] is None else f"{rate['rate']:.4f}",
+                        f"{kind}_wilson95_low": low if low == "" else f"{low:.4f}", f"{kind}_wilson95_high": high if high == "" else f"{high:.4f}"})
+        seen = judged.get(name)
+        row.update({"awareness": seen["reading"] if seen else "no transcript to judge", "awareness_sampled": seen["sampled"] if seen else 0,
+                    "awareness_judged": seen["judged"] if seen else 0, "awareness_aware": seen["aware"] if seen and seen["judged"] else ""})
+        writer.writerow(row)
+    return out.getvalue()

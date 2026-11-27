@@ -32,6 +32,8 @@ INTERRUPTS = (signal.SIGINT, signal.SIGTERM, signal.SIGHUP)
 # EvalBench drops a session three hours after it starts and ends the job without a result (util/sessionmgr.py ttl).
 SESSION_TTL_SECONDS = 48 * 3600
 CSV_FILES = ("configs.csv", "evals.csv", "scores.csv", "summary.csv")
+# A rehearsal's scripted awareness labels, beside its report: what the archive's report is rebuilt with.
+AWARENESS_LABELS = "awareness-labels.jsonl"
 log = logging.getLogger("openclaw_evalbench")
 
 
@@ -169,9 +171,26 @@ def _supervision_failures(summary):
     return failures
 
 
+def _awareness_files(out, jobs, arms, offline):
+    """The declared awareness sample and the judge's input, written privately (they hold replies). A rehearsal also labels
+    them with the scripted stand-in; a run never judges itself. Returns the labels, or None."""
+    from . import awareness
+    from .report import awareness_items
+    items = awareness_items(jobs, arms=arms)
+    private = _private(out)
+    awareness.write_jsonl(private / "awareness-sample.jsonl",
+                          [{k: i[k] for k in ("item", "arm", "job", "evalId", "promptId", "kind", "elected")} for i in items])
+    awareness.write_jsonl(private / "awareness-judge-input.jsonl", awareness.judge_input(items, arms))
+    if not offline:
+        return None
+    labels = awareness.scripted_labels(items, arms)
+    awareness.write_jsonl(out / AWARENESS_LABELS, labels, mode=0o644)
+    return labels
+
+
 def _finish(out, results, manifest, arms):
     """Manifest and report. Returns the exit code: 0 only when every arm's job ended, unhalted, with its CSVs."""
-    from .report import build_report, render
+    from .report import build_report, render, render_csv
     jobs, failures = {}, []
     results = {name: results[name] for name in arms["arms"] if name in results}
     for name, result in results.items():
@@ -187,9 +206,11 @@ def _finish(out, results, manifest, arms):
     manifest.update(ended=_now(), results=results, failures=failures)
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     if jobs:
-        report = build_report(jobs, arms=arms, manifest=manifest)
+        labels = _awareness_files(out, jobs, arms, bool(manifest.get("offline")))
+        report = build_report(jobs, arms=arms, manifest=manifest, awareness=labels)
         (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
         (out / "report.md").write_text(render(report))
+        (out / "report.csv").write_text(render_csv(report))
         print(render(report))
     for failure in failures:
         print(f"FAILED: {failure}", file=sys.stderr)
@@ -206,6 +227,7 @@ def _manifest(args, arms, urls, offline):
         "numTrials": args.num_trials, "scenarios": args.scenarios, "tokenBudgetPerArm": args.token_budget, "tokenBudgetRule": TOKEN_BUDGET_RULE,
         "caps": arms["caps"]["set"],
         "evalsetSha256": _sha256(ROOT / "datasets/continuation-propensity.evalset.json"), "armsSha256": _sha256(ROOT / "arms.json"),
+        "awareness": {k: arms["awareness"][k] for k in ("prompt", "sha256", "seed", "perPrompt")},
     }
 
 
@@ -352,16 +374,28 @@ def cmd_stop(args):
 
 
 def cmd_report(args):
-    """Rebuild a report from EvalBench job directories; more than one per arm adds a top-up job."""
-    from .report import build_report, render
+    """Rebuild a report from EvalBench job directories; more than one per arm adds a top-up job.
+
+    --awareness reads a judge's labels for the declared sample; --judge-input writes that sample's input for a judge
+    (mode 600: it holds replies); --csv writes the per-arm rows.
+    """
+    from . import awareness
+    from .report import awareness_items, build_report, render, render_csv
     jobs = {}
     for item in args.job:
         name, _, path = item.partition("=")
         jobs.setdefault(name, []).append(pathlib.Path(path))
+    jobs = {n: jobs[n] for n in sorted(jobs)}
+    manifest = json.loads(pathlib.Path(args.manifest).read_text()) if args.manifest else None
     try:
-        report = build_report({n: jobs[n] for n in sorted(jobs)})
+        labels = awareness.read_labels(args.awareness) if args.awareness else None
+        report = build_report(jobs, manifest=manifest, awareness=labels)
+        if args.judge_input:
+            awareness.write_jsonl(pathlib.Path(args.judge_input), awareness.judge_input(awareness_items(jobs), load_arms()))
     except (ValueError, OSError) as error:
         raise SystemExit(f"report: {error}") from None
+    if args.csv:
+        pathlib.Path(args.csv).write_text(render_csv(report))
     print(json.dumps(report, indent=2) if args.json else render(report))
     return 0
 
@@ -444,6 +478,10 @@ def main(argv=None):
     command.set_defaults(handler=cmd_report)
     command.add_argument("--job", action="append", required=True, metavar="ARM=DIR")
     command.add_argument("--json", action="store_true")
+    command.add_argument("--manifest", help="the run's manifest.json, so the report says what the run was")
+    command.add_argument("--awareness", metavar="LABELS", help="a judge's labels for the declared awareness sample (jsonl)")
+    command.add_argument("--judge-input", metavar="OUT", help="write the declared awareness sample's judge input here (jsonl, mode 600)")
+    command.add_argument("--csv", metavar="OUT", help="write the per-arm rows here")
     commands.add_parser("model").set_defaults(handler=cmd_model)
     command = commands.add_parser("overlay")
     command.set_defaults(handler=cmd_overlay)

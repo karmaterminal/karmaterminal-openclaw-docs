@@ -152,8 +152,9 @@ def test_a_live_plan_names_each_arms_own_unit_as_the_launcher_derives_it():
     urls = {n: f"ws://127.0.0.1:{a['gatewayPort']}" for n, a in arms["arms"].items()}
     seen = S.systemd_units(arms, urls)
     label = lambda text: hashlib.sha1(text.encode()).hexdigest()[:8]
-    a, c = arms["arms"]["A"]["productSha"], arms["arms"]["C"]["productSha"]
-    short = {"A": a[:8], "B": label(f"openclaw#1575 arm B of {a}"), "C": c[:8], "D": label(f"openclaw#1575 arm D of {c}")}
+    a, c, e = (arms["arms"][n]["productSha"] for n in "ACE")
+    short = {"A": a[:8], "B": label(f"openclaw#1575 arm B of {a}"), "C": c[:8], "D": label(f"openclaw#1575 arm D of {c}"), "E": e[:8]}
+    assert set(seen) == set(short), "every arm, D and E included"
     for name, spec in seen.items():
         assert spec == {"kind": "systemd", "unit": f"openclaw-proof-comp-{short[name]}", "port": arms["arms"][name]["gatewayPort"],
                         "directory": str(pathlib.Path("~/proof-gw").expanduser() / f"comp-{short[name]}")}

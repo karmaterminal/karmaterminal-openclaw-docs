@@ -68,7 +68,9 @@ def read_job(job_dir, arm_name=None, model=None, caps=None):
             elif (float(score_row["score"]) == 100.0) != meta["elected"] or "FAIL" in (score_row.get("comparison_logs") or ""):
                 problem = f"{row['eval_id']}: continuation_election scored {score_row['score']}, the trial says {meta['elected']}"
         # What the turn showed, for the awareness sample: the prompt EvalBench sent, the reply and the calls with their arguments.
-        transcript = {"user": row.get("prompt") or "", "reply": envelope.get("response") or "",
+        reply = envelope.get("response") or ""
+        texts = meta.get("assistantTexts") if isinstance(meta.get("assistantTexts"), list) else [reply] if reply else []
+        transcript = {"user": row.get("prompt") or "", "reply": reply, "texts": [str(t) for t in texts],
                       "toolCalls": [{"name": awareness_module.bare_tool_name(str(c.get("tool_name") or "")), "arguments": str(c.get("parameters") or "")}
                                     for c in envelope.get("tool_calls") or [] if isinstance(c, dict)]}
         trials.append({"evalId": row["eval_id"], "promptId": prompt_id, "scored": scored, "status": status,

@@ -143,7 +143,7 @@ async def _trial_on(client, record, arm, descriptions, model, caps, prompt, veri
                 record.update(status="deadline_unreadable", reason=f"stopped at the deadline, and {error}")
                 return
             raise InfraError(failure if failed else str(error)) from None
-        record.update({k: turn[k] for k in ("elected", "elections", "calls", "reply", "discovery", "tokenForm",
+        record.update({k: turn[k] for k in ("elected", "elections", "calls", "reply", "assistantTexts", "discovery", "tokenForm",
                                            "otherTools", "usage", "modelCalls", "servedModels", "limitations",
                                            "electedAfterLimitation")})
         described = (await client.call("sessions.describe", {"key": key})).get("session") or {}

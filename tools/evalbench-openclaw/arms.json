@@ -178,7 +178,7 @@
       "to": "E",
       "primary": true,
       "holdsDirectToolCount": true,
-      "note": "the same fleet-default config and direct-only placement on both, and the settled text on E. On the embedded runtime only the text the model is shown differs: the three descriptions, their parameters' descriptions, the continuation section's wake and self-elected-turn lines and the delegate's tooling line. On the Codex harness de55f350 also adds the whole continuation section to the harness prompt, which f9fcd3a5's lacks, so there it is more than wording."
+      "note": "the same fleet-default config and direct-only placement on both, and the settled text on E. On the embedded runtime only the text the model is shown differs (the probe): the three descriptions, the parameter descriptions of continue_work and continue_delegate, and five prompt lines, the delegate's tooling line and the continuation section's wake, self-elected-turn and compaction lines and its sessions_yield caveat. On the Codex harness de55f350 also adds the whole continuation section to the harness prompt, which f9fcd3a5's lacks, so there it is more than wording."
     },
     {
       "id": "deploy",

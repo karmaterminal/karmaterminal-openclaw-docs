@@ -283,7 +283,7 @@ def read_turn(rows, prompt, run_id=None, settings=None):
             results.setdefault(row["toolCallId"], row)
             result_at.setdefault(row["toolCallId"], index)
 
-    calls, reply, usage, models = [], "", {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}, []
+    calls, reply, texts, usage, models = [], "", [], {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}, []
     model_calls = 0
     by_id, index_of, answers = {}, {}, {}
     # For each call, the row of the response that decided it, and the row at which its answer reached the model.
@@ -328,6 +328,7 @@ def read_turn(rows, prompt, run_id=None, settings=None):
         text = text_of(row)
         if text.strip():
             reply = text
+            texts.append(text)
         row_tokens = row_usage(row)
         if row_tokens and any(row_tokens.values()):
             model_calls += 1
@@ -353,6 +354,8 @@ def read_turn(rows, prompt, run_id=None, settings=None):
     searches = [i for i, c in enumerate(calls) if c["name"] == "tool_search"]
     return {
         "reply": reply,
+        # Every text the turn's assistant rows hold, in order: the reply is the last, and what came before a call is there too.
+        "assistantTexts": texts,
         "calls": calls,
         "elections": [{"tool": c["name"], "via": c["via"], "status": c["status"],
                        "answered": c["answered"], "isError": c["isError"]} for c in elections],

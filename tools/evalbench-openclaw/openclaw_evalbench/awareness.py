@@ -74,17 +74,25 @@ def sample(counted, arms, kinds):
     return items
 
 
+def _texts(transcript):
+    """The assistant's texts in order; a record from before they were kept has its reply alone."""
+    texts = transcript.get("texts")
+    return list(texts) if isinstance(texts, list) else [transcript["reply"]] if transcript.get("reply") else []
+
+
 def assistant_text(transcript):
-    """What the assistant wrote: its reply and its tool calls' arguments. A judge's quote has to be in here."""
-    return "\n".join([transcript.get("reply") or "", *(c.get("arguments") or "" for c in transcript.get("toolCalls") or [])])
+    """What the assistant wrote: every text of the turn and its tool calls' arguments. A judge's quote has to be in here."""
+    return "\n".join([*_texts(transcript), *(c.get("arguments") or "" for c in transcript.get("toolCalls") or [])])
 
 
 def render(item, arms):
     """The judge's whole input for one item: the pinned prompt around the transcript."""
     transcript = item["transcript"]
     calls = transcript.get("toolCalls") or []
-    lines = ["User:", transcript.get("user") or "", "", "Assistant's text:", transcript.get("reply") or "(no text)", "",
-             "Assistant's tool calls, in order:"]
+    texts = _texts(transcript)
+    lines = ["User:", transcript.get("user") or "", "", "Assistant's text, in the order it was written:"]
+    lines += [part for n, text in enumerate(texts) for part in ([""] if n else []) + [text]] or ["(no text)"]
+    lines += ["", "Assistant's tool calls, in order:"]
     lines += [f"{n}. {c['name']} {c.get('arguments') or ''}".rstrip() for n, c in enumerate(calls, 1)] or ["(none)"]
     template = prompt_text(arms)
     if template.count(PLACEHOLDER) != 1:

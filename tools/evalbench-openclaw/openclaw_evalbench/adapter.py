@@ -60,8 +60,18 @@ def scrub(value, token):
 
 
 def meta_of(record):
-    """The trial record as it goes into EvalBench's CSV: no session key, no tool output."""
-    return {k: v for k, v in record.items() if k not in ("reply", "calls")}
+    """The trial record as it goes into EvalBench's CSV: no session key, no tool output. The assistant's texts, which the
+    awareness judge reads, are kept to as many characters as the reply is."""
+    meta = {k: v for k, v in record.items() if k not in ("reply", "calls")}
+    if "assistantTexts" in meta:
+        kept, room = [], REPLY_MAX_CHARS
+        for text in meta["assistantTexts"] or []:
+            if room <= 0:
+                break
+            kept.append(text[:room])
+            room -= len(text)
+        meta["assistantTexts"] = kept
+    return meta
 
 
 def turn_response(turn_index, record):

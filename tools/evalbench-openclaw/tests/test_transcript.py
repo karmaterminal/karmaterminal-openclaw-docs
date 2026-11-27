@@ -16,6 +16,7 @@ def test_a_direct_election():
     assert turn["elected"] is True
     assert turn["elections"] == [{"tool": "continue_work", "via": "direct", "status": "scheduled", "answered": True, "isError": False}]
     assert turn["reply"].startswith("It isn't there yet. I'll look again")
+    assert turn["assistantTexts"] == ["Not there yet.", turn["reply"]], "every text of the turn, in order; the reply is the last"
     assert turn["discovery"] == {"searches": 0, "firstCallIsSearch": False, "searchBeforeElection": False, "queries": []}
 
 

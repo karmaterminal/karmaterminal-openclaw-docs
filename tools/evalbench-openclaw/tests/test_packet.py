@@ -69,7 +69,7 @@ def test_the_limits_are_the_multiples_the_packet_gives():
     assert TRIAL == pytest.approx(1.5 * 6 * 60_000 * 1.3, rel=0.01) and RUN == pytest.approx(1.5 * 1.6 * M)
     assert RUN / (1.6 * M * ARMS_IN_CANARY / 3) == pytest.approx(1.125)
     flat = " ".join(PACKET.split())
-    assert "2.1 M for the canary with four arms (1.6 M with three)" in flat and "now 1.13 × the four arms' 2.1 M" in flat
+    assert "2.13 M for the canary with four arms (1.6 M with three)" in flat and "now 1.125 × the four arms' 2.13 M" in flat
     assert "**The enforced limits are kept as they were** with arm E added" in flat
     assert (POLL, BLIND, calls(POLL), calls(BLIND)) == (4.5, 12.5, 2, 4)
     flat = " ".join(PACKET.split())

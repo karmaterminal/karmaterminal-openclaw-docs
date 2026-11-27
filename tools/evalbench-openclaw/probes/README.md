@@ -21,7 +21,7 @@ the script.
 
 ## Making a receipt
 
-On a seat with the product's dependencies installed for the same lockfile (both SHAs share one), from an extract of the tree
+On a seat with the product's dependencies installed for the same lockfile (all three SHAs share one), from an extract of the tree
 at the SHA. Nothing is written to the tree; `node_modules` links are read only.
 
 ```bash

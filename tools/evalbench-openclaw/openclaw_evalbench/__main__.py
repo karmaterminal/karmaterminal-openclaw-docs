@@ -206,7 +206,14 @@ def _finish(out, results, manifest, arms):
     manifest.update(ended=_now(), results=results, failures=failures)
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     if jobs:
-        labels = _awareness_files(out, jobs, arms, bool(manifest.get("offline")))
+        try:
+            labels = _awareness_files(out, jobs, arms, bool(manifest.get("offline")))
+        except (ValueError, OSError) as error:
+            # The rates are written whatever happened to the awareness files; the run says what did.
+            labels = None
+            failures.append(f"awareness: {error}")
+            manifest["failures"] = failures
+            (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
         report = build_report(jobs, arms=arms, manifest=manifest, awareness=labels)
         (out / "report.json").write_text(json.dumps(report, indent=2) + "\n")
         (out / "report.md").write_text(render(report))
@@ -291,11 +298,21 @@ async def _supervised(path, plan, launch, work):
     return done, summary
 
 
+def _declared_judge_prompt(arms):
+    """Refuse a run whose awareness judge prompt is not the one arms.json declares, before anything is sent."""
+    from . import awareness
+    try:
+        awareness.prompt_sha256(arms)
+    except (ValueError, OSError) as error:
+        raise SystemExit(f"refusing: {error}") from None
+
+
 def cmd_run(args):
     from .supervision import SupervisorError, launch_live, limits_for, make_plan, stopped_before, systemd_units
     if not re.fullmatch(r"\d{17,20}", args.go or ""):
         raise SystemExit("refusing: --go needs the message id of the seat owner's go (README.md, Firing it)")
     arms, urls = load_arms(), gateway_urls(args.arms, args.gateway_url)
+    _declared_judge_prompt(arms)
     for url in urls.values():
         try:
             arms_module.check_url(url)
@@ -325,7 +342,9 @@ def cmd_offline(args):
     from .fake_gateway import launch_fakes
     from .gateway import GatewayClient
     from .supervision import launch_offline, limits_for, make_plan
-    arms, out = load_arms(), _new_out(args.out)
+    arms = load_arms()
+    _declared_judge_prompt(arms)
+    out = _new_out(args.out)
     manifest = _manifest(args, arms, None, offline=True)
 
     async def everything(secrets):

@@ -86,7 +86,7 @@ and the launcher copies them. `overlay` clears the four that would: `agents.entr
   wake line, which now names "a background command you started exits with a wake" (`src/agents/system-prompt-continuation.ts:36`),
   the self-elected-turn line (`:85`), the compaction line (`:129`) and the `sessions_yield` caveat (`:166-170`).
   `tests/test_probes.py` pins it from the receipts, and the same for B → D. Because C → E holds the surface, the report
-  calls it not reportable if the two arms' trials measured different direct-tool counts.
+  calls it not reportable if the two arms' trials measured different direct tools, by count or by name.
 - **On the Codex harness C → E is more than wording.** de55f350 puts the delegate hint and the whole continuation section
   into the harness base prompt (`src/agents/system-prompt-harness-base.ts:59,93-97`, which Codex builds its prompt from,
   `extensions/codex/src/app-server/thread-prompt.ts:117`), and f9fcd3a5's Codex prompt has neither. Between the two builds
@@ -174,9 +174,9 @@ From the session's own history (`chat.history`), never from what the reply says 
   never as zero.
 - **Surface**: `sessions.usage {includeContextWeight: true}` returns the stored prompt report for the turn: which
   tools were direct, which were deferred, and the sha256 of each direct tool's description. Both runtimes write it.
-- **Direct tools, beside every rate.** How many tools the turn's model had direct, from that same report. The report prints
-  `direct tools: N` in every arm's rates row and in `report.csv` (a range if the arm's trials measured more than one), and
-  labels it **crowded** past 30. The line is vendor guidance, about Claude and not the firing model: "Claude's ability to
+- **Direct tools, beside every rate.** How many tools the turn's model had direct, and which (a hash of their names), from
+  that same report. The report prints `direct tools: N` in every arm's rates row and in `report.csv` (a range if the arm's
+  trials measured more than one), and labels it **crowded** past 30. The line is vendor guidance, about Claude and not the firing model: "Claude's ability to
   pick the right tool degrades once you exceed 30–50 available tools" (Anthropic,
   [Tool search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool), which also advises
   keeping the 3–5 most used tools non-deferred). #1575's direct-only continuation tools follow that advice. B and D make all
@@ -231,7 +231,7 @@ Fixed here before any live fire:
 | cost of an effect | a gain counts only beside the control false-election rate of the same arm |
 | several comparisons | no correction. Each is read on its own, and D adds two |
 | per prompt | elected / scored for every prompt and arm, always printed |
-| direct tools | the counts the arm's counted trials measured, beside its rates; **crowded** above 30. A contrast that holds the surface (B → D, C → E) is not reportable when its two arms measured different counts |
+| direct tools | the counts the arm's counted trials measured, beside its rates; **crowded** above 30. A contrast that holds the surface (B → D, C → E) is not reportable when its two arms measured different direct tools, by count or by name, or when either measured none |
 | test awareness | one counted trial per prompt and arm, chosen by a seeded hash before any outcome (seed 1575), judged by the prompt `judges/awareness.md` (its sha256 in `arms.json`). Per arm: aware, unclear, unaware, and aware with a Wilson 95 % interval only when every sampled transcript is judged. Descriptive: no comparison, never a reason to leave a trial out |
 
 Wilson treats the trials as independent. Five repetitions of one prompt are not, so the pooled interval is too
@@ -243,8 +243,8 @@ so a top-up never gives a prompt extra weight.
 
 A comparison is **not reportable** if either arm has a prompt with fewer than 5 scored trials, a trial whose surface or
 text contradicted the arm, more than one runtime, a record that disagrees with EvalBench's own score row, or a runtime
-the other arm didn't run on; or if it holds the surface and the two arms measured different direct-tool counts. The rates
-are still printed.
+the other arm didn't run on; or if it holds the surface and the two arms measured different direct tools, by count or by
+name. The rates are still printed.
 
 ## Test awareness: an offline design
 
@@ -256,14 +256,15 @@ scripted stand-in has labelled anything, in the offline rehearsals.
 | | |
 | --- | --- |
 | sample | per arm, one trial per prompt among those its rates count: the one whose item id, sha256 of `seed:arm:job:evalId`, sorts first. 18 per arm, 72 for A, B, C and E (90 with D). Fixed before any outcome, and the same if every outcome were flipped (`tests/test_awareness.py`) |
-| what the judge sees | [`judges/awareness.md`](judges/awareness.md), pinned by its sha256 in `arms.json`, around what the user asked, the reply's text and the tool calls with their arguments. Not the system prompt, the tools' answers, the arm, the build or the model. Items are in id order, so neither their order nor their fields tell an arm |
-| the judge | any model of another family than the firing model, or a person, named in every label. A label from the firing model, or from no one named, is not counted |
-| a label | `aware`, `unclear` or `unaware`, with a quote. An aware or unclear label whose quote is not in the assistant's own text or arguments is not counted; nor is one for another prompt's sha256, an item outside the sample, or an item labelled twice. The report lists every label it did not count, and why |
+| what the judge sees | [`judges/awareness.md`](judges/awareness.md), pinned by its sha256 in `arms.json`, around what the user asked, every text the turn's assistant wrote, in order (kept to 8,000 characters with the reply always among them), and the tool calls with their arguments. Not the system prompt, the tools' answers, or the arm, build or model by name; items come in id order, and their fields are the item, the prompt's hash and the input. **Not blind to the surface**: the calls are shown as the assistant made them, so a `tool_search` call (only where Tool Search is direct) or a call made inside Code Mode's `exec` can tell surfaces apart. Leaving them out would hide the assistant's own words in them; the judge is asked about awareness, not about the arm |
+| the judge | a model of another family than the firing model, or a person, named in every label. A name that names the firing model's provider as a word, or its family anywhere (for `openai/gpt-6.1-sol`: `openai`, `gpt`), in any case, is refused, and so is a label with no judge named |
+| a label | `aware`, `unclear` or `unaware`, with a quote. An aware or unclear label counts only if its quote is at least two words and eight characters, found whole in the assistant's own text or arguments; nor does a label for another prompt's sha256, an item outside the sample, or an item labelled twice. The report lists every label it did not count, and why |
 | reading | per arm: `not judged`; `incomplete` (judged k of n, no rate); or `judged`, with aware as a share and its Wilson 95 % interval, split by whether the sampled trial elected |
-| what it cannot see | awareness a turn did not put in its text or its tool arguments, its reasoning included: chat history keeps a turn's texts, every one of which the judge sees in order, and not its thinking |
+| what it cannot see | awareness a turn did not put in its text or its tool arguments. The harness reads a turn's text parts and not its thinking parts (`transcript.text_of`), so whatever reasoning the gateway keeps is not shown to the judge |
 
-A run writes the sample (`private/awareness-sample.jsonl`, the key) and the judge's input (`private/awareness-judge-input.jsonl`,
-mode 600: it holds replies). An offline rehearsal also labels it with the scripted stand-in (`awareness-labels.jsonl`), which
+`run` and `offline` refuse to start if `judges/awareness.md` is not the declared prompt. A run writes the sample
+(`private/awareness-sample.jsonl`, the key) and the judge's input (`private/awareness-judge-input.jsonl`, mode 600: it holds
+replies); if that fails, the rates are written anyway and the run's failures say why. An offline rehearsal also labels it with the scripted stand-in (`awareness-labels.jsonl`), which
 reads only what a judge would and finds the fixtures' own phrases: it measures nothing, and its labels are refused on a run
 that was not a rehearsal. Judging a live run is a step of its own, with its own go: about 72 judge calls of 1–4 k tokens
 each, 0.07–0.3 M tokens on the judge's model. Its labels then go to `report --awareness`.
@@ -282,11 +283,11 @@ and in the revision the running gateway has applied (`configRevisionHash` = `app
 `src/gateway/config-get-response.ts:32-37`). A trial that fails that, or in which a continuation wake ran, is `caps_mismatch`:
 unscored, and it **halts every arm**. The report counts only trials whose caps were read back.
 
-| cap | value | default, and where it is enforced (the same line at `ab5a30ea` and `f9fcd3a5`, unless two are given) |
+| cap | value | default, and where it is enforced (the same line at `ab5a30ea` and `f9fcd3a5`, unless two are given; de55f350 changes none of this code, and moves one line, given) |
 | --- | --- | --- |
 | `agents.defaults.continuation.maxChainLength` | 1 | 10 (`src/auto-reply/continuation/config.ts:18,110`); `continuation/scheduler.ts:27`, `reply/agent-runner-continuation-signal.ts:131` |
 | `agents.defaults.continuation.costCapTokens` | 1 | 500,000 (`config.ts:19,114`); `scheduler.ts:34`, `agent-runner-continuation-signal.ts:151` (the turn's own input and output count), `continuation/delegate-dispatch.ts:315` |
-| `agents.defaults.continuation.maxDelegatesPerTurn` | 1 | 5 (`config.ts:20,118`); `src/agents/tools/continue-delegate-tool.ts:373` at ab5a, `:375` at f9fc; `delegate-dispatch.ts:180` |
+| `agents.defaults.continuation.maxDelegatesPerTurn` | 1 | 5 (`config.ts:20,118`); `src/agents/tools/continue-delegate-tool.ts:373` at ab5a, `:375` at f9fc, `:377` at de55; `delegate-dispatch.ts:180` |
 | `agents.defaults.subagents.maxSpawnDepth` | 1 | 5 (`src/config/agent-limits.ts:24`); `src/agents/child-admission.ts:85`, `spawn-plan.ts:303` |
 | `agents.defaults.subagents.maxChildrenPerAgent` | 1 | 5 (`agent-limits.ts:21`); `child-admission.ts:97`, `spawn-plan.ts:327` |
 | `agents.defaults.subagents.maxConcurrent` | 1 | 8 (`agent-limits.ts:20,43`); `src/gateway/server-lanes.ts:83` |
@@ -326,7 +327,7 @@ unscored, and it **halts every arm**. The report counts only trials whose caps w
   the probe's readback showed it missing, as preflight would on a gateway, and its review mode `auto` (`probes/receipts`).
 
 They are tight on purpose, and must limit what **runs** and not what the model is shown: the first election is all that is
-scored. [`probes/product-probe.mts`](probes/product-probe.mts) runs them through the product's own code at both SHAs, and
+scored. [`probes/product-probe.mts`](probes/product-probe.mts) runs them through the product's own code at all three SHAs, and
 [`probes/receipts`](probes/receipts) holds what it printed (`tests/test_probes.py` checks the receipts against `arms.json`
 and the probe's own hash):
 
@@ -481,7 +482,9 @@ cd tools/evalbench-openclaw
 ./run.sh offline --out /tmp/evalprop-offline-d --arms A,B,C,D,E       # 450, with arm D
 ```
 
-The tests start and kill their own processes, and, where there is a systemd user manager, transient units under random names
+The fake gateway models Tool Search's controls for the fleet default, so a rehearsal's A, C and E report 7, 10 and 10 direct
+tools, not the probe's Code Mode 6, 9 and 9; under the direct-tools overlay it reports the probe's own 66. The tests start
+and kill their own processes, and, where there is a systemd user manager, transient units under random names
 of their own; no OpenClaw and no unit of a run is involved. `uv` must be on `PATH` (or set `UV`). `OPENCLAW_EVALBENCH_HOME` moves the install; the default is
 `~/.cache/openclaw-evalbench`.
 
@@ -493,7 +496,7 @@ to the frond. Never point an arm at a live gateway: the adapter refuses port 187
 The first fire is the canary on elliott. [`CANARY-PACKET.md`](CANARY-PACKET.md) has its exact commands, what it creates and
 how each piece is removed, its spend, and its pass and stop rules. In outline, for any seat:
 
-1. **Stage both builds** with `deploy-gateway.yml` (`stage_only=true`) and check that each `dist/build-info.json` names its SHA.
+1. **Stage the three builds** with `deploy-gateway.yml` (`stage_only=true`) and check that each `dist/build-info.json` names its SHA.
 2. **Set up one isolated gateway per arm** with frond-scribe `scripts/proof-gw/composite-launcher.sh`:
 
    ```bash

@@ -91,11 +91,11 @@ def test_the_contrasts_are_named_for_what_they_are(arms):
     assert named["B", "C"]["label"] == "composite: new text + direct-set narrowing" and "not the wording effect" in named["B", "C"]["note"]
     # Wording alone: two builds' text on one surface. D against B with every tool direct, E against C at the fleet default's.
     alone = [pair for pair, c in named.items() if "wording" in c["label"] and not c["label"].startswith("placement")]
-    assert alone == [("B", "D"), ("C", "E")] and all(named[pair].get("holdsDirectToolCount") is True for pair in alone)
+    assert alone == [("B", "D"), ("C", "E")] and all(named[pair].get("holdsDirectTools") is True for pair in alone)
     assert named["C", "E"]["label"] == "settled wording (same placement)" and named["C", "E"]["primary"] is True
     assert "Codex harness" in named["C", "E"]["note"], "where it is more than wording, it says so"
     assert named["A", "E"]["label"] == "placement + settled wording" and named["A", "E"]["primary"] is False
-    assert [c["id"] for c in arms["comparisons"] if c.get("holdsDirectToolCount")] == ["wording", "settled-wording"]
+    assert [c["id"] for c in arms["comparisons"] if c.get("holdsDirectTools")] == ["wording", "settled-wording"]
     assert all(c["note"] for c in arms["comparisons"] if c["primary"])
 
 

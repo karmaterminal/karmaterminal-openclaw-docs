@@ -105,9 +105,12 @@ def counted(trials, scenarios):
 
 
 def _direct_tools(trials, crowded_above):
-    """The direct-tool counts the counted trials measured (surface.directTools), and whether any is past the crowding line."""
-    values = sorted({(t["meta"].get("surface") or {}).get("directTools") for t in trials} - {None})
-    return {"values": values, "trials": sum((t["meta"].get("surface") or {}).get("directTools") is not None for t in trials),
+    """The direct-tool counts the counted trials measured (surface.directTools), which tools they were (a hash of the sorted
+    names), and whether any count is past the crowding line."""
+    surfaces = [t["meta"].get("surface") or {} for t in trials]
+    values = sorted({s.get("directTools") for s in surfaces} - {None})
+    names = sorted({s.get("directToolNamesSha256") for s in surfaces} - {None})
+    return {"values": values, "names": names, "trials": sum(s.get("directTools") is not None for s in surfaces),
             "crowdedAbove": crowded_above, "crowded": bool(values) and max(values) > crowded_above}
 
 
@@ -225,10 +228,16 @@ def _compare(arms_out, spec):
             blockers.append(f"arm {name}: trials ran on more than one runtime ({', '.join(sorted(arm['runtimes']))})")
     if len(a["runtimes"]) == 1 and len(b["runtimes"]) == 1 and set(a["runtimes"]) != set(b["runtimes"]):
         blockers.append(f"arms {spec['from']} and {spec['to']} ran on different runtimes")
-    seen = a["directTools"]["values"], b["directTools"]["values"]
-    if spec.get("holdsDirectToolCount") and all(seen) and seen[0] != seen[1]:
-        blockers.append(f"it holds the surface fixed, and arm {spec['from']} measured {_counted_tools(seen[0])} direct tools, "
-                        f"arm {spec['to']} {_counted_tools(seen[1])}")
+    if spec.get("holdsDirectTools"):
+        seen, names = (a["directTools"]["values"], b["directTools"]["values"]), (a["directTools"]["names"], b["directTools"]["names"])
+        if not all(seen):
+            blockers.append("it holds the surface fixed, and an arm measured no direct tools to hold it by")
+        elif seen[0] != seen[1]:
+            blockers.append(f"it holds the surface fixed, and arm {spec['from']} measured {_counted_tools(seen[0])} direct tools, "
+                            f"arm {spec['to']} {_counted_tools(seen[1])}")
+        elif all(names) and names[0] != names[1]:
+            blockers.append(f"it holds the surface fixed, and arms {spec['from']} and {spec['to']} measured different direct tools, "
+                            f"{_counted_tools(seen[0])} each")
     return {**spec, "difference": None if newcombe is None else eb["rate"] - ea["rate"],
             "newcombe95": list(newcombe) if newcombe else None, "bootstrap95": list(bootstrap) if bootstrap else None,
             "reading": "not reportable" if blockers else stats.effect(newcombe, bootstrap), "blockers": blockers,
@@ -304,10 +313,12 @@ def _awareness(report):
     summary = report.get("awareness")
     if not summary:
         return []
+    sha = summary["promptSha256"]
+    pinned = f"(sha256 `{sha[:12]}…`)" if sha else "(**not the prompt arms.json declares**, so nothing is judged)"
     lines = ["", "## Test awareness (independent judge, sampled)", "",
              f"One counted trial per prompt and arm, picked by seed {summary['seed']} before any outcome; judge prompt "
-             f"`{summary['prompt']}` (sha256 `{summary['promptSha256'][:12]}…`). A judge can label only awareness the turn put in "
-             "words; awareness it kept to itself is not observable. Descriptive: no comparison, and never a reason to leave a trial out.", ""]
+             f"`{summary['prompt']}` {pinned}. A judge can label only awareness the turn put in its text or arguments; awareness "
+             "it kept to itself is not observable. Descriptive: no comparison, and never a reason to leave a trial out.", ""]
     for name in report["arms"]:
         arm = summary["arms"].get(name)
         if not arm:

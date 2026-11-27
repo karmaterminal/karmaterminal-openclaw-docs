@@ -398,10 +398,10 @@ The canary: the smaller of twelve trials, and the run's limit, 2.40 M, plus the 
 - **The product's estimate is the only check below the provider's window.** 628 k is what it lets through when it is right;
   1.178 M is what the provider would take if it were wrong by that much.
 - **Below 1 s a call, and with every lane a turn opens, the numbers grow without limit.**
-- **Expected**: 0.2 M a trial, 0.47 M for the dearest expected, 2.1 M for the canary with four arms (1.6 M with three),
+- **Expected**: 0.2 M a trial, 0.47 M for the dearest expected, 2.13 M for the canary with four arms (1.6 M with three),
   5–15 min. The supervisor's limits are multiples of it: 0.70 M is 1.5 × the dearest trial (6 calls × 60 k × 1.3 = 468 k), and
   2.40 M was set at 1.5 × the three arms' 1.6 M. **The enforced limits are kept as they were** with arm E added, so 2.40 M is
-  now 1.13 × the four arms' 2.1 M: a canary that spends a little over its estimate reaches it, is stopped, and fails. Raising
+  now 1.125 × the four arms' 2.13 M: a canary that spends a little over its estimate reaches it, is stopped, and fails. Raising
   it is the seat owner's decision at the go (`--run-token-cap`), not this packet's. `--token-budget 800000` is the per-arm
   stop checked between trials (1.5 × 0.54 M): it starts no further trial and is not a ceiling.
 
@@ -447,7 +447,7 @@ That is the supervisor at the fakes' rates. It is not a provider's rate, and it 
 
 The same on every arm, written by `overlay`, read back before and after every trial. All in configuration paths that the
 product reads from `agents.defaults`, `tools` or `cron`, with the lines that enforce them in
-[`README.md`](README.md#spend-caps-and-admission), at both SHAs.
+[`README.md`](README.md#spend-caps-and-admission), at ab5a30ea and f9fcd3a5; de55f350 changes none of that code.
 
 | cap | value | product default | what it bounds |
 | --- | --- | --- | --- |
@@ -468,7 +468,7 @@ product reads from `agents.defaults`, `tools` or `cron`, with the lines that enf
 move `request_compaction`'s 70 % guard and the context-pressure events that prompt it, and that is one of the choices measured.
 
 **They don't touch what the turn's model is shown.** [`probes/product-probe.mts`](probes/product-probe.mts) runs the product's own
-code at both SHAs ([receipts](probes/receipts)): the config schema and `config.get`'s readback accept every cap and show each,
+code at all three SHAs ([receipts](probes/receipts)): the config schema and `config.get`'s readback accept every cap and show each,
 authored and effective. Then, for each arm, two ways: the `/context` path (the 66 tools the product builds and their prompt),
 and the run's own surface on the firing model, through the product's tool-surface runtime: Code Mode's controls and its
 catalog of the rest for A and C, every tool direct for B and D, and the prompt as the attempt builds it, continuation section
@@ -502,8 +502,8 @@ not the trial's; and a child stopped by its 120 s run timeout, whose answer says
    and nothing more.
 5. `served: openai/gpt-6.1-sol 3` in every arm.
 6. `tools:` shows 0 deferred and no Code Mode for B, and some deferred for A, C and E. That is what the contrast names claim.
-7. **Direct tools** in every arm's rates row and in `report.csv`, with B's labelled crowded, and C's and E's the same count
-   (C → E holds the surface). The counts are read against the probe's (6, 66, 9, 9), not judged by them: a seat's copied tools
+7. **Direct tools** in every arm's rates row and in `report.csv`, with B's labelled crowded, and C's and E's the same tools
+   (C → E holds the surface, by count and by name). The counts are read against the probe's (6, 66, 9, 9), not judged by them: a seat's copied tools
    policy can move every arm alike.
 8. No record problems, scratch path present 0, and every trial's cleanup ok.
 9. `caps verified: 3` and `continuation wakes: 0` in every arm. `treatment limitations` is read, not judged: each one is a

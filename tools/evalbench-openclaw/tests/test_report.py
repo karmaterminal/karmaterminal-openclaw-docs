@@ -299,15 +299,16 @@ def direct_tool_gaps(markdown, csv_text, arm_names, crowded_above=30):
         elif bool(found.group(3)) is not (int(found.group(2) or found.group(1)) > crowded_above):
             gaps.append(f"arm {name}: {cell!r} is labelled wrongly against {crowded_above}")
         row = table.get(name) or {}
-        if not __import__("re").fullmatch(r"\d+(?:–\d+)?", row.get("direct_tools") or "") or row.get("crowded") not in ("yes", "no"):
+        counted = __import__("re").fullmatch(r"(\d+)(?:–(\d+))?", row.get("direct_tools") or "")
+        if not counted or row.get("crowded") != ("yes" if int(counted.group(2) or counted.group(1)) > crowded_above else "no"):
             gaps.append(f"arm {name}: CSV row has direct_tools {row.get('direct_tools')!r}, crowded {row.get('crowded')!r}")
     return gaps
 
 
-def surface_trials(elected, direct, controls=0):
+def surface_trials(elected, direct, controls=0, names=None):
     out = arm_trials(elected, controls)
     for t in out:
-        t["meta"]["surface"]["directTools"] = direct
+        t["meta"]["surface"].update(directTools=direct, directToolNamesSha256=names or f"names-of-{direct}")
     return out
 
 
@@ -329,8 +330,29 @@ def test_every_arms_rates_row_carries_its_direct_tool_count(tmp_path):
     dropped = text.replace("| B | 66 (crowded) |", "| B |").replace("| --- | --- | --- | --- | --- | --- | --- | --- | --- |", "| --- |", 1)
     assert direct_tool_gaps(text.replace("| B | 66 (crowded) |", "| B | |"), table, "ABCDE") == ["arm B: rates row has '' for its direct tools"]
     assert direct_tool_gaps(dropped.replace("| arm | direct tools |", "| arm |"), table, "ABCDE") == ["the rates table has no direct tools column beside the arm"]
-    assert direct_tool_gaps(text, table.replace("\nB,", "\nB,x,").replace(",66,yes", ",,", 1), "B") != []
+    assert direct_tool_gaps(text, table.replace(",66,yes", ",,", 1), "B") == ["arm B: CSV row has direct_tools '', crowded ''"]
+    assert direct_tool_gaps(text, table.replace(",66,yes", ",66,no", 1), "B") == ["arm B: CSV row has direct_tools '66', crowded 'no'"]
+    assert direct_tool_gaps(text, table.replace(",7,no", ",7,yes", 1), "A") == ["arm A: CSV row has direct_tools '7', crowded 'yes'"]
     assert direct_tool_gaps(text.replace("| B | 66 (crowded) |", "| B | 66 |"), table, "B") == ["arm B: '66' is labelled wrongly against 30"]
+
+
+@pytest.mark.parametrize("direct, crowded", [(30, False), (31, True)])
+def test_crowded_is_past_the_line_not_at_it(tmp_path, direct, crowded):
+    arm = report_for(tmp_path, surface_trials({}, direct), arm_trials({}))["arms"]["A"]
+    assert arm["directTools"]["crowded"] is crowded and arm["directTools"]["crowdedAbove"] == 30
+
+
+def test_the_count_is_the_counted_trials_own(tmp_path):
+    # An unscored trial and a top-up's surplus measured other surfaces: neither is beside the rates.
+    unscored = trial("e1", 9, False, status="infra_error")
+    unscored["meta"]["surface"]["directTools"] = 99
+    surplus = [trial("e1", i, False) for i in range(5)]
+    for t in surplus:
+        t["meta"]["surface"]["directTools"] = 77
+    jobs = {"A": [job(tmp_path / "a", surface_trials({}, 9) + [unscored]), job(tmp_path / "a2", surplus)], "B": [job(tmp_path / "b", arm_trials({}))]}
+    arm = build_report(jobs, arms=arms(), scenarios=SCENARIOS)["arms"]["A"]
+    assert arm["extraTrials"] == 5 and arm["unscored"] == {"infra_error": 1}
+    assert arm["directTools"]["values"] == [9] and arm["directTools"]["trials"] == 20
 
 
 def test_an_arm_whose_trials_measured_two_counts_prints_both_ends(tmp_path):
@@ -351,3 +373,11 @@ def test_a_contrast_that_holds_the_surface_is_not_reportable_when_the_counts_dif
     (comparison,) = other["comparisons"]
     assert comparison["reading"] == "not reportable"
     assert comparison["blockers"] == ["it holds the surface fixed, and arm C measured 9 direct tools, arm E 10"]
+    renamed = build_report({"C": [job(tmp_path / "c3", surface_trials({}, 9))], "E": [job(tmp_path / "e3", surface_trials({"e1": 5}, 9, names="another-nine"))]},
+                           arms=declared, scenarios=SCENARIOS)
+    assert renamed["comparisons"][0]["blockers"] == ["it holds the surface fixed, and arms C and E measured different direct tools, 9 each"]
+    unmeasured = arm_trials({"e1": 5})
+    for t in unmeasured:
+        t["meta"]["surface"].pop("directTools")
+    blind = build_report({"C": [job(tmp_path / "c4", surface_trials({}, 9))], "E": [job(tmp_path / "e4", unmeasured)]}, arms=declared, scenarios=SCENARIOS)
+    assert blind["comparisons"][0]["blockers"] == ["it holds the surface fixed, and an arm measured no direct tools to hold it by"]

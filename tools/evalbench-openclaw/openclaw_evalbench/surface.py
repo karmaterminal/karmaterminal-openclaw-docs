@@ -7,6 +7,9 @@ tools.deferred.entries are the ones behind a search. The embedded runtime and th
 (extensions/codex/src/app-server/attempt-context.ts:150-215) both write it.
 """
 
+import hashlib
+import json
+
 from .arms import CONTINUATION_TOOLS
 
 
@@ -30,6 +33,8 @@ def read_surface(report, descriptions):
         "placement": placement,
         "descriptionText": text,
         "directTools": len(direct),
+        # Which tools those are, so a contrast that holds the surface can tell two sets of one size apart.
+        "directToolNamesSha256": hashlib.sha256(json.dumps(sorted(map(str, direct))).encode()).hexdigest()[:16],
         "deferredTools": len(deferred),
         "toolSearchDirect": "tool_search" in direct,
         "codeModeControls": "exec" in direct and "wait" in direct and "tool_search" not in direct,

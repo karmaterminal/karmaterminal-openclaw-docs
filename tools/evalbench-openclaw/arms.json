@@ -161,7 +161,7 @@
       "to": "D",
       "primary": true,
       "note": "every tool is direct in both; only the text differs. On the Codex harness D's continuation tools also move into the openclaw_direct namespace.",
-      "holdsDirectToolCount": true
+      "holdsDirectTools": true
     },
     {
       "id": "placement",
@@ -177,8 +177,8 @@
       "from": "C",
       "to": "E",
       "primary": true,
-      "holdsDirectToolCount": true,
-      "note": "the same fleet-default config and direct-only placement on both, and the settled text on E. On the embedded runtime only the text the model is shown differs (the probe): the three descriptions, the parameter descriptions of continue_work and continue_delegate, and five prompt lines, the delegate's tooling line and the continuation section's wake, self-elected-turn and compaction lines and its sessions_yield caveat. On the Codex harness de55f350 also adds the whole continuation section to the harness prompt, which f9fcd3a5's lacks, so there it is more than wording."
+      "note": "the same fleet-default config and direct-only placement on both, and the settled text on E. On the embedded runtime only the text the model is shown differs (the probe): the three descriptions, the parameter descriptions of continue_work and continue_delegate, and five prompt lines, the delegate's tooling line and the continuation section's wake, self-elected-turn and compaction lines and its sessions_yield caveat. On the Codex harness de55f350 also adds the whole continuation section to the harness prompt, which f9fcd3a5's lacks, so there it is more than wording.",
+      "holdsDirectTools": true
     },
     {
       "id": "deploy",

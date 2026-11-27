@@ -92,7 +92,7 @@ def test_a_wording_contrast_shows_the_model_other_continuation_text_and_nothing_
     assert ARMS["arms"][spec["from"]]["productSha"] != ARMS["arms"][spec["to"]]["productSha"]
     assert before["withoutContinuation"] == after["withoutContinuation"] and before["sent"] == after["sent"]
     assert before["promptHash"] != after["promptHash"] and before["toolsHash"] != after["toolsHash"]
-    assert spec.get("holdsDirectToolCount") is True and len(before["sent"]) == len(after["sent"])
+    assert spec.get("holdsDirectTools") is True and len(before["sent"]) == len(after["sent"])
 
 
 def test_the_rest_of_the_surface_tells_a_placement_contrast_apart():

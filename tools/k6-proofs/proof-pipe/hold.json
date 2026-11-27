@@ -1,0 +1,7 @@
+{
+  "schema": "openclaw.k6.proof-pipe-hold.v1",
+  "held": true,
+  "reason": "bugs-first hold: firing new rows waits on figs + 🕯's WIP limit, then 🌊's go (docs#587, 2026-11-02). Building the pipe does not.",
+  "since": "2026-11-02",
+  "release": null
+}

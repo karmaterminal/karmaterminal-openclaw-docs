@@ -32,9 +32,10 @@ export const ROW_VERDICT_CAP = 'PARTIAL-candidate';
 /** The artifact class every process-local row's cap names. */
 export const PROCESS_LOCAL_ARTIFACT_CLASS = 'process-local-fixture';
 /**
- * A runner that starts, restarts and stops a real gateway process it set up for
- * the run, never the live one: R-CD-RETURN-COVENANT-AUTHORITY's restart control
- * (docs#615). It is not process-local, so the ruling does not cap it.
+ * A runner that starts, may restart, and stops a real gateway process it set up
+ * for the run, never the live one: R-CD-RETURN-COVENANT-AUTHORITY's restart
+ * control (docs#615) and R-CD-FRESH-INSTALL's fresh-install control (docs#536).
+ * It is not process-local, so the ruling does not cap it.
  */
 export const DISPOSABLE_REAL_PROCESS_ARTIFACT_CLASS = 'disposable-real-process';
 /**

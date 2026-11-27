@@ -173,6 +173,14 @@
       <Constraint>Refuses any target that is not a stopped $HOME/proof-gw/comp-&lt;sha8&gt; gateway on a non-live loopback port; never touches a live gateway; review-required, no automatic fold</Constraint>
       <Manifest>tools/k6-proofs/manifests/r-cd-return-covenant-authority.json</Manifest>
     </Row>
+    <Row id="R-CD-FRESH-INSTALL" owner="proof-conductor" forms="fresh-install-control" issue="536" procedure="disposable-fresh-install-control">
+      <Behavior>A fresh install of the candidate creates the continuation storage correctly and serves: from an empty state dir, one disposable gateway with no model sign-in and no model turn serves (owned listener, /readyz, /startupz, hello-ok); the agent database is created at OPENCLAW_AGENT_SCHEMA_VERSION 40 directly with no upgrade path in the migration journal; session_recipient_authority has the byte-walked column hash; sessions.create then a visibility narrowing writes exactly one epoch row; openclaw config validate passes; it stops cleanly and its state is removed</Behavior>
+      <FireMethod>Run tools/k6-proofs/scripts/run-fresh-install-control.mjs by hand from a credential-free shell on a staged runtime whose dist/build-info.json commit is the candidate (j12 352f56029dc95c60149ab4aaa127226a861d0b3d), with a new --state-dir (the control creates it) and a free loopback --port, then --verify its signed receipt</FireMethod>
+      <Evidence>Signed observer receipt: runtime build-info, state-dir-empty proof, readiness probe hashes, agent schema version and schema_meta, migration journal counts (only the fresh boot's own node-desktop-stream-pairing-defaults-v1 receipt), authority table column hash, epoch row count and SHA-256, model-credential absence, config validate result, clean stop, timings, cleanup; counts and hashes only, no credentials and no database contents</Evidence>
+      <Verdict>🌊's ruling (room msg 1567073096706297887): its own j12 row, kept separate from the stopped-seat restore receipt (they prove different paths). PASS-candidate only with every receipt present and holding; a contradiction is FAIL-candidate, a missing receipt MISSING-candidate, a missing bound PARTIAL-candidate. It proves no upgrade path, no model turn and no delegate delivery. The row stays MISSING until a run at j12 lands</Verdict>
+      <Constraint>Refuses, before anything starts, a non-empty state dir, one under a live ~/.openclaw, a port in use, a runtime whose build-info commit is not the candidate, and any model credential in the environment; never touches a live gateway; review-required, no automatic fold</Constraint>
+      <Manifest>tools/k6-proofs/manifests/r-cd-fresh-install.json</Manifest>
+    </Row>
     <Row id="R-CD-MODEL-DEFAULT" owner="unclaimed" forms="tool+token" issue="140">
       <Behavior>continue_delegate with no model override inherits the parent provider/model</Behavior>
       <FireMethod>Fire both typed-tool and bracket/token no-override forms</FireMethod>

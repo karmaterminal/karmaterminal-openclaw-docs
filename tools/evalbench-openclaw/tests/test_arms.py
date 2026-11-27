@@ -234,3 +234,13 @@ def test_a_surface_that_lost_a_tool_or_was_never_reported_is_not_verified(arms):
     assert surface_verdict(read_surface(report(direct=("continue_work", "continue_delegate")), tools), "direct")[0] == "verified"
     for nothing in (None, {}, {"tools": None}, {"tools": {"entries": None}}):
         assert surface_verdict(read_surface(nothing, tools), "direct")[0] == "unreadable"
+
+
+def test_a_surface_names_its_direct_tools_by_a_hash_of_their_names(arms):
+    tools = arms["descriptions"]["f9fcd3a5"]["tools"]
+    hashes = {t: tools[t]["sha256"] for t in tools}
+    one = read_surface(report(direct=(*A.CONTINUATION_TOOLS, "exec", "wait"), **hashes), tools)
+    same = read_surface(report(direct=("wait", "exec", *reversed(A.CONTINUATION_TOOLS)), **hashes), tools)
+    other = read_surface(report(direct=(*A.CONTINUATION_TOOLS, "exec", "read"), **hashes), tools)
+    assert one["directTools"] == other["directTools"] == 5
+    assert one["directToolNamesSha256"] == same["directToolNamesSha256"] != other["directToolNamesSha256"], "the set, not its order"
